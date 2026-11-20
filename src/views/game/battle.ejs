@@ -1,0 +1,49 @@
+<section class="page">
+  <h3>Arena Battle</h3>
+  <% if (dead) { %>
+  <p>you're dead. <a href="/game/hospital">heal</a> before returning to the arena</p>
+  <% } else { %>
+  <div class="battle-log">
+    <% battleLog.forEach(entry => { %>
+    <% if (entry.type === "encounter") { %>
+    <p>
+      <span class="player"><%= entry.player %></span> encounters <span class="enemy"><%= entry.target %></span>!
+    </p>
+    <h4>Battle log</h4>
+    <% } else if (entry.type === "attack") { %>
+    <p class="battle-log-entry <%= entry.critical ? 'battle-log-entry--critical' : '' %>">
+      <span class="<%= entry.actor %>"><%= entry.player %></span>
+      attacks
+      <span class="<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
+      for
+      <strong><%= entry.damage %></strong>
+      damage!
+      <% if (entry.critical) { %>
+      <strong class="critical-hit">Critical Hit!</strong>
+      <% } %>
+    </p>
+    <% } else if (entry.type === "outcome") { %>
+    <div class="battle-stats">
+      <h4>Battle summary</h4>
+      <p><span class="player"><%= user.name %></span> HP: <%= startingPlayerHp %> → <%= playerHp %></p>
+      <p><span class="enemy">Level <%= level %> Training Dummy</span> HP: <%= startingDummyHp %> → <%= dummyHp %></p>
+      <% if (entry.result === "win") { %>
+      <p>
+        <span class="player"><%= entry.player %></span> wins!
+      </p>
+      <p>Reward: <%= entry.reward %> gold</p>
+      <% } else if (entry.result === "loss") { %>
+      <p><span class="player"><%= entry.player %></span> was defeated!</p>
+      <% } else if (entry.result === "draw") { %>
+      <p>
+        The battle ended in a draw.
+        Neither combatant could defeat the other.
+      </p>
+      <% } %>
+    </div>
+    <% } %>
+    <% }) %>
+  </div>
+  <a href="/game/arena?level=<%= level %>">Return to arena</a>
+  <% } %>
+</section>

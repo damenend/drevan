@@ -1,0 +1,32 @@
+@use "vars" as *;
+
+.character-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 1px;
+  background-color: $color-background;
+  border: 1px solid $color-background;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.character-stat {
+  padding: 1rem;
+  background-color: $color-surface;
+
+  dt {
+    margin-bottom: 0.5rem;
+    color: $color-muted;
+    font-size: 0.875rem;
+  }
+
+  dd {
+    margin: 0;
+    color: $color-text;
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+}

@@ -1,0 +1,92 @@
+  <section class="page">
+    <h3>Welcome to <%= title %>!</h3>
+    <figure class="location-image">
+      <img src="/images/curious-emporium.webp" />
+      <figcaption>
+        A fantasy marketplace filled with glowing crystals and merchant supplies beneath a bronze dome.
+      </figcaption>
+    </figure>
+    <p>
+      Your Gold:
+      <span id="player-gold" data-gold="<%= user.gold %>">
+        <%= user.gold.toLocaleString('en-US') %>
+      </span>
+    </p>
+    <form action="/game/store" method="POST">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Description</th>
+              <th scope="col">Price</th>
+              <th scope="col">Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% items.forEach(entry => { %>
+            <tr>
+              <td>
+                <figure class="item-group">
+                  <img src="<%= entry.image %>" alt="" width="48" height="48" class="item-icon">
+                  <figcaption><%= entry.name %></figcaption>
+                </figure>
+              </td>
+              <td><%= entry.description %></td>
+              <td><%= entry.price.toLocaleString('en-US') %> gold</td>
+              <td>
+                <label for="item-<%= entry.id %>" class="visually-hidden">
+                  Quantity of <%= entry.name %>
+                </label>
+                <input type="number" id="item-<%= entry.id %>" name="items[item-<%= entry.id %>]" value="0" min="0" step="1" data-price="<%= entry.price %>" class="item-quantity">
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Total:
+        <output id="total-gold" aria-live="polite">0</output> gold
+      </p>
+      <p id="purchase-message" class="err" aria-live="polite">
+        <%= err || "" %>
+      </p>
+      <button type="submit" id="purchase-button">Purchase</button>
+    </form>
+  </section>
+
+  <script>
+    const quantityInputs = document.querySelectorAll(".item-quantity");
+    const totalGold = document.querySelector("#total-gold");
+    const playerGold = document.querySelector("#player-gold");
+    const purchaseMessage = document.querySelector("#purchase-message");
+    const purchaseButton = document.querySelector("#purchase-button");
+
+    const availableGold = Number(playerGold.dataset.gold);
+
+    function calculateTotal() {
+      let total = 0;
+
+      quantityInputs.forEach((input) => {
+        const price = Number(input.dataset.price);
+        const quantity = Number(input.value) || 0;
+
+        total += price * quantity;
+      });
+
+      totalGold.textContent = total.toLocaleString();
+
+      if (total > availableGold) {
+        purchaseMessage.textContent = "You don't have enough gold!";
+        purchaseButton.disabled = true;
+      } else {
+        purchaseMessage.textContent = "";
+        purchaseButton.disabled = false;
+      }
+    }
+
+    quantityInputs.forEach((input) => {
+      input.addEventListener("input", calculateTotal);
+    });
+  </script>

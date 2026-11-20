@@ -1,0 +1,35 @@
+<section class="page">
+  <h3>Welcome to <%= title %>!</h3>
+
+  <figure class="location-image">
+    <img src="/images/sanctum.webp" />
+    <figcaption>
+      A futuristic healing sanctuary with glowing blue windows and a domed stone entrance.
+    </figcaption>
+  </figure>
+
+  <p>
+    Your Gold:
+    <span id="player-gold" data-gold="<%= user.gold %>">
+      <%= user.gold.toLocaleString('en-US') %>
+    </span>
+  </p>
+
+  <% if (message) { %>
+  <p><%= message %></p>
+  <% } %>
+
+  <% if (user.hp >= user.maxHp) { %>
+  <p>You're currently at full health.</p>
+  <% } else { %>
+  <p>Current cost: <%= cost %></p>
+
+  <% if (cost > user.gold) { %>
+  <p>You can't currently afford to heal.</p>
+  <% } else { %>
+  <form action="/game/hospital" method="POST">
+    <button type="submit">Heal</button>
+  </form>
+  <% } %>
+  <% } %>
+</section>

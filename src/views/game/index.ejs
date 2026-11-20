@@ -1,0 +1,108 @@
+<section class="page">
+  <h2>Welcome back, <%= user.name %>!</h2>
+
+  <figure class="location-image">
+    <img src="/images/home.webp" alt="A cozy cottage illuminated by glowing windows.">
+    <figcaption>
+      A cozy stone-and-timber cottage with glowing windows and futuristic technology.
+    </figcaption>
+  </figure>
+
+  <section class="character" aria-labelledby="character-heading">
+    <h3 id="character-heading">Character Overview</h3>
+
+    <dl class="character-stats">
+      <div class="character-stat">
+        <dt>Health</dt>
+        <dd><%= user.hp %> / <%= user.maxHp %></dd>
+      </div>
+
+      <div class="character-stat">
+        <dt>Gold</dt>
+        <dd><%= user.gold.toLocaleString('en-US') %></dd>
+      </div>
+
+      <div class="character-stat">
+        <dt>Strength</dt>
+        <dd><%= user.strength %></dd>
+      </div>
+
+      <div class="character-stat">
+        <dt>Speed</dt>
+        <dd><%= user.speed %></dd>
+      </div>
+
+      <div class="character-stat">
+        <dt>Experience</dt>
+        <dd><%= user.exp.toLocaleString('en-US') %></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="inventory" aria-labelledby="inventory-heading">
+    <h3 id="inventory-heading">Inventory</h3>
+
+    <% if (message) { %>
+    <p role="status"><%= message %></p>
+    <% } %>
+
+    <% if (inventory.length === 0) { %>
+    <p>Your inventory is empty.</p>
+    <% } else { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col">Description</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% inventory.forEach(item => { %>
+          <tr>
+            <td>
+              <figure class="item-group">
+                <% if (item.image) { %>
+                <img src="<%= item.image %>" alt="" width="48" height="48" class="item-icon">
+                <% } %>
+                <figcaption><%= item.name %></figcaption>
+              </figure>
+            </td>
+            <td><%= item.description %></td>
+            <td><%= item.quantity %></td>
+            <td>
+              <% if (item.type === "consumable") { %>
+              <form action="/game/inventory/use" method="POST">
+                <input type="hidden" name="itemId" value="<%= item.id %>">
+                <button type="submit" aria-label="Use <%= item.name %>">
+                  Use
+                </button>
+              </form>
+              <% } else if (item.type === "weapon" || item.type === "armor") { %>
+              <%
+      const isEquipped =
+        item.id === user.equippedWeaponId ||
+        item.id === user.equippedArmorId;
+    %>
+
+              <form action="/game/inventory/<%= isEquipped ? 'unequip' : 'equip' %>" method="POST">
+                <input type="hidden" name="itemId" value="<%= item.id %>">
+
+                <button type="submit" aria-label="<%= isEquipped ? 'Unequip' : 'Equip' %> <%= item.name %>">
+                  <%= isEquipped ? 'Unequip' : 'Equip' %>
+                </button>
+              </form>
+              <% } else { %>
+              <span class="text-muted">—</span>
+              <% } %>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </section>
+</section>

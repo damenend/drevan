@@ -1,0 +1,51 @@
+@use "vars" as *;
+
+.site-header {
+  background: $color-surface;
+
+  h1 {
+    margin: 0;
+    color: $color-primary;
+  }
+}
+
+.main-navigation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid #3a3a3a;
+
+  a {
+    color: $color-muted;
+    text-decoration: none;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 3px;
+    }
+
+    &[aria-current="page"] {
+      color: $color-primary;
+      font-weight: 600;
+    }
+  }
+}
+
+.site-footer {
+  padding: 1rem 0;
+  background: $color-surface;
+  color: $color-muted;
+  text-align: center;
+
+  small {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}

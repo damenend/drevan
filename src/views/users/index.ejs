@@ -1,0 +1,14 @@
+<section class="page">
+  <h3>Registered players</h3>
+  <% if (users.length === 0) { %>
+  <p>No registered users yet.</p>
+  <% } else { %>
+  <ul>
+    <% users.forEach(user => { %>
+    <li>
+      <%= user.name %> - <%= user.email %>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</section>

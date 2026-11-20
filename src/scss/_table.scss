@@ -1,0 +1,78 @@
+@use "vars" as *;
+
+// Table reset
+table {
+  caption-side: bottom;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: inherit;
+}
+
+thead,
+tbody,
+tfoot,
+tr,
+td,
+th {
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0;
+}
+
+// Tables
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  vertical-align: middle;
+
+  th,
+  td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid $color-surface;
+  }
+
+  thead {
+    background-color: $color-surface;
+
+    th {
+      color: $color-primary;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      &:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.025);
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      &:last-child td {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  td {
+    form {
+      margin: 0;
+    }
+
+    button {
+      white-space: nowrap;
+    }
+  }
+}
+
+// Responsive tables
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
