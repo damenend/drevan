@@ -23,6 +23,9 @@
     "@types/node": "^26.6.6",
     "concurrently": "^10.0.7",
     "drizzle-kit": "^0.31.11",
+    "husky": "^9.1.7",
+    "oxlint": "^1.94.0",
+    "prettier": "^3.10.1",
     "sass": "^1.108.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
@@ -35,6 +38,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "oxlint --deny-warnings src drizzle.config.ts scripts",
+    "typecheck": "tsc --noEmit",
+    "check": "yarn format:check && yarn lint && yarn typecheck",
+    "hooks:install": "node scripts/install-hooks.mjs"
   }
 }

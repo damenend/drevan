@@ -106,3 +106,13 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 The next planned area is weapon and armor stat modifiers, building on existing equippable items and player equipment fields. Before implementing, review the current schema, equipment queries, and combat calculation paths to avoid applying modifiers twice or changing base stats unintentionally.
 
 Update this file when major architecture, mechanics, or project conventions change.
+
+## Formatting, linting, and Git hooks
+
+- Run `yarn format` to format supported source and config files. EJS templates,
+  generated CSS, migration snapshots, and the Yarn lockfile are excluded.
+- Run `yarn check` for the Prettier check, Oxlint, and TypeScript checking.
+- Run `yarn hooks:install` once per clone to enable Husky. The installer preserves
+  existing Git hooks, including pre-commit and pre-push secret scanners.
+- The pre-commit hook checks staged whitespace and runs `yarn check`. It does
+  not rewrite or stage files.

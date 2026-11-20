@@ -1,0 +1,8 @@
+{
+  "[ejs]": {
+    "editor.defaultFormatter": "j69.ejs-beautify",
+    "editor.formatOnSave": true
+  },
+  "js-beautify.indent_size": 2,
+  "js-beautify.indent_with_tabs": false
+}
