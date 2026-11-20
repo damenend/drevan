@@ -18,6 +18,10 @@ Drevan is a browser-based, text-driven RPG inspired by early-2000s web games, pa
 
 Inspect `package.json`, `tsconfig.json`, and existing source files for exact versions, scripts, and current behavior. Do not assume this document is more current than the code.
 
+From the repository root, run `nvm use` to select the Node version pinned in
+`.nvmrc`. On a new machine, run `nvm install` first, then `corepack enable` and
+`yarn install`.
+
 ## Project structure
 
 Expected locations (verify before editing):
