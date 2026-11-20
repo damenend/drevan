@@ -1,3 +1,5 @@
+import { formatNumber } from "../utils/format-number";
+
 type PlayerStats = {
   hp: number;
   maxHp: number;
@@ -23,7 +25,7 @@ export function applyItemEffect(
 
       return {
         hp: player.hp + healed,
-        message: `Restored ${healed} HP.`,
+        message: `Restored ${formatNumber(healed)} HP.`,
       };
     }
 

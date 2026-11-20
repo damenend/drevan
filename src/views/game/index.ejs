@@ -12,27 +12,27 @@
     <dl class="character-stats">
       <div class="character-stat">
         <dt>Health</dt>
-        <dd><%= user.hp %> / <%= user.maxHp %></dd>
+        <dd><%= formatNumber(user.hp) %> / <%= formatNumber(user.maxHp) %></dd>
       </div>
 
       <div class="character-stat">
         <dt>Gold</dt>
-        <dd><%= user.gold.toLocaleString('en-US') %></dd>
+        <dd><%= formatNumber(user.gold) %></dd>
       </div>
 
       <div class="character-stat">
         <dt>Strength</dt>
-        <dd><%= user.strength %></dd>
+        <dd><%= formatNumber(user.strength) %></dd>
       </div>
 
       <div class="character-stat">
         <dt>Speed</dt>
-        <dd><%= user.speed %></dd>
+        <dd><%= formatNumber(user.speed) %></dd>
       </div>
 
       <div class="character-stat">
         <dt>Experience</dt>
-        <dd><%= user.exp.toLocaleString('en-US') %></dd>
+        <dd><%= formatNumber(user.exp) %></dd>
       </div>
     </dl>
   </section>
@@ -64,7 +64,7 @@
               <%- include("../partials/item-figure", { item }) %>
             </td>
             <td><%= item.description %></td>
-            <td><%= item.quantity %></td>
+            <td><%= formatNumber(item.quantity) %></td>
             <td>
               <%
                 const isEquipped =

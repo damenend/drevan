@@ -15,7 +15,7 @@
   <% if (user.hp >= user.maxHp) { %>
   <p>You're currently at full health.</p>
   <% } else { %>
-  <p>Current cost: <%= cost %></p>
+  <p>Current cost: <%= formatNumber(cost) %></p>
 
   <% if (cost > user.gold) { %>
   <p>You can't currently afford to heal.</p>

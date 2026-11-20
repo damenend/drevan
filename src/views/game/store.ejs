@@ -23,7 +23,7 @@
               <%- include("../partials/item-figure", { item }) %>
             </td>
             <td><%= item.description %></td>
-            <td><%= item.price.toLocaleString('en-US') %> gold</td>
+            <td><%= formatNumber(item.price) %> gold</td>
             <td>
               <label for="item-<%= item.id %>" class="visually-hidden">
                 Quantity of <%= item.name %>
@@ -65,7 +65,7 @@
       total += price * quantity;
     });
 
-    totalGold.textContent = total.toLocaleString();
+    totalGold.textContent = total.toLocaleString("en-US");
 
     if (total > availableGold) {
       purchaseMessage.textContent = "You don't have enough gold!";

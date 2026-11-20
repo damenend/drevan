@@ -2,6 +2,7 @@ import { Router } from "express";
 import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
+import { formatNumber } from "../../utils/format-number";
 
 const router = Router();
 
@@ -9,10 +10,12 @@ const router = Router();
 router.get("/", (req, res) => {
   const player = res.locals.user;
 
+  const healed =
+    typeof req.query.healed === "string" ? Number(req.query.healed) : 0;
   let message;
 
-  if (req.query.healed) {
-    message = `${player.name} was healed for ${req.query.healed} HP`;
+  if (Number.isSafeInteger(healed) && healed > 0) {
+    message = `${player.name} was healed for ${formatNumber(healed)} HP`;
   } else if (req.query.err) {
     message = "Unable to heal. Please check your gold and try again.";
   }

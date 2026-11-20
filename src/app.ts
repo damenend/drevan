@@ -5,12 +5,14 @@ import session from "express-session";
 import "dotenv/config";
 import { loadUser } from "./middleware/auth";
 import indexRouter from "./routes/index";
+import { formatNumber } from "./utils/format-number";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
 
 // View engine configuration
 app.set("view engine", "ejs");
+app.locals.formatNumber = formatNumber;
 app.set("views", path.join(__dirname, "../src/views"));
 
 // Layout configuration

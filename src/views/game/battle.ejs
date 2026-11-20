@@ -16,7 +16,7 @@
       attacks
       <span class="<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
       for
-      <strong><%= entry.damage %></strong>
+      <strong><%= formatNumber(entry.damage) %></strong>
       damage!
       <% if (entry.critical) { %>
       <strong class="critical-hit">Critical Hit!</strong>
@@ -25,13 +25,13 @@
     <% } else if (entry.type === "outcome") { %>
     <div class="battle-stats">
       <h4>Battle summary</h4>
-      <p><span class="player"><%= user.name %></span> HP: <%= startingPlayerHp %> → <%= playerHp %></p>
-      <p><span class="enemy">Level <%= level %> Training Dummy</span> HP: <%= startingEnemyHp %> → <%= enemyHp %></p>
+      <p><span class="player"><%= user.name %></span> HP: <%= formatNumber(startingPlayerHp) %> → <%= formatNumber(playerHp) %></p>
+      <p><span class="enemy">Level <%= formatNumber(level) %> Training Dummy</span> HP: <%= formatNumber(startingEnemyHp) %> → <%= formatNumber(enemyHp) %></p>
       <% if (entry.result === "win") { %>
       <p>
         <span class="player"><%= entry.player %></span> wins!
       </p>
-      <p>Reward: <%= entry.reward %> gold</p>
+      <p>Reward: <%= formatNumber(entry.reward) %> gold</p>
       <% } else if (entry.result === "loss") { %>
       <p><span class="player"><%= entry.player %></span> was defeated!</p>
       <% } else if (entry.result === "draw") { %>
