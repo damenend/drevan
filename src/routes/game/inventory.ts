@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Response } from "express";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users, items, inventory } from "../../db/schema";
@@ -6,10 +6,35 @@ import { applyItemEffect } from "../../services/items";
 
 const router = Router();
 
+function inventoryEntry(userId: number, itemId: number) {
+  return and(eq(inventory.userId, userId), eq(inventory.itemId, itemId));
+}
+
+function findOwnedItem(
+  database: Pick<typeof db, "select">,
+  userId: number,
+  itemId: number,
+) {
+  return database
+    .select({
+      type: items.type,
+      effect: items.effect,
+      effectValue: items.effectValue,
+    })
+    .from(inventory)
+    .innerJoin(items, eq(inventory.itemId, items.id))
+    .where(and(inventoryEntry(userId, itemId), gt(inventory.quantity, 0)))
+    .get();
+}
+
+function redirectHome(res: Response, message: string) {
+  return res.redirect(`/game?message=${encodeURIComponent(message)}`);
+}
+
 // Use an inventory item
 router.post("/use", (req, res) => {
   const player = res.locals.user;
-  const itemId = Number(req.body.itemId);
+  const itemId = Number(req.body?.itemId);
 
   if (!Number.isSafeInteger(itemId) || itemId <= 0) {
     return res.redirect("/game");
@@ -18,7 +43,7 @@ router.post("/use", (req, res) => {
   const result = db.transaction((tx) => {
     // Fetch the player's current stats inside the transaction
     const currentPlayer = tx
-      .select()
+      .select({ hp: users.hp, maxHp: users.maxHp })
       .from(users)
       .where(eq(users.id, player.id))
       .get();
@@ -27,25 +52,7 @@ router.post("/use", (req, res) => {
       return null;
     }
 
-    // Verify the player owns the item
-    const ownedItem = tx
-      .select({
-        itemId: items.id,
-        type: items.type,
-        effect: items.effect,
-        effectValue: items.effectValue,
-        quantity: inventory.quantity,
-      })
-      .from(inventory)
-      .innerJoin(items, eq(inventory.itemId, items.id))
-      .where(
-        and(
-          eq(inventory.userId, player.id),
-          eq(inventory.itemId, itemId),
-          gt(inventory.quantity, 0),
-        ),
-      )
-      .get();
+    const ownedItem = findOwnedItem(tx, player.id, itemId);
 
     if (!ownedItem || ownedItem.type !== "consumable") {
       return null;
@@ -72,13 +79,7 @@ router.post("/use", (req, res) => {
       .set({
         quantity: sql`${inventory.quantity} - 1`,
       })
-      .where(
-        and(
-          eq(inventory.userId, player.id),
-          eq(inventory.itemId, itemId),
-          gt(inventory.quantity, 0),
-        ),
-      )
+      .where(and(inventoryEntry(player.id, itemId), gt(inventory.quantity, 0)))
       .run();
 
     if (consumed.changes !== 1) {
@@ -95,76 +96,52 @@ router.post("/use", (req, res) => {
 
     // Remove inventory rows with zero quantity
     tx.delete(inventory)
-      .where(
-        and(
-          eq(inventory.userId, player.id),
-          eq(inventory.itemId, itemId),
-          eq(inventory.quantity, 0),
-        ),
-      )
+      .where(and(inventoryEntry(player.id, itemId), eq(inventory.quantity, 0)))
       .run();
 
     return effectResult;
   });
 
-  if (!result) {
-    return res.redirect(`/game?message=${encodeURIComponent("No effect")}`);
-  }
-
-  return res.redirect(`/game?message=${encodeURIComponent(result.message)}`);
+  return redirectHome(res, result?.message ?? "No effect");
 });
 
 router.post("/equip", (req, res) => {
   const player = res.locals.user;
-  const itemId = Number(req.body.itemId);
+  const itemId = Number(req.body?.itemId);
 
   if (!Number.isSafeInteger(itemId) || itemId <= 0) {
-    return res.redirect("/game?message=Invalid item.");
+    return redirectHome(res, "Invalid item.");
   }
 
-  const ownedItem = db
-    .select({
-      id: items.id,
-      type: items.type,
-    })
-    .from(inventory)
-    .innerJoin(items, eq(inventory.itemId, items.id))
-    .where(
-      and(
-        eq(inventory.userId, player.id),
-        eq(inventory.itemId, itemId),
-        gt(inventory.quantity, 0),
-      ),
-    )
-    .get();
+  const ownedItem = findOwnedItem(db, player.id, itemId);
 
   if (!ownedItem) {
-    return res.redirect("/game?message=Item not found in inventory.");
+    return redirectHome(res, "Item not found in inventory.");
   }
 
   if (ownedItem.type === "weapon") {
     db.update(users)
-      .set({ equippedWeaponId: ownedItem.id })
+      .set({ equippedWeaponId: itemId })
       .where(eq(users.id, player.id))
       .run();
   } else if (ownedItem.type === "armor") {
     db.update(users)
-      .set({ equippedArmorId: ownedItem.id })
+      .set({ equippedArmorId: itemId })
       .where(eq(users.id, player.id))
       .run();
   } else {
-    return res.redirect("/game?message=This item cannot be equipped.");
+    return redirectHome(res, "This item cannot be equipped.");
   }
 
-  return res.redirect("/game?message=Item equipped.");
+  return redirectHome(res, "Item equipped.");
 });
 
 router.post("/unequip", (req, res) => {
   const player = res.locals.user;
-  const itemId = Number(req.body.itemId);
+  const itemId = Number(req.body?.itemId);
 
   if (!Number.isSafeInteger(itemId) || itemId <= 0) {
-    return res.redirect("/game?message=Invalid item.");
+    return redirectHome(res, "Invalid item.");
   }
 
   if (player.equippedWeaponId === itemId) {
@@ -178,10 +155,10 @@ router.post("/unequip", (req, res) => {
       .where(eq(users.id, player.id))
       .run();
   } else {
-    return res.redirect("/game?message=Item is not equipped.");
+    return redirectHome(res, "Item is not equipped.");
   }
 
-  return res.redirect("/game?message=Item unequipped.");
+  return redirectHome(res, "Item unequipped.");
 });
 
 export default router;

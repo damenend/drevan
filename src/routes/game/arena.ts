@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { MAX_TRAINING_LEVEL } from "../../services/battle";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.get("/", (req, res) => {
     title: "Dominion",
     dead: player.hp <= 0,
     level,
+    maxTrainingLevel: MAX_TRAINING_LEVEL,
   });
 });
 

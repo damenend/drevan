@@ -1,5 +1,5 @@
-@use "vars" as *;
 @use "sass:color";
+@use "vars";
 
 // Reset
 input,
@@ -19,16 +19,16 @@ select,
 textarea {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  background: $color-surface;
-  border: 1px solid color.adjust($color-surface, $lightness: 12%);
-  border-radius: 3px;
+  background: vars.$color-surface;
+  border: 1px solid vars.$color-surface-border;
+  border-radius: vars.$radius-small;
 
   &::placeholder {
-    color: $color-muted;
+    color: vars.$color-muted;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
+    outline: 2px solid vars.$color-primary;
     outline-offset: 2px;
   }
 
@@ -43,23 +43,23 @@ button,
 input[type="button"],
 input[type="submit"] {
   padding: 0.5rem 1rem;
-  background: $color-primary;
-  color: $color-background;
-  border: 1px solid $color-primary;
-  border-radius: 3px;
+  background: vars.$color-primary;
+  color: vars.$color-background;
+  border: 1px solid vars.$color-primary;
+  border-radius: vars.$radius-small;
   cursor: pointer;
 
-  font-family: "Rajdhani", sans-serif;
+  font-family: vars.$font-display;
   font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.2;
 
   &:hover:not(:disabled) {
-    background: color.adjust($color-primary, $lightness: 8%);
+    background: color.adjust(vars.$color-primary, $lightness: 8%);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-text;
+    outline: 2px solid vars.$color-text;
     outline-offset: 2px;
   }
 
@@ -85,7 +85,7 @@ button.button-link {
   background: none;
   border: 0;
   border-radius: 0;
-  color: $color-primary;
+  color: vars.$color-primary;
 
   font: inherit;
   line-height: inherit;

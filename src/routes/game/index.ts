@@ -20,11 +20,6 @@ router.use(requireAuth);
 router.get("/", (req, res) => {
   const player = res.locals.user;
 
-  console.log({
-    equippedWeaponId: player.equippedWeaponId,
-    equippedArmorId: player.equippedArmorId,
-  });
-
   const playerInventory = db
     .select({
       id: items.id,

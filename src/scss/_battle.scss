@@ -1,37 +1,37 @@
-@use "vars" as *;
-@use "sass:color";
+@use "vars";
 
 .player {
   font-weight: 500;
-  color: $color-player;
+  color: vars.$color-player;
 }
 
 .enemy {
   font-weight: 500;
-  color: $color-enemy;
+  color: vars.$color-enemy;
 }
 
 .battle-log-entry {
   padding: 0.5rem;
   margin-bottom: 0;
+
   &--critical {
     .critical-hit {
-      color: $color-primary;
+      color: vars.$color-primary;
       font-weight: 700;
       text-transform: uppercase;
     }
   }
 
   &:nth-child(odd) {
-    background-color: rgba(255, 255, 255, 0.025);
+    background-color: vars.$color-row-stripe;
   }
 }
 
 .battle-stats {
-  background: $color-surface;
+  background: vars.$color-surface;
   padding: 1rem;
-  border: 1px solid color.adjust($color-surface, $lightness: 12%);
-  border-radius: 3px;
+  border: 1px solid vars.$color-surface-border;
+  border-radius: vars.$radius-small;
   margin-bottom: 1rem;
   margin-top: 1rem;
 

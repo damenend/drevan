@@ -1,12 +1,10 @@
 <section class="page">
   <h3>Admin portal</h3>
 
-  <% if (message) { %>
   <% if (message === 'err') { %>
-  <p>An error occured</p>
+  <p role="status">An error occurred.</p>
   <% } else if (message === 'success') { %>
-  <p>Update successful</p>
-  <% } %>
+  <p role="status">Update successful.</p>
   <% } %>
 
   <form action="/game/admin" method="POST">
@@ -19,7 +17,7 @@
       </thead>
 
       <tbody>
-        <% ["gold", "strength", "speed", "maxHp"].forEach(key => { %>
+        <% editableStats.forEach(key => { %>
         <tr>
           <td><label for="<%= key %>"><%= key %></label></td>
           <td>

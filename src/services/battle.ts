@@ -32,9 +32,9 @@ export type Combatant = {
 export type BattleResult = {
   battleLog: BattleLogEntry[];
   startingPlayerHp: number;
-  startingDummyHp: number;
+  startingEnemyHp: number;
   playerHp: number;
-  dummyHp: number;
+  enemyHp: number;
   goldEarned: number;
 };
 
@@ -80,84 +80,57 @@ function generateDamage(strength: number): DamageResult {
   };
 }
 
+function createBattleState(combatant: Combatant) {
+  const attackInterval = 100 / Math.max(1, combatant.speed);
+  return { ...combatant, attackInterval, nextAttack: attackInterval };
+}
+
 // Simulate combat between two combatants
 export function simulateBattle(
   player: Combatant,
   enemy: Combatant,
   goldReward = 0,
 ): BattleResult {
-  const startingPlayerHp = player.hp;
-  const startingDummyHp = enemy.hp;
+  const combatants = {
+    player: createBattleState(player),
+    enemy: createBattleState(enemy),
+  };
+  const battleLog: BattleLogEntry[] = [
+    { type: "encounter", player: player.name, target: enemy.name },
+  ];
 
-  let playerHp = startingPlayerHp;
-  let dummyHp = startingDummyHp;
+  for (let attackCount = 0; attackCount < MAX_ATTACKS; attackCount++) {
+    if (combatants.player.hp <= 0 || combatants.enemy.hp <= 0) break;
 
-  const battleLog: BattleLogEntry[] = [];
+    const actor: Actor =
+      combatants.player.nextAttack <= combatants.enemy.nextAttack
+        ? "player"
+        : "enemy";
+    const attacker = combatants[actor];
+    const defender = combatants[actor === "player" ? "enemy" : "player"];
+    const { damage, critical } = generateDamage(attacker.strength);
 
-  battleLog.push({
-    type: "encounter",
-    player: player.name,
-    target: enemy.name,
-  });
+    defender.hp = Math.max(0, defender.hp - damage);
+    attacker.nextAttack += attacker.attackInterval;
 
-  // Calculate attack frequency based on speed
-  const playerAttackInterval = 100 / Math.max(1, player.speed);
-  const enemyAttackInterval = 100 / Math.max(1, enemy.speed);
-
-  console.log("playerAttackInterval", playerAttackInterval);
-  console.log("enemyAttackInterval", enemyAttackInterval);
-
-  // Schedule the first attacks
-  let nextPlayerAttack = playerAttackInterval;
-  let nextEnemyAttack = enemyAttackInterval;
-
-  let attackCount = 0;
-
-  // Continue until someone is defeated or the attack limit is reached
-  while (playerHp > 0 && dummyHp > 0 && attackCount < MAX_ATTACKS) {
-    const playerAttacks = nextPlayerAttack <= nextEnemyAttack;
-
-    if (playerAttacks) {
-      const { damage, critical } = generateDamage(player.strength);
-
-      dummyHp = Math.max(0, dummyHp - damage);
-
-      battleLog.push({
-        type: "attack",
-        player: player.name,
-        target: enemy.name,
-        damage,
-        hp: dummyHp,
-        actor: "player",
-        critical,
-      });
-
-      nextPlayerAttack += playerAttackInterval;
-    } else {
-      const { damage, critical } = generateDamage(enemy.strength);
-
-      playerHp = Math.max(0, playerHp - damage);
-
-      battleLog.push({
-        type: "attack",
-        player: enemy.name,
-        target: player.name,
-        damage,
-        hp: playerHp,
-        actor: "enemy",
-        critical,
-      });
-
-      nextEnemyAttack += enemyAttackInterval;
-    }
-
-    attackCount++;
+    battleLog.push({
+      type: "attack",
+      player: attacker.name,
+      target: defender.name,
+      damage,
+      hp: defender.hp,
+      actor,
+      critical,
+    });
   }
+
+  const playerHp = combatants.player.hp;
+  const enemyHp = combatants.enemy.hp;
 
   // Determine the outcome
   let outcome: "win" | "loss" | "draw";
 
-  if (dummyHp <= 0) {
+  if (enemyHp <= 0) {
     outcome = "win";
   } else if (playerHp <= 0) {
     outcome = "loss";
@@ -176,10 +149,10 @@ export function simulateBattle(
 
   return {
     battleLog,
-    startingPlayerHp,
-    startingDummyHp,
+    startingPlayerHp: player.hp,
+    startingEnemyHp: enemy.hp,
     playerHp,
-    dummyHp,
+    enemyHp,
     goldEarned,
   };
 }

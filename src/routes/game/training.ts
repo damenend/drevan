@@ -24,7 +24,7 @@ router.post("/", (req, res) => {
   }
 
   // Validate training level
-  const level = Number(req.body.level);
+  const level = Number(req.body?.level);
 
   if (!Number.isSafeInteger(level) || level < 1 || level > MAX_TRAINING_LEVEL) {
     return res.redirect("/game/arena");

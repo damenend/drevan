@@ -3,11 +3,6 @@ import { and, eq, gte, sql, asc } from "drizzle-orm";
 import { db } from "../../db";
 import { users, items, inventory } from "../../db/schema";
 
-type PurchaseDetail = {
-  itemId: number;
-  quantity: number;
-};
-
 const router = Router();
 
 // Store page
@@ -25,7 +20,7 @@ router.get("/", (req, res) => {
 
 // Purchase items
 router.post("/", (req, res) => {
-  const requestedItems = req.body.items;
+  const requestedItems = req.body?.items;
 
   // Validate submitted form data
   if (
@@ -65,25 +60,18 @@ router.post("/", (req, res) => {
   // Retrieve item details and calculate total
   let totalCost = 0;
 
-  const purchaseDetails: PurchaseDetail[] = [];
-
   for (const purchase of selectedItems) {
-    const itemEntry = db
-      .select()
+    const item = db
+      .select({ price: items.price })
       .from(items)
       .where(eq(items.id, purchase.itemId))
       .get();
 
-    if (!itemEntry) {
+    if (!item) {
       return res.redirect("/game/store");
     }
 
-    totalCost += itemEntry.price * purchase.quantity;
-
-    purchaseDetails.push({
-      itemId: itemEntry.id,
-      quantity: purchase.quantity,
-    });
+    totalCost += item.price * purchase.quantity;
   }
 
   if (!Number.isSafeInteger(totalCost)) {
@@ -108,7 +96,7 @@ router.post("/", (req, res) => {
     }
 
     // Add purchased items to inventory
-    for (const purchase of purchaseDetails) {
+    for (const purchase of selectedItems) {
       tx.insert(inventory)
         .values({
           userId: player.id,

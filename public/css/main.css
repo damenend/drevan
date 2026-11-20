@@ -51,6 +51,10 @@ a:hover {
   color: red;
 }
 
+.text-muted {
+  color: #999999;
+}
+
 input,
 button,
 select,

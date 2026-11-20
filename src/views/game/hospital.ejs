@@ -1,19 +1,12 @@
 <section class="page">
   <h3>Welcome to <%= title %>!</h3>
 
-  <figure class="location-image">
-    <img src="/images/sanctum.webp" />
-    <figcaption>
-      A futuristic healing sanctuary with glowing blue windows and a domed stone entrance.
-    </figcaption>
-  </figure>
+  <%- include("../partials/location-image", {
+    src: "/images/sanctum.webp",
+    caption: "A futuristic healing sanctuary with glowing blue windows and a domed stone entrance.",
+  }) %>
 
-  <p>
-    Your Gold:
-    <span id="player-gold" data-gold="<%= user.gold %>">
-      <%= user.gold.toLocaleString('en-US') %>
-    </span>
-  </p>
+  <%- include("../partials/player-gold", { gold: user.gold }) %>
 
   <% if (message) { %>
   <p><%= message %></p>

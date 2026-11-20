@@ -1,4 +1,4 @@
-@use "vars" as *;
+@use "vars";
 
 // Table reset
 table {
@@ -31,14 +31,14 @@ th {
   td {
     padding: 0.75rem 1rem;
     text-align: left;
-    border-bottom: 1px solid $color-surface;
+    border-bottom: 1px solid vars.$color-surface;
   }
 
   thead {
-    background-color: $color-surface;
+    background-color: vars.$color-surface;
 
     th {
-      color: $color-primary;
+      color: vars.$color-primary;
       font-weight: 600;
       white-space: nowrap;
     }
@@ -47,7 +47,7 @@ th {
   tbody {
     tr {
       &:nth-child(even) {
-        background-color: rgba(255, 255, 255, 0.025);
+        background-color: vars.$color-row-stripe;
       }
 
       &:hover {

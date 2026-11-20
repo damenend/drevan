@@ -1,18 +1,18 @@
-@use "vars" as *;
+@use "vars";
 
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: vars.$font-body;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: $color-text;
+  color: vars.$color-text;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: "Rajdhani", sans-serif;
+  font-family: vars.$font-display;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: 0.01em;
@@ -22,7 +22,7 @@ h4 {
 h1 {
   font-size: 2.75rem;
   font-weight: 700;
-  color: $color-primary;
+  color: vars.$color-primary;
 }
 
 h2 {
@@ -42,7 +42,7 @@ p {
 }
 
 a {
-  color: $color-primary;
+  color: vars.$color-primary;
   text-decoration: none;
 
   &:hover {
@@ -52,4 +52,8 @@ a {
 
 .err {
   color: red;
+}
+
+.text-muted {
+  color: vars.$color-muted;
 }

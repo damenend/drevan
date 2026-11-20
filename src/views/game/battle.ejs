@@ -1,7 +1,7 @@
 <section class="page">
   <h3>Arena Battle</h3>
   <% if (dead) { %>
-  <p>you're dead. <a href="/game/hospital">heal</a> before returning to the arena</p>
+  <%- include("../partials/arena-heal-notice") %>
   <% } else { %>
   <div class="battle-log">
     <% battleLog.forEach(entry => { %>
@@ -26,7 +26,7 @@
     <div class="battle-stats">
       <h4>Battle summary</h4>
       <p><span class="player"><%= user.name %></span> HP: <%= startingPlayerHp %> → <%= playerHp %></p>
-      <p><span class="enemy">Level <%= level %> Training Dummy</span> HP: <%= startingDummyHp %> → <%= dummyHp %></p>
+      <p><span class="enemy">Level <%= level %> Training Dummy</span> HP: <%= startingEnemyHp %> → <%= enemyHp %></p>
       <% if (entry.result === "win") { %>
       <p>
         <span class="player"><%= entry.player %></span> wins!

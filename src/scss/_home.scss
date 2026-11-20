@@ -1,4 +1,4 @@
-@use "vars" as *;
+@use "vars";
 
 .character-stats {
   display: grid;
@@ -6,25 +6,25 @@
   gap: 1px;
   margin: 0;
   padding: 1px;
-  background-color: $color-background;
-  border: 1px solid $color-background;
+  background-color: vars.$color-background;
+  border: 1px solid vars.$color-background;
   border-radius: 4px;
   overflow: hidden;
 }
 
 .character-stat {
   padding: 1rem;
-  background-color: $color-surface;
+  background-color: vars.$color-surface;
 
   dt {
     margin-bottom: 0.5rem;
-    color: $color-muted;
+    color: vars.$color-muted;
     font-size: 0.875rem;
   }
 
   dd {
     margin: 0;
-    color: $color-text;
+    color: vars.$color-text;
     font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.2;

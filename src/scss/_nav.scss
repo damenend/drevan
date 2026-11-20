@@ -1,11 +1,11 @@
-@use "vars" as *;
+@use "vars";
 
 .site-header {
-  background: $color-surface;
+  background: vars.$color-surface;
 
   h1 {
     margin: 0;
-    color: $color-primary;
+    color: vars.$color-primary;
   }
 }
 
@@ -18,20 +18,20 @@
   border-top: 1px solid #3a3a3a;
 
   a {
-    color: $color-muted;
+    color: vars.$color-muted;
     text-decoration: none;
 
     &:hover {
-      color: $color-text;
+      color: vars.$color-text;
     }
 
     &:focus-visible {
-      outline: 2px solid $color-primary;
+      outline: 2px solid vars.$color-primary;
       outline-offset: 3px;
     }
 
     &[aria-current="page"] {
-      color: $color-primary;
+      color: vars.$color-primary;
       font-weight: 600;
     }
   }
@@ -39,8 +39,8 @@
 
 .site-footer {
   padding: 1rem 0;
-  background: $color-surface;
-  color: $color-muted;
+  background: vars.$color-surface;
+  color: vars.$color-muted;
   text-align: center;
 
   small {

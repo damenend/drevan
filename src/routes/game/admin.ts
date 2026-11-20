@@ -3,24 +3,24 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 
-type EditableStat = "gold" | "strength" | "speed" | "maxHp";
-
 const router = Router();
 
-const allowedStats: EditableStat[] = ["gold", "strength", "speed", "maxHp"];
+const editableStats = ["gold", "strength", "speed", "maxHp"] as const;
+type EditableStat = (typeof editableStats)[number];
 
 // Admin page
 router.get("/", (req, res) => {
   const message = req.query.message;
   return res.render("game/admin", {
     title: "Admin",
+    editableStats,
     message: message ?? null,
   });
 });
 
 // Update player stats
 router.post("/", (req, res) => {
-  const requestedChanges = req.body.stats;
+  const requestedChanges = req.body?.stats;
 
   // Validate submitted data
   if (
@@ -33,11 +33,10 @@ router.post("/", (req, res) => {
 
   const updates: Partial<Record<EditableStat, number>> = {};
 
-  for (const [key, value] of Object.entries(requestedChanges)) {
-    if (!allowedStats.includes(key as EditableStat)) continue;
+  for (const stat of editableStats) {
+    if (!Object.hasOwn(requestedChanges, stat)) continue;
 
-    const stat = key as EditableStat;
-    const parsedValue = Number(value);
+    const parsedValue = Number(requestedChanges[stat]);
 
     if (!Number.isSafeInteger(parsedValue) || parsedValue < 0) {
       return res.redirect("/game/admin?message=err");

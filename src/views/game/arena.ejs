@@ -1,18 +1,16 @@
 <section class="page">
   <h3>Welcome to <%= title %>!</h3>
-  <figure class="location-image">
-    <img src="/images/dominion.webp" />
-    <figcaption>
-      A stone battle arena with towering walls, red banners, and a glowing blue energy crystal.
-    </figcaption>
-  </figure>
+  <%- include("../partials/location-image", {
+    src: "/images/dominion.webp",
+    caption: "A stone battle arena with towering walls, red banners, and a glowing blue energy crystal.",
+  }) %>
   <% if (dead) { %>
-  <p>you're dead. <a href="/game/hospital">heal</a> before returning to the arena</p>
+  <%- include("../partials/arena-heal-notice") %>
   <% } else { %>
   <form action="/game/training" method="POST">
     <div class="form-group">
       <label for="level">Trainer level</label>
-      <input type="number" name="level" id="level" value="<%= level || 1 %>" min="1" max="100" step="1" required />
+      <input type="number" name="level" id="level" value="<%= level || 1 %>" min="1" max="<%= maxTrainingLevel %>" step="1" required />
     </div>
 
     <button type="submit">Fight Training Dummy</button>

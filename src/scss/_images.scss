@@ -1,4 +1,4 @@
-@use "vars" as *;
+@use "vars";
 
 // Global image reset
 img {
@@ -14,13 +14,13 @@ img {
 
   img {
     width: 100%;
-    border: 1px solid $color-surface;
+    border: 1px solid vars.$color-surface;
     border-radius: 4px;
   }
 
   figcaption {
     margin-top: 1rem;
-    color: $color-muted;
+    color: vars.$color-muted;
     font-size: 0.875rem;
     font-style: italic;
   }

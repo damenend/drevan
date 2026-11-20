@@ -7,11 +7,11 @@ import { loadUser } from "./middleware/auth";
 import indexRouter from "./routes/index";
 
 const app = express();
-const PORT = 3000;
+const port = Number(process.env.PORT ?? 3000);
 
 // View engine configuration
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "../src/views"));
 
 // Layout configuration
 app.use(expressLayouts);
@@ -41,6 +41,8 @@ app.use((req, res, next) => {
 app.use("/", indexRouter);
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(port, (error) => {
+  if (error) throw error;
+
+  console.log(`Server running at http://localhost:${port}`);
 });

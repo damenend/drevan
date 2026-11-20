@@ -1,12 +1,10 @@
 <section class="page">
   <h2>Welcome back, <%= user.name %>!</h2>
 
-  <figure class="location-image">
-    <img src="/images/home.webp" alt="A cozy cottage illuminated by glowing windows.">
-    <figcaption>
-      A cozy stone-and-timber cottage with glowing windows and futuristic technology.
-    </figcaption>
-  </figure>
+  <%- include("../partials/location-image", {
+    src: "/images/home.webp",
+    caption: "A cozy stone-and-timber cottage with glowing windows and futuristic technology.",
+  }) %>
 
   <section class="character" aria-labelledby="character-heading">
     <h3 id="character-heading">Character Overview</h3>
@@ -63,39 +61,32 @@
           <% inventory.forEach(item => { %>
           <tr>
             <td>
-              <figure class="item-group">
-                <% if (item.image) { %>
-                <img src="<%= item.image %>" alt="" width="48" height="48" class="item-icon">
-                <% } %>
-                <figcaption><%= item.name %></figcaption>
-              </figure>
+              <%- include("../partials/item-figure", { item }) %>
             </td>
             <td><%= item.description %></td>
             <td><%= item.quantity %></td>
             <td>
-              <% if (item.type === "consumable") { %>
-              <form action="/game/inventory/use" method="POST">
-                <input type="hidden" name="itemId" value="<%= item.id %>">
-                <button type="submit" aria-label="Use <%= item.name %>">
-                  Use
-                </button>
-              </form>
-              <% } else if (item.type === "weapon" || item.type === "armor") { %>
               <%
-      const isEquipped =
-        item.id === user.equippedWeaponId ||
-        item.id === user.equippedArmorId;
-    %>
+                const isEquipped =
+                  item.id === user.equippedWeaponId ||
+                  item.id === user.equippedArmorId;
 
-              <form action="/game/inventory/<%= isEquipped ? 'unequip' : 'equip' %>" method="POST">
-                <input type="hidden" name="itemId" value="<%= item.id %>">
-
-                <button type="submit" aria-label="<%= isEquipped ? 'Unequip' : 'Equip' %> <%= item.name %>">
-                  <%= isEquipped ? 'Unequip' : 'Equip' %>
-                </button>
-              </form>
+                let action;
+                if (item.type === "consumable") {
+                  action = "Use";
+                } else if (item.type === "weapon" || item.type === "armor") {
+                  action = isEquipped ? "Unequip" : "Equip";
+                }
+              %>
+              <% if (action) { %>
+                <form action="/game/inventory/<%= action.toLowerCase() %>" method="POST">
+                  <input type="hidden" name="itemId" value="<%= item.id %>">
+                  <button type="submit" aria-label="<%= action %> <%= item.name %>">
+                    <%= action %>
+                  </button>
+                </form>
               <% } else { %>
-              <span class="text-muted">—</span>
+                <span class="text-muted">—</span>
               <% } %>
             </td>
           </tr>
