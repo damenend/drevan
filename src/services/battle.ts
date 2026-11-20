@@ -81,8 +81,8 @@ function generateDamage(strength: number): DamageResult {
 }
 
 function createBattleState(combatant: Combatant) {
-  const attackInterval = 100 / Math.max(1, combatant.speed);
-  return { ...combatant, attackInterval, nextAttack: attackInterval };
+  const speed = Math.max(1, combatant.speed);
+  return { ...combatant, speed, attackInterval: 100 / speed, nextAttack: 0 };
 }
 
 // Simulate combat between two combatants
@@ -98,14 +98,22 @@ export function simulateBattle(
   const battleLog: BattleLogEntry[] = [
     { type: "encounter", player: player.name, target: enemy.name },
   ];
+  const playerInitiativeChance =
+    combatants.player.speed /
+    (combatants.player.speed + combatants.enemy.speed);
+  const firstAttacker: Actor =
+    Math.random() < playerInitiativeChance ? "player" : "enemy";
 
   for (let attackCount = 0; attackCount < MAX_ATTACKS; attackCount++) {
     if (combatants.player.hp <= 0 || combatants.enemy.hp <= 0) break;
 
+    // Both opening attacks are due at time zero. The roll decides their order.
     const actor: Actor =
-      combatants.player.nextAttack <= combatants.enemy.nextAttack
-        ? "player"
-        : "enemy";
+      attackCount === 0
+        ? firstAttacker
+        : combatants.player.nextAttack <= combatants.enemy.nextAttack
+          ? "player"
+          : "enemy";
     const attacker = combatants[actor];
     const defender = combatants[actor === "player" ? "enemy" : "player"];
     const { damage, critical } = generateDamage(attacker.strength);
