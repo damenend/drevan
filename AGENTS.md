@@ -150,7 +150,11 @@ with `git diff -- AGENTS.md` before staging.
   `.husky/pre-commit` hook directly. For other existing hook setups, configure
   them to run `.husky/pre-commit` or run `yarn check` and `yarn docs:agents`
   manually before committing.
-- The pre-commit hook checks staged whitespace, runs `yarn check`, and then runs
-  `yarn docs:agents`, which requires a working Codex CLI connection. If
-  `AGENTS.md` has unstaged edits after the audit, the hook pauses the commit for
-  review. Stage the reviewed edits and retry the commit.
+- The pre-commit hook always checks staged whitespace and runs `yarn check`.
+  It runs `yarn docs:agents` when staged changes touch source, migration SQL,
+  scripts, or project configuration. Roadmap and other documentation edits,
+  static assets, generated Drizzle metadata, lockfile updates, and
+  dependency-only manifest edits skip the audit when staged on their own.
+  Changes to package scripts still trigger it.
+- If `AGENTS.md` has unstaged edits after the audit, the hook pauses the commit
+  for review. Stage the reviewed edits and retry the commit.

@@ -3,6 +3,19 @@ set -e
 
 git diff --cached --check
 yarn check
+
+if git diff --cached --quiet --no-renames -- \
+  src drizzle scripts .husky .vscode .env.example .gitignore .yarnrc.yml \
+  .oxlintrc.json .prettierignore .prettierrc.json drizzle.config.ts tsconfig.json \
+  ':(exclude)drizzle/meta'
+then
+  if git diff --cached --quiet --no-renames -- package.json ||
+    node scripts/package-dependencies-only.mjs
+  then
+    exit 0
+  fi
+fi
+
 yarn docs:agents </dev/null
 
 if ! git diff --quiet -- AGENTS.md; then
