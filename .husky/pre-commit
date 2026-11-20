@@ -3,3 +3,9 @@ set -e
 
 git diff --cached --check
 yarn check
+yarn docs:agents </dev/null
+
+if ! git diff --quiet -- AGENTS.md; then
+  printf '%s\n' 'AGENTS.md has unstaged changes. Review and stage them, then retry the commit.' >&2
+  exit 1
+fi

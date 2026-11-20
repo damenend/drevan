@@ -15,6 +15,7 @@
     "express-session": "^1.19.0"
   },
   "devDependencies": {
+    "@openai/codex": "^0.170.0",
     "@types/better-sqlite3": "^9.6.0",
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.6",
@@ -44,6 +45,7 @@
     "lint": "oxlint --deny-warnings src drizzle.config.ts scripts",
     "typecheck": "tsc --noEmit",
     "check": "yarn format:check && yarn lint && yarn typecheck",
-    "hooks:install": "node scripts/install-hooks.mjs"
+    "hooks:install": "node scripts/install-hooks.mjs",
+    "docs:agents": "codex exec --sandbox workspace-write \"Review AGENTS.md against the current tracked repository, including staged and unstaged changes, and any relevant new source or config files. Skip ignored files and local secrets. Update only AGENTS.md where gameplay rules, architecture, or contributor workflows have changed. Leave it untouched if it is current. Summarize findings without staging or committing anything.\""
   }
 }
