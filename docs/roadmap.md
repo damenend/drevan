@@ -59,6 +59,17 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 - Check requirements against permanent stats, including allocated points. Apply equipment bonuses after checking eligibility.
 - Offer a comparable robe with an easier requirement and a different benefit, such as more Intellect and lighter protection. Test whether both robes are worth choosing for different builds.
 
+### Let players reset their class and allocation points
+
+- After classes and allocation points are playable, give **The Artificer** (working name) three repeatable services:
+  - **Reset allocation points.** Refund spent points for redistribution and keep the player's current class.
+  - **Change class.** Let the player select another class they qualify for and keep their existing point allocations.
+  - **Change class and reset allocation points.** Let the player choose another eligible class and refund their spent points in one visit.
+- Charge a small gold fee for each option. Playtest the fees against early training rewards so players can afford to experiment more than once. Show the selected service's cost and effects before confirmation.
+- When a service refunds points, return every spent point to the unspent pool and remove the stat increases bought with those points. Preserve existing unspent points, level, XP, and permanent stat gains from other sources. Track point-funded increases separately when adding allocation so the refund is accurate.
+- Recheck equipped items against the resulting stats and class. Preview any gear that will be unequipped and keep it in inventory. If max HP falls below current HP, lower current HP to the new cap. The reset grants no healing.
+- On confirmation, validate the selected service, available gold, and any new class on the server. Check class eligibility using the stats the selected service will leave the player with. Save the gold deduction and all character changes in one database transaction so the entire service succeeds or the player's state stays as it was.
+
 ## Ideas for later
 
 - Give each class one signature move to try once per battle. A Warrior could brace for the next hit, a Wizard could pierce some armor, and an Archer could take extra time to line up a stronger shot.
