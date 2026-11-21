@@ -27,6 +27,7 @@ export type Combatant = {
   hp: number;
   strength: number;
   speed: number;
+  defense: number;
 };
 
 export type BattleResult = {
@@ -43,14 +44,21 @@ export const MAX_TRAINING_LEVEL = 100;
 const MAX_ATTACKS = 1000;
 const BASE_CRIT_CHANCE = 0.05;
 const CRIT_MULTIPLIER = 1.5;
+const MAX_DAMAGE_REDUCTION = 0.6;
+const HALF_MAX_REDUCTION_DEFENSE = 10;
 
-// Create a training dummy based on its level
+/**
+ * Builds a training opponent using the stats for the selected level.
+ *
+ * @param level - A whole number from 1 through MAX_TRAINING_LEVEL.
+ */
 export function createTrainingDummy(level: number): Combatant {
   return {
     name: "Training Dummy",
     hp: 10 + (level - 1) * 5,
     strength: 2 + (level - 1),
     speed: 2 + (level - 1),
+    defense: Math.floor(level / 4),
   };
 }
 
@@ -59,7 +67,7 @@ type DamageResult = {
   critical: boolean;
 };
 
-function generateDamage(strength: number): DamageResult {
+function generateDamage(strength: number, defense: number): DamageResult {
   const maxDamage = Math.max(1, strength);
   const minDamage = Math.ceil(maxDamage * 0.5);
 
@@ -74,8 +82,13 @@ function generateDamage(strength: number): DamageResult {
     damage = Math.ceil(damage * CRIT_MULTIPLIER);
   }
 
+  const effectiveDefense = Math.max(0, defense);
+  const damageReduction =
+    MAX_DAMAGE_REDUCTION *
+    (effectiveDefense / (effectiveDefense + HALF_MAX_REDUCTION_DEFENSE));
+
   return {
-    damage,
+    damage: Math.max(1, Math.round(damage * (1 - damageReduction))),
     critical,
   };
 }
@@ -85,7 +98,13 @@ function createBattleState(combatant: Combatant) {
   return { ...combatant, speed, attackInterval: 100 / speed, nextAttack: 0 };
 }
 
-// Simulate combat between two combatants
+/**
+ * Resolves a fight and records each attack for the battle log.
+ * The simulation leaves the input combatants and database unchanged.
+ *
+ * @param goldReward - Gold included in the result if the player wins.
+ * @returns The battle log, starting and remaining HP, and gold earned.
+ */
 export function simulateBattle(
   player: Combatant,
   enemy: Combatant,
@@ -116,7 +135,10 @@ export function simulateBattle(
           : "enemy";
     const attacker = combatants[actor];
     const defender = combatants[actor === "player" ? "enemy" : "player"];
-    const { damage, critical } = generateDamage(attacker.strength);
+    const { damage, critical } = generateDamage(
+      attacker.strength,
+      defender.defense,
+    );
 
     defender.hp = Math.max(0, defender.hp - damage);
     attacker.nextAttack += attacker.attackInterval;

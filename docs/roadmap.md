@@ -7,7 +7,7 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 ### Make equipment matter
 
 - Give the Rusted Sword a small Strength bonus and Worn Leather Armor a small Defense bonus. Strength remains the sole offensive stat until classes arrive.
-- Try flat Defense first. Subtract it from rolled damage after critical-hit bonuses, with a minimum of one damage per hit. Keep early Defense bonuses small so low-level fights stay short.
+- Playtest Defense with diminishing returns. Ten Defense reduces damage by 30% before rounding, and the reduction approaches 60% as Defense increases. Check how small armor bonuses affect low-level fights, where rounding can make them harder to notice.
 - Calculate effective stats from the player's base stats and equipped items. Reuse the calculation for Home and combat, and show gear bonuses in the Curious Emporium.
 - Compare the same few dummies with and without gear. A sword should make a win easier to reach, and armor should leave the player with noticeably more HP.
 
@@ -18,11 +18,18 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 
 ## Build on combat
 
-### Give Speed diminishing returns
+### Audit and tune all combat stats
 
-- Keep Speed useful for both opening odds and attack frequency. For effective Speed, keep the current minimum of 1, use the stat directly through 5, and try `5 * sqrt(Speed / 5)` above 5.
-- Use effective Speed in both the weighted opener and the interval between attacks. Under this curve, 20 Speed gives twice the attack frequency of 5 Speed and roughly a two-thirds chance to open.
-- Before adding allocation points, simulate three builds that each spend five points using the costs below. Compare Speed, primary-stat damage, and max HP against the same fast and slow dummies. Look at wins, remaining HP, and how many attacks fights take.
+- **Scope.** Review the full battle loop before introducing stat allocation. Evaluate every stat that affects combat, including stats calculated from other stats, such as Attack Power, as they arrive. Check how each stat performs on its own and in combination with others. Include max HP in the comparison to measure how much survivability it buys for the same investment. Small bonuses should matter, and specializing should come with a trade-off. A build can excel in some matchups while giving another build a chance elsewhere.
+- **Speed curve.** Try diminishing returns for Speed. Keep the minimum of 1, use Speed directly through 5, and try `5 * sqrt(Speed / 5)` above 5. Use the adjusted Speed both to decide who is more likely to attack first and to set the time between attacks. Under this curve, 20 Speed gives twice the attack frequency of 5 Speed and roughly a two-thirds chance to open. Check whether those benefits together let fast builds win too often before slower opponents can act.
+- **Matchups.** Run repeated fights with the existing battle simulator. Start with a balanced build, then test builds that concentrate their investment in each available combat stat. Compare builds with similar investment using the proposed point costs below or comparable gear where bonuses come from equipment. Test against the same few opponents, including a fast attacker and a slower, harder hitter. Once practice duels exist, repeat the comparison in player matchups.
+- **Results.** Compare win rate, remaining HP, and attacks per fight. Read a few battle logs at starter values and at the high end of what players can realistically equip. Watch for bonuses that rarely make a difference, builds that let opponents take too few turns, and combinations that reliably dominate across matchups.
+- **Tuning.** Tune one rule or gear bonus at a time and rerun the same matchups. Start with the simplest change that addresses a problem seen in playtests, such as adjusting the Speed curve, the Defense reduction limit, or the gear bonus that makes stacking too cheap.
+
+#### Watch for these during playtesting
+
+- **Speed and damage stacking.** Speed improves both opening odds and attack frequency. Paired with high damage, it can end a fight before the opponent gets much chance to respond. Compare a fast, hard-hitting build with a balanced build at similar investment. Track how many attacks the losing side gets alongside win rate.
+- **Ties in attack timing.** The opening roll decides who goes first, but later ties currently favor the player. At equal Speed, an enemy opener can lead to enemy → player → player → enemy. Check this before practice duels by swapping the two combatants and seeing whether either side has a consistent advantage.
 
 ### Battle another player in Dominion
 
@@ -36,7 +43,7 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 
 - Let players pick or switch class on Home while the system is being tuned. Give each class Strength, Agility, Intellect, Speed, and HP. HP and Speed work the same across classes, and switching preserves allocated stats.
 - Try 5 Strength, 5 Agility, 5 Intellect, 5 Speed, and 25 max HP for new characters who choose a class. Preserve existing characters' earned stats and use the new defaults for newly added attributes.
-- Derive **Attack Power** from effective offensive stats after gear bonuses. Count the primary stat in full and each secondary at one quarter, then round down once. The Warrior favors Strength, the Wizard Intellect, and the Archer Agility. The Wizard can also get a small critical-hit bonus.
+- Calculate **Attack Power** from Strength, Agility, and Intellect after gear bonuses. Add the full value of the class’s main stat and one quarter of each of the other two, then round the total down. The Warrior favors Strength, the Wizard Intellect, and the Archer Agility. The Wizard can also get a small critical-hit bonus.
 - Feed Attack Power into the existing damage roll. An Archer gets 4 Attack Power from +4 Agility and 1 from +4 Intellect. The proposed starting spread gives 7 Attack Power, up from today's 5, so test starter fights before settling on the defaults. Keep classless players and training dummies on Strength-based damage.
 - Show Attack Power and the class's primary stat on Home. Show equipment bonuses and any requirements in the shop so players can compare gear before buying it.
 
@@ -44,7 +51,7 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 
 - Start by awarding XP for training wins. Tune the first level so players can reach it in a short play session. Show XP progress and unspent allocation points on Home.
 - Try one allocation point per level. One point buys +1 Strength, Agility, Intellect, or Speed, or +5 max HP. Let players save points for later.
-- Compare damage, health, and Speed investments once players have several points to spend. A Wizard should have a reason to consider all three, with secondary offensive stats opening up some gear choices.
+- Repeat the combat balance comparison once players have several points to spend. Check that each class has meaningful choices and that secondary offensive stats open up some gear options.
 
 ### Add a few items with cross-stat requirements
 

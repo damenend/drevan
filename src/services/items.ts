@@ -10,6 +10,13 @@ type ItemEffectResult = {
   message: string;
 };
 
+/**
+ * Calculates an item's effect without updating the player or inventory.
+ * Healing restores at most the player's missing HP.
+ *
+ * @returns The new HP and display message, or null if the effect is unsupported
+ * or would restore no HP.
+ */
 export function applyItemEffect(
   player: PlayerStats,
   effect: string,

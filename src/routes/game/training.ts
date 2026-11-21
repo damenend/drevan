@@ -41,6 +41,7 @@ router.post("/", (req, res) => {
       hp: player.hp,
       strength: player.strength,
       speed: player.speed,
+      defense: player.defense,
     },
     enemy,
     goldReward,

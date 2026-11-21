@@ -4,6 +4,10 @@ import { items } from "./schema";
 
 type Item = typeof items.$inferInsert;
 
+/**
+ * Inserts starter items and updates matching names while preserving their IDs
+ * and any inventory rows that refer to them.
+ */
 async function seed() {
   const potions: Item[] = [
     {

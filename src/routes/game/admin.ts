@@ -5,7 +5,13 @@ import { users } from "../../db/schema";
 
 const router = Router();
 
-const editableStats = ["gold", "strength", "speed", "maxHp"] as const;
+const editableStats = [
+  "gold",
+  "strength",
+  "speed",
+  "maxHp",
+  "defense",
+] as const;
 type EditableStat = (typeof editableStats)[number];
 
 // Admin page

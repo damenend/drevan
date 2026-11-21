@@ -10,6 +10,11 @@ function inventoryEntry(userId: number, itemId: number) {
   return and(eq(inventory.userId, userId), eq(inventory.itemId, itemId));
 }
 
+/**
+ * Looks up an item with positive owned quantity using the caller's database
+ * or transaction, so item use can check ownership within the same transaction
+ * that consumes the item.
+ */
 function findOwnedItem(
   database: Pick<typeof db, "select">,
   userId: number,

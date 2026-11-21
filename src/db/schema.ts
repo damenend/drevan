@@ -18,6 +18,7 @@ export const users = sqliteTable("users", {
   exp: integer("exp").notNull().default(0),
   equippedWeaponId: integer("equipped_weapon_id"),
   equippedArmorId: integer("equipped_armor_id"),
+  defense: integer("defense").notNull().default(0),
 });
 
 export const items = sqliteTable("items", {

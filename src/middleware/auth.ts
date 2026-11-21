@@ -3,6 +3,10 @@ import { db } from "../db";
 import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
 
+/**
+ * Loads the user identified by the session into `res.locals.user`.
+ * Sets it to null when there is no session user or the account no longer exists.
+ */
 export function loadUser(req: Request, res: Response, next: NextFunction) {
   const userId = req.session.userId;
 
@@ -24,6 +28,7 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
       exp: users.exp,
       equippedWeaponId: users.equippedWeaponId,
       equippedArmorId: users.equippedArmorId,
+      defense: users.defense,
     })
     .from(users)
     .where(eq(users.id, userId))
