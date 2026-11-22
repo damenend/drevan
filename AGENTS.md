@@ -162,7 +162,16 @@ When changing behavior, review nearby comments for accuracy.
 
 ## Current development direction
 
-The [gameplay roadmap](docs/roadmap.md) tracks equipment playtesting and future combat milestones. Reuse the effective-stat calculation in `src/services/equipment.ts` when adding combat modes.
+The [gameplay roadmap](docs/roadmap.md) tracks equipment playtesting and future
+combat milestones. When adding combat modes, reuse the effective-stat
+calculation in `src/services/equipment.ts` and resolve fights automatically with
+the shared simulator in `src/services/battle.ts`. Each encounter mode decides
+which results to save and which rewards to grant.
+
+Balance player-versus-environment (PvE) encounters first. Use repeatable
+matchups with controlled random rolls to measure the effect of one rule change
+at a time. Use practice PvP results to decide whether a mode-specific balance
+rule is warranted.
 
 Before finishing a change, check whether it affects documented gameplay rules,
 architecture, or contributor workflows such as build commands, environment setup,
