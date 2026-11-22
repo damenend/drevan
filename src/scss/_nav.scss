@@ -9,6 +9,11 @@
   }
 }
 
+.site-tagline {
+  margin: 0 0 0.75rem;
+  color: vars.$color-muted;
+}
+
 .main-navigation {
   display: flex;
   align-items: center;
