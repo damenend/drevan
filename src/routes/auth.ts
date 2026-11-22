@@ -3,6 +3,7 @@ import { db } from "../db";
 import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import argon2 from "argon2";
+import { renderError } from "../middleware/errors";
 
 const router = Router();
 
@@ -16,7 +17,9 @@ router.post("/login", async (req, res) => {
     !email.trim() ||
     !password
   ) {
-    return res.status(400).send("Email and password are required.");
+    return renderError(res, 400, {
+      message: "Email and password are required.",
+    });
   }
 
   const user = db
@@ -26,13 +29,13 @@ router.post("/login", async (req, res) => {
     .get();
 
   if (!user) {
-    return res.status(401).send("Invalid email or password.");
+    return renderError(res, 401, { message: "Invalid email or password." });
   }
 
   const passwordMatches = await argon2.verify(user.passwordHash, password);
 
   if (!passwordMatches) {
-    return res.status(401).send("Invalid email or password.");
+    return renderError(res, 401, { message: "Invalid email or password." });
   }
 
   req.session.userId = user.id;
@@ -52,7 +55,7 @@ router.post("/signup", async (req, res) => {
     !email.trim() ||
     !password
   ) {
-    return res.status(400).send("Invalid signup information.");
+    return renderError(res, 400, { message: "Invalid signup information." });
   }
 
   const passwordHash = await argon2.hash(password);
@@ -67,7 +70,7 @@ router.post("/signup", async (req, res) => {
     .run();
 
   if (signup.changes === 0) {
-    return res.status(409).send("Email already registered.");
+    return renderError(res, 409, { message: "Email already registered." });
   }
 
   return res.redirect("/");

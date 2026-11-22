@@ -91,6 +91,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Blue (`$color-blue`): `#54bdff`
 - Use the shared location-image partial beneath section headings. Reuse the item-figure and player-gold partials where those elements recur.
 - Keep forms and buttons restrained, readable, and accessible.
+- Use `.table` inside `.table-responsive` for UI tables. Use scoped column headers and row headers where a cell identifies the row.
 - Keep dynamic text escaped in EJS with `<%=`. Use unescaped output for trusted rendered markup such as partials and the layout body.
 - Reuse existing SCSS classes and import shared styles with `@use "vars"` and the `vars.` namespace.
 - Existing images are generally stored as WebP under `public/images/`.
@@ -132,7 +133,9 @@ When changing behavior, review nearby comments for accuracy.
 
 ### Route boundaries
 
-- `/game` and its child routes use the shared `requireAuth` middleware. The homepage, authentication endpoints, and `/users` listing are public.
+- Use the shared error page for HTTP errors. Render expected route errors with `renderError` from `src/middleware/errors.ts`. Keep error copy safe for players to see.
+
+- `/game` and its child routes use the shared `requireAuth` middleware. The homepage, authentication endpoints, `/users` directory, and `/users/:id` profiles are public. The player pages expose game IDs, names, and levels. They display level 1 until XP progression is implemented.
 - The Admin page lets signed-in players edit only the following stats on their own account (gold, strength, speed, maximum HP, and Defense) and has no separate admin role check. Keep it out of authorization decisions for other features.
 
 ## Git, environment, and safety

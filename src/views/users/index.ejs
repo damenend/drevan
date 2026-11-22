@@ -1,14 +1,25 @@
 <section class="page">
   <h3>Registered players</h3>
-  <% if (users.length === 0) { %>
+  <% if (players.length === 0) { %>
   <p>No registered users yet.</p>
   <% } else { %>
-  <ul>
-    <% users.forEach(user => { %>
-    <li>
-      <%= user.name %> - <%= user.email %>
-    </li>
-    <% }) %>
-  </ul>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% players.forEach(player => { %>
+        <tr>
+          <th scope="row"><a href="/users/<%= player.id %>"><%= player.name %></a></th>
+          <td><%= formatNumber(playerLevel) %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
   <% } %>
 </section>

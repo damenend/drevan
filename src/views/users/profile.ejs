@@ -1,0 +1,14 @@
+<section class="page">
+  <h2><%= player.name %></h2>
+  <dl class="character-stats">
+    <div class="character-stat">
+      <dt>Game ID</dt>
+      <dd><%= player.id %></dd>
+    </div>
+    <div class="character-stat">
+      <dt>Level</dt>
+      <dd><%= formatNumber(playerLevel) %></dd>
+    </div>
+  </dl>
+  <p><a href="/users">Back to Players</a></p>
+</section>

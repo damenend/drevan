@@ -4,6 +4,7 @@ import expressLayouts from "express-ejs-layouts";
 import session from "express-session";
 import "dotenv/config";
 import { loadUser } from "./middleware/auth";
+import { handleError, handleNotFound } from "./middleware/errors";
 import indexRouter from "./routes/index";
 import { formatNumber } from "./utils/format-number";
 
@@ -41,6 +42,8 @@ app.use((req, res, next) => {
 
 // Routes
 app.use("/", indexRouter);
+app.use(handleNotFound);
+app.use(handleError);
 
 // Start server
 app.listen(port, (error) => {

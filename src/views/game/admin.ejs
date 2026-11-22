@@ -8,25 +8,27 @@
   <% } %>
 
   <form action="/game/admin" method="POST">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Stat</th>
-          <th scope="col">Value</th>
-        </tr>
-      </thead>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Stat</th>
+            <th scope="col">Value</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <% editableStats.forEach(key => { %>
-        <tr>
-          <td><label for="<%= key %>"><%= key %></label></td>
-          <td>
-            <input type="number" id="<%= key %>" name="stats[<%= key %>]" value="<%= user[key] %>" min="0" step="1">
-          </td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
+        <tbody>
+          <% editableStats.forEach(key => { %>
+          <tr>
+            <td><label for="<%= key %>"><%= key %></label></td>
+            <td>
+              <input type="number" id="<%= key %>" name="stats[<%= key %>]" value="<%= user[key] %>" min="0" step="1">
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
 
     <button type="submit">Update</button>
   </form>
