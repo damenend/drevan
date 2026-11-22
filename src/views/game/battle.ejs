@@ -11,7 +11,7 @@
     </p>
     <h4>Battle log</h4>
     <% } else if (entry.type === "attack") { %>
-    <p class="battle-log-entry <%= entry.critical ? 'battle-log-entry--critical' : '' %>">
+    <p class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
       <span class="<%= entry.actor %>"><%= entry.player %></span>
       attacks
       <span class="<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>

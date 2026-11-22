@@ -12,7 +12,16 @@
 
 .battle-log-entry {
   padding: 0.5rem;
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
+  border-left: 0.375rem solid transparent;
+
+  &--player {
+    border-left-color: vars.$color-blue;
+  }
+
+  &--enemy {
+    border-left-color: vars.$color-red;
+  }
 
   &--critical {
     .critical-hit {
@@ -20,10 +29,6 @@
       font-weight: 700;
       text-transform: uppercase;
     }
-  }
-
-  &:nth-child(odd) {
-    background-color: vars.$color-row-stripe;
   }
 }
 
