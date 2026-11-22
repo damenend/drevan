@@ -184,7 +184,10 @@ with `git diff -- AGENTS.md` before staging.
 - Run `yarn format` to format supported source and config files. EJS templates,
   generated CSS, migration snapshots, and the Yarn lockfile are excluded.
 - The VS Code workspace uses EJS Beautify with two-space indentation for EJS files.
-- Run `yarn check` for the Prettier check, Oxlint, and TypeScript checking.
+- Run `yarn test` to run the unit tests once or `yarn test:watch` to rerun them as files change.
+- Put unit tests in `tests/*.test.ts`. Use Node's built-in `node:test` and strict assertions. The existing `tsx` loader runs TypeScript directly, and `tsconfig.test.json` checks the tests separately from the production build.
+- Use controlled random rolls in combat tests so balance changes produce repeatable results. The combat and item-effect tests run without a server or local database.
+- Run `yarn check` for the Prettier check, Oxlint, TypeScript checking, and unit tests.
 - Run `yarn build` to compile TypeScript and rebuild the Sass stylesheet.
 - Run `yarn dev` to watch the server and Sass sources together. `yarn start` runs `dist/app.js` with the views under `src/views` and assets under `public`.
 - Run `yarn hooks:install` once per clone to set up the repository hook. The

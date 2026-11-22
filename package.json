@@ -42,10 +42,12 @@
     "db:seed": "tsx src/db/seed.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "oxlint --deny-warnings src drizzle.config.ts scripts",
-    "typecheck": "tsc --noEmit",
-    "check": "yarn format:check && yarn lint && yarn typecheck",
+    "lint": "oxlint --deny-warnings src drizzle.config.ts scripts tests",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "check": "yarn format:check && yarn lint && yarn typecheck && yarn test",
     "hooks:install": "node scripts/install-hooks.mjs",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:watch": "node --import tsx --test --watch tests/*.test.ts",
     "docs:agents": "codex exec --sandbox workspace-write \"Review AGENTS.md against the current tracked repository, including staged and unstaged changes, and any relevant new source or config files. Skip ignored files and local secrets. In the summary, flag missing or stale function and method comments in changed code where TSDoc would clarify behavior, following AGENTS.md. Update only AGENTS.md where gameplay rules, architecture, or contributor workflows have changed. Leave it untouched if it is current. Summarize findings without staging or committing anything.\""
   }
 }
