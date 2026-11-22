@@ -11,6 +11,7 @@ import storeRouter from "./store";
 import adminRouter from "./admin";
 import trainingRouter from "./training";
 import inventoryRouter from "./inventory";
+import usersRouter from "./users";
 
 const router = Router();
 
@@ -64,5 +65,6 @@ router.use("/hospital", hospitalRouter);
 router.use("/store", storeRouter);
 router.use("/admin", adminRouter);
 router.use("/inventory", inventoryRouter);
+router.use("/users", usersRouter);
 
 export default router;

@@ -57,7 +57,7 @@ Start with the command that failed and its first error message. Run the checks b
 ### SQLite cannot open the database, or a command uses the wrong file
 
 - For `unable to open database file`, check that `data/` exists and is writable. On a fresh checkout, run `mkdir -p data` before migrating.
-- If migration succeeds but the app or seed reports `no such table` or `no such column`, check the path first. Drizzle Kit uses `DATABASE_URL`, while the app and seed open `./data/game.sqlite` relative to the working directory. An exported `DATABASE_URL` can override the value in `.env`. To target Drevan’s local file explicitly, run `DATABASE_URL=./data/game.sqlite yarn db:migrate`.
+- If migration succeeds but the app or seed reports `no such table` or `no such column`, check the path first. Drizzle Kit uses `DATABASE_URL`, while the app and seed open `./data/game.sqlite` relative to the working directory. An exported `DATABASE_URL` can override the value in `.env`. To target Drevan's local file explicitly, run `DATABASE_URL=./data/game.sqlite yarn db:migrate`.
 
 ### The SQLite driver fails to load
 

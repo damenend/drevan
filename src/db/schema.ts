@@ -11,6 +11,9 @@ export const users = sqliteTable(
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
     name: text("name").notNull(),
+    avatarModel: text("avatar_model", { enum: ["male", "female"] })
+      .notNull()
+      .default("male"),
     email: text("email").notNull().unique(),
     passwordHash: text("password_hash").notNull(),
     gold: integer("gold").notNull().default(100),

@@ -46,7 +46,13 @@ router.post("/login", async (req, res) => {
 
 // Signup
 router.post("/signup", async (req, res) => {
-  const { name, email, password, passwordConfirmation } = req.body ?? {};
+  const {
+    name,
+    email,
+    password,
+    passwordConfirmation,
+    avatarModel = "male",
+  } = req.body ?? {};
 
   if (
     typeof email !== "string" ||
@@ -68,11 +74,16 @@ router.post("/signup", async (req, res) => {
     });
   }
 
+  if (avatarModel !== "male" && avatarModel !== "female") {
+    return renderError(res, 400, { message: "Choose a valid gender." });
+  }
+
   const passwordHash = await argon2.hash(password);
   const signup = db
     .insert(users)
     .values({
       name,
+      avatarModel,
       email: email.trim().toLowerCase(),
       passwordHash,
     })

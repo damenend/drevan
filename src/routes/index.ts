@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import authRouter from "./auth";
-import usersRouter from "./users";
 import gameRouter from "./game";
 
 const router = Router();
@@ -15,7 +14,6 @@ router.get("/", (req, res) => {
 
 // Application routes
 router.use("/", authRouter);
-router.use("/users", usersRouter);
 router.use("/game", gameRouter);
 
 export default router;

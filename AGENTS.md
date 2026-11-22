@@ -46,6 +46,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 ## Established gameplay concepts
 
 - Signup names use 3–24 characters drawn from ASCII letters, digits, spaces, underscores, and hyphens. Spaces are allowed only inside the name. Enforce case-insensitive uniqueness with the SQLite name index. Use `formatPlayerName` for title case in player-facing text and keep the submitted spelling in storage.
+- Signup stores the selected avatar model (`male` or `female`) on the player. The default is `male`, including for existing accounts. Use the shared player-avatar partial on Home and player profiles.
 
 - Player attributes include gold, strength, speed, Defense, HP, maximum HP, and experience. Defense defaults to 0 for new and existing players, appears on Home, and reduces incoming damage in training.
 - Equipment includes weapons and armor. Equipping stores the item ID on the user. Home and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats.
@@ -56,7 +57,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - The arena is called **Dominion**.
 - The dashboard is **Home**.
 - **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on Home, Nexaris, Admin, and Logout.
-- **The Reliquary** is Drevan’s lore library at `/game/reliquary`.
+- **The Reliquary** is Drevan's lore library at `/game/reliquary`.
+- **The Registry** is Drevan's player directory at `/game/users`.
 
 ### Combat
 
@@ -137,7 +139,7 @@ When changing behavior, review nearby comments for accuracy.
 
 - Use the shared error page for HTTP errors. Render expected route errors with `renderError` from `src/middleware/errors.ts`. Keep error copy safe for players to see.
 
-- `/game` and its child routes use the shared `requireAuth` middleware. The homepage, authentication endpoints, `/users` directory, and `/users/:id` profiles are public. The player pages expose game IDs, names, and levels. They display level 1 until XP progression is implemented.
+- `/game` and its child routes use the shared `requireAuth` middleware. The homepage and authentication endpoints are public. The Registry and player profiles at `/game/users/:id` require sign-in. The player pages expose game IDs, names, and levels. They display level 1 until XP progression is implemented.
 - The Admin page lets signed-in players edit only the following stats on their own account (gold, strength, speed, maximum HP, and Defense) and has no separate admin role check. Keep it out of authorization decisions for other features.
 
 ## Git, environment, and safety

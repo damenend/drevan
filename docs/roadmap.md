@@ -43,7 +43,7 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 
 - Let players pick or switch class on Home while the system is being tuned. Give each class Strength, Agility, Intellect, Speed, and HP. HP and Speed work the same across classes, and switching preserves allocated stats.
 - Try 5 Strength, 5 Agility, 5 Intellect, 5 Speed, and 25 max HP for new characters who choose a class. Preserve existing characters' earned stats and use the new defaults for newly added attributes.
-- Calculate **Attack Power** from Strength, Agility, and Intellect after gear bonuses. Add the full value of the class’s main stat and one quarter of each of the other two, then round the total down. The Warrior favors Strength, the Wizard Intellect, and the Archer Agility. The Wizard can also get a small critical-hit bonus.
+- Calculate **Attack Power** from Strength, Agility, and Intellect after gear bonuses. Add the full value of the class's main stat and one quarter of each of the other two, then round the total down. The Warrior favors Strength, the Wizard Intellect, and the Archer Agility. The Wizard can also get a small critical-hit bonus.
 - Feed Attack Power into the existing damage roll. An Archer gets 4 Attack Power from +4 Agility and 1 from +4 Intellect. The proposed starting spread gives 7 Attack Power, up from today's 5, so test starter fights before settling on the defaults. Keep classless players and training dummies on Strength-based damage.
 - Show Attack Power and the class's primary stat on Home. Show equipment bonuses and any requirements in the shop so players can compare gear before buying it.
 
@@ -73,6 +73,9 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 
 ## Ideas for later
 
+- **Track combat records.** Start with wins and losses against training dummies. Save the result together with the player's remaining HP and any gold reward. Count draws as neither a win nor a loss. Add a separate win and loss record when PvP arrives, and decide which fights qualify before practice duels can count toward titles.
+- **Earn titles through feats.** Award distinct titles for 1,000 training wins and 1,000 qualifying PvP wins. Consider an earlier milestone at 100 wins. Revisit the PvP thresholds once there is enough activity to judge how long they take and whether repeated matchups make them too easy to earn. Show progress toward each feat and let players choose an earned title to display on their player profile.
+- **Add a playable alien race.** Give it a place in Drevan’s lore and two character models. Start with appearance and lore so players can choose a race for character flavor.
 - Give each class one signature move to try once per battle. A Warrior could brace for the next hit, a Wizard could pierce some armor, and an Archer could take extra time to line up a stronger shot.
 - Add a sidegrade weapon that trades Speed for Strength, or a named Dominion opponent that makes a particular build shine.
 - Add a small repeatable errand, such as catching three fish for a bonus payout.

@@ -1,5 +1,7 @@
 <section class="page">
   <h2><%= formatPlayerName(player.name) %></h2>
+  <%- include("../partials/player-avatar", { player }) %>
+
   <dl class="character-stats">
     <div class="character-stat">
       <dt>Game ID</dt>
@@ -10,5 +12,5 @@
       <dd><%= formatNumber(playerLevel) %></dd>
     </div>
   </dl>
-  <p><a href="/users">Back to Players</a></p>
+  <p><a href="/game/users">Back to The Registry</a></p>
 </section>

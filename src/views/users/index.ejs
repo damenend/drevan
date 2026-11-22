@@ -1,7 +1,13 @@
 <section class="page">
-  <h3>Registered players</h3>
+  <h2>The Registry</h2>
+
+  <%- include("../partials/location-image", {
+    src: "/images/the-registry.webp",
+    caption: "The Registry, Drevan's directory of players.",
+  }) %>
+
   <% if (players.length === 0) { %>
-  <p>No registered users yet.</p>
+  <p>No players are listed yet.</p>
   <% } else { %>
   <div class="table-responsive">
     <table class="table">
@@ -14,7 +20,7 @@
       <tbody>
         <% players.forEach(player => { %>
         <tr>
-          <th scope="row"><a href="/users/<%= player.id %>"><%= formatPlayerName(player.name) %></a></th>
+          <th scope="row"><a href="/game/users/<%= player.id %>"><%= formatPlayerName(player.name) %></a></th>
           <td><%= formatNumber(playerLevel) %></td>
         </tr>
         <% }) %>

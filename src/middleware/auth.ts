@@ -19,6 +19,7 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
     .select({
       id: users.id,
       name: users.name,
+      avatarModel: users.avatarModel,
       email: users.email,
       gold: users.gold,
       hp: users.hp,
