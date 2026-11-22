@@ -1,7 +1,27 @@
 {
+  "files.associations": {
+    "*.ejs": "ejs"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.tsdk.path": "./node_modules/typescript",
+  "oxc.enable.oxfmt": false,
+  "search.exclude": {
+    "dist": true,
+    "public/css": true,
+    "drizzle/meta": true
+  },
+  "files.watcherExclude": {
+    "dist/**": true,
+    "data/*.sqlite*": true
+  },
   "[ejs]": {
     "editor.defaultFormatter": "j69.ejs-beautify",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
   },
   "js-beautify.indent_size": 2,
   "js-beautify.indent_with_tabs": false
