@@ -1,10 +1,7 @@
 <nav class="main-navigation">
   <% if (user) { %>
   <a href="/game" <%- currentPath === '/game' ? 'aria-current="page"' : '' %>>Home</a>
-  <a href="/game/arena" <%- currentPath === '/game/arena' || currentPath === '/game/training' ? 'aria-current="page"' : '' %>>Dominion</a>
-  <a href="/game/store" <%- currentPath === '/game/store' ? 'aria-current="page"' : '' %>>Curious Emporium</a>
-  <a href="/game/hospital" <%- currentPath === '/game/hospital' ? 'aria-current="page"' : '' %>>Sanctum</a>
-  <a href="/users" <%- currentPath === '/users' ? 'aria-current="page"' : '' %>>Players</a>
+  <a href="/game/nexaris" <%- currentPath === '/game/nexaris' ? 'aria-current="page"' : '' %>>Nexaris</a>
   <a href="/game/admin" <%- currentPath === '/game/admin' ? 'aria-current="page"' : '' %>>Admin</a>
 
   <form action="/logout" method="POST">

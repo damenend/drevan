@@ -47,6 +47,16 @@ router.get("/", (req, res) => {
   });
 });
 
+// Location directory
+router.get("/nexaris", (_req, res) => {
+  return res.render("game/nexaris", { title: "Nexaris" });
+});
+
+// Lore library
+router.get("/reliquary", (_req, res) => {
+  return res.render("game/reliquary", { title: "The Reliquary" });
+});
+
 // Game locations
 router.use("/arena", arenaRouter);
 router.use("/training", trainingRouter);

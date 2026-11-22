@@ -53,6 +53,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - The store is called **Curious Emporium**.
 - The arena is called **Dominion**.
 - The dashboard is **Home**.
+- **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on Home, Nexaris, Admin, and Logout.
+- **The Reliquary** is Drevan’s lore library at `/game/reliquary`.
 
 ### Combat
 
