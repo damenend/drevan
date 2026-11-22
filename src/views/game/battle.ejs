@@ -25,7 +25,7 @@
     <% } else if (entry.type === "outcome") { %>
     <div class="battle-stats">
       <h4>Battle summary</h4>
-      <p><span class="player"><%= user.name %></span> HP: <%= formatNumber(startingPlayerHp) %> → <%= formatNumber(playerHp) %></p>
+      <p><span class="player"><%= formatPlayerName(user.name) %></span> HP: <%= formatNumber(startingPlayerHp) %> → <%= formatNumber(playerHp) %></p>
       <p><span class="enemy">Level <%= formatNumber(level) %> Training Dummy</span> HP: <%= formatNumber(startingEnemyHp) %> → <%= formatNumber(enemyHp) %></p>
       <% if (entry.result === "win") { %>
       <p>

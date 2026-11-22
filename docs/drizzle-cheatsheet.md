@@ -18,6 +18,19 @@ Run commands from the project root after `nvm use`. Set `DATABASE_URL=./data/gam
 4. Run `yarn db:migrate`. This runs the migrations your database has yet to apply and records each one in the database.
 5. Commit the schema change, the SQL migration, and the generated snapshot and journal changes together.
 
+### Migrate existing player names
+
+The unique name index compares names without regard to ASCII capitalization. Existing names retain their spelling and capitalization. If the migration reports a uniqueness error, find the conflicting names with this read-only query.
+
+```sql
+SELECT lower(name) AS player_name, count(*) AS matches
+FROM users
+GROUP BY lower(name)
+HAVING count(*) > 1;
+```
+
+Resolve each conflict with the affected players before rerunning `yarn db:migrate`.
+
 ## Add an item to the catalog
 
 1. Open [src/db/seed.ts](../src/db/seed.ts) and add an entry to the appropriate list of potions, weapons, or armor. Copy a similar entry to see which fields it uses.

@@ -1,5 +1,5 @@
 <section class="page">
-  <h2>Welcome back, <%= user.name %>!</h2>
+  <h2>Welcome back, <%= formatPlayerName(user.name) %>!</h2>
 
   <%- include("../partials/location-image", {
     src: "/images/home.webp",

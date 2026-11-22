@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { db } from "../db";
 import { users } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import argon2 from "argon2";
 import { renderError } from "../middleware/errors";
 
 const router = Router();
+const playerNamePattern = /^[A-Za-z0-9_-][A-Za-z0-9 _-]{1,22}[A-Za-z0-9_-]$/;
 
 // Login
 router.post("/login", async (req, res) => {
@@ -45,35 +46,57 @@ router.post("/login", async (req, res) => {
 
 // Signup
 router.post("/signup", async (req, res) => {
-  const { name, email, password } = req.body ?? {};
+  const { name, email, password, passwordConfirmation } = req.body ?? {};
 
   if (
-    typeof name !== "string" ||
     typeof email !== "string" ||
     typeof password !== "string" ||
-    !name.trim() ||
     !email.trim() ||
     !password
   ) {
     return renderError(res, 400, { message: "Invalid signup information." });
   }
 
+  if (passwordConfirmation !== password) {
+    return renderError(res, 400, { message: "Passwords must match." });
+  }
+
+  if (typeof name !== "string" || !playerNamePattern.test(name)) {
+    return renderError(res, 400, {
+      message:
+        "Player names must be 3–24 characters and use only letters A–Z, numbers, spaces, underscores, or hyphens. Spaces cannot appear at either end.",
+    });
+  }
+
   const passwordHash = await argon2.hash(password);
   const signup = db
     .insert(users)
     .values({
-      name: name.trim(),
+      name,
       email: email.trim().toLowerCase(),
       passwordHash,
     })
-    .onConflictDoNothing({ target: users.email })
-    .run();
+    .onConflictDoNothing()
+    .returning({ id: users.id })
+    .get();
 
-  if (signup.changes === 0) {
-    return renderError(res, 409, { message: "Email already registered." });
+  if (!signup) {
+    const nameTaken = db
+      .select({ id: users.id })
+      .from(users)
+      .where(sql`lower(${users.name}) = lower(${name})`)
+      .get();
+
+    return renderError(res, 409, {
+      message: nameTaken
+        ? "Player name already taken."
+        : "Email already registered.",
+    });
   }
 
-  return res.redirect("/");
+  req.session.userId = signup.id;
+
+  return res.redirect("/game");
 });
 
 // Logout

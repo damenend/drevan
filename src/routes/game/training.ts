@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { getEffectiveStats } from "../../services/equipment";
+import { formatPlayerName } from "../../utils/format-player-name";
 
 import {
   createTrainingDummy,
@@ -38,7 +39,7 @@ router.post("/", (req, res) => {
   // Simulate battle
   const result = simulateBattle(
     {
-      name: player.name,
+      name: formatPlayerName(player.name),
       hp: player.hp,
       speed: player.speed,
       ...getEffectiveStats(player),

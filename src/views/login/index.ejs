@@ -28,25 +28,89 @@
   </form>
   <hr />
   <h2>Sign Up</h2>
-  <form action="/signup" method="POST">
+  <form id="signup-form" action="/signup" method="POST">
     <div class="form-group">
-      <input type="text" name="name" placeholder="Name" aria-label="Name" autocomplete="name" required />
+      <input type="text" name="name" placeholder="Player name" aria-label="Player name" aria-describedby="player-name-rules signup-name-error" autocomplete="nickname" minlength="3" maxlength="24" pattern="[A-Za-z0-9_\-][A-Za-z0-9_ \-]{1,22}[A-Za-z0-9_\-]" required />
+      <p id="player-name-rules">3–24 characters. Use letters A–Z, numbers, spaces, underscores, or hyphens. Keep spaces inside the name. Names are unique regardless of capitalization.</p>
+      <p id="signup-name-error" hidden></p>
     </div>
     <div class="form-group">
-      <input type="email" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required />
+      <input type="email" name="email" placeholder="Email" aria-label="Email" aria-describedby="signup-email-error" autocomplete="email" required />
+      <p id="signup-email-error" hidden></p>
     </div>
     <div class="form-group">
       <input
         type="password"
         name="password"
         aria-label="Password"
+        aria-describedby="signup-password-error"
         placeholder="Password"
         autocomplete="new-password"
         required
       />
+      <p id="signup-password-error" hidden></p>
+    </div>
+    <div class="form-group">
+      <input
+        type="password"
+        name="passwordConfirmation"
+        aria-label="Confirm password"
+        aria-describedby="signup-passwordConfirmation-error"
+        placeholder="Confirm password"
+        autocomplete="new-password"
+        required
+      />
+      <p id="signup-passwordConfirmation-error" hidden></p>
     </div>
     <div class="form-group">
       <button type="submit">Sign Up</button>
     </div>
   </form>
 </section>
+
+<script>
+  (() => {
+    const form = document.getElementById("signup-form");
+    const password = form.elements.namedItem("password");
+    const confirmation = form.elements.namedItem("passwordConfirmation");
+    const mismatchMessage = "Passwords must match.";
+
+    function showFieldError(field, message = "") {
+      const feedback = document.getElementById(`signup-${field.name}-error`);
+      const { valid, patternMismatch } = field.validity;
+      feedback.textContent = message || (patternMismatch
+        ? "Enter a player name that follows the rules above."
+        : field.validationMessage);
+      feedback.hidden = valid && !message;
+
+      if (feedback.hidden) {
+        field.removeAttribute("aria-invalid");
+      } else {
+        field.setAttribute("aria-invalid", "true");
+      }
+    }
+
+    form.addEventListener("invalid", (event) => {
+      showFieldError(event.target);
+    }, true);
+
+    form.addEventListener("input", (event) => {
+      const field = event.target;
+      if (field !== confirmation && field.hasAttribute("aria-invalid")) {
+        showFieldError(field);
+      }
+      if ((field === password || field === confirmation) && confirmation.hasAttribute("aria-invalid")) {
+        const mismatch = confirmation.value && confirmation.value !== password.value;
+        showFieldError(confirmation, mismatch ? mismatchMessage : "");
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      if (confirmation.value !== password.value) {
+        event.preventDefault();
+        showFieldError(confirmation, mismatchMessage);
+        confirmation.focus();
+      }
+    });
+  })();
+</script>

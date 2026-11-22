@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   sqliteTable,
   integer,
@@ -5,21 +6,27 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-export const users = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
-  gold: integer("gold").notNull().default(100),
-  strength: integer("strength").notNull().default(5),
-  speed: integer("speed").notNull().default(5),
-  hp: integer("hp").notNull().default(25),
-  maxHp: integer("max_hp").notNull().default(25),
-  exp: integer("exp").notNull().default(0),
-  equippedWeaponId: integer("equipped_weapon_id"),
-  equippedArmorId: integer("equipped_armor_id"),
-  defense: integer("defense").notNull().default(0),
-});
+export const users = sqliteTable(
+  "users",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    passwordHash: text("password_hash").notNull(),
+    gold: integer("gold").notNull().default(100),
+    strength: integer("strength").notNull().default(5),
+    speed: integer("speed").notNull().default(5),
+    hp: integer("hp").notNull().default(25),
+    maxHp: integer("max_hp").notNull().default(25),
+    exp: integer("exp").notNull().default(0),
+    equippedWeaponId: integer("equipped_weapon_id"),
+    equippedArmorId: integer("equipped_armor_id"),
+    defense: integer("defense").notNull().default(0),
+  },
+  (table) => [
+    uniqueIndex("users_name_lower_unique").on(sql`lower(${table.name})`),
+  ],
+);
 
 export const items = sqliteTable("items", {
   id: integer("id").primaryKey({ autoIncrement: true }),

@@ -14,7 +14,7 @@
       <tbody>
         <% players.forEach(player => { %>
         <tr>
-          <th scope="row"><a href="/users/<%= player.id %>"><%= player.name %></a></th>
+          <th scope="row"><a href="/users/<%= player.id %>"><%= formatPlayerName(player.name) %></a></th>
           <td><%= formatNumber(playerLevel) %></td>
         </tr>
         <% }) %>

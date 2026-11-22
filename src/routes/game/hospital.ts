@@ -3,6 +3,7 @@ import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { formatNumber } from "../../utils/format-number";
+import { formatPlayerName } from "../../utils/format-player-name";
 
 const router = Router();
 
@@ -15,7 +16,7 @@ router.get("/", (req, res) => {
   let message;
 
   if (Number.isSafeInteger(healed) && healed > 0) {
-    message = `${player.name} was healed for ${formatNumber(healed)} HP`;
+    message = `${formatPlayerName(player.name)} was healed for ${formatNumber(healed)} HP`;
   } else if (req.query.err) {
     message = "Unable to heal. Please check your gold and try again.";
   }
