@@ -12,6 +12,12 @@ Start with equipment playtesting, then add fishing and equipment buyback. Build 
 
 Milestone numbers show the recommended order. Dependencies are prerequisites. Independent work can move ahead when those prerequisites are met. Each heading gives the priority and relative complexity. **Small** means a limited change to an existing system, **Medium** spans a few systems, and **Large** includes substantial data changes, multiple systems, or unresolved design.
 
+## Combat design
+
+Players make their choices before the fight through class, attributes, stat allocation, gear, and eventually enchantments and equipment effects. A single action starts the fight. The server resolves it automatically and shows what happened in the battle log. Training, named NPC fights, and practice PvP share one simulator, while each encounter mode controls what results it saves and what rewards it grants.
+
+Balance PvE first so progression feels rewarding, upgrades matter, and stronger opponents justify their rewards. Specialized enemies give different builds room to excel. Use practice PvP to check competitive fairness as it becomes relevant. Introduce one mechanic at a time and use observed matchups to decide whether a mode needs different rules.
+
 ## P0 — Critical: Immediate development priorities
 
 ### 1. Finish equipment effectiveness playtesting (P0 · Small)
@@ -72,6 +78,12 @@ Milestone numbers show the recommended order. Dependencies are prerequisites. In
 - **Scope.** Compare Strength, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Measure win rate, HP remaining, total attacks, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to test the current tie rule, which favors the player on equal attack times.
 - **Done when.** Results document where stats and combinations excel, including timing bias and low-impact bonuses. Tune one rule or bonus at a time and rerun the same matchups before opening practice PvP.
 
+### 9a. Prototype a named Dominion boss (P2 · Small)
+
+- **Dependencies.** Initial combat audit (9), the training simulator, and reliable equipment calculations (1). This can proceed alongside practice PvP and progression work.
+- **Scope.** Start with one opponent, such as The Blighted Guardian. Define its ID, name, lore, recommended level, fixed attributes, and basic rewards in TypeScript. Tune its stat spread against a comparable training dummy so it has a recognizable matchup. Resolve challenges automatically through the shared simulator and show the existing battle log. The first encounter uses ordinary attacks and keeps its difficulty fixed. Revisit database-backed definitions if the catalog, location-specific rewards, or administrative tools warrant them. Track player progress separately from the opponent definition.
+- **Done when.** Players can challenge and defeat the boss. Starter characters are clearly outmatched through combat itself, and prepared characters have a realistic path to victory. Compare win rate, remaining HP, and battle length across differently equipped builds. Verify the same boss stats are used for every challenger and training still resolves as before.
+
 ### 10. Introduce practice PvP in Dominion (P2 · Medium)
 
 - **Dependencies.** Initial combat audit (9), The Registry, and shared combat and equipment calculations.
@@ -110,6 +122,12 @@ Milestone numbers show the recommended order. Dependencies are prerequisites. In
 - **Scope.** Add a text-based expedition into Drevan's lost civilizations. One action rolls a discovery of gold or an existing item, an empty result, or a hostile encounter. Reuse the battle system and start without maps, stamina, or daily limits.
 - **Done when.** Players see and can resolve every event type. Encounter consequences and expedition completion are clear, and rewards offer a reason to explore after accounting for HP loss and healing.
 
+### 15a. Pilot a boss bounty (P3 · Medium)
+
+- **Dependencies.** The Bounty Board (8) and a named Dominion boss (9a). XP rewards depend on milestone 12.
+- **Scope.** Add a contract for defeating a named boss. Try allowing direct challenges and using the contract to pay an additional reward while keeping the encounter identical. Start with a simple reward and consider XP, reagents, rare equipment, or unique items as their supporting systems mature.
+- **Done when.** A qualifying victory satisfies the objective once and the contract pays once. Compare repeat boss payouts after healing with training, fishing, and exploration. Use that evidence to decide whether rewards need repeat restrictions.
+
 ### 16. Expand loot tables and reagent sources (P3 · Medium)
 
 - **Dependencies.** Drops and materials (4–6) and named uses for new rewards. Exploration-specific sources require The Ruins (15).
@@ -133,6 +151,18 @@ Milestone numbers show the recommended order. Dependencies are prerequisites. In
 - **Dependencies.** Basic salvaging (7), broader material sources (16), and tracked equipment copies (17). Enchanted gear support depends on milestone 18.
 - **Scope.** Use base-item or category yields for more valuable gear, with occasional uncommon or rare materials. Materials go into the same stacks as drops. Salvaging a modified piece consumes its enhancements and enchantment along with the item.
 - **Done when.** Confirmation identifies the exact copy and only that copy is consumed. Earlier spending and enchantment ingredients are never recovered. Better gear can yield better materials while purchase-and-salvage loops lose gold on average.
+
+### 19a. Pilot an intrinsic equipment proc (P3 · Medium)
+
+- **Dependencies.** Combat audit (9), shared equipment calculations (1), and reliable equipped-item identification. Use per-copy tracking (17) if the effect must vary by copy.
+- **Scope.** Static modifiers always apply. Passive combat effects apply whenever their condition is met. A proc rolls a chance on a qualifying event. Start with one intrinsic effect on the Flaming Great Axe of Ravenspire, a weapon that independently rolls on each qualifying successful attack to deal bonus damage. Use ordinary damage rules and treat fire as flavor. Resolve and log it automatically. The effect belongs to the item. Forge enchantments (18) are separately applied, removable, and use their own gold and reagent costs.
+- **Done when.** Controlled rolls reproduce results, each activation logs and applies its bonus damage once, and bonus damage cannot trigger another proc. Compare fast and slow builds and verify training with ordinary gear still behaves as before.
+
+### 19b. Pilot Poison as a temporary combat effect (P3 · Medium)
+
+- **Dependencies.** Named Dominion boss (9a) and a tested baseline for its ordinary fight. Playtest Poison separately from the first equipment proc (19a).
+- **Scope.** Try letting a successful enemy attack apply Poison to its target in a rematch with The Blighted Guardian. Define its duration and test ticking on the affected fighter’s actions. Log application, damage ticks, and any defeat caused by a tick. Keep all temporary effects and stat changes in the simulation and clear them at encounter end. Save remaining HP and ordinary rewards according to the encounter’s existing rules.
+- **Done when.** The log shows when Poison applies and deals damage, the effect expires as specified, and a new fight starts with no effects carried over. Compare fast and slow builds to check how action frequency affects damage and duration. Verify that lethal ticks end the encounter correctly and that the combat cap still applies.
 
 ## P4 — Backlog: Future concepts and open design questions
 
@@ -165,7 +195,7 @@ These entries are candidates for design and playtesting. Their completion criter
 ### 24. Additional character content (P4 · Large)
 
 - **Dependencies.** Class playtesting (11) for moves and build-specific encounters. A playable alien race needs lore and avatar models.
-- **Scope.** Consider an alien race with two models, appearance and lore first. Explore further customization, named Dominion opponents, a weapon that trades Speed for Strength, and once-per-battle signatures such as a Warrior brace, Wizard armor pierce, or Archer aimed shot.
+- **Scope.** Consider an alien race with two models, appearance and lore first. Explore further customization, a weapon that trades Speed for Strength, and once-per-battle signatures such as a Warrior brace, Wizard armor pierce, or Archer aimed shot.
 - **Done when.** A chosen addition fits Drevan's lore or creates a distinct, tested combat choice.
 
 ### 25. Optional economy and contract expansion (P4 · Medium)
@@ -174,11 +204,32 @@ These entries are candidates for design and playtesting. Their completion criter
 - **Scope.** Consider specialized material sources, rare traveling merchants, gold sinks, and dismantling variations such as bulk salvage. Later contracts could offer XP, items, or reagent bundles. Preserve **Trial by Combat** for qualifying Dominion wins, **Relics of the Old World** for finished expeditions, and **The Unbroken** for wins without visiting Sanctum.
 - **Done when.** A selected addition serves a clear purpose in the gold economy. Expanded contracts define qualifying events, streak resets where applicable, and rewards players can use.
 
+### 25a. Explore advanced bosses and temporary effects (P4 · Large)
+
+- **Dependencies.** Named boss (9a), boss bounty pilot (15a) for contract expansion, and Poison (19b) for effects.
+- **Scope.** Consider the fast, fragile Phantom Duelist, the strong, slow Iron Tyrant, and the defensive Hollow Oracle. Explore boss-specific rewards and bounties. Try one new mechanic at a time, such as a once-per-battle Enrage below an HP threshold or Regeneration that tests sustained damage. Other candidates include Bleeding, Burning, Corrosion, and temporary Defense loss from Armor Break.
+- **Done when.** A selected boss or effect gives players a distinct reason to adjust their build, its reward fits the challenge, and the shared log explains the result.
+
+### 25b. Explore advanced equipment effects (P4 · Large)
+
+- **Dependencies.** First intrinsic proc (19a). Poison weapons depend on 19b, and combining an intrinsic effect with a Forge enchantment depends on 18.
+- **Scope.** Consider the Hel Staff of Corruption for thematic dark bonus damage and the Bulwark of the Ancients for temporary Defense stacks gained on qualifying incoming attacks. Other candidates include Reflect Damage, Life Drain, conditional offense, and Poison application. Evaluate multiple effects and combinations with enchantments as separate decisions, including which events may trigger each effect.
+- **Done when.** A chosen effect gives a named item a distinct role and has understandable trigger and stacking rules. Test long fights and fast and slow attackers for runaway damage or survivability.
+
+### 25c. Evaluate PvP-specific balance rules (P4 · Medium)
+
+- **Dependencies.** Practice PvP (10) and evidence from shared matchups. Proc and status tuning depends on 19a and 19b.
+- **Scope.** Keep shared calculations and consider explicit encounter settings only for demonstrated problems. Candidates include proc effectiveness, stack limits, status duration, healing or damage adjustments, and how capped duels resolve. Consider drawing unresolved duels at the cap. Publish any mode differences where players choose gear or start a fight.
+- **Done when.** A selected rule addresses a measured problem, preserves the intended PvE matchups, and is explained clearly to players.
+
 ## Recurring playtest checks
 
 - **Economy.** Compare short, realistic sessions across training, fishing, contracts, exploration, equipment and material sales, and salvage. Account for Sanctum healing, gear purchases, and future Forge and Artificer fees. Compare recipe costs with reagent sale values and gathering time. Keep rare ingredients tied primarily to gameplay if shops eventually stock basics.
 - **Activity roles.** Training builds combat progression, fishing offers steadier income, contracts reward bonus objectives, salvage supplies materials, exploration offers uncertain payouts, and The Forge gives players a place to invest in gear. Check that each activity has a reason to play. Keep average salvage resale at or below equipment buyback value even when a rare result can exceed it.
 - **Combat builds.** Repeat the audit matchups with each new attribute, class bonus, allocation option, equipment modifier, enhancement, and enchantment. Include Speed and initiative, Defense, critical hits, and max HP. Start with training and repeat in practice PvP as soon as available. Compare equal investment and observed fight outcomes. Equal numerical bonuses can have very different effects.
+
+- **PvE first.** Compare starter and better-prepared builds against ordinary and specialized foes. Repeat in practice PvP to look for competitive problems. For boss rewards, compare net payouts after healing across activities before adding cooldowns or limits.
+- **Repeatable simulations.** As part of the combat audit (9), use a small script or test utility to run batches with controlled or seeded randomness. Reuse the same matchups before and after each change and swap fighter positions. Track win rates, remaining HP, attack counts, encounter duration, damage dealt and received, and how often fights reach the cap. For later effects, track activations per attack and per battle, bonus damage, peak stacks, and interactions with critical hits and long fights. Consider chance, magnitude, or explicit trigger and stack limits if the results show a problem with Speed or survivability. Keep the existing attack cap and define the outcome when a fight reaches it.
 
 ## Open Design Questions
 
@@ -187,6 +238,23 @@ These entries are candidates for design and playtesting. Their completion criter
 - How should offensive and defensive stats compare at similar investment? Which builds trade enough for their strengths?
 - How much of Speed's value should come from initiative versus attack frequency? Does fighter position affect later turns, and what should change after classes and gear modifiers are tested?
 - Which fights should qualify for drops, contracts, competitive records, or titles? Would opt-in stakes improve duels?
+
+- What observed problem would justify a PvP-only rule? Which rules must stay shared, how should differences be shown, and when should a capped fight count as a draw?
+
+### Named NPCs
+
+- How should boss difficulty compare with a training dummy? Should recommended levels be advisory, and should direct challenges require a bounty?
+- What rewards justify the challenge, and how would repeat victories affect the economy? When would the NPC catalog benefit from database-backed definitions?
+
+### Triggered equipment effects
+
+- Which events qualify, including attempted attacks, successful hits, critical hits, incoming damage, or HP thresholds? How should critical hits interact with bonus damage?
+- Can multiple effects activate on one action or trigger each other? If faster builds gain too many rolls, which adjustment preserves the item’s role?
+
+### Temporary combat effects
+
+- What counts toward duration, and should Poison tick before or after the affected fighter acts? How should the log and result handle a lethal tick?
+- Which effects should stack, what limits make sense, and how should effects resolve when a fight hits the attack cap?
 
 ### Exploration
 
