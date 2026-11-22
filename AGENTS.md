@@ -135,6 +135,8 @@ When changing behavior, review nearby comments for accuracy.
 
 ## Git, environment, and safety
 
+- After completing repository changes, draft a suggested commit message based on the final diff. Use a short Conventional Commit subject, such as `feat: apply equipped item stat modifiers`. Add a brief body when it helps explain why the change was made, what behavior changed, or what a contributor needs to do after pulling.
+- Include the suggested message in the handoff. When the user asks for a commit, use the staged diff to draft the message and include the final subject and commit hash in the handoff.
 - Never commit `.env`, secret values, local SQLite databases, or dependency directories.
 - Keep `.env.example` updated when environment variables change; do not put real secrets in it.
 - Keep `yarn.lock` and Drizzle migrations version-controlled.
