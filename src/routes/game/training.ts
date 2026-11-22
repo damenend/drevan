@@ -2,6 +2,7 @@ import { Router } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
+import { getEffectiveStats } from "../../services/equipment";
 
 import {
   createTrainingDummy,
@@ -39,9 +40,8 @@ router.post("/", (req, res) => {
     {
       name: player.name,
       hp: player.hp,
-      strength: player.strength,
       speed: player.speed,
-      defense: player.defense,
+      ...getEffectiveStats(player),
     },
     enemy,
     goldReward,

@@ -307,6 +307,21 @@ img {
   overflow: hidden;
 }
 
+.character-stat-breakdown {
+  display: block;
+  margin-top: 0.25rem;
+  color: #999999;
+  font-size: 0.875rem;
+}
+
+.character-stat-bonus {
+  color: #54bdff;
+}
+
+.character-stat-penalty {
+  color: #ff5454;
+}
+
 .character-stat {
   padding: 1rem;
   background-color: #242424;
@@ -389,7 +404,7 @@ main {
 
 .container {
   width: 100%;
-  max-width: 960px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 0 1rem;
 }

@@ -1,0 +1,5 @@
+<% const bonus = total - base; %>
+<%= formatNumber(total) %>
+<% if (bonus !== 0) { %>
+  <span class="character-stat-breakdown">(<%= formatNumber(base) %> <span class="<%= bonus > 0 ? "character-stat-bonus" : "character-stat-penalty" %>"><%= bonus > 0 ? "+" : "−" %> <%= formatNumber(Math.abs(bonus)) %></span>)</span>
+<% } %>

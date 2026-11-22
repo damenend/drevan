@@ -3,6 +3,7 @@ import { requireAuth } from "../../middleware/auth";
 import { eq, asc } from "drizzle-orm";
 import { db } from "../../db";
 import { items, inventory } from "../../db/schema";
+import { getEffectiveStats } from "../../services/equipment";
 
 import arenaRouter from "./arena";
 import hospitalRouter from "./hospital";
@@ -28,6 +29,8 @@ router.get("/", (req, res) => {
       image: items.image,
       type: items.type,
       quantity: inventory.quantity,
+      effect: items.effect,
+      effectValue: items.effectValue,
     })
     .from(inventory)
     .innerJoin(items, eq(inventory.itemId, items.id))
@@ -38,6 +41,7 @@ router.get("/", (req, res) => {
   return res.render("game/index", {
     title: "Home",
     inventory: playerInventory,
+    effectiveStats: getEffectiveStats(player),
     message:
       typeof req.query.message === "string" ? req.query.message : undefined,
   });

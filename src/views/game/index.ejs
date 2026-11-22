@@ -22,7 +22,7 @@
 
       <div class="character-stat">
         <dt>Strength</dt>
-        <dd><%= formatNumber(user.strength) %></dd>
+        <dd><%- include("../partials/stat-total", { total: effectiveStats.strength, base: user.strength }) %></dd>
       </div>
 
       <div class="character-stat">
@@ -32,7 +32,7 @@
 
       <div class="character-stat">
         <dt>Defense</dt>
-        <dd><%= formatNumber(user.defense) %></dd>
+        <dd><%- include("../partials/stat-total", { total: effectiveStats.defense, base: user.defense }) %></dd>
       </div>
 
       <div class="character-stat">
@@ -59,6 +59,8 @@
             <th scope="col">Item</th>
             <th scope="col">Description</th>
             <th scope="col">Quantity</th>
+            <th scope="col">Effect</th>
+            <th scope="col">Effect Value</th>
             <th scope="col">Action</th>
           </tr>
         </thead>
@@ -70,6 +72,8 @@
             </td>
             <td><%= item.description %></td>
             <td><%= formatNumber(item.quantity) %></td>
+            <td><%= item.effect %></td>
+            <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
             <td>
               <%
                 const isEquipped =
@@ -84,14 +88,14 @@
                 }
               %>
               <% if (action) { %>
-                <form action="/game/inventory/<%= action.toLowerCase() %>" method="POST">
-                  <input type="hidden" name="itemId" value="<%= item.id %>">
-                  <button type="submit" aria-label="<%= action %> <%= item.name %>">
-                    <%= action %>
-                  </button>
-                </form>
+              <form action="/game/inventory/<%= action.toLowerCase() %>" method="POST">
+                <input type="hidden" name="itemId" value="<%= item.id %>">
+                <button type="submit" aria-label="<%= action %> <%= item.name %>">
+                  <%= action %>
+                </button>
+              </form>
               <% } else { %>
-                <span class="text-muted">—</span>
+              <span class="text-muted">—</span>
               <% } %>
             </td>
           </tr>

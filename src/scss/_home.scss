@@ -12,6 +12,21 @@
   overflow: hidden;
 }
 
+.character-stat-breakdown {
+  display: block;
+  margin-top: 0.25rem;
+  color: vars.$color-muted;
+  font-size: 0.875rem;
+}
+
+.character-stat-bonus {
+  color: vars.$color-blue;
+}
+
+.character-stat-penalty {
+  color: vars.$color-red;
+}
+
 .character-stat {
   padding: 1rem;
   background-color: vars.$color-surface;

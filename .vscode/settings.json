@@ -1,6 +1,6 @@
 {
   "files.associations": {
-    "*.ejs": "ejs"
+    "*.ejs": "html"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
@@ -16,7 +16,7 @@
     "dist/**": true,
     "data/*.sqlite*": true
   },
-  "[ejs]": {
+  "[html]": {
     "editor.defaultFormatter": "j69.ejs-beautify",
     "editor.formatOnSave": true,
     "editor.tabSize": 2,

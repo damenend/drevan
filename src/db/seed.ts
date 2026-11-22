@@ -12,7 +12,7 @@ async function seed() {
   const potions: Item[] = [
     {
       name: "Lesser Potion",
-      description: "A lesser healing potion. Restores 10 HP.",
+      description: "A lesser healing potion.",
       price: 5,
       type: "consumable",
       effect: "heal",
@@ -21,7 +21,7 @@ async function seed() {
     },
     {
       name: "Potion",
-      description: "A healing potion. Restores 50 HP.",
+      description: "A healing potion.",
       price: 25,
       type: "consumable",
       effect: "heal",
@@ -30,7 +30,7 @@ async function seed() {
     },
     {
       name: "Greater Potion",
-      description: "A greater healing potion. Restores 100 HP.",
+      description: "A greater healing potion.",
       price: 50,
       type: "consumable",
       effect: "heal",
@@ -45,6 +45,8 @@ async function seed() {
       description: "A basic sword",
       price: 100,
       type: "weapon",
+      effect: "strength",
+      effectValue: 1,
       image: "/images/rusted-sword.webp",
     },
   ];
@@ -55,6 +57,8 @@ async function seed() {
       description: "A basic armor",
       price: 100,
       type: "armor",
+      effect: "defense",
+      effectValue: 1,
       image: "/images/worn-leather-armor.webp",
     },
   ];

@@ -6,9 +6,9 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 
 ### Make equipment matter
 
-- Give the Rusted Sword a small Strength bonus and Worn Leather Armor a small Defense bonus. Strength remains the sole offensive stat until classes arrive.
+- The starter catalog defines +1 Strength for the Rusted Sword and +1 Defense for Worn Leather Armor. Strength remains the sole offensive stat until classes arrive.
 - Playtest Defense with diminishing returns. Ten Defense reduces damage by 30% before rounding, and the reduction approaches 60% as Defense increases. Check how small armor bonuses affect low-level fights, where rounding can make them harder to notice.
-- Calculate effective stats from the player's base stats and equipped items. Reuse the calculation for Home and combat, and show gear bonuses in the Curious Emporium.
+- Home and training share the calculation for equipped Strength and Defense bonuses, and the Curious Emporium shows item effects and values.
 - Compare the same few dummies with and without gear. A sword should make a win easier to reach, and armor should leave the player with noticeably more HP.
 
 ### Add a fishing spot
@@ -55,8 +55,9 @@ Drevan is a browser RPG side project. Start by making the current loop of traini
 
 ### Add a few items with cross-stat requirements
 
-- Try one or two items after players can allocate points. A **Titanium Warlock Robe** could require 8 Strength and grant Intellect plus substantial Defense. A Wizard starting at 5 Strength could spend three points to unlock it.
-- Check requirements against permanent stats, including allocated points. Apply equipment bonuses after checking eligibility.
+- Let weapons and armor apply multiple stat modifiers, including both increases and reductions on the same item. Show signed modifiers in the shop and inventory, and reflect their combined effect on Home and in combat.
+- Try one or two items after players can allocate points. A **Titanium Warlock Robe** could require 8 Strength and grant **+5 Intellect**, **+15 Defense**, and **−5 Speed**. Its weight trades attack speed for protection. A Wizard starting at 5 Strength could spend three points to unlock it.
+- Check requirements against permanent stats, including allocated points. Apply equipment modifiers after checking eligibility.
 - Offer a comparable robe with an easier requirement and a different benefit, such as more Intellect and lighter protection. Test whether both robes are worth choosing for different builds.
 
 ### Let players reset their class and allocation points

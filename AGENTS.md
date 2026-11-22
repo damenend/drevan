@@ -46,7 +46,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 ## Established gameplay concepts
 
 - Player attributes include gold, strength, speed, Defense, HP, maximum HP, and experience. Defense defaults to 0 for new and existing players, appears on Home, and reduces incoming damage in training.
-- Equipment includes weapons and armor. Equipping stores the item ID on the user. Training currently uses the player's base stats.
+- Equipment includes weapons and armor. Equipping stores the item ID on the user. Home and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats.
 - Inventory has one row per player and item. Equipping and consuming require positive owned quantity. Save each purchase in one transaction so the gold deduction and inventory update either both succeed or both roll back. Use the same approach for healing and item consumption.
 - Seeded healing items are Lesser Potion (10 HP), Potion (50 HP), and Greater Potion (100 HP). Healing is capped at the player's missing HP. See `src/db/seed.ts` for item values.
 - The hospital, called **Sanctum**, heals missing HP at a cost of one gold per HP restored, with insufficient-funds handling.
@@ -76,7 +76,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 ## Visual and UX conventions
 
 - Early-2000s web aesthetic with high-fantasy / sci-fi artwork; avoid glossy or chrome-like UI.
-- Main container maximum width: 960px.
+- Main container maximum width: 1320px.
 - Typeface: Roboto for body text and Rajdhani for headings and buttons.
 - Use the shared `formatNumber` helper for server-rendered gameplay numbers and the same `en-US` locale for live browser totals. Keep form values and data attributes used in calculations numeric and ungrouped.
 - Established SCSS palette:
@@ -85,8 +85,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Primary: `#b58b4c`
   - Text: `#e5e5e5`
   - Muted: `#999999`
-  - Enemy: `#ff5454`
-  - Player: `#54bdff`
+  - Red (`$color-red`): `#ff5454`
+  - Blue (`$color-blue`): `#54bdff`
 - Use the shared location-image partial beneath section headings. Reuse the item-figure and player-gold partials where those elements recur.
 - Keep forms and buttons restrained, readable, and accessible.
 - Keep dynamic text escaped in EJS with `<%=`. Use unescaped output for trusted rendered markup such as partials and the layout body.
@@ -151,7 +151,7 @@ When changing behavior, review nearby comments for accuracy.
 
 ## Current development direction
 
-The [gameplay roadmap](docs/roadmap.md) identifies equipment stat modifiers as the next combat milestone. Review the schema, equipment queries, and combat calculation paths before implementing. Reuse the effective-stat calculation for Home and combat, and preserve stored base stats when equipment changes.
+The [gameplay roadmap](docs/roadmap.md) tracks equipment playtesting and future combat milestones. Reuse the effective-stat calculation in `src/services/equipment.ts` when adding combat modes.
 
 Before finishing a change, check whether it affects documented gameplay rules,
 architecture, or contributor workflows such as build commands, environment setup,
