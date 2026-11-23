@@ -11,7 +11,7 @@ flowchart LR
     subgraph VM["One Linux VM"]
         Proxy["Caddy or Nginx"]
         Service["systemd"]
-        App["One Node.js 24 process<br/>Express routes and game rules<br/>EJS pages and static assets"]
+        App["One Node.js LTS process<br/>Express routes and game rules<br/>EJS pages and static assets"]
         GameDB[("SQLite<br/>Accounts, stats, and inventory")]
         Sessions[("Persistent session store")]
         BackupJob["Scheduled SQLite backup"]

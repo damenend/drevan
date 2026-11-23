@@ -566,58 +566,58 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openai/codex-darwin-arm64@npm:@openai/codex@0.170.0-darwin-arm64":
-  version: 0.170.0-darwin-arm64
-  resolution: "@openai/codex@npm:0.170.0-darwin-arm64"
+"@openai/codex-darwin-arm64@npm:@openai/codex@0.171.0-darwin-arm64":
+  version: 0.171.0-darwin-arm64
+  resolution: "@openai/codex@npm:0.171.0-darwin-arm64"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@openai/codex-darwin-x64@npm:@openai/codex@0.170.0-darwin-x64":
-  version: 0.170.0-darwin-x64
-  resolution: "@openai/codex@npm:0.170.0-darwin-x64"
+"@openai/codex-darwin-x64@npm:@openai/codex@0.171.0-darwin-x64":
+  version: 0.171.0-darwin-x64
+  resolution: "@openai/codex@npm:0.171.0-darwin-x64"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@openai/codex-linux-arm64@npm:@openai/codex@0.170.0-linux-arm64":
-  version: 0.170.0-linux-arm64
-  resolution: "@openai/codex@npm:0.170.0-linux-arm64"
+"@openai/codex-linux-arm64@npm:@openai/codex@0.171.0-linux-arm64":
+  version: 0.171.0-linux-arm64
+  resolution: "@openai/codex@npm:0.171.0-linux-arm64"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@openai/codex-linux-x64@npm:@openai/codex@0.170.0-linux-x64":
-  version: 0.170.0-linux-x64
-  resolution: "@openai/codex@npm:0.170.0-linux-x64"
+"@openai/codex-linux-x64@npm:@openai/codex@0.171.0-linux-x64":
+  version: 0.171.0-linux-x64
+  resolution: "@openai/codex@npm:0.171.0-linux-x64"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@openai/codex-win32-arm64@npm:@openai/codex@0.170.0-win32-arm64":
-  version: 0.170.0-win32-arm64
-  resolution: "@openai/codex@npm:0.170.0-win32-arm64"
+"@openai/codex-win32-arm64@npm:@openai/codex@0.171.0-win32-arm64":
+  version: 0.171.0-win32-arm64
+  resolution: "@openai/codex@npm:0.171.0-win32-arm64"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@openai/codex-win32-x64@npm:@openai/codex@0.170.0-win32-x64":
-  version: 0.170.0-win32-x64
-  resolution: "@openai/codex@npm:0.170.0-win32-x64"
+"@openai/codex-win32-x64@npm:@openai/codex@0.171.0-win32-x64":
+  version: 0.171.0-win32-x64
+  resolution: "@openai/codex@npm:0.171.0-win32-x64"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@openai/codex@npm:^0.170.0":
-  version: 0.170.0
-  resolution: "@openai/codex@npm:0.170.0"
+"@openai/codex@npm:^0.171.0":
+  version: 0.171.0
+  resolution: "@openai/codex@npm:0.171.0"
   dependencies:
-    "@openai/codex-darwin-arm64": "npm:@openai/codex@0.170.0-darwin-arm64"
-    "@openai/codex-darwin-x64": "npm:@openai/codex@0.170.0-darwin-x64"
-    "@openai/codex-linux-arm64": "npm:@openai/codex@0.170.0-linux-arm64"
-    "@openai/codex-linux-x64": "npm:@openai/codex@0.170.0-linux-x64"
-    "@openai/codex-win32-arm64": "npm:@openai/codex@0.170.0-win32-arm64"
-    "@openai/codex-win32-x64": "npm:@openai/codex@0.170.0-win32-x64"
+    "@openai/codex-darwin-arm64": "npm:@openai/codex@0.171.0-darwin-arm64"
+    "@openai/codex-darwin-x64": "npm:@openai/codex@0.171.0-darwin-x64"
+    "@openai/codex-linux-arm64": "npm:@openai/codex@0.171.0-linux-arm64"
+    "@openai/codex-linux-x64": "npm:@openai/codex@0.171.0-linux-x64"
+    "@openai/codex-win32-arm64": "npm:@openai/codex@0.171.0-win32-arm64"
+    "@openai/codex-win32-x64": "npm:@openai/codex@0.171.0-win32-x64"
   dependenciesMeta:
     "@openai/codex-darwin-arm64":
       optional: true
@@ -633,7 +633,7 @@ __metadata:
       optional: true
   bin:
     codex: bin/codex.js
-  checksum: 10c0/7db8e0ce5b3196f2089bebaceb7f9e79503c829a02959493e35e5100f8a9a6455f315cad211e5441686cf5fd81dda19434aaad617aea689d5f47a3c406ffbd86
+  checksum: 10c0/1404e923a37caec4689e03fbb352ddebb4b8b57956b4795777801845d2f041d8c6c2022a3d8f59f3f983c79ce0d51a35ca944f7316500be261963afef9e0ba9c
   languageName: node
   linkType: hard
 
@@ -2045,7 +2045,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "game@workspace:."
   dependencies:
-    "@openai/codex": "npm:^0.170.0"
+    "@openai/codex": "npm:^0.171.0"
     "@types/better-sqlite3": "npm:^9.6.0"
     "@types/ejs": "npm:^3.1.5"
     "@types/express": "npm:^5.0.6"

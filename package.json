@@ -15,7 +15,7 @@
     "express-session": "^1.19.0"
   },
   "devDependencies": {
-    "@openai/codex": "^0.170.0",
+    "@openai/codex": "^0.171.0",
     "@types/better-sqlite3": "^9.6.0",
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.6",
@@ -34,6 +34,7 @@
   "scripts": {
     "dev": "concurrently \"tsx watch src/app.ts\" \"sass --watch src/scss/main.scss:public/css/main.css\"",
     "build": "tsc && yarn sass:build",
+    "clean": "rm -rf dist node_modules .yarn/install-state.gz",
     "start": "node dist/app.js",
     "sass:build": "sass src/scss/main.scss public/css/main.css --style=expanded",
     "db:generate": "drizzle-kit generate",
@@ -45,6 +46,7 @@
     "lint": "oxlint --deny-warnings src drizzle.config.ts scripts tests",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
     "check": "yarn format:check && yarn lint && yarn typecheck && yarn test",
+    "deps:update": "bash scripts/update-dependencies.sh",
     "hooks:install": "node scripts/install-hooks.mjs",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:watch": "node --import tsx --test --watch tests/*.test.ts",
