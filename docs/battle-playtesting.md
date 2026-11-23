@@ -105,7 +105,7 @@ Run this from the repository root after `nvm use`.
 node --import tsx scripts/audit-battle.ts > /tmp/drevan-battle-audit.csv
 ```
 
-Expect 1,350 data rows, each summarized from 5,000 fights using seeds 1–5,000.
+Expect 1,980 data rows, each summarized from 5,000 fights using seeds 1–5,000.
 Every matchup repeats with the build in each fighter slot. The audit starts at
 full HP and uses dummies 1–6, a starter mirror, a slow heavy opponent, and a
 quick opponent. The CSV includes win, loss, and draw counts, mean remaining HP
@@ -270,3 +270,47 @@ much the same curve changes the roles of different enemies. Keep the
 current Speed formula for the next allocation tests. Compare +3 HP in
 mixed builds, and test Defense around the points where one more point
 actually reduces damage.
+
+### Mixed builds and Defense breakpoints
+
+This trial uses the live Speed formula and random timing ties. Each mixed
+build starts at 28 HP, 6 Strength, 6 Speed, and 0 Defense. That models
+spending three points on +3 HP, +1 Strength, and +1 Speed. The table shows
+where the fourth point goes, including a trial where it buys +2 Defense.
+
+| Fourth point | Level 4 wins | Level 4 net gold | Level 5 wins | Level 5 net gold | Heavy wins |
+| ------------ | -----------: | ---------------: | -----------: | ---------------: | ---------: |
+| +1 Defense   |        98.9% |           +19.96 |        35.3% |            -8.93 |      72.5% |
+| +2 Defense   |        99.4% |           +20.31 |        47.1% |            -2.52 |      88.5% |
+| +1 Strength  |       99.98% |           +24.03 |        75.9% |           +14.19 |      90.8% |
+| +1 Speed     |       99.98% |           +24.13 |        55.8% |            +2.17 |      89.6% |
+| +3 HP        |        99.8% |           +20.33 |        57.1% |            +0.43 |      87.5% |
+
+Strength gave the strongest level 5 result. Spending the last point on HP helped the
+build turn level 5 from a loss into a small profit compared with either
+Defense option. Against the heavy opponent, +2 Defense and +3 HP came
+within about a percentage point of each other.
+
+Defense is applied after the critical bonus and damage rounds to a whole
+number. Against the level 4 dummy, these are the final damage values for
+each possible base roll, in order from 3 through 5.
+
+| Total Defense | Ordinary damage | Critical damage | Starter win rate |
+| ------------- | --------------- | --------------- | ---------------: |
+| 0             | 3, 4, 5         | 5, 6, 8         |            49.6% |
+| 1             | 3, 4, 5         | 5, 6, 8         |            49.6% |
+| 2             | 3, 4, 5         | 5, 5, 7         |            50.9% |
+| 3             | 3, 3, 4         | 4, 5, 7         |            88.1% |
+| 4             | 2, 3, 4         | 4, 5, 7         |            94.1% |
+
+At 2 Defense, only critical rolls change against this dummy. At 3,
+two of the three ordinary rolls each lose a point of damage. The
+level 5 dummy hits harder, so 2 Defense already cuts its highest
+ordinary roll from 6 to 5. These thresholds depend on the enemy's
+damage range and the player's total Defense, including gear.
+
+For the initial allocation prototype, test Strength, Speed, and +3 HP
+per point. Keep direct Defense allocation provisional until the same
+point increments have been tested on top of Worn Leather Armor's +3
+Defense. That comparison will show how much the breakpoint at 3
+contributes to the value of the first piece of armor.

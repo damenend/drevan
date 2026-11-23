@@ -11,6 +11,8 @@ const builds: Combatant[] = [
   { ...starter, name: "strength-1", strength: 6 },
   { ...starter, name: "speed-1", speed: 6 },
   { ...starter, name: "defense-1", defense: 1 },
+  { ...starter, name: "defense-2", defense: 2 },
+  { ...starter, name: "defense-3", defense: 3 },
   { ...starter, name: "hp-1", hp: 26 },
   { ...starter, name: "hp-2", hp: 27 },
   { ...starter, name: "hp-3", hp: 28 },
@@ -21,6 +23,13 @@ const builds: Combatant[] = [
   { ...starter, name: "hp-8", hp: 33 },
   { ...starter, name: "hp-12", hp: 37 },
   { name: "balanced-4", hp: 26, strength: 6, speed: 6, defense: 1 },
+  // Each mixed build spends four hypothetical points. One point buys +3 HP
+  // or +1 to another stat, except in the explicit +2 Defense trial.
+  { name: "mixed-defense", hp: 28, strength: 6, speed: 6, defense: 1 },
+  { name: "mixed-double-defense", hp: 28, strength: 6, speed: 6, defense: 2 },
+  { name: "mixed-strength", hp: 28, strength: 7, speed: 6, defense: 0 },
+  { name: "mixed-speed", hp: 28, strength: 6, speed: 7, defense: 0 },
+  { name: "mixed-hp", hp: 31, strength: 6, speed: 6, defense: 0 },
   { ...starter, name: "equipped", strength: 6, defense: 3 },
 ];
 
