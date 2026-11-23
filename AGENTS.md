@@ -49,7 +49,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - Signup stores the selected avatar model (`male` or `female`) on the player. The default is `male`, including for existing accounts. Use the shared player-avatar partial on Home and player profiles.
 
 - Player attributes include gold, strength, speed, Defense, HP, maximum HP, and experience. Defense defaults to 0 for new and existing players, appears on Home, and reduces incoming damage in training.
-- Equipment includes weapons and armor. Equipping stores the item ID on the user. Home and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats.
+- Equipment includes weapons and armor. Equipping stores the item ID on the user. Home and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats. The Rusted Sword grants +1 Strength and Worn Leather Armor grants +3 Defense.
 - Inventory has one row per player and item. Equipping and consuming require positive owned quantity. Save each purchase in one transaction so the gold deduction and inventory update either both succeed or both roll back. Use the same approach for healing and item consumption.
 - Seeded healing items are Lesser Potion (10 HP), Potion (50 HP), and Greater Potion (100 HP). Healing is capped at the player's missing HP. See `src/db/seed.ts` for item values.
 - The hospital, called **Sanctum**, heals missing HP at a cost of one gold per HP restored, with insufficient-funds handling.
@@ -157,16 +157,22 @@ When changing behavior, review nearby comments for accuracy.
 
 - Run commands from the repository root. The app and seed script open `./data/game.sqlite`. Drizzle Kit reads `DATABASE_URL`, so point it at the same file for local development. Use `.env.example` as the starting point and supply a local `SESSION_SECRET`. `PORT` defaults to 3000.
 - For a fresh local database, create the `data/` directory, run `yarn db:migrate`, and run `yarn db:seed` to load the starter catalog. Rerunning the seed updates catalog entries by name.
+- After pulling changes to starter item stats, run `yarn db:seed` on your existing local database. The seed preserves item IDs, so owned and equipped copies use the updated bonuses.
 - For schema changes, use `yarn db:generate` and review the SQL, snapshot, and journal together before applying the migration. Test on a disposable database when possible. If a database already has changes from `db:push`, check its migration history before running `db:migrate`.
 - See the [Drizzle cheatsheet](docs/drizzle-cheatsheet.md) for migration, seeding, and troubleshooting steps.
 
 ## Current development direction
 
-The [gameplay roadmap](docs/roadmap.md) tracks equipment playtesting and future
-combat milestones. When adding combat modes, reuse the effective-stat
-calculation in `src/services/equipment.ts` and resolve fights automatically with
-the shared simulator in `src/services/battle.ts`. Each encounter mode decides
-which results to save and which rewards to grant.
+The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
+playtest and upcoming milestones. Follow the [battle playtest guide](docs/battle-playtesting.md)
+to rerun seeded matchups and record balance decisions. The playtest script at
+`scripts/playtest-battle.ts` runs the shared simulator with fixed loadouts and
+writes CSV results without opening the local database.
+
+When adding combat modes, reuse the effective-stat calculation in
+`src/services/equipment.ts` and resolve fights automatically with the shared
+simulator in `src/services/battle.ts`. Each encounter mode decides which
+results to save and which rewards to grant.
 
 Balance player-versus-environment (PvE) encounters first. Use repeatable
 matchups with controlled random rolls to measure the effect of one rule change

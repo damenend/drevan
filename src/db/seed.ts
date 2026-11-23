@@ -58,7 +58,7 @@ async function seed() {
       price: 100,
       type: "armor",
       effect: "defense",
-      effectValue: 1,
+      effectValue: 3,
       image: "/images/worn-leather-armor.webp",
     },
   ];

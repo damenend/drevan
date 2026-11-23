@@ -22,9 +22,8 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 1. Finish equipment effectiveness playtesting (P0 · Small)
 
-- **Dependencies.** Existing equipment, Home, Curious Emporium, and Dominion training.
-- **Scope.** Compare starter encounters with and without the Rusted Sword (+1 Strength) and Worn Leather Armor (+1 Defense). Home and training already share effective-stat calculations, and the shop lists item effects. Check how rounding and Defense's diminishing returns affect starter armor. See the [current combat rules](../AGENTS.md#combat).
-- **Done when.** Repeated matchups show where a weapon improves win odds or ends a fight sooner and where armor preserves HP. The shop's listed bonuses agree with Home and the stats used in Dominion training.
+- **Status.** Complete. The Rusted Sword stays at +1 Strength. Worn Leather Armor now grants +3 Defense so it can preserve HP against starter opponents.
+- **Results.** With both pieces equipped, the starter won 99.5% of level 4 fights and 21.6% of level 5 fights. The [battle playtest guide](battle-playtesting.md) records the comparison, rules, and rerun command.
 
 ### 2. Add basic fishing (P0 · Small)
 
