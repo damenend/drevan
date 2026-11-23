@@ -382,7 +382,7 @@ From the repository root, run this after `nvm use`.
 node --import tsx scripts/playtest-progression.ts > /tmp/drevan-progression.csv
 ```
 
-Expect 30 data rows. The script models two candidate rewards for training
+Expect 57 data rows. The first 30 model two candidate rewards for training
 wins. Flat pays 30 XP and scaled pays 10 XP per dummy level. Both use
 cumulative thresholds of 60, 150, and 270 XP for character levels 2, 3,
 and 4. Losses and draws grant zero XP.
@@ -415,5 +415,33 @@ Prototype scaled XP with these early thresholds. Flat XP gives the three
 easiest dummies the same progression pace. Scaled XP makes level 3 a
 reliable starter route and gives equipped players a faster route at
 level 4, while an unequipped player can still earn XP from easier fights.
-Next, test spending versus saving the first point and switching dummies
-mid-session before choosing later thresholds.
+
+### Spending the first stat point
+
+The remaining rows use scaled XP. Each session starts with the level 3
+dummy. After reaching character level 2, the build moves to the level 4
+dummy and either saves its first point or spends it on +1 Strength,
++1 Speed, or +3 max HP. Later points are saved. Spending on max HP raises
+the amount needed for a full heal. Current HP increases only through
+healing. Staying at level 3 and saving the point is the comparison.
+
+| First point                | No gear, reached character level 4 | No gear, mean bouts on reach | Both items, mean bouts on reach |
+| -------------------------- | ---------------------------------: | ---------------------------: | ------------------------------: |
+| Save and stay at level 3   |                               100% |                         9.00 |                            9.00 |
+| Save and switch to level 4 |                              77.9% |                        12.50 |                            8.22 |
+| +1 Strength and switch     |                              99.7% |                        10.14 |                            8.02 |
+| +1 Speed and switch        |                               100% |                         9.14 |                            8.01 |
+| +3 max HP and switch       |                              99.6% |                         9.84 |                            8.03 |
+
+All equipped sessions reached character level 4. Without gear, 221 of
+1,000 sessions that saved the point and switched ran out of healing
+gold. Spending the point brought that down to three for Strength, zero
+for Speed, and four for max HP. Speed performed best in this particular
+level 4 matchup. The earlier mixed-build audit found that Strength led
+at level 5 before gear. Keep all three options for the prototype.
+
+The first point changes which encounters an unequipped player can
+repeat. Staying at level 3 leaves saving points viable. Use cumulative
+thresholds of 60, 150, and 270 XP and one point per level-up for the
+first prototype. Validate earning and spending in the app, then use
+timed play to decide later thresholds.
