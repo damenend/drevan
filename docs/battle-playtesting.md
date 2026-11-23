@@ -507,6 +507,52 @@ healing gold before character level 8. At fixed dummy level 4, Strength cut
 defeats and healing costs, but saved only about six bouts on the way to the
 cap. This baseline covers a single stat choice and two difficulty plans.
 
+#### Fresh-account route check
+
+Ten fresh accounts ran through the actual game routes on a migrated,
+seeded disposable database. Each account bought and equipped a Rusted
+Sword with its starting gold, trained against dummy level 2 below 25 gold
+and level 3 otherwise, and spent all earned points on Strength. After
+buying Worn Leather Armor with at least 25 gold left, it switched to its
+assigned dummy. Both plans used seeds 1–5 and attempted a full Sanctum
+heal after every fight.
+
+| Dummy after buying armor | Reached character level 10 | Bouts to cap | Gold after the final heal |
+| ------------------------ | -------------------------: | -----------: | ------------------------: |
+| 4                        |                        5/5 |          160 |               4,626–4,741 |
+| 5                        |                        4/5 |      130–134 |               4,259–4,317 |
+
+All accounts reached character level 2 after three bouts and bought armor
+after seven or eight. The fifth dummy-level-5 account lost its first two
+fights after buying armor and could no longer afford a full heal. The nine
+accounts that reached the cap had spent nine stat points each. Every account
+signed in again, and The Quarters showed the saved level and the expected
+XP display.
+
+The route check confirms that the starter gear can be earned in play and
+that dummy level 5 can shorten the run at a higher risk of losing the healing
+reserve. The requests ran back-to-back, so their elapsed time measures local
+request execution. Human session pacing still needs to be measured.
+
+#### Starter supplies rerun
+
+The same two plans and seeds ran again with 125 starting gold and three
+Lesser Potions. Each account used a potion whenever it was missing at least
+10 HP, then paid Sanctum for any remaining healing. All ten accounts used
+all three potions, and each potion restored 10 HP. Armor was affordable
+after four or five bouts, compared with seven or eight before.
+
+| Dummy after buying armor | Reached character level 10 | Bouts to cap | Defeats per account |
+| ------------------------ | -------------------------: | -----------: | ------------------: |
+| 4                        |                        5/5 |          159 |                   0 |
+| 5                        |                        5/5 |      131–134 |                 3–6 |
+
+The seed that previously ran out of healing gold on dummy level 5 reached
+level 10 in 131 bouts. The rerun measures the combined effect of extra gold,
+potions, and switching dummies earlier when armor becomes affordable.
+
+#### Timed human session
+
 For the next timed session, start with a fresh account and play for 10 minutes
 without Admin changes. Record character level, XP toward the next level,
 stat choices, dummy levels, wins, defeats, gear purchases, and gold after

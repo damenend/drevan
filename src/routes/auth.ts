@@ -1,6 +1,6 @@
 import { Router, type Request } from "express";
 import { db } from "../db";
-import { users } from "../db/schema";
+import { inventory, items, users } from "../db/schema";
 import { eq, sql } from "drizzle-orm";
 import argon2 from "argon2";
 import { renderError } from "../middleware/errors";
@@ -91,19 +91,44 @@ router.post("/signup", async (req, res) => {
   }
 
   const passwordHash = await argon2.hash(password);
-  const signup = db
-    .insert(users)
-    .values({
-      name,
-      avatarModel,
-      email: email.trim().toLowerCase(),
-      passwordHash,
-    })
-    .onConflictDoNothing()
-    .returning({ id: users.id })
-    .get();
+  // Save the account and its starter potions together.
+  const signup = db.transaction(
+    (tx) => {
+      const potion = tx
+        .select({ id: items.id })
+        .from(items)
+        .where(eq(items.name, "Lesser Potion"))
+        .get();
+      if (!potion) return { status: "catalog-unavailable" } as const;
 
-  if (!signup) {
+      const player = tx
+        .insert(users)
+        .values({
+          name,
+          avatarModel,
+          email: email.trim().toLowerCase(),
+          passwordHash,
+        })
+        .onConflictDoNothing()
+        .returning({ id: users.id })
+        .get();
+      if (!player) return { status: "conflict" } as const;
+
+      tx.insert(inventory)
+        .values({ userId: player.id, itemId: potion.id, quantity: 3 })
+        .run();
+      return { status: "created", id: player.id } as const;
+    },
+    { behavior: "immediate" },
+  );
+
+  if (signup.status === "catalog-unavailable") {
+    return renderError(res, 503, {
+      message: "Signup is temporarily unavailable. Please try again later.",
+    });
+  }
+
+  if (signup.status === "conflict") {
     const nameTaken = db
       .select({ id: users.id })
       .from(users)

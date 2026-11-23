@@ -53,6 +53,8 @@ before(async () => {
 
   const signup = await post("/signup", account, "");
   assert.equal(signup.headers.get("location"), "/game");
+  assert.equal(player().gold, 125);
+  assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 3 }]);
   cookie = sessionCookie(signup);
 });
 

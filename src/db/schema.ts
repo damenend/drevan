@@ -17,7 +17,7 @@ export const users = sqliteTable(
       .default("male"),
     email: text("email").notNull().unique(),
     passwordHash: text("password_hash").notNull(),
-    gold: integer("gold").notNull().default(100),
+    gold: integer("gold").notNull().default(125),
     strength: integer("strength").notNull().default(5),
     speed: integer("speed").notNull().default(5),
     hp: integer("hp").notNull().default(25),

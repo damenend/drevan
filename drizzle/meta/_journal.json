@@ -64,6 +64,13 @@
       "when": 1795459455042,
       "tag": "0008_sturdy_khan",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1795463030990,
+      "tag": "0009_starter_gold",
+      "breakpoints": true
     }
   ]
 }
