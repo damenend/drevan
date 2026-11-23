@@ -8,6 +8,20 @@ type EquippedPlayer = Pick<
 >;
 
 /**
+ * Identifies the slot that reserves one copy of this inventory stack.
+ */
+export function getEquippedSlot(
+  player: Pick<EquippedPlayer, "equippedWeaponId" | "equippedArmorId">,
+  item: Pick<typeof items.$inferSelect, "id" | "type">,
+) {
+  if (item.type === "weapon" && item.id === player.equippedWeaponId)
+    return "weapon";
+  if (item.type === "armor" && item.id === player.equippedArmorId)
+    return "armor";
+  return null;
+}
+
+/**
  * Returns base Strength and Defense plus bonuses from owned gear in the
  * matching equipment slots. Each slot contributes once, regardless of quantity.
  */

@@ -42,6 +42,8 @@ before(async () => {
     VALUES (1, 'Lesser Potion', 'Test potion', 5, 'consumable', 'heal', 10),
            (2, 'Rusted Sword', 'Test sword', 100, 'weapon', 'strength', 1),
            (3, 'Murkfin', 'Test fish', NULL, 'fish', NULL, NULL);
+    UPDATE items SET sell_price = 50 WHERE id = 2;
+    UPDATE items SET sell_price = 1 WHERE id = 3;
   `);
 
   const { app } = await import("../src/app.js");
@@ -230,6 +232,103 @@ test("Emporium charges catalog prices and rejects invalid or unaffordable carts"
   await post("/game/store", { items: { "item-1": 1 } });
   assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 3 }]);
   assert.equal(player().gold, 85);
+});
+
+test("Emporium buys owned fish at catalog prices and protects equipped gear", async () => {
+  sqlite.exec(`
+    INSERT INTO inventory (user_id, item_id, quantity)
+    SELECT id, 2, 2 FROM users WHERE email = 'test@example.test'
+    UNION ALL SELECT id, 3, 3 FROM users WHERE email = 'test@example.test';
+    UPDATE users SET equipped_weapon_id = 2;
+  `);
+
+  const store = await request("/game/store", { headers: { cookie } });
+  const [buySection, sellSection] = store.html.split('<section id="sell"');
+  assert.doesNotMatch(buySection, /Murkfin/);
+  assert.match(sellSection, /Murkfin/);
+  assert.match(sellSection, /id="sell-2"[^>]*max="1"[^>]*data-price="50"/);
+  assert.equal((sellSection.match(/type="submit"/g) ?? []).length, 1);
+  assert.match(sellSection, /id="sell-total"/);
+
+  const home = await request("/game", { headers: { cookie } });
+  const [, equipmentAndInventory] = home.html.split('<section id="equipped"');
+  const [equipment, bag] = equipmentAndInventory.split(
+    'aria-labelledby="inventory-heading"',
+  );
+  assert.match(equipment, /Unequip Rusted Sword/);
+  assert.match(bag, /Rusted Sword<\/figcaption>[\s\S]*?<td>1<\/td>/);
+  assert.doesNotMatch(bag, /Unequip Rusted Sword/);
+
+  const initial = player();
+  const inventory = ownedItems();
+  for (const [items, status] of [
+    [{ "item-3": 1, "item-2": 2 }, 409],
+    [{ "item-2": 1, "item-1": 1 }, 409],
+    [{ "item-2": 1, "item-3": 4 }, 409],
+    [{ "item-3": 0 }, 400],
+    [{ "item-3": 1.5 }, 400],
+    [{ "item-3": [1] }, 400],
+  ]) {
+    assert.equal((await post("/game/store/sell", { items })).status, status);
+    assert.deepEqual(player(), initial);
+    assert.deepEqual(ownedItems(), inventory);
+  }
+
+  const sale = await post(
+    "/game/store/sell",
+    new URLSearchParams({
+      "items[item-2]": "1",
+      "items[item-3]": "2",
+      "items[item-1]": "",
+      sellPrice: "1000",
+    }),
+  );
+  assert.equal(sale.status, 303);
+  assert.equal(sale.headers.get("location"), "/game/store?sold=1#sell");
+  assert.equal(player().gold, 152);
+  assert.equal(player().equipped_weapon_id, 2);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 2, quantity: 1 },
+    { item_id: 3, quantity: 1 },
+  ]);
+  assert.equal(
+    (await post("/game/store/sell", { items: { "item-2": 1 } })).status,
+    409,
+  );
+  const afterSale = await request("/game/store", { headers: { cookie } });
+  assert.match(afterSale.html, /Unequip on Home/);
+
+  await post("/game/inventory/unequip", { itemId: 2 });
+  assert.equal(
+    (await post("/game/store/sell", { items: { "item-2": 1 } })).status,
+    303,
+  );
+  assert.equal(player().gold, 202);
+  assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
+});
+
+test("Emporium preserves stock when crediting sale gold fails", async (t) => {
+  const initial = player();
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    INSERT INTO inventory (user_id, item_id, quantity)
+    SELECT id, 3, 1 FROM users WHERE email = 'test@example.test';
+    CREATE TRIGGER fail_sale BEFORE UPDATE OF gold ON users
+    BEGIN
+      SELECT RAISE(ABORT, 'Test gold write failure');
+    END;
+  `);
+
+  try {
+    assert.equal(
+      (await post("/game/store/sell", { items: { "item-3": 1 } })).status,
+      500,
+    );
+    assert.deepEqual(player(), initial);
+    assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_sale;");
+  }
 });
 
 test("an inventory write failure rolls back the Emporium gold deduction", async (t) => {

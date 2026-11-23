@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-Equipment playtesting and basic fishing are complete. Next, add Curious Emporium buyback for equipment and caught fish. Build small, independently playable features for a server-rendered, early-2000s science-fantasy RPG. Reuse the existing combat, inventory, and gold systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
+Equipment playtesting, basic fishing, and Curious Emporium buyback are complete. Next, add basic combat item drops. Build small, independently playable features for a server-rendered, early-2000s science-fantasy RPG. Reuse the existing combat, inventory, and gold systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
 | Priority | Focus                                     | Readiness                                               |
 | -------- | ----------------------------------------- | ------------------------------------------------------- |
@@ -29,13 +29,13 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 - **Status.** Complete. Players can visit The Driftwater from Nexaris, cast, and see the result. A successful catch adds one fish to the corresponding inventory stack. Saving the fish and spending the cast happen in one transaction.
 - **Playtest rules.** Each cast has an 80% chance of a bite. Successful catches are 70% Murkfin, 25% Glassscale, and 5% Astral Koi. Players get 50 casts per day, including empty casts, with a midnight Central reset. Admin can edit today's casts used for playtesting.
-- **Next step.** Sell caught fish at Curious Emporium in milestone 3. Rods, reels, and bait are future ideas.
+- **Related feature.** Sell caught fish at Curious Emporium. Rods, reels, and bait are future ideas.
 
 ### 3. Establish equipment and fish buyback (P0 · Medium)
 
-- **Dependencies.** Basic fishing (2), Curious Emporium, inventory quantities, and equipped slots.
-- **Scope.** Let players sell owned weapons, armor, and caught fish at server-set gold values. Set fish payouts separately from shop purchase prices so the Emporium can buy Murkfin, Glassscale, and Astral Koi from players without offering them for purchase. Require players to unequip gear before selling that catalog item while equipped gear is tracked by catalog ID.
-- **Done when.** A valid sale deducts the selected quantity and credits gold in one transaction. Equipped gear, unowned items, and invalid quantities leave player state intact. Compare fishing income with training after Sanctum healing costs, and use equipment buyback prices as the cash alternative to salvage.
+- **Status.** Complete. The Emporium buys owned weapons, armor, and fish. Players can sell several stacks in one transaction and see the combined payout before submitting. An equipped slot reserves one copy, and the Emporium can buy the rest of the stack.
+- **Starting payouts.** Rusted Sword and Worn Leather Armor sell for 50 gold each, giving future salvage a guaranteed gold alternative. Murkfin sells for 1 gold, Glassscale for 3, and Astral Koi for 10. The fish remain available only through gameplay.
+- **Economy comparison.** A full 50-cast allowance averages 78 gold at these payouts. Across 1,000 seeded fights per matchup with a full heal at Sanctum after each fight, an unequipped starter averaged 8.43 net gold at level 1 and 17.77 at level 3. A starter wearing both gear pieces averaged 23.17 net gold at level 4. That puts a full fishing allowance near nine level-1 fights or three to four equipped level-4 fights in gold terms. Session duration still needs a playtest.
 
 ## P1 — High: Near-term gameplay improvements
 
@@ -224,6 +224,7 @@ These entries are candidates for design and playtesting. Their completion criter
 ## Recurring playtest checks
 
 - **Economy.** Compare short, realistic sessions across training, fishing, contracts, exploration, equipment and material sales, and salvage. Account for Sanctum healing, gear purchases, and future Forge and Artificer fees. Compare recipe costs with reagent sale values and gathering time. Keep rare ingredients tied primarily to gameplay if shops eventually stock basics.
+- **Starter economy playtest.** Run separate 10-minute fishing and training sessions with fresh characters and the same starting gear. Record actions completed, gold earned, Sanctum costs, and gold kept after healing. Note how long it takes to earn 100 additional gold, the price of one starter gear piece. Characters already start with 100 gold, so track earned gold separately. If a session ends before the player earns 100 gold, record their progress and ask whether either activity felt required to afford upgrades. Repeat once combat drops add another source of items to sell.
 - **Activity roles.** Training builds combat progression, fishing offers steadier income, contracts reward bonus objectives, salvage supplies materials, exploration offers uncertain payouts, and The Forge gives players a place to invest in gear. Check that each activity has a reason to play. Keep average salvage resale at or below equipment buyback value even when a rare result can exceed it.
 - **Combat builds.** Repeat the audit matchups with each new attribute, class bonus, allocation option, equipment modifier, enhancement, and enchantment. Include Speed and initiative, Defense, critical hits, and max HP. Start with training and repeat in practice PvP as soon as available. Compare equal investment and observed fight outcomes. Equal numerical bonuses can have very different effects.
 

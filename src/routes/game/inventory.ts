@@ -120,27 +120,35 @@ router.post("/equip", (req, res) => {
     return redirectHome(res, "Invalid item.");
   }
 
-  const ownedItem = findOwnedItem(db, player.id, itemId);
+  const message = db.transaction(
+    (tx) => {
+      const ownedItem = findOwnedItem(tx, player.id, itemId);
 
-  if (!ownedItem) {
-    return redirectHome(res, "Item not found in inventory.");
-  }
+      if (!ownedItem) {
+        return "Item not found in inventory.";
+      }
 
-  if (ownedItem.type === "weapon") {
-    db.update(users)
-      .set({ equippedWeaponId: itemId })
-      .where(eq(users.id, player.id))
-      .run();
-  } else if (ownedItem.type === "armor") {
-    db.update(users)
-      .set({ equippedArmorId: itemId })
-      .where(eq(users.id, player.id))
-      .run();
-  } else {
-    return redirectHome(res, "This item cannot be equipped.");
-  }
+      if (ownedItem.type === "weapon") {
+        tx.update(users)
+          .set({ equippedWeaponId: itemId })
+          .where(eq(users.id, player.id))
+          .run();
+      } else if (ownedItem.type === "armor") {
+        tx.update(users)
+          .set({ equippedArmorId: itemId })
+          .where(eq(users.id, player.id))
+          .run();
+      } else {
+        return "This item cannot be equipped.";
+      }
 
-  return redirectHome(res, "Item equipped.");
+      return "Item equipped.";
+    },
+    // Keep the ownership check and equip write together if a sale is in progress.
+    { behavior: "immediate" },
+  );
+
+  return redirectHome(res, message);
 });
 
 router.post("/unequip", (req, res) => {

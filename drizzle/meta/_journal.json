@@ -50,6 +50,13 @@
       "when": 1795409658830,
       "tag": "0006_optional_item_prices",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1795452189940,
+      "tag": "0007_item_buyback",
+      "breakpoints": true
     }
   ]
 }

@@ -159,6 +159,10 @@ button.button-link:hover:not(:disabled) {
   text-decoration: underline;
 }
 
+.button {
+  margin-bottom: 1rem;
+}
+
 .item-quantity {
   max-width: 5rem;
 }

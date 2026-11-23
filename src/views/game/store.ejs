@@ -5,6 +5,7 @@
     caption: "A fantasy marketplace filled with glowing crystals and merchant supplies beneath a bronze dome.",
   }) %>
   <%- include("../partials/player-gold", { gold: user.gold }) %>
+  <h4>Buy items</h4>
   <form action="/game/store" method="POST">
     <div class="table-responsive">
       <table class="table">
@@ -46,8 +47,58 @@
     <p id="purchase-message" class="err" aria-live="polite">
       <%= err || "" %>
     </p>
-    <button type="submit" id="purchase-button">Purchase</button>
+    <button type="submit" id="purchase-button" class="button">Purchase</button>
   </form>
+  <section id="sell" aria-labelledby="sell-heading">
+    <h4 id="sell-heading">Sell items</h4>
+    <% if (sold) { %>
+    <p role="status">Sale complete.</p>
+    <% } %>
+    <% if (sellableItems.length === 0) { %>
+    <p>You have no items the Emporium buys.</p>
+    <% } else { %>
+    <form id="sell-form" action="/game/store/sell" method="POST">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Available</th>
+              <th scope="col">Value</th>
+              <th scope="col">Sell quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sellableItems.forEach(item => { %>
+            <tr>
+              <th scope="row">
+                <%- include("../partials/item-figure", { item }) %>
+              </th>
+              <td><%= formatNumber(item.available) %></td>
+              <td><%= formatNumber(item.sellPrice) %></td>
+              <td>
+                <% if (item.available === 0) { %>
+                <a href="/game#equipped">Unequip on Home</a>
+                <% } else { %>
+                <label for="sell-<%= item.id %>" class="visually-hidden">Quantity of <%= item.name %> to sell</label>
+                <input type="number" id="sell-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" max="<%= item.available %>" step="1" data-price="<%= item.sellPrice %>">
+                <% } %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% if (sellableItems.some(item => item.available > 0)) { %>
+      <p>
+        Sell for
+        <output id="sell-total" aria-live="polite">0</output> gold
+      </p>
+      <button type="submit" id="sell-button" class="button">Sell</button>
+      <% } %>
+    </form>
+    <% } %>
+  </section>
 </section>
 
 <script>
@@ -59,16 +110,21 @@
 
   const availableGold = Number(playerGold.dataset.gold);
 
-  function calculateTotal() {
+  function getTotal(inputs) {
     let total = 0;
 
-    quantityInputs.forEach((input) => {
+    inputs.forEach((input) => {
       const price = Number(input.dataset.price);
       const quantity = Number(input.value) || 0;
 
       total += price * quantity;
     });
 
+    return total;
+  }
+
+  function updatePurchaseTotal() {
+    const total = getTotal(quantityInputs);
     totalGold.textContent = total.toLocaleString("en-US");
 
     if (total > availableGold) {
@@ -81,6 +137,21 @@
   }
 
   quantityInputs.forEach((input) => {
-    input.addEventListener("input", calculateTotal);
+    input.addEventListener("input", updatePurchaseTotal);
   });
+
+  const sellInputs = Array.from(document.querySelectorAll("#sell-form input[data-price]"));
+  const sellTotal = document.querySelector("#sell-total");
+  const sellButton = document.querySelector("#sell-button");
+
+  if (sellTotal && sellButton) {
+    const updateSellTotal = () => {
+      const total = getTotal(sellInputs);
+      sellTotal.textContent = total.toLocaleString("en-US");
+      sellButton.disabled = total <= 0 || sellInputs.some(input => !input.validity.valid);
+    };
+
+    sellInputs.forEach(input => input.addEventListener("input", updateSellTotal));
+    updateSellTotal();
+  }
 </script>

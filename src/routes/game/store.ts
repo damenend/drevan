@@ -1,11 +1,19 @@
 import { Router } from "express";
-import { and, eq, gte, sql, asc } from "drizzle-orm";
+import { and, eq, gt, gte, inArray, sql, asc } from "drizzle-orm";
 import { db } from "../../db";
 import { users, items, inventory } from "../../db/schema";
 
+import { getEquippedSlot } from "../../services/equipment";
+import { renderError } from "../../middleware/errors";
 import { parseFormInteger } from "../../utils/parse-form-integer";
 
 const router = Router();
+
+// A catalog item needs a positive payout and an eligible type.
+const buybackEligible = and(
+  gt(items.sellPrice, 0),
+  inArray(items.type, ["weapon", "armor", "fish"]),
+);
 
 // Store page
 router.get("/", (req, res) => {
@@ -16,26 +24,54 @@ router.get("/", (req, res) => {
     .orderBy(asc(items.price))
     .all();
 
+  const player = res.locals.user;
+  const sellableItems = db
+    .select({
+      id: items.id,
+      name: items.name,
+      type: items.type,
+      image: items.image,
+      sellPrice: items.sellPrice,
+      quantity: inventory.quantity,
+    })
+    .from(inventory)
+    .innerJoin(items, eq(items.id, inventory.itemId))
+    .where(
+      and(
+        eq(inventory.userId, player.id),
+        gt(inventory.quantity, 0),
+        buybackEligible,
+      ),
+    )
+    .orderBy(asc(items.name))
+    .all()
+    .map((item) => ({
+      ...item,
+      available: item.quantity - Number(getEquippedSlot(player, item) !== null),
+    }));
+
   const errorMessage = req.query.err === "gold" ? "Not enough gold" : undefined;
 
   return res.render("game/store", {
     title: "Curious Emporium",
     items: storeItems,
+    sellableItems,
+    sold: req.query.sold === "1",
     err: errorMessage,
   });
 });
 
-// Purchase items
-router.post("/", (req, res) => {
-  const requestedItems = req.body?.items;
-
-  // Validate submitted form data
+/**
+ * Reads the quantity fields shared by the purchase and sale forms.
+ * Blank and zero quantities leave an item out of the transaction.
+ */
+function parseItemSelection(requestedItems: unknown) {
   if (
     !requestedItems ||
     typeof requestedItems !== "object" ||
     Array.isArray(requestedItems)
   ) {
-    return res.redirect("/game/store");
+    return null;
   }
 
   const selectedItems: { itemId: number; quantity: number }[] = [];
@@ -45,7 +81,7 @@ router.post("/", (req, res) => {
     const quantity = value === "" ? 0 : parseFormInteger(value);
 
     if (itemId === null || quantity === null) {
-      return res.redirect("/game/store");
+      return null;
     }
 
     if (quantity > 0) {
@@ -53,7 +89,14 @@ router.post("/", (req, res) => {
     }
   }
 
-  if (selectedItems.length === 0) {
+  return selectedItems;
+}
+
+// Purchase items
+router.post("/", (req, res) => {
+  const selectedItems = parseItemSelection(req.body?.items);
+
+  if (!selectedItems?.length) {
     return res.redirect("/game/store");
   }
 
@@ -135,6 +178,110 @@ router.post("/", (req, res) => {
   }
 
   return res.redirect("/game/store");
+});
+
+// Sell the selected items together.
+router.post("/sell", (req, res) => {
+  const selectedItems = parseItemSelection(req.body?.items);
+  if (!selectedItems?.length) {
+    return renderError(res, 400, {
+      message: "Enter a positive whole quantity for at least one item to sell.",
+    });
+  }
+
+  const userId = res.locals.user.id;
+  const playerFilter = eq(users.id, userId);
+  const result = db.transaction(
+    (tx) => {
+      const player = tx.select().from(users).where(playerFilter).get();
+      if (!player) {
+        return "unavailable";
+      }
+
+      let totalPayout = 0;
+      const remainingStacks: { id: number; quantity: number }[] = [];
+
+      for (const { itemId, quantity } of selectedItems) {
+        const stack = tx
+          .select({
+            id: inventory.id,
+            quantity: inventory.quantity,
+            type: items.type,
+            sellPrice: items.sellPrice,
+          })
+          .from(inventory)
+          .innerJoin(items, eq(items.id, inventory.itemId))
+          .where(
+            and(
+              eq(inventory.userId, userId),
+              eq(inventory.itemId, itemId),
+              buybackEligible,
+            ),
+          )
+          .get();
+
+        if (
+          !stack ||
+          stack.sellPrice === null ||
+          !Number.isSafeInteger(stack.quantity) ||
+          stack.quantity < quantity
+        ) {
+          return "unavailable";
+        }
+
+        const remaining = stack.quantity - quantity;
+        if (
+          remaining === 0 &&
+          getEquippedSlot(player, { id: itemId, type: stack.type })
+        ) {
+          return "equipped";
+        }
+
+        totalPayout += stack.sellPrice * quantity;
+        remainingStacks.push({ id: stack.id, quantity: remaining });
+      }
+
+      const gold = player.gold + totalPayout;
+      if (!Number.isSafeInteger(totalPayout) || !Number.isSafeInteger(gold)) {
+        return "overflow";
+      }
+
+      for (const stack of remainingStacks) {
+        const stackFilter = eq(inventory.id, stack.id);
+        if (stack.quantity === 0) {
+          tx.delete(inventory).where(stackFilter).run();
+        } else {
+          tx.update(inventory)
+            .set({ quantity: stack.quantity })
+            .where(stackFilter)
+            .run();
+        }
+      }
+
+      tx.update(users).set({ gold }).where(playerFilter).run();
+      return "sold";
+    },
+    // Lock writes before checking inventory, equipment, and gold.
+    { behavior: "immediate" },
+  );
+
+  switch (result) {
+    case "unavailable":
+      return renderError(res, 409, {
+        message: "You do not own that quantity of an item the Emporium buys.",
+      });
+    case "equipped":
+      return renderError(res, 409, {
+        message:
+          "That quantity includes your equipped copy. Unequip it on Home to sell it.",
+      });
+    case "overflow":
+      return renderError(res, 409, {
+        message: "This sale would exceed the supported gold limit.",
+      });
+    case "sold":
+      return res.redirect(303, "/game/store?sold=1#sell");
+  }
 });
 
 export default router;

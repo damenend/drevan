@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { requireAuth } from "../../middleware/auth";
-import { eq, asc } from "drizzle-orm";
+import { and, eq, gt, asc } from "drizzle-orm";
 import { db } from "../../db";
 import { items, inventory } from "../../db/schema";
-import { getEffectiveStats } from "../../services/equipment";
+import { getEffectiveStats, getEquippedSlot } from "../../services/equipment";
 
 import arenaRouter from "./arena";
 import hospitalRouter from "./hospital";
@@ -36,13 +36,22 @@ router.get("/", (req, res) => {
     })
     .from(inventory)
     .innerJoin(items, eq(inventory.itemId, items.id))
-    .where(eq(inventory.userId, player.id))
+    .where(and(eq(inventory.userId, player.id), gt(inventory.quantity, 0)))
     .orderBy(asc(items.name))
-    .all();
+    .all()
+    .map((item) => {
+      const equippedSlot = getEquippedSlot(player, item);
+      return {
+        ...item,
+        equippedSlot,
+        quantity: item.quantity - Number(equippedSlot !== null),
+      };
+    });
 
   return res.render("game/index", {
     title: "Home",
-    inventory: playerInventory,
+    equipped: playerInventory.filter((item) => item.equippedSlot),
+    inventory: playerInventory.filter((item) => item.quantity > 0),
     effectiveStats: getEffectiveStats(player),
     message:
       typeof req.query.message === "string" ? req.query.message : undefined,

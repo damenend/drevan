@@ -1,0 +1,1 @@
+ALTER TABLE `items` ADD `sell_price` integer;

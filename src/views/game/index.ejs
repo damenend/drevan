@@ -44,12 +44,53 @@
     </dl>
   </section>
 
+  <% if (message) { %>
+  <p role="status"><%= message %></p>
+  <% } %>
+
+  <section id="equipped" aria-labelledby="equipped-heading">
+    <h3 id="equipped-heading">Equipped</h3>
+
+    <% if (equipped.length === 0) { %>
+    <p>You have no equipment equipped.</p>
+    <% } else { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Slot</th>
+            <th scope="col">Item</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const slot of ["weapon", "armor"]) {
+            const item = equipped.find(item => item.equippedSlot === slot);
+          %>
+          <tr>
+            <th scope="row"><%= slot === "weapon" ? "Weapon" : "Armor" %></th>
+            <% if (item) { %>
+            <td><%- include("../partials/item-figure", { item }) %></td>
+            <td>
+              <form action="/game/inventory/unequip" method="POST">
+                <input type="hidden" name="itemId" value="<%= item.id %>">
+                <button type="submit" aria-label="Unequip <%= item.name %>">Unequip</button>
+              </form>
+            </td>
+            <% } else { %>
+            <td>Empty</td>
+            <td>—</td>
+            <% } %>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </section>
+
   <section class="inventory" aria-labelledby="inventory-heading">
     <h3 id="inventory-heading">Inventory</h3>
-
-    <% if (message) { %>
-    <p role="status"><%= message %></p>
-    <% } %>
 
     <% if (inventory.length === 0) { %>
     <p>Your inventory is empty.</p>
@@ -78,15 +119,11 @@
             <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
             <td>
               <%
-                const isEquipped =
-                  item.id === user.equippedWeaponId ||
-                  item.id === user.equippedArmorId;
-
                 let action;
                 if (item.type === "consumable") {
                   action = "Use";
-                } else if (item.type === "weapon" || item.type === "armor") {
-                  action = isEquipped ? "Unequip" : "Equip";
+                } else if (!item.equippedSlot && (item.type === "weapon" || item.type === "armor")) {
+                  action = "Equip";
                 }
               %>
               <% if (action) { %>

@@ -38,6 +38,7 @@ export const items = sqliteTable("items", {
   name: text("name").notNull().unique(),
   description: text("description").notNull(),
   price: integer("price"),
+  sellPrice: integer("sell_price"),
   type: text("type").notNull().default("consumable"),
   effect: text("effect"),
   effectValue: integer("effect_value"),

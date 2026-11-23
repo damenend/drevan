@@ -86,6 +86,12 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   exceed JavaScript's safe integer range. A blank quantity means zero.
 - The item catalog includes items obtained outside the store. A null price
   means the Emporium does not list or sell the item.
+- Emporium buyback uses a separate catalog sell price. Players can sell owned
+  weapons, armor, and fish with a positive sell price. An equipped slot reserves
+  one copy. Home shows that copy under Equipped and lists spare copies in
+  Inventory. The Emporium buys spare copies while the equipped copy stays in use.
+  Selling checks current ownership, equipped slots, and the gold limit in one
+  transaction, then reduces all selected stacks and credits the combined payout.
 - The arena is called **Dominion**.
 - The dashboard is **Home**.
 - **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on Home, Nexaris, Admin, and Logout.
@@ -216,8 +222,8 @@ When changing behavior, review nearby comments for accuracy.
 ## Current development direction
 
 The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
-playtest and basic fishing. The next milestone is Emporium buyback for equipment
-and fish. Follow the [battle playtest guide](docs/battle-playtesting.md)
+playtest, basic fishing, and Emporium buyback. The next milestone is basic
+combat item drops. Follow the [battle playtest guide](docs/battle-playtesting.md)
 to rerun seeded matchups and record balance decisions. The playtest script at
 `scripts/playtest-battle.ts` runs the shared simulator with fixed loadouts and
 writes CSV results without opening the local database.
