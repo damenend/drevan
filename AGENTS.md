@@ -123,7 +123,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Speed = `2 + (level - 1)`
   - Defense = `Math.floor(level / 4)`
 - Training saves remaining HP and awards `dummy level * 10` gold and XP on a win in one transaction. Losses and draws grant zero rewards.
-- Character levels 2, 3, and 4 unlock at 60, 150, and 270 cumulative XP. Each level-up grants one point, up to three in this prototype. XP continues to accumulate at level 4.
+- Character levels 2 through 10 unlock at 60, 150, 270, 420, 600, 810, 1,050,
+  1,320, and 1,620 cumulative XP. Each level-up grants one point, up to nine
+  in this prototype. XP continues to accumulate at level 10.
 - In The Quarters, players spend one point on +1 Strength, +1 Speed, or +3 max HP. Store spent points by stat so base stats and gear stay separate. Max HP increases do not restore current HP. Sanctum and healing items use the increased cap.
 - Preserve the distinction between training combat and future player-versus-player combat.
 
@@ -227,7 +229,9 @@ When changing behavior, review nearby comments for accuracy.
 ## Current development direction
 
 The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
-playtest, basic fishing, Emporium buyback, and combat stat audit. Basic XP and stat allocation are available through level 4 for playtesting.
+playtest, basic fishing, Emporium buyback, and combat stat audit. Continue
+playtesting XP and stat allocation through character level 10 before moving
+on to The Ruins.
 The Ruins will introduce playable expeditions first, then combat item and
 material drops. Follow the
 [battle playtest guide](docs/battle-playtesting.md)

@@ -1,4 +1,6 @@
-const levelThresholds = [0, 60, 150, 270] as const;
+const levelThresholds = [
+  0, 60, 150, 270, 420, 600, 810, 1050, 1320, 1620,
+] as const;
 
 export const statAllocations = {
   strength: { label: "+1 Strength", amount: 1 },
@@ -14,7 +16,8 @@ export function isAllocationStat(value: unknown): value is AllocationStat {
 
 /**
  * Derives the prototype level and spendable points from lifetime XP.
- * Each level after the first grants one point up to the current level cap.
+ * Each level after the first grants one point. XP earned past the last
+ * threshold is retained, and nextLevelXp is null at the cap.
  */
 export function getProgression(exp: number, spent = 0) {
   const level = levelThresholds.filter((threshold) => exp >= threshold).length;
