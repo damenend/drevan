@@ -268,12 +268,16 @@ router.post("/sell", (req, res) => {
   switch (result) {
     case "unavailable":
       return renderError(res, 409, {
-        message: "You do not own that quantity of an item the Emporium buys.",
+        message:
+          "You do not own that quantity of an item Curious Emporium buys.",
       });
     case "equipped":
       return renderError(res, 409, {
-        message:
-          "That quantity includes your equipped copy. Unequip it on Home to sell it.",
+        message: "That quantity includes your equipped copy.",
+        recoveryLink: {
+          href: "/game#equipped",
+          label: "Unequip in The Quarters",
+        },
       });
     case "overflow":
       return renderError(res, 409, {

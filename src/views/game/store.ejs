@@ -55,7 +55,7 @@
     <p role="status">Sale complete.</p>
     <% } %>
     <% if (sellableItems.length === 0) { %>
-    <p>You have no items the Emporium buys.</p>
+    <p>You have no items Curious Emporium buys.</p>
     <% } else { %>
     <form id="sell-form" action="/game/store/sell" method="POST">
       <div class="table-responsive">
@@ -78,7 +78,7 @@
               <td><%= formatNumber(item.sellPrice) %></td>
               <td>
                 <% if (item.available === 0) { %>
-                <a href="/game#equipped">Unequip on Home</a>
+                <a href="/game#equipped">Unequip in The Quarters</a>
                 <% } else { %>
                 <label for="sell-<%= item.id %>" class="visually-hidden">Quantity of <%= item.name %> to sell</label>
                 <input type="number" id="sell-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" max="<%= item.available %>" step="1" data-price="<%= item.sellPrice %>">

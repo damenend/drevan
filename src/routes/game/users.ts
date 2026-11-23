@@ -37,7 +37,8 @@ router.get("/:id", (req, res) => {
   if (!player) {
     return renderError(res, 404, {
       title: "Player not found",
-      message: "The Registry lists available player profiles.",
+      message: "That player profile could not be found.",
+      recoveryLink: { href: "/game/users", label: "Back to The Registry" },
     });
   }
 

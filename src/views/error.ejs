@@ -1,5 +1,9 @@
 <section class="page" aria-labelledby="error-heading">
   <h2 id="error-heading"><%= status %> · <%= title %></h2>
   <p><%= message %></p>
-  <p><a href="<%= user ? '/game' : '/' %>">Back to Home</a></p>
+  <% if (recoveryLink) { %>
+  <p><a href="<%= recoveryLink.href %>"><%= recoveryLink.label %></a></p>
+  <% } else { %>
+  <p><a href="<%= user ? '/game' : '/' %>"><%= user ? "Back to The Quarters" : "Back to Home" %></a></p>
+  <% } %>
 </section>

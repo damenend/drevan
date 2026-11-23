@@ -73,10 +73,10 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 ## Established gameplay concepts
 
 - Signup names use 3–24 characters drawn from ASCII letters, digits, spaces, underscores, and hyphens. Spaces are allowed only inside the name. Enforce case-insensitive uniqueness with the SQLite name index. Use `formatPlayerName` for title case in player-facing text and keep the submitted spelling in storage.
-- Signup stores the selected avatar model (`male` or `female`) on the player. The default is `male`, including for existing accounts. Use the shared player-avatar partial on Home and player profiles.
+- Signup stores the selected avatar model (`male` or `female`) on the player. The default is `male`, including for existing accounts. Use the shared player-avatar partial in The Quarters and player profiles.
 
-- Player attributes include gold, strength, speed, Defense, HP, maximum HP, and experience. Defense defaults to 0 for new and existing players, appears on Home, and reduces incoming damage in training.
-- Equipment includes weapons and armor. Equipping stores the item ID on the user. Home and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats. The Rusted Sword grants +1 Strength and Worn Leather Armor grants +3 Defense.
+- Player attributes include gold, strength, speed, Defense, HP, maximum HP, and experience. Defense defaults to 0 for new and existing players, appears in The Quarters, and reduces incoming damage in training.
+- Equipment includes weapons and armor. Equipping stores the item ID on the user. The Quarters and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats. The Rusted Sword grants +1 Strength and Worn Leather Armor grants +3 Defense.
 - Inventory has one row per player and item. Equipping and consuming require positive owned quantity. Save each purchase in one transaction so the gold deduction and inventory update either both succeed or both roll back. Use the same approach for healing and item consumption.
 - Seeded healing items are Lesser Potion (10 HP), Potion (50 HP), and Greater Potion (100 HP). Healing is capped at the player's missing HP. See `src/db/seed.ts` for item values.
 - The hospital, called **Sanctum**, heals missing HP at a cost of one gold per HP restored, with insufficient-funds handling.
@@ -88,13 +88,13 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   means the Emporium does not list or sell the item.
 - Emporium buyback uses a separate catalog sell price. Players can sell owned
   weapons, armor, and fish with a positive sell price. An equipped slot reserves
-  one copy. Home shows that copy under Equipped and lists spare copies in
+  one copy. The Quarters shows that copy under Equipped and lists spare copies in
   Inventory. The Emporium buys spare copies while the equipped copy stays in use.
   Selling checks current ownership, equipped slots, and the gold limit in one
   transaction, then reduces all selected stacks and credits the combined payout.
 - The arena is called **Dominion**.
-- The dashboard is **Home**.
-- **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on Home, Nexaris, Admin, and Logout.
+- The dashboard is **The Quarters** at `/game`.
+- **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on The Quarters, Nexaris, Admin, and Logout.
 - **The Reliquary** is Drevan's lore library at `/game/reliquary`.
 - **The Registry** is Drevan's player directory at `/game/users`.
 - At The Driftwater, each cast has an 80% chance of a bite. Only a bite rolls
@@ -124,7 +124,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Defense = `Math.floor(level / 4)`
 - Training saves remaining HP and awards `dummy level * 10` gold and XP on a win in one transaction. Losses and draws grant zero rewards.
 - Character levels 2, 3, and 4 unlock at 60, 150, and 270 cumulative XP. Each level-up grants one point, up to three in this prototype. XP continues to accumulate at level 4.
-- Home spends one point on +1 Strength, +1 Speed, or +3 max HP. Store spent points by stat so base stats and gear stay separate. Max HP increases do not restore current HP. Sanctum and healing items use the increased cap.
+- In The Quarters, players spend one point on +1 Strength, +1 Speed, or +3 max HP. Store spent points by stat so base stats and gear stay separate. Max HP increases do not restore current HP. Sanctum and healing items use the increased cap.
 - Preserve the distinction between training combat and future player-versus-player combat.
 
 ## Visual and UX conventions
@@ -143,6 +143,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Blue (`$color-blue`): `#54bdff`
 - Use the shared location-image partial beneath section headings. Reuse the item-figure and player-gold partials where those elements recur.
 - Keep forms and buttons restrained, readable, and accessible.
+- Use the location name for links in directories or prose. Include the action
+  and destination when a link is a next step, such as “Return to Dominion.”
+  Underline links in paragraphs so players can identify them without color.
 - Use `.table` inside `.table-responsive` for UI tables. Use scoped column headers and row headers where a cell identifies the row.
 - Keep dynamic text escaped in EJS with `<%=`. Use unescaped output for trusted rendered markup such as partials and the layout body.
 - Reuse existing SCSS classes and import shared styles with `@use "vars"` and the `vars.` namespace.

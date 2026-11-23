@@ -46,7 +46,11 @@ const errorCopy = new Map([
 export function renderError(
   res: Response,
   status: number,
-  details?: { title?: string; message?: string },
+  details?: {
+    title?: string;
+    message?: string;
+    recoveryLink?: { href: string; label: string };
+  },
 ) {
   const copy =
     errorCopy.get(status) ??
@@ -64,6 +68,7 @@ export function renderError(
     status,
     title: details?.title ?? copy.title,
     message: details?.message ?? copy.message,
+    recoveryLink: details?.recoveryLink,
     user: res.locals.user ?? null,
     currentPath: res.locals.currentPath ?? "",
   });

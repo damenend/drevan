@@ -172,10 +172,41 @@ test("game routes require sign-in and sign-in replaces the session", async () =>
     (await request("/game/users/1", { headers: { cookie } })).status,
     200,
   );
-  assert.equal(
-    (await request("/game/users/999", { headers: { cookie } })).status,
-    404,
+  const missingProfile = await request("/game/users/999", {
+    headers: { cookie },
+  });
+  assert.equal(missingProfile.status, 404);
+  assert.ok(
+    missingProfile.html.includes(
+      '<a href="/game/users">Back to The Registry</a>',
+    ),
   );
+});
+
+test("Nexaris links to each location using its display name", async () => {
+  const headers = { cookie };
+  const nexaris = await request("/game/nexaris", { headers });
+  assert.equal(nexaris.status, 200);
+
+  for (const [route, name] of [
+    ["/game", "The Quarters"],
+    ["/game/arena", "Dominion"],
+    ["/game/store", "Curious Emporium"],
+    ["/game/hospital", "Sanctum"],
+    ["/game/users", "The Registry"],
+    ["/game/reliquary", "The Reliquary"],
+    ["/game/fishing", "The Driftwater"],
+  ]) {
+    assert.ok(nexaris.html.includes(`href="${route}">${name}</a>`));
+    const location = await request(route, { headers });
+    assert.equal(location.status, 200, route);
+    assert.ok(location.html.includes(`<title>${name} | Drevan</title>`));
+    assert.match(location.html, /href="\/game"[^>]*>The Quarters<\/a>/);
+    assert.match(
+      location.html,
+      new RegExp(`<h([23])[^>]*>(?:Welcome to )?${name}!?</h\\1>`),
+    );
+  }
 });
 
 test("Admin rejects malformed values and caps HP when maximum HP falls", async () => {
@@ -292,12 +323,17 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
     { item_id: 2, quantity: 1 },
     { item_id: 3, quantity: 1 },
   ]);
-  assert.equal(
-    (await post("/game/store/sell", { items: { "item-2": 1 } })).status,
-    409,
+  const equippedSale = await post("/game/store/sell", {
+    items: { "item-2": 1 },
+  });
+  assert.equal(equippedSale.status, 409);
+  assert.ok(
+    equippedSale.html.includes(
+      '<a href="/game#equipped">Unequip in The Quarters</a>',
+    ),
   );
   const afterSale = await request("/game/store", { headers: { cookie } });
-  assert.match(afterSale.html, /Unequip on Home/);
+  assert.match(afterSale.html, /Unequip in The Quarters/);
 
   await post("/game/inventory/unequip", { itemId: 2 });
   assert.equal(
@@ -415,11 +451,17 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
     const fight = await post("/game/training", { level: 3 });
     assert.equal(fight.status, 200);
     assert.match(fight.html, /30 XP/);
-    if (win === 1) assert.match(fight.html, /You reached level 2/);
+    if (win === 1) {
+      assert.match(
+        fight.html,
+        /You reached level 2! <a href="\/game#character-heading">Spend stat points in The Quarters<\/a>/,
+      );
+    }
     await post("/game/hospital");
   }
 
   const home = await request("/game", { headers });
+  assert.match(home.html, /id="character-heading"/);
   assert.match(home.html, /<dt>Experience<\/dt>\s*<dd>60 \/ 150<\/dd>/);
   assert.match(home.html, /Unspent stat points<\/dt>\s*<dd>1<\/dd>/);
   const registry = await request("/game/users", { headers });

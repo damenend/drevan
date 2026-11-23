@@ -1,10 +1,12 @@
 <section class="page">
-  <h2>Welcome back, <%= formatPlayerName(user.name) %>!</h2>
+  <h2>The Quarters</h2>
 
   <%- include("../partials/location-image", {
     src: "/images/home.webp",
     caption: "A cozy stone-and-timber cottage with glowing windows and futuristic technology.",
   }) %>
+
+  <p>Welcome back, <%= formatPlayerName(user.name) %>!</p>
 
   <section class="character" aria-labelledby="character-heading">
     <h3 id="character-heading">Character Overview</h3>

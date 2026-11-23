@@ -56,7 +56,7 @@ router.get("/", (req, res) => {
   const equipped = playerInventory.filter((item) => item.equippedSlot);
 
   return res.render("game/index", {
-    title: "Home",
+    title: "The Quarters",
     equipped,
     inventory: playerInventory.filter((item) => item.quantity > 0),
     effectiveStats: applyEquipmentBonuses(player, equipped),

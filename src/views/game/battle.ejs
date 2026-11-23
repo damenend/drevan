@@ -33,7 +33,7 @@
       </p>
       <p>Reward: <%= formatNumber(entry.reward) %> gold, <%= formatNumber(xpEarned) %> XP</p>
       <% if (gainedLevel !== null) { %>
-      <p>You reached level <%= formatNumber(gainedLevel) %>! Spend stat points on Home.</p>
+      <p>You reached level <%= formatNumber(gainedLevel) %>! <a href="/game#character-heading">Spend stat points in The Quarters</a>.</p>
       <% } %>
       <% } else if (entry.result === "loss") { %>
       <p><span class="player"><%= entry.player %></span> was defeated!</p>
@@ -47,6 +47,6 @@
     <% } %>
     <% }) %>
   </div>
-  <a href="/game/arena?level=<%= level %>">Return to arena</a>
+  <a href="/game/arena?level=<%= level %>">Return to Dominion</a>
   <% } %>
 </section>

@@ -25,13 +25,13 @@ training is a reliable win and level 5 is still difficult. Each piece costs
    `yarn db:seed` with the app's local database setup. The seed updates the
    matching catalog row, so owned and equipped copies receive the new bonus.
    Open Curious Emporium and verify the item values, then equip both pieces on
-   a fresh character. Home should show 6 Strength and 3 Defense. Start a
+   a fresh character. The Quarters should show 6 Strength and 3 Defense. Start a
    Dominion training fight and inspect the attack log. Use a disposable
    database for repeatable checks that need fixed stats or gold.
 
 ## How battles work
 
-- A new character starts with 25 HP, 5 Strength, 5 Speed, and 0 Defense. Home
+- A new character starts with 25 HP, 5 Strength, 5 Speed, and 0 Defense. The Quarters
   and training use the same effective stats, which add the bonuses from owned,
   equipped gear to the stored base values.
 - The opening attacker is picked once. Each side's chance is its share of

@@ -57,7 +57,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 - **Status.** Prototype implemented through character level 4. Wins award 10 XP per dummy level. Players earn one point at 60, 150, and 270 cumulative XP and may save it or spend it on Strength, Speed, or max HP. The fresh-character route playtest verified earning, spending, saving, and healing. A timed human session can inform later thresholds. [XP playtest results](battle-playtesting.md#fresh-character-progression-route-playtest)
 - **Dependencies.** Combat audit (4), Dominion training, and existing player attributes.
 - **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Start with Strength, Speed, and max HP as allocation candidates and evaluate whether Defense should also be directly allocatable. Track base attributes, permanent gains, point-funded increases, and equipment bonuses separately so classes, Intellect, Agility, and Artificer refunds can build on the same records.
-- **Done when.** Players can reach an early level in a short session, see XP, level, and unspent points on Home, and see earned levels in The Registry and on player profiles. They can spend or save points across sessions and see the effect of their choices in training.
+- **Done when.** Players can reach an early level in a short session, see XP, level, and unspent points in The Quarters, and see earned levels in The Registry and on player profiles. They can spend or save points across sessions and see the effect of their choices in training.
 
 ## P1 — High: Ruins exploration and loot
 
@@ -80,14 +80,14 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 ### 8. Add classes and primary attributes (P2 · Large)
 
 - **Dependencies.** Combat audit (4) and basic stat allocation (5).
-- **Scope.** Add Warrior (Strength), Wizard (Intellect), and Archer (Agility). Calculate Attack Power after gear bonuses, weighting each class's primary attribute most heavily and letting the two secondary offensive attributes contribute. Give Speed and HP the same role across classes. Playtest a Wizard critical-hit bonus. Allow switching on Home during tuning while preserving permanent gains and any allocated stats.
-- **Done when.** Home shows the primary stat and Attack Power. The shared simulator uses the same damage rules across encounter modes, with classless players and dummies retaining Strength-based damage. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
+- **Scope.** Add Warrior (Strength), Wizard (Intellect), and Archer (Agility). Calculate Attack Power after gear bonuses, weighting each class's primary attribute most heavily and letting the two secondary offensive attributes contribute. Give Speed and HP the same role across classes. Playtest a Wizard critical-hit bonus. Allow switching in The Quarters during tuning while preserving permanent gains and any allocated stats.
+- **Done when.** The Quarters shows the primary stat and Attack Power. The shared simulator uses the same damage rules across encounter modes, with classless players and dummies retaining Strength-based damage. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
 
 ### 9. Add gear with multiple modifiers and requirements (P2 · Medium)
 
 - **Dependencies.** Classes (8) and stat allocation (5).
 - **Scope.** Add a few items with signed modifiers and requirements checked against permanent stats, including allocated points, before applying gear bonuses. A Titanium Warlock Robe could require Strength and trade Speed for Intellect and Defense. Compare it with a lighter robe with an easier requirement.
-- **Done when.** The shop and inventory show requirements and tradeoffs, the server enforces eligibility, and Home and combat reflect the same bonuses. Different builds have reasons to choose different items.
+- **Done when.** The shop and inventory show requirements and tradeoffs, the server enforces eligibility, and The Quarters and combat reflect the same bonuses. Different builds have reasons to choose different items.
 
 ### 10. Open The Bounty Board (P2 · Medium)
 
@@ -143,7 +143,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 - **Dependencies.** Starter reagents (7), material selling (13), tested allocation, class, and gear builds (5, 8, and 9), and per-copy enhancements (16). Initial recipes can use starter reagents.
 - **Scope.** At The Forge, offer deterministic attribute bonuses with fixed gold and reagent recipes. Allow one enchantment per piece. Preview the current effect, new effect, recipe, owned quantities, and costs. Allow removal, replacement, and reapplication. Replacement and reapplication cost the full new recipe.
-- **Done when.** Changing an enchantment preserves the original item and its ordinary enhancement level. Previous gold and reagents are nonrefundable. Costs and effects update together. Home, shop, and inventory distinguish base, enhancement, and enchantment bonuses where applicable, and PvE playtests show viable alternatives. Check PvP balance once practice duels are available.
+- **Done when.** Changing an enchantment preserves the original item and its ordinary enhancement level. Previous gold and reagents are nonrefundable. Costs and effects update together. The Quarters, shop, and inventory distinguish base, enhancement, and enchantment bonuses where applicable, and PvE playtests show viable alternatives. Check PvP balance once practice duels are available.
 
 ### 18. Expand equipment salvaging (P3 · Medium)
 
