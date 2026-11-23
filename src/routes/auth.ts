@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Request } from "express";
 import { db } from "../db";
 import { users } from "../db/schema";
 import { eq, sql } from "drizzle-orm";
@@ -7,6 +7,18 @@ import { renderError } from "../middleware/errors";
 
 const router = Router();
 const playerNamePattern = /^[A-Za-z0-9_-][A-Za-z0-9 _-]{1,22}[A-Za-z0-9_-]$/;
+
+/** Starts a fresh session and saves it before redirecting to the game. */
+async function signIn(req: Request, userId: number) {
+  await new Promise<void>((resolve, reject) => {
+    req.session.regenerate((error) => (error ? reject(error) : resolve()));
+  });
+
+  req.session.userId = userId;
+  await new Promise<void>((resolve, reject) => {
+    req.session.save((error) => (error ? reject(error) : resolve()));
+  });
+}
 
 // Login
 router.post("/login", async (req, res) => {
@@ -39,7 +51,7 @@ router.post("/login", async (req, res) => {
     return renderError(res, 401, { message: "Invalid email or password." });
   }
 
-  req.session.userId = user.id;
+  await signIn(req, user.id);
 
   return res.redirect("/game");
 });
@@ -105,7 +117,7 @@ router.post("/signup", async (req, res) => {
     });
   }
 
-  req.session.userId = signup.id;
+  await signIn(req, signup.id);
 
   return res.redirect("/game");
 });

@@ -10,7 +10,7 @@
   <form action="/game/training" method="POST">
     <div class="form-group">
       <label for="level">Trainer level</label>
-      <input type="number" name="level" id="level" value="<%= level || 1 %>" min="1" max="<%= maxTrainingLevel %>" step="1" required />
+      <input type="number" name="level" id="level" value="<%= level %>" min="1" max="<%= maxTrainingLevel %>" step="1" required />
     </div>
 
     <button type="submit">Fight Training Dummy</button>

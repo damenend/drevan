@@ -9,7 +9,7 @@ import indexRouter from "./routes/index";
 import { formatNumber } from "./utils/format-number";
 import { formatPlayerName } from "./utils/format-player-name";
 
-const app = express();
+export const app = express();
 const port = Number(process.env.PORT ?? 3000);
 
 // View engine configuration
@@ -47,9 +47,10 @@ app.use("/", indexRouter);
 app.use(handleNotFound);
 app.use(handleError);
 
-// Start server
-app.listen(port, (error) => {
-  if (error) throw error;
+if (require.main === module) {
+  app.listen(port, (error) => {
+    if (error) throw error;
 
-  console.log(`Server running at http://localhost:${port}`);
-});
+    console.log(`Server running at http://localhost:${port}`);
+  });
+}

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import {
@@ -7,6 +7,8 @@ import {
   getDailyCastsUsed,
   getFishingDate,
 } from "../../services/fishing";
+
+import { parseFormInteger } from "../../utils/parse-form-integer";
 
 const router = Router();
 
@@ -56,19 +58,9 @@ router.post("/", (req, res) => {
   for (const stat of editableStats) {
     if (!Object.hasOwn(requestedChanges, stat)) continue;
 
-    const value = requestedChanges[stat];
+    const parsedValue = parseFormInteger(requestedChanges[stat]);
     if (
-      stat === "fishing_casts_used" &&
-      (typeof value !== "string" || !/^\d+$/.test(value))
-    ) {
-      return res.redirect("/game/admin?message=err");
-    }
-
-    const parsedValue = Number(value);
-
-    if (
-      !Number.isSafeInteger(parsedValue) ||
-      parsedValue < 0 ||
+      parsedValue === null ||
       (stat === "fishing_casts_used" && parsedValue > DAILY_CAST_LIMIT)
     ) {
       return res.redirect("/game/admin?message=err");
@@ -88,6 +80,11 @@ router.post("/", (req, res) => {
   db.update(users)
     .set({
       ...updates,
+      // Lower current HP with the cap in the same update. Raising the cap leaves existing HP alone.
+      hp:
+        updates.maxHp === undefined
+          ? undefined
+          : sql`min(${users.hp}, ${updates.maxHp})`,
       fishing_cast_date:
         updates.fishing_casts_used === undefined ? undefined : getFishingDate(),
     })

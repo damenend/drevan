@@ -22,7 +22,7 @@
           <tr>
             <td><label for="<%= key %>"><%= key === "fishing_casts_used" ? "Fishing casts used today" : key %></label></td>
             <td>
-              <input type="number" id="<%= key %>" name="stats[<%= key %>]" value="<%= statValues[key] %>" min="0" step="1" <% if (key === "fishing_casts_used") { %>max="<%= dailyCastLimit %>" required<% } %>>
+              <input type="number" id="<%= key %>" name="stats[<%= key %>]" value="<%= statValues[key] %>" min="0" step="1" required <% if (key === "fishing_casts_used") { %>max="<%= dailyCastLimit %>"<% } %>>
             </td>
           </tr>
           <% }) %>

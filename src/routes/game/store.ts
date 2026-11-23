@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { and, eq, gte, sql, asc, isNotNull } from "drizzle-orm";
+import { and, eq, gte, sql, asc } from "drizzle-orm";
 import { db } from "../../db";
 import { users, items, inventory } from "../../db/schema";
+
+import { parseFormInteger } from "../../utils/parse-form-integer";
 
 const router = Router();
 
@@ -10,7 +12,7 @@ router.get("/", (req, res) => {
   const storeItems = db
     .select()
     .from(items)
-    .where(isNotNull(items.price))
+    .where(gte(items.price, 0))
     .orderBy(asc(items.price))
     .all();
 
@@ -36,92 +38,99 @@ router.post("/", (req, res) => {
     return res.redirect("/game/store");
   }
 
-  // Convert submitted values into purchase objects
-  const purchases = Object.entries(requestedItems).map(([id, quantity]) => ({
-    itemId: Number(id.replace("item-", "")),
-    quantity: Number(quantity),
-  }));
+  const selectedItems: { itemId: number; quantity: number }[] = [];
 
-  // Validate item IDs and quantities
-  if (
-    purchases.some(
-      (entry) =>
-        !Number.isSafeInteger(entry.itemId) ||
-        entry.itemId <= 0 ||
-        !Number.isSafeInteger(entry.quantity) ||
-        entry.quantity < 0,
-    )
-  ) {
-    return res.redirect("/game/store");
+  for (const [field, value] of Object.entries(requestedItems)) {
+    const itemId = parseFormInteger(/^item-([1-9]\d*)$/.exec(field)?.[1]);
+    const quantity = value === "" ? 0 : parseFormInteger(value);
+
+    if (itemId === null || quantity === null) {
+      return res.redirect("/game/store");
+    }
+
+    if (quantity > 0) {
+      selectedItems.push({ itemId, quantity });
+    }
   }
-
-  // Ignore zero-quantity items
-  const selectedItems = purchases.filter((entry) => entry.quantity > 0);
 
   if (selectedItems.length === 0) {
     return res.redirect("/game/store");
   }
 
-  // Retrieve item details and calculate total
-  let totalCost = 0;
-
-  for (const purchase of selectedItems) {
-    const item = db
-      .select({ price: items.price })
-      .from(items)
-      .where(eq(items.id, purchase.itemId))
-      .get();
-
-    if (!item || item.price === null) {
-      return res.redirect("/game/store");
-    }
-
-    totalCost += item.price * purchase.quantity;
-  }
-
-  if (!Number.isSafeInteger(totalCost)) {
-    return res.redirect("/game/store");
-  }
-
   const player = res.locals.user;
 
-  // Process purchase within a transaction
-  const purchased = db.transaction((tx) => {
-    // Deduct gold only if the player can afford the purchase
-    const result = tx
-      .update(users)
-      .set({
-        gold: sql`${users.gold} - ${totalCost}`,
-      })
-      .where(and(eq(users.id, player.id), gte(users.gold, totalCost)))
-      .run();
+  const result = db.transaction(
+    (tx) => {
+      let totalCost = 0;
 
-    if (result.changes !== 1) {
-      return false;
-    }
+      for (const purchase of selectedItems) {
+        const item = tx
+          .select({ price: items.price, owned: inventory.quantity })
+          .from(items)
+          .leftJoin(
+            inventory,
+            and(
+              eq(inventory.itemId, items.id),
+              eq(inventory.userId, player.id),
+            ),
+          )
+          .where(eq(items.id, purchase.itemId))
+          .get();
 
-    // Add purchased items to inventory
-    for (const purchase of selectedItems) {
-      tx.insert(inventory)
-        .values({
-          userId: player.id,
-          itemId: purchase.itemId,
-          quantity: purchase.quantity,
+        if (
+          !item ||
+          item.price === null ||
+          item.price < 0 ||
+          !Number.isSafeInteger((item.owned ?? 0) + purchase.quantity)
+        ) {
+          return "invalid";
+        }
+
+        totalCost += item.price * purchase.quantity;
+      }
+
+      if (!Number.isSafeInteger(totalCost)) {
+        return "invalid";
+      }
+
+      // Deduct gold only if the player can afford the purchase
+      const deduction = tx
+        .update(users)
+        .set({
+          gold: sql`${users.gold} - ${totalCost}`,
         })
-        .onConflictDoUpdate({
-          target: [inventory.userId, inventory.itemId],
-          set: {
-            quantity: sql`${inventory.quantity} + ${purchase.quantity}`,
-          },
-        })
+        .where(and(eq(users.id, player.id), gte(users.gold, totalCost)))
         .run();
-    }
 
-    return true;
-  });
+      if (deduction.changes !== 1) {
+        return "gold";
+      }
+
+      // Add purchased items to inventory
+      for (const purchase of selectedItems) {
+        tx.insert(inventory)
+          .values({
+            userId: player.id,
+            itemId: purchase.itemId,
+            quantity: purchase.quantity,
+          })
+          .onConflictDoUpdate({
+            target: [inventory.userId, inventory.itemId],
+            set: {
+              quantity: sql`${inventory.quantity} + ${purchase.quantity}`,
+            },
+          })
+          .run();
+      }
+
+      return "success";
+    },
+    // Reserve write access before reading prices and quantities.
+    { behavior: "immediate" },
+  );
 
   // Redirect with an error if the player lacks gold
-  if (!purchased) {
+  if (result === "gold") {
     return res.redirect("/game/store?err=gold");
   }
 

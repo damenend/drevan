@@ -4,6 +4,8 @@ import { db } from "../../db";
 import { users, items, inventory } from "../../db/schema";
 import { applyItemEffect } from "../../services/items";
 
+import { parseFormInteger } from "../../utils/parse-form-integer";
+
 const router = Router();
 
 function inventoryEntry(userId: number, itemId: number) {
@@ -39,9 +41,9 @@ function redirectHome(res: Response, message: string) {
 // Use an inventory item
 router.post("/use", (req, res) => {
   const player = res.locals.user;
-  const itemId = Number(req.body?.itemId);
+  const itemId = parseFormInteger(req.body?.itemId);
 
-  if (!Number.isSafeInteger(itemId) || itemId <= 0) {
+  if (itemId === null || itemId <= 0) {
     return res.redirect("/game");
   }
 
@@ -112,9 +114,9 @@ router.post("/use", (req, res) => {
 
 router.post("/equip", (req, res) => {
   const player = res.locals.user;
-  const itemId = Number(req.body?.itemId);
+  const itemId = parseFormInteger(req.body?.itemId);
 
-  if (!Number.isSafeInteger(itemId) || itemId <= 0) {
+  if (itemId === null || itemId <= 0) {
     return redirectHome(res, "Invalid item.");
   }
 
@@ -143,9 +145,9 @@ router.post("/equip", (req, res) => {
 
 router.post("/unequip", (req, res) => {
   const player = res.locals.user;
-  const itemId = Number(req.body?.itemId);
+  const itemId = parseFormInteger(req.body?.itemId);
 
-  if (!Number.isSafeInteger(itemId) || itemId <= 0) {
+  if (itemId === null || itemId <= 0) {
     return redirectHome(res, "Invalid item.");
   }
 

@@ -81,6 +81,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - Seeded healing items are Lesser Potion (10 HP), Potion (50 HP), and Greater Potion (100 HP). Healing is capped at the player's missing HP. See `src/db/seed.ts` for item values.
 - The hospital, called **Sanctum**, heals missing HP at a cost of one gold per HP restored, with insufficient-funds handling.
 - The store is called **Curious Emporium**.
+- The Emporium reads catalog prices and owned quantities inside the purchase
+  transaction. It rejects carts whose total cost or resulting inventory counts
+  exceed JavaScript's safe integer range. A blank quantity means zero.
 - The item catalog includes items obtained outside the store. A null price
   means the Emporium does not list or sell the item.
 - The arena is called **Dominion**.
@@ -106,6 +109,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   nearest integer and enforce a minimum of 1.
 - Combat is capped at 1,000 attacks to avoid runaway battles.
 - Training rejects players with zero HP and accepts dummy levels 1 through `MAX_TRAINING_LEVEL` (currently 100). Use that constant for both the server limit and the form.
+- Dominion defaults the training form to level 1 when the requested level is
+  missing or invalid.
 - Training dummies scale by selected level:
   - HP = `10 + (level - 1) * 5`
   - Strength = `2 + (level - 1)`
@@ -173,12 +178,18 @@ When changing behavior, review nearby comments for accuracy.
 ### Route boundaries
 
 - Use the shared error page for HTTP errors. Render expected route errors with `renderError` from `src/middleware/errors.ts`. Keep error copy safe for players to see.
+- Login and signup create a fresh session and save the signed-in player ID
+  before redirecting to the game.
+- Use `parseFormInteger` from `src/utils/parse-form-integer.ts` for nonnegative
+  whole numbers submitted to game routes. It accepts digit-only text and safe
+  JSON integers. Apply each route's own bounds after parsing.
 
 - `/game` and its child routes use the shared `requireAuth` middleware. The homepage and authentication endpoints are public. The Registry and player profiles at `/game/users/:id` require sign-in. The player pages expose game IDs, names, and levels. They display level 1 until XP progression is implemented.
 - The Admin page lets signed-in players edit only these stats on their own
   account: gold, strength, speed, maximum HP, Defense, and today's fishing casts
-  used (0 through the daily cast limit). It has no separate admin role check.
-  Keep it out of authorization decisions for other features.
+  used (0 through the daily cast limit). Lowering maximum HP also caps current
+  HP. Raising maximum HP does not heal the player. Admin has no separate role
+  check. Keep it out of authorization decisions for other features.
 
 ## Git, environment, and safety
 
@@ -241,10 +252,14 @@ with `git diff -- AGENTS.md` before staging.
 - Run `yarn format` to format supported source and config files. EJS templates,
   generated CSS, migration snapshots, and the Yarn lockfile are excluded.
 - The VS Code workspace uses EJS Beautify with two-space indentation for EJS files.
-- Run `yarn test` to run the unit tests once or `yarn test:watch` to rerun them as files change.
-- Put unit tests in `tests/*.test.ts`. Use Node's built-in `node:test` and strict assertions. The existing `tsx` loader runs TypeScript directly, and `tsconfig.test.json` checks the tests separately from the production build.
+- Run `yarn test` to run the tests once or `yarn test:watch` to rerun them as files change.
+- Put unit and integration tests in `tests/*.test.ts`. Use Node's built-in `node:test` and strict assertions. The existing `tsx` loader runs TypeScript directly, and `tsconfig.test.json` checks the tests separately from the production build.
 - Use controlled random rolls in combat tests so balance changes produce repeatable results. The combat and item-effect tests run without a server or local database.
-- Run `yarn check` for the Prettier check, Oxlint, TypeScript checking, and unit tests.
+  HTTP integration tests apply migrations in a temporary working directory
+  before importing the Express app, which opens `./data/game.sqlite` on import.
+  The tests start their own loopback listener. Running `src/app.ts` directly
+  starts the normal listener.
+- Run `yarn check` for the Prettier check, Oxlint, TypeScript checking, and the test suite.
 - Run `yarn build` to compile TypeScript and rebuild the Sass stylesheet.
 - Run `yarn clean` to delete `node_modules/` and reinstall dependencies.
   If Yarn reports a missing `node_modules` state file before the script can

@@ -11,6 +11,8 @@ import {
   MAX_TRAINING_LEVEL,
 } from "../../services/battle";
 
+import { parseFormInteger } from "../../utils/parse-form-integer";
+
 const router = Router();
 
 // Training battle
@@ -26,9 +28,9 @@ router.post("/", (req, res) => {
   }
 
   // Validate training level
-  const level = Number(req.body?.level);
+  const level = parseFormInteger(req.body?.level);
 
-  if (!Number.isSafeInteger(level) || level < 1 || level > MAX_TRAINING_LEVEL) {
+  if (level === null || level < 1 || level > MAX_TRAINING_LEVEL) {
     return res.redirect("/game/arena");
   }
 

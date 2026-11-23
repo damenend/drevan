@@ -1,12 +1,20 @@
 import { Router } from "express";
 import { MAX_TRAINING_LEVEL } from "../../services/battle";
 
+import { parseFormInteger } from "../../utils/parse-form-integer";
+
 const router = Router();
 
 // Arena page
 router.get("/", (req, res) => {
   const player = res.locals.user;
-  const level = req.query.level;
+  const requestedLevel = parseFormInteger(req.query.level);
+  const level =
+    requestedLevel !== null &&
+    requestedLevel >= 1 &&
+    requestedLevel <= MAX_TRAINING_LEVEL
+      ? requestedLevel
+      : 1;
 
   return res.render("game/arena", {
     title: "Dominion",
