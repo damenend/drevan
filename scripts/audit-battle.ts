@@ -20,10 +20,11 @@ const builds: Combatant[] = [
   { ...starter, name: "equipped", strength: 6, defense: 3 },
 ];
 
-const opponents: Combatant[] = [
-  ...[3, 4, 5, 6].map((level) => ({
+const opponents: (Combatant & { trainingLevel?: number })[] = [
+  ...[1, 2, 3, 4, 5, 6].map((level) => ({
     ...createTrainingDummy(level),
     name: `dummy-${level}`,
+    trainingLevel: level,
   })),
   { ...starter, name: "mirror" },
   { name: "heavy", hp: 30, strength: 8, speed: 3, defense: 3 },
@@ -42,7 +43,7 @@ function withSpeedCurve(fighter: Combatant): Combatant {
 }
 
 console.log(
-  "rule,build,opponent,build_slot,fights,wins,losses,draws,mean_hp_on_wins,mean_attacks,mean_elapsed_time,mean_build_attacks,mean_opponent_attacks,mean_build_damage,mean_opponent_damage,mean_build_crits,mean_opponent_crits",
+  "rule,build,opponent,build_slot,fights,wins,losses,draws,mean_hp_on_wins,mean_attacks,mean_elapsed_time,mean_build_attacks,mean_opponent_attacks,mean_build_damage,mean_opponent_damage,mean_build_crits,mean_opponent_crits,mean_training_reward,mean_sanctum_cost,mean_gold_after_healing",
 );
 
 for (const rule of rules) {
@@ -55,6 +56,12 @@ for (const rule of rules) {
           rule === "speed-curve"
             ? ([withSpeedCurve(player), withSpeedCurve(enemy)] as const)
             : ([player, enemy] as const);
+        // Model the training route only when the tested build is the player.
+        const trainingLevel =
+          slot === "player" ? opponent.trainingLevel : undefined;
+        const goldReward = (trainingLevel ?? 0) * 10;
+        let trainingRewards = 0;
+        let healingCosts = 0;
         let wins = 0;
         let losses = 0;
         let hpOnWins = 0;
@@ -63,7 +70,7 @@ for (const rule of rules) {
         const opponentTotals = { attacks: 0, damage: 0, crits: 0 };
 
         for (let seed = 1; seed <= fights; seed++) {
-          const result = simulateBattle(...fighters, 0, {
+          const result = simulateBattle(...fighters, goldReward, {
             random: seededRandom(seed),
             criticalChance: rule === "no-crits" ? 0 : undefined,
             rollTimingTie:
@@ -73,6 +80,10 @@ for (const rule of rules) {
             slot === "player"
               ? [result.playerHp, result.enemyHp]
               : [result.enemyHp, result.playerHp];
+          if (trainingLevel !== undefined) {
+            trainingRewards += result.goldEarned;
+            healingCosts += build.hp - buildHp;
+          }
           if (opponentHp === 0) {
             wins++;
             hpOnWins += buildHp;
@@ -111,6 +122,11 @@ for (const rule of rules) {
             mean(opponentTotals.damage),
             mean(buildTotals.crits),
             mean(opponentTotals.crits),
+            trainingLevel === undefined ? "" : mean(trainingRewards),
+            trainingLevel === undefined ? "" : mean(healingCosts),
+            trainingLevel === undefined
+              ? ""
+              : mean(trainingRewards - healingCosts),
           ].join(","),
         );
       }

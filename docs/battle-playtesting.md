@@ -105,9 +105,9 @@ Run this from the repository root after `nvm use`.
 node --import tsx scripts/audit-battle.ts > /tmp/drevan-battle-audit.csv
 ```
 
-Expect 616 data rows, each summarized from 5,000 fights using seeds 1–5,000.
+Expect 792 data rows, each summarized from 5,000 fights using seeds 1–5,000.
 Every matchup repeats with the build in each fighter slot. The audit starts at
-full HP and uses dummies 3–6, a starter mirror, a slow heavy opponent, and a
+full HP and uses dummies 1–6, a starter mirror, a slow heavy opponent, and a
 quick opponent. The CSV includes win, loss, and draw counts, mean remaining HP
 on wins, per-side attack and critical counts, and rolled damage (including any
 damage beyond the target's remaining HP). Mean duration uses the simulator
@@ -189,7 +189,36 @@ units. The trial brought the slots close to even with little change in pace.
 The equipped starter still won most level 4 fights, with about 1.45 less
 HP left on wins. That matters for the cost of repeated training.
 
-Keep random ties as a candidate for shared combat. Before adopting it, compare
-training rewards after healing under the candidate, then use that timing rule
-to reassess Speed and test larger HP increments against Strength and Defense
-for progression.
+### Training gold after healing
+
+The CSV includes average training reward, Sanctum cost, and net gold per
+fight for training dummies in the enemy slot. The calculation uses the
+[training reward](../src/routes/game/training.ts) of 10 gold per dummy level
+on a win and the [Sanctum rate](../src/routes/game/hospital.ts) of one gold
+per missing HP after every fight. A loss pays zero gold and healing from
+zero HP costs the build's full max HP. Each run starts at full HP and
+assumes the player can afford to heal. This measures gold per fight.
+Session duration and the upfront cost of gear need a separate playtest.
+
+| Build    | Dummy level | Live reward | Live healing | Live net | Trial reward | Trial healing | Trial net |
+| -------- | ----------: | ----------: | -----------: | -------: | -----------: | ------------: | --------: |
+| Starter  |           2 |       20.00 |         5.56 |    14.44 |        20.00 |          5.56 |     14.44 |
+| Starter  |           3 |       30.00 |        12.16 |    17.84 |        30.00 |         12.62 |     17.38 |
+| Starter  |           4 |       28.14 |        22.06 |     6.08 |        19.82 |         23.12 |     -3.29 |
+| Equipped |           3 |       30.00 |        10.01 |    19.99 |        30.00 |         10.13 |     19.87 |
+| Equipped |           4 |       39.76 |        16.62 |    23.14 |        38.41 |         18.30 |     20.11 |
+| Equipped |           5 |       10.33 |        24.34 |   -14.01 |         6.81 |         24.58 |    -17.77 |
+
+Net gold is calculated before rounding the three averages. Under both
+rules, the starter earned the most per fight at level 3 and the equipped
+starter at level 4. The trial narrowed the equipped advantage of choosing
+level 4 over level 3 to 0.24 gold per fight. At level 4, a starter with
++1 Speed improved from 6.84 to 12.44 net gold under the trial, while +1
+Strength fell from 16.12 to 7.64. The adjusted order can help a build
+when it takes away a timing advantage from the dummy.
+
+The audit supports keeping random ties as a candidate at current training
+payouts. If the goal is for equipped players to earn meaningfully more at
+level 4 than at level 3, test that margin in a timed training session.
+For progression, use the candidate timing rule to reassess Speed and test
+larger HP increments against Strength and Defense.
