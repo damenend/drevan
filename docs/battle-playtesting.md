@@ -19,6 +19,7 @@ training is a reliable win and level 5 is still difficult. Each piece costs
    dummy level, Strength, and Defense. The script uses the production battle
    simulator and runs without a database. The loadouts are explicit so you can
    compare the original armor with a candidate even after the catalog changes.
+   This run preserves the historical player-first timing rule.
 
 3. To verify the player flow on an existing development database, run
    `yarn db:seed` with the app's local database setup. The seed updates the
@@ -35,8 +36,8 @@ training is a reliable win and level 5 is still difficult. Each piece costs
   equipped gear to the stored base values.
 - The opening attacker is picked once. Each side's chance is its share of
   combined Speed, with a minimum effective Speed of 1. After the opening
-  roll, attacks follow intervals of `100 / speed`. The player takes priority
-  on equal scheduled times after the opening attack.
+  roll, attacks follow intervals of `100 / speed`. An even roll orders
+  later attacks due together. The second fighter attacks if they survive.
 - Base damage is drawn uniformly from half of Strength rounded up through
   full Strength, with a minimum of 1. A critical hit occurs on 5% of attacks
   and multiplies the roll by 1.5 before rounding up.
@@ -52,7 +53,8 @@ training is a reliable win and level 5 is still difficult. Each piece costs
 Dominion requires positive starting HP and accepts dummy levels 1–100.
 At level `L`, a dummy has `10 + 5 * (L - 1)` HP, `L + 1` Strength,
 `L + 1` Speed, and `floor(L / 4)` Defense. Training saves remaining HP and
-awards `10 * L` gold on a win. Future encounter modes can use the simulator
+awards `10 * L` gold on a win. Draws retain any HP loss and award nothing.
+Future encounter modes can use the simulator
 with their own persistence and reward rules.
 [Simulator](../src/services/battle.ts) ·
 [Training route](../src/routes/game/training.ts) ·
@@ -120,9 +122,11 @@ adds one of each. The specialized builds each add four to one stat. These
 equal numerical increases are a diagnostic. Progression point costs and HP
 gains still need to be designed.
 
-### Live baseline
+### Historical player-first baseline
 
-The table shows win rates with the tested build in the player slot.
+The table shows win rates with the tested build in the player slot. The
+`player-first` CSV rows reproduce the original timing rule. The original
+`no-crits` and `speed-curve` comparisons use that same rule.
 
 | Build       | Dummy 4 | Dummy 5 | Heavy | Quick |
 | ----------- | ------: | ------: | ----: | ----: |
@@ -173,18 +177,18 @@ so they leave the sequence of initiative, damage, and critical rolls intact.
 If a fighter dies on the first hit at a shared time, its pending attack is
 lost, just as in live combat.
 
-| Player-slot matchup  | Live win rate | Random ties | Live HP on wins | Random ties HP on wins |
-| -------------------- | ------------: | ----------: | --------------: | ---------------------: |
-| Starter mirror       |         70.4% |       49.6% |            4.17 |                   3.80 |
-| Starter vs. dummy 3  |          100% |        100% |           12.84 |                  12.38 |
-| Starter vs. dummy 4  |         70.4% |       49.6% |            4.17 |                   3.80 |
-| Equipped vs. dummy 4 |         99.4% |       96.0% |            8.43 |                   6.98 |
-| Equipped vs. dummy 5 |         20.7% |       13.6% |            3.21 |                   3.10 |
-| +4 Speed vs. dummy 5 |         74.7% |       70.6% |            4.86 |                   4.14 |
+| Player-slot matchup  | Player-first win rate | Random ties | Player-first HP on wins | Random ties HP on wins |
+| -------------------- | --------------------: | ----------: | ----------------------: | ---------------------: |
+| Starter mirror       |                 70.4% |       49.6% |                    4.17 |                   3.80 |
+| Starter vs. dummy 3  |                  100% |        100% |                   12.84 |                  12.38 |
+| Starter vs. dummy 4  |                 70.4% |       49.6% |                    4.17 |                   3.80 |
+| Equipped vs. dummy 4 |                 99.4% |       96.0% |                    8.43 |                   6.98 |
+| Equipped vs. dummy 5 |                 20.7% |       13.6% |                    3.21 |                   3.10 |
+| +4 Speed vs. dummy 5 |                 74.7% |       70.6% |                    4.86 |                   4.14 |
 
 The enemy-slot mirror won 50.4% of the trial fights. Both slots averaged
 5.78 attacks, compared with 6.15 for the player and 5.45 for the enemy in
-the live baseline. Mean fight duration moved from 102.98 to 102.72 clock
+the player-first baseline. Mean fight duration moved from 102.98 to 102.72 clock
 units. The trial brought the slots close to even with little change in pace.
 The equipped starter still won most level 4 fights, with about 1.45 less
 HP left on wins. That matters for the cost of repeated training.
@@ -200,14 +204,14 @@ zero HP costs the build's full max HP. Each run starts at full HP and
 assumes the player can afford to heal. This measures gold per fight.
 Session duration and the upfront cost of gear need a separate playtest.
 
-| Build    | Dummy level | Live reward | Live healing | Live net | Trial reward | Trial healing | Trial net |
-| -------- | ----------: | ----------: | -----------: | -------: | -----------: | ------------: | --------: |
-| Starter  |           2 |       20.00 |         5.56 |    14.44 |        20.00 |          5.56 |     14.44 |
-| Starter  |           3 |       30.00 |        12.16 |    17.84 |        30.00 |         12.62 |     17.38 |
-| Starter  |           4 |       28.14 |        22.06 |     6.08 |        19.82 |         23.12 |     -3.29 |
-| Equipped |           3 |       30.00 |        10.01 |    19.99 |        30.00 |         10.13 |     19.87 |
-| Equipped |           4 |       39.76 |        16.62 |    23.14 |        38.41 |         18.30 |     20.11 |
-| Equipped |           5 |       10.33 |        24.34 |   -14.01 |         6.81 |         24.58 |    -17.77 |
+| Build    | Dummy level | Player-first reward | Player-first healing | Player-first net | Trial reward | Trial healing | Trial net |
+| -------- | ----------: | ------------------: | -------------------: | ---------------: | -----------: | ------------: | --------: |
+| Starter  |           2 |               20.00 |                 5.56 |            14.44 |        20.00 |          5.56 |     14.44 |
+| Starter  |           3 |               30.00 |                12.16 |            17.84 |        30.00 |         12.62 |     17.38 |
+| Starter  |           4 |               28.14 |                22.06 |             6.08 |        19.82 |         23.12 |     -3.29 |
+| Equipped |           3 |               30.00 |                10.01 |            19.99 |        30.00 |         10.13 |     19.87 |
+| Equipped |           4 |               39.76 |                16.62 |            23.14 |        38.41 |         18.30 |     20.11 |
+| Equipped |           5 |               10.33 |                24.34 |           -14.01 |         6.81 |         24.58 |    -17.77 |
 
 Net gold is calculated before rounding the three averages. Under both
 rules, the starter earned the most per fight at level 3 and the equipped
@@ -217,8 +221,7 @@ level 4 over level 3 to 0.24 gold per fight. At level 4, a starter with
 Strength fell from 16.12 to 7.64. The adjusted order can help a build
 when it takes away a timing advantage from the dummy.
 
-The audit supports keeping random ties as a candidate at current training
-payouts. If the goal is for equipped players to earn meaningfully more at
+The timing change uses the existing training payouts. If the goal is for equipped players to earn meaningfully more at
 level 4 than at level 3, test that margin in a timed training session.
 
 ### Stat allocation trial with random ties
@@ -336,9 +339,7 @@ Start the allocation prototype with +1 Strength, +1 Speed, or +3 max HP
 per point. Keep Defense as a gear bonus for the prototype. That gives
 armor a clear role while avoiding an allocation choice whose value
 depends heavily on damage rounding. Revisit direct Defense allocation
-with stronger enemies or a wider gear catalog. The next live check is a
-short Dominion session with random ties and ordinary Sanctum visits to
-see whether the simulated difficulty and healing costs match play.
+with stronger enemies or a wider gear catalog.
 
 ### Dominion and Sanctum route playtest
 
@@ -353,12 +354,12 @@ separate tie stream. This was an automated route playtest. Time spent by a
 player reading, choosing actions, or switching activities was outside its
 scope.
 
-| Starter gear | Dummy level | Live wins / bouts | Live ending gold | Random ties wins / bouts | Random ties ending gold |
-| ------------ | ----------: | ----------------: | ---------------: | -----------------------: | ----------------------: |
-| None         |           3 |           50 / 50 |            1,008 |                  50 / 50 |                     987 |
-| None         |           4 |           34 / 50 |              373 |                  18 / 36 |                      12 |
-| Both items   |           3 |           50 / 50 |            1,117 |                  50 / 50 |                   1,115 |
-| Both items   |           4 |           50 / 50 |            1,278 |                  48 / 50 |                   1,089 |
+| Starter gear | Dummy level | Player-first wins / bouts | Player-first ending gold | Random ties wins / bouts | Random ties ending gold |
+| ------------ | ----------: | ------------------------: | -----------------------: | -----------------------: | ----------------------: |
+| None         |           3 |                   50 / 50 |                    1,008 |                  50 / 50 |                     987 |
+| None         |           4 |                   34 / 50 |                      373 |                  18 / 36 |                      12 |
+| Both items   |           3 |                   50 / 50 |                    1,117 |                  50 / 50 |                   1,115 |
+| Both items   |           4 |                   50 / 50 |                    1,278 |                  48 / 50 |                   1,089 |
 
 Under random ties, unequipped level 4 training ended at 0 HP with 12 gold,
 short of the 25 gold required to heal. A follow-up request confirmed that
@@ -367,8 +368,8 @@ the catch, and heal. The route test forced 13 Murkfin catches to verify
 that recovery path without depending on fishing luck.
 
 The route results support describing level 3 as the repeatable starter
-fight and level 4 as a gear check if random ties are adopted. With both
+fight and level 4 as a gear check with random ties. With both
 items, level 3 kept slightly more gold than level 4 in this 50-bout
 sample. The larger audit put level 4 ahead by 0.24 gold per fight, so
-treat their returns as close. The timing candidate is ready for a
-gameplay decision with that difficulty tradeoff documented.
+treat their returns as close. Random timing ties are now the default in
+the shared simulator.

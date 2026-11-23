@@ -61,7 +61,7 @@ const opponents: (Combatant & { trainingLevel?: number })[] = [
 
 const fights = 5000;
 const rules = [
-  { name: "live" },
+  { name: "player-first" },
   { name: "no-crits", criticalChance: 0 },
   { name: "speed-curve", speedCurve: true },
   { name: "random-ties", randomTies: true },
@@ -106,9 +106,7 @@ for (const rule of rules) {
           const result = simulateBattle(...fighters, goldReward, {
             random: seededRandom(seed),
             criticalChance: rule.criticalChance,
-            rollTimingTie: rule.randomTies
-              ? seededRandom(seed + fights)
-              : undefined,
+            rollTimingTie: rule.randomTies ? seededRandom(seed + fights) : null,
           });
           const [buildHp, opponentHp] =
             slot === "player"

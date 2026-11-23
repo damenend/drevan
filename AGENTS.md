@@ -108,12 +108,12 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 
 - Combat is turn-based and produces a structured battle log suitable for EJS rendering.
 - Strength influences a bounded random damage range; minimum damage should scale with strength rather than always being 1.
-- Roll for the first attacker once per battle. Each combatant's chance is its share of the combined speed, treating speeds below 1 as 1. Subsequent attack frequency follows the speed-based intervals.
+- Roll for the first attacker once per battle. Each combatant's chance is its share of the combined speed, treating speeds below 1 as 1. Subsequent attack frequency follows the speed-based intervals. For later attacks due at the same time, roll evenly for which fighter attacks first. The second fighter attacks if they survive.
 - Critical hits have a baseline 5% chance and are identified in the battle log.
 - Apply Defense after the critical-hit bonus. With nonnegative Defense, the
   reduction is `0.6 * defense / (defense + 10)`. Round final damage to the
   nearest integer and enforce a minimum of 1.
-- Combat is capped at 1,000 attacks to avoid runaway battles.
+- Combat is capped at 1,000 attacks. If both fighters survive, the fight is a draw. Training keeps the player’s remaining HP and awards zero gold on a draw. Future progression rewards should require a qualifying win.
 - Training rejects players with zero HP and accepts dummy levels 1 through `MAX_TRAINING_LEVEL` (currently 100). Use that constant for both the server limit and the form.
 - Dominion defaults the training form to level 1 when the requested level is
   missing or invalid.
@@ -222,8 +222,8 @@ When changing behavior, review nearby comments for accuracy.
 ## Current development direction
 
 The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
-playtest, basic fishing, and Emporium buyback. The next milestone is the
-combat stat audit and balancing, followed by basic XP and stat allocation.
+playtest, basic fishing, Emporium buyback, and combat stat audit. The next
+milestone is basic XP and stat allocation.
 The Ruins will introduce playable expeditions first, then combat item and
 material drops. Follow the
 [battle playtest guide](docs/battle-playtesting.md)

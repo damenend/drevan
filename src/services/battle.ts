@@ -110,7 +110,7 @@ function createBattleState(combatant: Combatant) {
 function nextAttacker(
   playerTime: number,
   enemyTime: number,
-  rollTimingTie?: () => number,
+  rollTimingTie: (() => number) | null,
 ): Actor {
   const tolerance = Math.max(playerTime, enemyTime) * 1e-12;
   if (rollTimingTie && Math.abs(playerTime - enemyTime) <= tolerance) {
@@ -125,7 +125,8 @@ function nextAttacker(
  *
  * @param goldReward - Gold included in the result if the player wins.
  * @param options - Playtest overrides for combat rolls, critical chance, and a separate
- * random source for resolving ties after the opening attack.
+ * random source for resolving later ties. Pass null for the historical
+ * player-first rule when reproducing old playtests.
  * @returns Battle log, HP totals, gold earned, and the last attack's time on the
  * simulator clock (an interval of 100 at Speed 1).
  */
@@ -136,11 +137,11 @@ export function simulateBattle(
   {
     random = Math.random,
     criticalChance = BASE_CRIT_CHANCE,
-    rollTimingTie,
+    rollTimingTie = random,
   }: {
     random?: () => number;
     criticalChance?: number;
-    rollTimingTie?: () => number;
+    rollTimingTie?: (() => number) | null;
   } = {},
 ): BattleResult {
   const combatants = {

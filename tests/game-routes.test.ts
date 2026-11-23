@@ -407,6 +407,20 @@ test("training rejects malformed levels and saves the fight result", async (t) =
   });
 });
 
+test("a capped training draw saves HP loss and awards no gold", async (t) => {
+  sqlite.exec(
+    "UPDATE users SET hp = 100000, max_hp = 100000, strength = 1, speed = 101;",
+  );
+  t.mock.method(Math, "random", () => 0.5);
+
+  const fight = await post("/game/training", { level: 100 });
+
+  assert.equal(fight.status, 200);
+  assert.match(fight.html, /The battle ended in a draw/);
+  assert.equal(player().hp, 62000);
+  assert.equal(player().gold, 100);
+});
+
 test("only one request spends the last fishing cast and awards a catch", async (t) => {
   t.mock.timers.enable({
     apis: ["Date"],

@@ -1,12 +1,12 @@
 # Drevan gameplay roadmap
 
-Equipment playtesting, basic fishing, and Curious Emporium buyback are complete. Next, audit and balance combat before adding basic character progression. Then open The Ruins for exploration and PvE, and build loot and rewards on the playable expedition.
+Equipment playtesting, basic fishing, and Curious Emporium buyback are complete. The combat stat audit is complete. Next, add basic character progression. Then open The Ruins for exploration and PvE, and build loot and rewards on the playable expedition.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse the existing combat simulator, equipment, inventory, and gold systems. Start with independently playable features and use repeatable simulations and actual play to guide expansion. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
 | Priority | Focus                                    | Readiness                                        |
 | -------- | ---------------------------------------- | ------------------------------------------------ |
-| P0       | Combat foundations and basic progression | Start with the combat audit                      |
+| P0       | Combat foundations and basic progression | Start basic XP and stat allocation               |
 | P1       | Ruins exploration and starter loot       | Playtest expeditions before expanding rewards    |
 | P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met  |
 | P3       | Equipment economy and advanced systems   | Build on established systems and balance results |
@@ -41,9 +41,9 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 4. Combat stat audit and balancing (P0 · Medium)
 
-- **Status.** In progress. The [combat audit](battle-playtesting.md#combat-stat-audit) documents the live baseline and trials for critical hits, Speed, and timing ties. The random tie trial brought identical fighters close to even. After healing, level 3 still earned the most for an unequipped starter and level 4 for an equipped starter. With random ties, the square-root Speed curve still changed fast matchups sharply. Continue allocation tests with the current Speed formula and a candidate +3 HP per point. Mixed builds favored offense in level 5 training. Against the level 4 dummy, 3 Defense was the first value that reduced ordinary damage. With starter armor, extra Defense gave smaller level 6 gains than Strength, Speed, or HP. Start the allocation prototype with those three stats. The Dominion route playtest confirmed the healing costs and verified recovery through fishing. Decide whether to adopt random ties with level 4 positioned as a gear check before starting XP.
+- **Status.** Complete. The [combat audit](battle-playtesting.md#combat-stat-audit) led to random ordering for later attacks due together, with existing Speed, damage, and payouts. Level 3 is a repeatable starter fight and level 4 is a gear check. Draws retain HP loss and grant zero rewards. Start the allocation prototype with +1 Strength, +1 Speed, or +3 max HP per point and keep Defense on gear for the prototype.
 - **Dependencies.** Starter equipment playtest (1) and the existing battle simulator.
-- **Scope.** Compare Strength, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Use controlled or seeded rolls. Measure win rate, HP remaining, total attacks, encounter duration, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to test the current tie rule, which favors the player on equal attack times.
+- **Scope.** Compare Strength, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Use controlled or seeded rolls. Measure win rate, HP remaining, total attacks, encounter duration, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to measure timing bias and validate the random tie rule.
 - **Done when.** Results document where stats and combinations excel, including timing bias and low-impact bonuses. Tune one rule or bonus at a time and rerun the same matchups before expanding progression or PvE encounters.
 
 ### 4a. Prototype a named Dominion boss (P0 · Small, optional)

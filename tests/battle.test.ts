@@ -69,6 +69,7 @@ test("Speed determines the opening odds and later attack frequency", (t) => {
     { ...player, speed: 0, hp: 40 },
     { ...enemy, speed: 3 },
     40,
+    { rollTimingTie: () => 0.25 },
   );
   const attacks = result.battleLog.filter((entry) => entry.type === "attack");
 
@@ -109,8 +110,8 @@ test("combat ends in a draw after 1,000 attacks and damage stays at least 1", (t
   assert.equal(result.goldEarned, 0);
 });
 
-test("playtest overrides preserve roll order and report simulated duration", () => {
-  const rolls = [0.75, 0, 0, 0, 0, 0, 0];
+test("default timing ties use an even roll and can end a fight before the reply", () => {
+  const rolls = [0.75, 0, 0, 0, 0, 0.5, 0, 0];
   const result = simulateBattle(
     { ...player, hp: 10 },
     { ...enemy, hp: 10 },
@@ -124,14 +125,14 @@ test("playtest overrides preserve roll order and report simulated duration", () 
     [
       ["enemy", 5, false],
       ["player", 5, false],
-      ["player", 5, false],
+      ["enemy", 5, false],
     ],
   );
   assert.equal(rolls.length, 0);
   assert.equal(result.elapsedTime, 100);
 });
 
-test("the timing trial rolls at later ties, including rounded intervals", (t) => {
+test("the simulator rolls at later ties, including rounded intervals", (t) => {
   const rollTimingTie = t.mock.fn(() => 0.75);
   const result = simulateBattle(
     { ...player, speed: 3, hp: 25 },

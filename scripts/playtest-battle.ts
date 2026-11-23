@@ -26,7 +26,7 @@ for (let level = 1; level <= 8; level++) {
           { name: "Player", hp: 25, speed: 5, strength, defense },
           dummy,
           level * 10,
-          { random: seededRandom(fight + 1) },
+          { random: seededRandom(fight + 1), rollTimingTie: null },
         );
 
         if (result.enemyHp === 0) {
