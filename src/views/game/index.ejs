@@ -45,8 +45,13 @@
       </div>
 
       <div class="character-stat">
+        <% if (progression.nextLevelXp === null) { %>
+        <dt>Lifetime experience</dt>
+        <dd><%= formatNumber(user.exp) %></dd>
+        <% } else { %>
         <dt>Experience</dt>
-        <dd><%= formatNumber(user.exp) %><% if (progression.nextLevelXp !== null) { %> / <%= formatNumber(progression.nextLevelXp) %><% } %></dd>
+        <dd><%= formatNumber(progression.currentLevelXp) %> / <%= formatNumber(progression.nextLevelXp) %></dd>
+        <% } %>
       </div>
 
       <div class="character-stat">

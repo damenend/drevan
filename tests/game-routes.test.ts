@@ -462,7 +462,7 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
 
   const home = await request("/game", { headers });
   assert.match(home.html, /id="character-heading"/);
-  assert.match(home.html, /<dt>Experience<\/dt>\s*<dd>60 \/ 150<\/dd>/);
+  assert.match(home.html, /<dt>Experience<\/dt>\s*<dd>0 \/ 150<\/dd>/);
   assert.match(home.html, /Unspent stat points<\/dt>\s*<dd>1<\/dd>/);
   const registry = await request("/game/users", { headers });
   assert.match(registry.html, /<td>2<\/td>/);

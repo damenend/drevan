@@ -123,9 +123,11 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Speed = `2 + (level - 1)`
   - Defense = `Math.floor(level / 4)`
 - Training saves remaining HP and awards `dummy level * 10` gold and XP on a win in one transaction. Losses and draws grant zero rewards.
-- Character levels 2 through 10 unlock at 60, 150, 270, 420, 600, 810, 1,050,
-  1,320, and 1,620 cumulative XP. Each level-up grants one point, up to nine
-  in this prototype. XP continues to accumulate at level 10.
+- Character levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050,
+  1,320, and 1,620 XP per level-up. The Quarters shows XP earned toward the
+  next level. Excess XP carries over, and the database stores lifetime XP.
+  Each level-up grants one point, up to nine. Level 10 starts at 6,300
+  lifetime XP, which continues to accumulate and is displayed at the cap.
 - In The Quarters, players spend one point on +1 Strength, +1 Speed, or +3 max HP. Store spent points by stat so base stats and gear stay separate. Max HP increases do not restore current HP. Sanctum and healing items use the increased cap.
 - Preserve the distinction between training combat and future player-versus-player combat.
 
