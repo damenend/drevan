@@ -72,6 +72,7 @@ beforeEach(() => {
     DELETE FROM inventory;
     UPDATE users SET gold = 100, hp = 25, max_hp = 25, strength = 5,
       speed = 5, defense = 0, equipped_weapon_id = NULL, equipped_armor_id = NULL,
+      exp = 0, strength_points = 0, speed_points = 0, max_hp_points = 0,
       fishing_casts_used = 0, fishing_cast_date = NULL;
   `);
 });
@@ -407,6 +408,53 @@ test("training rejects malformed levels and saves the fight result", async (t) =
   });
 });
 
+test("training unlocks a point and concurrent spends can only use it once", async (t) => {
+  t.mock.method(Math, "random", () => 0.25);
+  const headers = { cookie };
+  for (let win = 0; win < 2; win++) {
+    const fight = await post("/game/training", { level: 3 });
+    assert.equal(fight.status, 200);
+    assert.match(fight.html, /30 XP/);
+    if (win === 1) assert.match(fight.html, /You reached level 2/);
+    await post("/game/hospital");
+  }
+
+  const home = await request("/game", { headers });
+  assert.match(home.html, /<dt>Experience<\/dt>\s*<dd>60 \/ 150<\/dd>/);
+  assert.match(home.html, /Unspent stat points<\/dt>\s*<dd>1<\/dd>/);
+  const registry = await request("/game/users", { headers });
+  assert.match(registry.html, /<td>2<\/td>/);
+  const profilePath = registry.html.match(/href="(\/game\/users\/\d+)"/)?.[1];
+  assert.ok(profilePath);
+  const profile = await request(profilePath, { headers });
+  assert.match(profile.html, /<dt>Level<\/dt>\s*<dd>2<\/dd>/);
+
+  const invalid = await post("/game/progression", {
+    stat: "defense",
+    points: 1,
+  });
+  assert.match(invalid.headers.get("location") ?? "", /Choose/);
+  const spends = await Promise.all([
+    post("/game/progression", { stat: "maxHp", amount: 999 }),
+    post("/game/progression", { stat: "maxHp" }),
+  ]);
+  assert.equal(
+    spends.filter((spend) =>
+      spend.headers.get("location")?.includes("Point%20spent"),
+    ).length,
+    1,
+  );
+  assert.equal(player().hp, 25);
+  assert.equal(player().max_hp, 25);
+  const healed = await post("/game/hospital");
+  assert.equal(healed.headers.get("location"), "/game/hospital?healed=3");
+  assert.equal(player().hp, 28);
+  assert.match(
+    (await request("/game", { headers })).html,
+    /Unspent stat points<\/dt>\s*<dd>0<\/dd>/,
+  );
+});
+
 test("a capped training draw saves HP loss and awards no gold", async (t) => {
   sqlite.exec(
     "UPDATE users SET hp = 100000, max_hp = 100000, strength = 1, speed = 101;",
@@ -418,6 +466,13 @@ test("a capped training draw saves HP loss and awards no gold", async (t) => {
   assert.equal(fight.status, 200);
   assert.match(fight.html, /The battle ended in a draw/);
   assert.equal(player().hp, 62000);
+  assert.equal(
+    sqlite
+      .prepare("SELECT exp FROM users WHERE email = ?")
+      .pluck()
+      .get(account.email),
+    0,
+  );
   assert.equal(player().gold, 100);
 });
 

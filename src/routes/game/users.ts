@@ -5,19 +5,21 @@ import { users } from "../../db/schema";
 import { renderError } from "../../middleware/errors";
 import { formatPlayerName } from "../../utils/format-player-name";
 
+import { getProgression } from "../../services/progression";
+
 const router = Router();
 
-const playerFields = { id: users.id, name: users.name };
-// Players display the starting level until XP progression is implemented.
-const playerLevel = 1;
+const playerFields = { id: users.id, name: users.name, exp: users.exp };
 
 router.get("/", (req, res) => {
   const players = db.select(playerFields).from(users).all();
 
   return res.render("users/index", {
     title: "The Registry",
-    players,
-    playerLevel,
+    players: players.map(({ exp, ...player }) => ({
+      ...player,
+      level: getProgression(exp).level,
+    })),
   });
 });
 
@@ -42,7 +44,7 @@ router.get("/:id", (req, res) => {
   return res.render("users/profile", {
     title: formatPlayerName(player.name),
     player,
-    playerLevel,
+    playerLevel: getProgression(player.exp).level,
   });
 });
 

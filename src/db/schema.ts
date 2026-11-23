@@ -5,6 +5,7 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+import { statAllocations } from "../services/progression";
 
 export const users = sqliteTable(
   "users",
@@ -22,6 +23,9 @@ export const users = sqliteTable(
     hp: integer("hp").notNull().default(25),
     maxHp: integer("max_hp").notNull().default(25),
     exp: integer("exp").notNull().default(0),
+    strengthPoints: integer("strength_points").notNull().default(0),
+    speedPoints: integer("speed_points").notNull().default(0),
+    maxHpPoints: integer("max_hp_points").notNull().default(0),
     equippedWeaponId: integer("equipped_weapon_id"),
     equippedArmorId: integer("equipped_armor_id"),
     defense: integer("defense").notNull().default(0),
@@ -32,6 +36,10 @@ export const users = sqliteTable(
     uniqueIndex("users_name_lower_unique").on(sql`lower(${table.name})`),
   ],
 );
+
+// Healing queries and Admin use the same point-funded increase as Home.
+export const maxHpIncrease = sql<number>`${users.maxHpPoints} * ${statAllocations.maxHp.amount}`;
+export const effectiveMaxHp = sql<number>`${users.maxHp} + ${maxHpIncrease}`;
 
 export const items = sqliteTable("items", {
   id: integer("id").primaryKey({ autoIncrement: true }),

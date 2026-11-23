@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-Equipment playtesting, basic fishing, and Curious Emporium buyback are complete. The combat stat audit is complete. Next, add basic character progression. Then open The Ruins for exploration and PvE, and build loot and rewards on the playable expedition.
+Equipment playtesting, basic fishing, and Curious Emporium buyback are complete. The combat stat audit is complete. Basic character progression is ready for an in-app playtest. Then open The Ruins for exploration and PvE, and build loot and rewards on the playable expedition.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse the existing combat simulator, equipment, inventory, and gold systems. Start with independently playable features and use repeatable simulations and actual play to guide expansion. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
@@ -54,7 +54,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 5. Add basic XP, leveling, and stat allocation (P0 · Large)
 
-- **Status.** Balance testing started. The [early XP pacing trial](battle-playtesting.md#early-xp-pacing-trial) supports prototyping 10 XP per dummy level on a win. The first-point trial supports starting with cumulative thresholds of 60, 150, and 270 XP and one point per level-up. Next, prototype earning and spending in the app.
+- **Status.** Prototype implemented through character level 4. Wins award 10 XP per dummy level. Players earn one point at 60, 150, and 270 cumulative XP and may save it or spend it on Strength, Speed, or max HP. The fresh-character route playtest verified earning, spending, saving, and healing. A timed human session can inform later thresholds. [XP playtest results](battle-playtesting.md#fresh-character-progression-route-playtest)
 - **Dependencies.** Combat audit (4), Dominion training, and existing player attributes.
 - **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Start with Strength, Speed, and max HP as allocation candidates and evaluate whether Defense should also be directly allocatable. Track base attributes, permanent gains, point-funded increases, and equipment bonuses separately so classes, Intellect, Agility, and Artificer refunds can build on the same records.
 - **Done when.** Players can reach an early level in a short session, see XP, level, and unspent points on Home, and see earned levels in The Registry and on player profiles. They can spend or save points across sessions and see the effect of their choices in training.

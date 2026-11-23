@@ -445,3 +445,36 @@ repeat. Staying at level 3 leaves saving points viable. Use cumulative
 thresholds of 60, 150, and 270 XP and one point per level-up for the
 first prototype. Validate earning and spending in the app, then use
 timed play to decide later thresholds.
+
+### Fresh-character progression route playtest
+
+Thirty new accounts played through the prototype on a migrated disposable
+database, with five seeds for each plan below. Every account signed up
+with the normal 100 gold and 25 HP. A session opened Dominion, submitted a
+training form, and used Sanctum after every bout, including the final one
+if affordable. At 60 XP it either stayed at dummy level 3 or switched to
+level 4. One plan bought and equipped the Rusted Sword through the normal
+routes while saving its point. Every account signed in again at the end
+to verify its level and unspent points persisted.
+
+| Choice at character level 2              | Reached character level 4 | Mean bouts on reach | Mean ending gold on reach |
+| ---------------------------------------- | ------------------------: | ------------------: | ------------------------: |
+| Save point and stay at dummy level 3     |                     5 / 5 |                 9.0 |                     258.6 |
+| Save point and switch to dummy level 4   |                     4 / 5 |               12.75 |                    130.25 |
+| +1 Strength and switch                   |                     5 / 5 |                 9.2 |                     226.4 |
+| +1 Speed and switch                      |                     5 / 5 |                 9.4 |                     218.4 |
+| +3 max HP and switch                     |                     5 / 5 |                10.2 |                     174.4 |
+| Buy Rusted Sword, save point, and switch |                     5 / 5 |                 9.2 |                     126.4 |
+
+All accounts reached character level 2 after two bouts. The sessions
+played 303 bouts with 59 defeats. Each defeat granted zero XP. The
+session that ran out of healing gold stopped at 260 XP with 9 gold.
+Rusted Sword matched the Strength point's fight outcomes on the same
+seeds, and the 100-gold purchase preserved the point for later. Buying
+max HP kept current HP steady until the player paid Sanctum to heal.
+
+The prototype thresholds worked through the actual routes, and level 3
+gave players a reliable way to bank points. Keep the current thresholds
+for the next playtest. These automated sessions measure actions and
+outcomes. A timed human session can measure time spent reading, choosing
+a stat, and deciding when to move to a harder dummy.

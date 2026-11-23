@@ -24,12 +24,12 @@
 
       <div class="character-stat">
         <dt>Strength</dt>
-        <dd><%- include("../partials/stat-total", { total: effectiveStats.strength, base: user.strength }) %></dd>
+        <dd><%- include("../partials/stat-total", { total: effectiveStats.strength, base: user.strength + user.strengthPoints }) %></dd>
       </div>
 
       <div class="character-stat">
         <dt>Speed</dt>
-        <dd><%= formatNumber(user.speed) %></dd>
+        <dd><%= formatNumber(user.speed + user.speedPoints) %></dd>
       </div>
 
       <div class="character-stat">
@@ -38,10 +38,28 @@
       </div>
 
       <div class="character-stat">
+        <dt>Level</dt>
+        <dd><%= formatNumber(progression.level) %></dd>
+      </div>
+
+      <div class="character-stat">
         <dt>Experience</dt>
-        <dd><%= formatNumber(user.exp) %></dd>
+        <dd><%= formatNumber(user.exp) %><% if (progression.nextLevelXp !== null) { %> / <%= formatNumber(progression.nextLevelXp) %><% } %></dd>
+      </div>
+
+      <div class="character-stat">
+        <dt>Unspent stat points</dt>
+        <dd><%= formatNumber(progression.unspentPoints) %></dd>
       </div>
     </dl>
+
+    <% if (progression.unspentPoints > 0) { %>
+    <form action="/game/progression" method="POST" aria-label="Spend one stat point">
+      <% for (const [stat, option] of Object.entries(statAllocations)) { %>
+      <button type="submit" name="stat" value="<%= stat %>"><%= option.label %></button>
+      <% } %>
+    </form>
+    <% } %>
   </section>
 
   <% if (message) { %>

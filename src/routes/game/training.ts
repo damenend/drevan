@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { getEffectiveStats } from "../../services/equipment";
+import { getProgression } from "../../services/progression";
 import { formatPlayerName } from "../../utils/format-player-name";
 
 import {
@@ -17,14 +18,8 @@ const router = Router();
 
 // Training battle
 router.post("/", (req, res) => {
-  const player = res.locals.user;
-
-  // Prevent dead players from fighting
-  if (player.hp <= 0) {
-    return res.render("game/battle", {
-      title: "Training Battle",
-      dead: true,
-    });
+  if (res.locals.user.hp <= 0) {
+    return res.render("game/battle", { title: "Training Battle", dead: true });
   }
 
   // Validate training level
@@ -38,33 +33,70 @@ router.post("/", (req, res) => {
   const enemy = createTrainingDummy(level);
   const goldReward = level * 10;
 
-  // Simulate battle
-  const result = simulateBattle(
-    {
-      name: formatPlayerName(player.name),
-      hp: player.hp,
-      speed: player.speed,
-      ...getEffectiveStats(player),
+  const { id } = res.locals.user;
+  const savedBattle = db.transaction(
+    (tx) => {
+      const player = tx
+        .select({
+          id: users.id,
+          name: users.name,
+          hp: users.hp,
+          exp: users.exp,
+          strength: users.strength,
+          strengthPoints: users.strengthPoints,
+          speed: users.speed,
+          speedPoints: users.speedPoints,
+          defense: users.defense,
+          equippedWeaponId: users.equippedWeaponId,
+          equippedArmorId: users.equippedArmorId,
+        })
+        .from(users)
+        .where(eq(users.id, id))
+        .get();
+      if (!player || player.hp <= 0) return null;
+
+      const result = simulateBattle(
+        {
+          name: formatPlayerName(player.name),
+          hp: player.hp,
+          speed: player.speed + player.speedPoints,
+          ...getEffectiveStats(player),
+        },
+        enemy,
+        goldReward,
+      );
+
+      // Commit HP loss and any victory rewards together.
+      const xpEarned =
+        result.enemyHp === 0
+          ? Math.min(level * 10, Number.MAX_SAFE_INTEGER - player.exp)
+          : 0;
+      const exp = player.exp + xpEarned;
+      tx.update(users)
+        .set({
+          hp: result.playerHp,
+          gold: sql`${users.gold} + ${result.goldEarned}`,
+          exp,
+        })
+        .where(eq(users.id, player.id))
+        .run();
+
+      const newLevel = getProgression(exp).level;
+      return {
+        ...result,
+        xpEarned,
+        gainedLevel:
+          newLevel > getProgression(player.exp).level ? newLevel : null,
+      };
     },
-    enemy,
-    goldReward,
+    { behavior: "immediate" },
   );
 
-  // Save player stats
-  db.update(users)
-    .set({
-      hp: result.playerHp,
-      gold: sql`${users.gold} + ${result.goldEarned}`,
-    })
-    .where(eq(users.id, player.id))
-    .run();
-
-  // Display battle results
   return res.render("game/battle", {
     title: "Training Battle",
-    dead: false,
+    dead: savedBattle === null,
     level,
-    ...result,
+    ...savedBattle,
   });
 });
 

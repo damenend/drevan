@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "../db";
-import { users } from "../db/schema";
+import { effectiveMaxHp, users } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 /**
@@ -23,7 +23,11 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
       email: users.email,
       gold: users.gold,
       hp: users.hp,
-      maxHp: users.maxHp,
+      maxHp: effectiveMaxHp,
+      baseMaxHp: users.maxHp,
+      maxHpPoints: users.maxHpPoints,
+      speedPoints: users.speedPoints,
+      strengthPoints: users.strengthPoints,
       speed: users.speed,
       strength: users.strength,
       exp: users.exp,

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { users } from "../../db/schema";
+import { maxHpIncrease, users } from "../../db/schema";
 import {
   DAILY_CAST_LIMIT,
   getDailyCastsUsed,
@@ -34,7 +34,11 @@ router.get("/", (req, res) => {
   return res.render("game/admin", {
     title: "Admin",
     editableStats,
-    statValues: { ...player, fishing_casts_used: castsUsed },
+    statValues: {
+      ...player,
+      maxHp: player.baseMaxHp,
+      fishing_casts_used: castsUsed,
+    },
     dailyCastLimit: DAILY_CAST_LIMIT,
     message: message ?? null,
   });
@@ -77,21 +81,40 @@ router.post("/", (req, res) => {
   // Update the logged-in player's stats
   const player = res.locals.user;
 
-  db.update(users)
+  const result = db
+    .update(users)
     .set({
       ...updates,
       // Lower current HP with the cap in the same update. Raising the cap leaves existing HP alone.
       hp:
         updates.maxHp === undefined
           ? undefined
-          : sql`min(${users.hp}, ${updates.maxHp})`,
+          : sql`min(${users.hp}, ${updates.maxHp} + ${maxHpIncrease})`,
       fishing_cast_date:
         updates.fishing_casts_used === undefined ? undefined : getFishingDate(),
     })
-    .where(eq(users.id, player.id))
+    .where(
+      and(
+        eq(users.id, player.id),
+        updates.maxHp === undefined
+          ? undefined
+          : lte(maxHpIncrease, Number.MAX_SAFE_INTEGER - updates.maxHp),
+        updates.strength === undefined
+          ? undefined
+          : lte(
+              users.strengthPoints,
+              Number.MAX_SAFE_INTEGER - updates.strength,
+            ),
+        updates.speed === undefined
+          ? undefined
+          : lte(users.speedPoints, Number.MAX_SAFE_INTEGER - updates.speed),
+      ),
+    )
     .run();
 
-  return res.redirect("/game/admin?message=success");
+  return res.redirect(
+    result.changes ? "/game/admin?message=success" : "/game/admin?message=err",
+  );
 });
 
 export default router;

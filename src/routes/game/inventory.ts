@@ -1,7 +1,7 @@
 import { Router, type Response } from "express";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { users, items, inventory } from "../../db/schema";
+import { effectiveMaxHp, users, items, inventory } from "../../db/schema";
 import { applyItemEffect } from "../../services/items";
 
 import { parseFormInteger } from "../../utils/parse-form-integer";
@@ -50,7 +50,7 @@ router.post("/use", (req, res) => {
   const result = db.transaction((tx) => {
     // Fetch the player's current stats inside the transaction
     const currentPlayer = tx
-      .select({ hp: users.hp, maxHp: users.maxHp })
+      .select({ hp: users.hp, maxHp: effectiveMaxHp })
       .from(users)
       .where(eq(users.id, player.id))
       .get();

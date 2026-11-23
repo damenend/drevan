@@ -122,7 +122,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Strength = `2 + (level - 1)`
   - Speed = `2 + (level - 1)`
   - Defense = `Math.floor(level / 4)`
-- Training saves the player's remaining HP. Wins award `level * 10` gold, with the training route as the source of truth.
+- Training saves remaining HP and awards `dummy level * 10` gold and XP on a win in one transaction. Losses and draws grant zero rewards.
+- Character levels 2, 3, and 4 unlock at 60, 150, and 270 cumulative XP. Each level-up grants one point, up to three in this prototype. XP continues to accumulate at level 4.
+- Home spends one point on +1 Strength, +1 Speed, or +3 max HP. Store spent points by stat so base stats and gear stay separate. Max HP increases do not restore current HP. Sanctum and healing items use the increased cap.
 - Preserve the distinction between training combat and future player-versus-player combat.
 
 ## Visual and UX conventions
@@ -190,11 +192,11 @@ When changing behavior, review nearby comments for accuracy.
   whole numbers submitted to game routes. It accepts digit-only text and safe
   JSON integers. Apply each route's own bounds after parsing.
 
-- `/game` and its child routes use the shared `requireAuth` middleware. The homepage and authentication endpoints are public. The Registry and player profiles at `/game/users/:id` require sign-in. The player pages expose game IDs, names, and levels. They display level 1 until XP progression is implemented.
+- `/game` and its child routes use the shared `requireAuth` middleware. The homepage and authentication endpoints are public. The Registry and player profiles at `/game/users/:id` require sign-in. The player pages expose game IDs, names, and levels. Levels are derived from lifetime XP.
 - The Admin page lets signed-in players edit only these stats on their own
   account: gold, strength, speed, maximum HP, Defense, and today's fishing casts
   used (0 through the daily cast limit). Lowering maximum HP also caps current
-  HP. Raising maximum HP does not heal the player. Admin has no separate role
+  HP. Raising maximum HP does not heal the player. Admin edits base stats before allocation bonuses. Admin has no separate role
   check. Keep it out of authorization decisions for other features.
 
 ## Git, environment, and safety
@@ -222,8 +224,7 @@ When changing behavior, review nearby comments for accuracy.
 ## Current development direction
 
 The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
-playtest, basic fishing, Emporium buyback, and combat stat audit. The next
-milestone is basic XP and stat allocation.
+playtest, basic fishing, Emporium buyback, and combat stat audit. Basic XP and stat allocation are available through level 4 for playtesting.
 The Ruins will introduce playable expeditions first, then combat item and
 material drops. Follow the
 [battle playtest guide](docs/battle-playtesting.md)

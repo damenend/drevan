@@ -21,7 +21,7 @@
         <% players.forEach(player => { %>
         <tr>
           <th scope="row"><a href="/game/users/<%= player.id %>"><%= formatPlayerName(player.name) %></a></th>
-          <td><%= formatNumber(playerLevel) %></td>
+          <td><%= formatNumber(player.level) %></td>
         </tr>
         <% }) %>
       </tbody>

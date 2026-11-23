@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { users } from "../../db/schema";
+import { effectiveMaxHp, users } from "../../db/schema";
 import { formatNumber } from "../../utils/format-number";
 import { formatPlayerName } from "../../utils/format-player-name";
 
@@ -50,8 +50,8 @@ router.post("/", (req, res) => {
       and(
         eq(users.id, player.id),
         eq(users.hp, player.hp),
-        eq(users.maxHp, player.maxHp),
-        lt(users.hp, users.maxHp),
+        eq(effectiveMaxHp, player.maxHp),
+        lt(users.hp, effectiveMaxHp),
         gte(users.gold, healed),
       ),
     )

@@ -31,7 +31,10 @@
       <p>
         <span class="player"><%= entry.player %></span> wins!
       </p>
-      <p>Reward: <%= formatNumber(entry.reward) %> gold</p>
+      <p>Reward: <%= formatNumber(entry.reward) %> gold, <%= formatNumber(xpEarned) %> XP</p>
+      <% if (gainedLevel !== null) { %>
+      <p>You reached level <%= formatNumber(gainedLevel) %>! Spend stat points on Home.</p>
+      <% } %>
       <% } else if (entry.result === "loss") { %>
       <p><span class="player"><%= entry.player %></span> was defeated!</p>
       <% } else if (entry.result === "draw") { %>

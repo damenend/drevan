@@ -4,7 +4,12 @@ import { inventory, items, users } from "../db/schema";
 
 type EquippedPlayer = Pick<
   typeof users.$inferSelect,
-  "id" | "strength" | "defense" | "equippedWeaponId" | "equippedArmorId"
+  | "id"
+  | "strength"
+  | "strengthPoints"
+  | "defense"
+  | "equippedWeaponId"
+  | "equippedArmorId"
 >;
 
 /**
@@ -22,19 +27,17 @@ export function getEquippedSlot(
 }
 
 /**
- * Returns base Strength and Defense plus bonuses from owned gear in the
- * matching equipment slots. Each slot contributes once, regardless of quantity.
+ * Loads owned gear bonuses for the equipped slots and returns combat stats. Each slot contributes once, regardless of quantity.
  */
 export function getEffectiveStats(player: EquippedPlayer) {
-  const stats = { strength: player.strength, defense: player.defense };
   const { equippedWeaponId, equippedArmorId } = player;
 
   if (equippedWeaponId === null && equippedArmorId === null) {
-    return stats;
+    return applyEquipmentBonuses(player, []);
   }
 
   const equipment = db
-    .select({ effect: items.effect, value: items.effectValue })
+    .select({ effect: items.effect, effectValue: items.effectValue })
     .from(inventory)
     .innerJoin(items, eq(inventory.itemId, items.id))
     .where(
@@ -53,9 +56,27 @@ export function getEffectiveStats(player: EquippedPlayer) {
     )
     .all();
 
-  for (const { effect, value } of equipment) {
-    if (value !== null && (effect === "strength" || effect === "defense")) {
-      stats[effect] += value;
+  return applyEquipmentBonuses(player, equipment);
+}
+
+/**
+ * Adds point-funded Strength and bonuses from items already confirmed as equipped.
+ */
+export function applyEquipmentBonuses(
+  player: Pick<EquippedPlayer, "strength" | "strengthPoints" | "defense">,
+  equipment: Pick<typeof items.$inferSelect, "effect" | "effectValue">[],
+) {
+  const stats = {
+    strength: player.strength + player.strengthPoints,
+    defense: player.defense,
+  };
+
+  for (const { effect, effectValue } of equipment) {
+    if (
+      effectValue !== null &&
+      (effect === "strength" || effect === "defense")
+    ) {
+      stats[effect] += effectValue;
     }
   }
 

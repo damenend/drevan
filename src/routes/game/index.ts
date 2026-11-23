@@ -3,7 +3,10 @@ import { requireAuth } from "../../middleware/auth";
 import { and, eq, gt, asc } from "drizzle-orm";
 import { db } from "../../db";
 import { items, inventory } from "../../db/schema";
-import { getEffectiveStats, getEquippedSlot } from "../../services/equipment";
+import {
+  applyEquipmentBonuses,
+  getEquippedSlot,
+} from "../../services/equipment";
 
 import arenaRouter from "./arena";
 import hospitalRouter from "./hospital";
@@ -13,6 +16,8 @@ import trainingRouter from "./training";
 import inventoryRouter from "./inventory";
 import usersRouter from "./users";
 import fishingRouter from "./fishing";
+import progressionRouter from "./progression";
+import { getProgression, statAllocations } from "../../services/progression";
 
 const router = Router();
 
@@ -48,11 +53,18 @@ router.get("/", (req, res) => {
       };
     });
 
+  const equipped = playerInventory.filter((item) => item.equippedSlot);
+
   return res.render("game/index", {
     title: "Home",
-    equipped: playerInventory.filter((item) => item.equippedSlot),
+    equipped,
     inventory: playerInventory.filter((item) => item.quantity > 0),
-    effectiveStats: getEffectiveStats(player),
+    effectiveStats: applyEquipmentBonuses(player, equipped),
+    progression: getProgression(
+      player.exp,
+      player.strengthPoints + player.speedPoints + player.maxHpPoints,
+    ),
+    statAllocations,
     message:
       typeof req.query.message === "string" ? req.query.message : undefined,
   });
@@ -77,5 +89,6 @@ router.use("/admin", adminRouter);
 router.use("/inventory", inventoryRouter);
 router.use("/users", usersRouter);
 router.use("/fishing", fishingRouter);
+router.use("/progression", progressionRouter);
 
 export default router;
