@@ -4,6 +4,6 @@
   <% if (recoveryLink) { %>
   <p><a href="<%= recoveryLink.href %>"><%= recoveryLink.label %></a></p>
   <% } else { %>
-  <p><a href="<%= user ? '/game' : '/' %>"><%= user ? "Back to The Quarters" : "Back to Home" %></a></p>
+  <p><a href="<%= user ? '/game' : '/' %>"><%= user ? "Return to The Quarters" : "Return to the homepage" %></a></p>
   <% } %>
 </section>

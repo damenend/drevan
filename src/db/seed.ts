@@ -13,7 +13,7 @@ async function seed() {
   const potions: Item[] = [
     {
       name: "Lesser Potion",
-      description: "A lesser healing potion.",
+      description: "A mild restorative in a travel-sized vial.",
       price: 5,
       type: "consumable",
       effect: "heal",
@@ -22,7 +22,8 @@ async function seed() {
     },
     {
       name: "Potion",
-      description: "A healing potion.",
+      description:
+        "A restorative brewed from local plants. The metallic aftertaste is apparently normal.",
       price: 25,
       type: "consumable",
       effect: "heal",
@@ -31,7 +32,8 @@ async function seed() {
     },
     {
       name: "Greater Potion",
-      description: "A greater healing potion.",
+      description:
+        "A concentrated restorative in a thick glass bottle. The seal takes both hands to break.",
       price: 50,
       type: "consumable",
       effect: "heal",
@@ -43,7 +45,7 @@ async function seed() {
   const weapons: Item[] = [
     {
       name: "Rusted Sword",
-      description: "A basic sword",
+      description: "A weathered blade with a sound edge beneath the rust.",
       price: 100,
       sellPrice: 50,
       type: "weapon",
@@ -56,7 +58,8 @@ async function seed() {
   const armor: Item[] = [
     {
       name: "Worn Leather Armor",
-      description: "A basic armor",
+      description:
+        "Leather armor patched with hide from an unidentified beast. The previous owner is equally unidentified.",
       price: 100,
       sellPrice: 50,
       type: "armor",
@@ -69,7 +72,8 @@ async function seed() {
   const fish: Item[] = [
     {
       name: "Murkfin",
-      description: "A common fish",
+      description:
+        "A hardy bottom-dweller from The Driftwater. A local staple, chiefly among people who have run out of other fish.",
       image: "/images/murkfin.webp",
       price: null,
       sellPrice: 1,
@@ -79,7 +83,8 @@ async function seed() {
     },
     {
       name: "Glassscale",
-      description: "An uncommon fish",
+      description:
+        "A translucent fish whose scales split the light into shifting colors.",
       image: "/images/glassscale.webp",
       price: null,
       sellPrice: 3,
@@ -89,7 +94,8 @@ async function seed() {
     },
     {
       name: "Astral Koi",
-      description: "A rare fish",
+      description:
+        "A rare fish with luminous markings like constellations. Scholars disagree on whether any of them match the sky.",
       image: "/images/astral-koi.webp",
       price: null,
       sellPrice: 10,
@@ -109,7 +115,7 @@ async function seed() {
       {
         name: RECALL_BEACON,
         description:
-          "Returns you to Nexaris from The Ruins once per Central calendar day.",
+          "The mechanism is a mystery, but the destination is reliable. Returns you to Nexaris from The Ruins once per day, resetting at midnight Central time.",
         type: "utility",
         image: "/images/recall-beacon.webp",
       },

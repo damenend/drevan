@@ -1,11 +1,11 @@
 <section class="page">
-  <h2>Arena Battle</h2>
+  <h2>Dominion training</h2>
   <% if (dead) { %>
   <%- include("../partials/arena-heal-notice") %>
   <% } else { %>
   <%- include("../partials/battle-log", { battleHeadingLevel: 3, enemyName: `Level ${formatNumber(level)} Training Dummy` }) %>
   <% if (gainedLevel !== null) { %>
-  <p>You reached level <%= formatNumber(gainedLevel) %>! <a href="/game#character-heading">Spend stat points in The Quarters</a>.</p>
+  <p>You reached level <%= formatNumber(gainedLevel) %>. <a href="/game#character-heading">Spend attribute points in The Quarters</a>.</p>
   <% } %>
   <a href="/game/arena?level=<%= level %>">Return to Dominion</a>
   <% } %>

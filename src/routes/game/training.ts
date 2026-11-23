@@ -19,7 +19,10 @@ const router = Router();
 // Training battle
 router.post("/", (req, res) => {
   if (res.locals.user.hp <= 0) {
-    return res.render("game/battle", { title: "Training Battle", dead: true });
+    return res.render("game/battle", {
+      title: "Dominion training",
+      dead: true,
+    });
   }
 
   // Validate training level
@@ -102,7 +105,7 @@ router.post("/", (req, res) => {
   );
 
   return res.render("game/battle", {
-    title: "Training Battle",
+    title: "Dominion training",
     dead: savedBattle === null,
     level,
     ...savedBattle,

@@ -174,6 +174,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 
 ## Visual and UX conventions
 
+Consult the [writing guide](docs/writing-guide.md) and [lore reference](docs/lore.md) whenever adding or revising player-facing copy. The [roadmap](docs/roadmap.md) remains the source of truth for development planning.
+
 - Early-2000s web aesthetic with high-fantasy / sci-fi artwork; avoid glossy or chrome-like UI.
 - Main container maximum width: 1320px.
 - Typeface: Roboto for body text and Rajdhani for headings and buttons.

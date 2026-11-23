@@ -23,7 +23,7 @@ const statLabels = {
   strength: "Base Strength",
   agility: "Base Agility",
   intellect: "Base Intellect",
-  defense: "Defense",
+  defense: "Base Defense",
   gold: "Gold",
   fishing_casts_used: "Fishing casts used today",
 } as const;

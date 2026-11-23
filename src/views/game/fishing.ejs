@@ -1,24 +1,26 @@
 <section class="page">
-  <h2>Welcome to <%= title %>!</h2>
+  <h2><%= title %></h2>
   <%- include("../partials/location-image", {
     src: "/images/the-driftwater.webp",
-    caption: "A mystical shoreline where glowing waters meet ancient ruins beneath a sky filled with distant worlds.",
+    alt: "Glowing water laps against old stonework beneath a sky filled with distant worlds.",
+    caption: "The shallows at The Driftwater.",
   }) %>
-  <p>The Driftwater is a serene spot where anglers can cast their lines into the glowing waters and discover the mysteries that lie beneath the surface.</p>
-  <p>Number of casts left: <%= formatNumber(castsRemaining) %></p>
+
+  <p>Beyond Nexaris, water glows where it meets the old stonework. Anglers keep to the shallows and let the deeper water keep its secrets.</p>
+  <p>Casts remaining today: <%= formatNumber(castsRemaining) %></p>
   <% if (castsRemaining > 0) { %>
   <form action="/game/fishing" method="POST">
     <div class="form-group"><button type="submit">Cast</button></div>
   </form>
   <% } else { %>
-  <p>You've used all your casts for today. Come back after midnight Central time.</p>
+  <p>You've used all your casts for today. Casts reset at midnight Central time.</p>
   <% } %>
   <% if (caughtFish) { %>
   <img src="/images/<%= caughtFish.toLowerCase().replace(" ", "-") %>.webp" alt="" class="fish-image" />
-  <p>You caught a <strong><%= caughtFish %></strong>!</p>
+  <p>You reel in a <strong><%= caughtFish %></strong>.</p>
   <% } else if (releasedFish) { %>
-  <p>You released the <strong><%= releasedFish %></strong> because its inventory stack is full.</p>
+  <p>You released the <strong><%= releasedFish %></strong> because you can’t carry any more of that fish.</p>
   <% } else if (caughtFish === null) { %>
-  <p>Nothing bit this time.</p>
+  <p>Your line comes back empty.</p>
   <% } %>
 </section>

@@ -1,5 +1,5 @@
 <section class="page">
-  <h2>Login</h2>
+  <h2>Log in</h2>
   <form action="/login" method="POST">
     <div class="form-group">
       <label for="login-email">Email</label>
@@ -22,20 +22,20 @@
       />
     </div>
     <div class="form-group">
-      <button type="submit">Login</button>
+      <button type="submit">Log in</button>
     </div>
   </form>
   <hr />
-  <h2>Sign Up</h2>
+  <h2>Create an account</h2>
   <form id="signup-form" action="/signup" method="POST">
     <div class="form-group">
       <label for="signup-name">Player name</label>
       <input type="text" id="signup-name" name="name" aria-describedby="player-name-rules signup-name-error" autocomplete="nickname" minlength="3" maxlength="24" pattern="[A-Za-z0-9_\-][A-Za-z0-9_ \-]{1,22}[A-Za-z0-9_\-]" required />
-      <p id="player-name-rules">3–24 characters. Use letters A–Z, numbers, spaces, underscores, or hyphens. Keep spaces inside the name. Names are unique regardless of capitalization.</p>
+      <p id="player-name-rules">3–24 characters. Use letters A–Z, digits, spaces, underscores, or hyphens. Start and end without a space. Capitalization does not make a name unique.</p>
       <p id="signup-name-error" hidden></p>
     </div>
     <div class="form-group">
-      <label for="signup-avatar-model">Gender</label>
+      <label for="signup-avatar-model">Avatar model</label>
       <select id="signup-avatar-model" name="avatarModel" aria-describedby="signup-avatarModel-error" required>
         <option value="male" selected>Male</option>
         <option value="female">Female</option>
@@ -72,7 +72,7 @@
       <p id="signup-passwordConfirmation-error" hidden></p>
     </div>
     <div class="form-group">
-      <button type="submit">Sign Up</button>
+      <button type="submit">Create account</button>
     </div>
   </form>
 </section>

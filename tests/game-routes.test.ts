@@ -258,7 +258,7 @@ test("Changing base Fortitude in Admin refills HP without changing spent points"
     /<dd>25 \/ 25<\/dd>/,
   );
   const admin = await request("/game/admin", { headers });
-  assert.match(admin.html, /Effective max HP: <strong>25<\/strong>/);
+  assert.match(admin.html, /Max HP: <strong>25<\/strong>/);
   assert.doesNotMatch(admin.html, /name="stats\[(hp|baseHp)\]"/);
   assert.equal(ruinsState().fortitude_points, 2);
 
@@ -286,7 +286,7 @@ test("each other primary attribute still spends exactly one point", async () => 
   assert.match(home.html, /<dt>Strength<\/dt>\s*<dd>6<\/dd>/);
   assert.match(home.html, /<dt>Agility<\/dt>\s*<dd>6<\/dd>/);
   assert.match(home.html, /<dt>Intellect<\/dt>\s*<dd>1<\/dd>/);
-  assert.match(home.html, /<dt>Unspent stat points<\/dt>\s*<dd>0<\/dd>/);
+  assert.match(home.html, /<dt>Unspent attribute points<\/dt>\s*<dd>0<\/dd>/);
 });
 
 test("equal offensive totals yield equal Attack Power regardless of Fortitude", () => {
@@ -328,7 +328,7 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
   `);
   t.mock.method(Math, "random", () => 0.1);
   const playerHit =
-    /battle-log-entry--player">\s*<span class="player">[^<]+<\/span>\s*attacks\s*<span class="enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage!/;
+    /battle-log-entry--player">\s*<span class="player">[^<]+<\/span>\s*attacks\s*<span class="enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
   assert.match((await post("/game/training", { level: 1 })).html, playerHit);
   await reachScavenger();
   await explore("engage");
@@ -647,7 +647,7 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
     if (win === 1) {
       assert.match(
         fight.html,
-        /You reached level 2! <a href="\/game#character-heading">Spend stat points in The Quarters<\/a>/,
+        /You reached level 2\. <a href="\/game#character-heading">Spend attribute points in The Quarters<\/a>/,
       );
     }
     await post("/game/hospital");
@@ -655,8 +655,11 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
 
   const home = await request("/game", { headers });
   assert.match(home.html, /id="character-heading"/);
-  assert.match(home.html, /<dt>Experience<\/dt>\s*<dd>0 \/ 150<\/dd>/);
-  assert.match(home.html, /Unspent stat points<\/dt>\s*<dd>1<\/dd>/);
+  assert.match(
+    home.html,
+    /<dt>XP toward next level<\/dt>\s*<dd>0 \/ 150<\/dd>/,
+  );
+  assert.match(home.html, /Unspent attribute points<\/dt>\s*<dd>1<\/dd>/);
   const registry = await request("/game/users", { headers });
   assert.match(registry.html, /<td>2<\/td>/);
   const profilePath = registry.html.match(/href="(\/game\/users\/\d+)"/)?.[1];
@@ -685,7 +688,7 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
   assert.equal(player().hp, 28);
   assert.match(
     (await request("/game", { headers })).html,
-    /Unspent stat points<\/dt>\s*<dd>0<\/dd>/,
+    /Unspent attribute points<\/dt>\s*<dd>0<\/dd>/,
   );
   const nextFight = await post("/game/training", { level: 1 });
   assert.match(nextFight.html, /HP: 28 → 27/);
@@ -729,7 +732,7 @@ test("only one request spends the last fishing cast and awards a catch", async (
   ]);
   assert.ok(results.every(({ status }) => status === 200));
   assert.equal(
-    results.filter(({ html }) => /You caught a/.test(html)).length,
+    results.filter(({ html }) => /You reel in a/.test(html)).length,
     1,
   );
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
@@ -832,7 +835,7 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   await explore("move", 7);
   assert.match(
     (await viewRuins()).html,
-    /ruins-empty[^>]*>There’s nothing of interest here/,
+    /ruins-empty[^>]*>There’s nothing to do here/,
   );
   const discovery = await explore("move", 14);
   const itemLocation = discovery.headers.get("location");
@@ -967,8 +970,8 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   assert.equal(ruinsState().exp, 60);
   assert.equal(player().gold, 138);
   assert.equal(player().hp, 21);
-  assert.match((await viewRuins()).html, /wins!/);
-  assert.doesNotMatch((await viewRuins()).html, /wins!/);
+  assert.match((await viewRuins()).html, /wins\./);
+  assert.doesNotMatch((await viewRuins()).html, /wins\./);
 });
 
 test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires healing", async (t) => {

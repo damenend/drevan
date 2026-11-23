@@ -3,7 +3,6 @@ import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { effectiveMaxHp, users } from "../../db/schema";
 import { formatNumber } from "../../utils/format-number";
-import { formatPlayerName } from "../../utils/format-player-name";
 
 import { parseFormInteger } from "../../utils/parse-form-integer";
 
@@ -17,9 +16,9 @@ router.get("/", (req, res) => {
   let message;
 
   if (healed > 0) {
-    message = `${formatPlayerName(player.name)} was healed for ${formatNumber(healed)} HP`;
+    message = `Sanctum restored ${formatNumber(healed)} HP.`;
   } else if (req.query.err) {
-    message = "Unable to heal. Please check your gold and try again.";
+    message = "Healing failed. Check your HP and gold before trying again.";
   }
 
   return res.render("game/hospital", {

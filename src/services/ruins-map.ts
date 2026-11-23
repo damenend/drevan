@@ -27,7 +27,7 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
     {
       kind: "gold",
       amount: 8,
-      description: "You pry loose a cache of old coins.",
+      description: "Old coins lie wedged beneath a loose slab.",
     },
   ],
   [
@@ -51,7 +51,8 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
       },
       reward: 30,
       trainingLevel: 3,
-      description: "A clawed scavenger digs through a heap of ancient wiring.",
+      description:
+        "Claws rake through a heap of wiring. The scavenger pauses when you draw near.",
     },
   ],
   [
@@ -67,7 +68,8 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
       },
       reward: 40,
       trainingLevel: 4,
-      description: "A damaged guardian tracks you with a flickering red eye.",
+      description:
+        "The damaged sentinel turns with a scrape of metal. Its red eye follows you.",
     },
   ],
   [
@@ -83,7 +85,8 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
       },
       reward: 50,
       trainingLevel: 5,
-      description: "An armored warden stands watch over the buried vault.",
+      description:
+        "The warden stands before the buried vault. Its armor shifts as it turns toward you.",
     },
   ],
 ]);

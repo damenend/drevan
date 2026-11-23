@@ -43,14 +43,14 @@ router.post("/", (req, res) => {
       if (!player) return "Player not found.";
 
       if (!getProgression(player.exp, getSpentPoints(player)).unspentPoints) {
-        return "You have no points to spend.";
+        return "You have no attribute points to spend.";
       }
       const nextValue =
         stat === "fortitude"
           ? player.nextMaxHp
           : player[stat] + player[pointColumn] + 1;
       if (!Number.isSafeInteger(nextValue)) {
-        return "That stat is already at its limit.";
+        return "That attribute is already at its limit.";
       }
 
       tx.update(users)

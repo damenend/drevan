@@ -133,7 +133,7 @@ router.post("/use", (req, res) => {
     { behavior: "immediate" },
   );
 
-  return redirectHome(res, result?.message ?? "No effect");
+  return redirectHome(res, result?.message ?? "This item had no effect.");
 });
 
 router.post("/equip", (req, res) => {
@@ -149,7 +149,7 @@ router.post("/equip", (req, res) => {
       const ownedItem = findOwnedItem(tx, player.id, itemId);
 
       if (!ownedItem) {
-        return "Item not found in inventory.";
+        return "You do not have that item in your inventory.";
       }
 
       const slot = getEquipmentColumn(ownedItem.type);

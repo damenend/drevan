@@ -3,9 +3,9 @@
   <% if (position === null) { %>
   <%- include("../partials/location-image", {
     src: "/images/drevan-ruins-banner.webp",
-    caption: "Beyond the crumbling archway, the remnants of a forgotten civilization await.",
+    caption: "The entrance to Floor 1 of The Ruins.",
     banner: {
-      alt: "An ancient stone archway covered in fading blue runes, leading into the darkened ruins.",
+      alt: "Blue runes line a stone archway opening into darkness.",
       width: 1774,
       height: 887,
     },
@@ -18,7 +18,7 @@
   <% } %>
 
   <% if (position === null) { %>
-  <p>Enter the remnants of Drevan's lost civilizations. Set your equipment before entering.</p>
+  <p>Old stone and buried machinery lie beyond the entrance. Set your equipment before you enter.</p>
   <% if (user.hp > 0) { %>
   <form action="/game/ruins/action" method="post">
     <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
@@ -30,11 +30,11 @@
   <% } else { %>
 
   <% if (encounter) { %>
-  <p class="ruins-notice ruins-notice--encounter" role="status"><strong>Enemy sighted.</strong> You can engage or pass by.</p>
+  <p class="ruins-notice ruins-notice--encounter" role="status"><strong>Enemy sighted.</strong> Fight it or pass by.</p>
   <% } else if (atNextFloor) { %>
   <p class="ruins-notice ruins-notice--discovery" role="status"><strong>Floor 2 entrance discovered.</strong> The way down is sealed.</p>
   <% } else if (emptySquare) { %>
-  <p class="ruins-empty" role="status">There’s nothing of interest here.</p>
+  <p class="ruins-empty" role="status">There’s nothing to do here.</p>
   <% } %>
 
   <div class="ruins-sections">
@@ -69,8 +69,8 @@
         <% if (encounter) { %>
         <h4><%= encounter.enemy.name %></h4>
         <p><%= encounter.description %></p>
-        <button type="submit" name="action" value="engage">Engage</button>
-        <button type="submit" name="action" value="ignore">Ignore</button>
+        <button type="submit" name="action" value="engage">Fight</button>
+        <button type="submit" name="action" value="ignore">Pass by</button>
         <% } %>
       </form>
       <% } %>
@@ -102,7 +102,7 @@
       </section>
 
       <section aria-labelledby="ruins-items">
-        <h3 id="ruins-items">Items and Escape</h3>
+        <h3 id="ruins-items">Items and escape</h3>
         <% if (!potions.length) { %>
         <p>You have no healing potions.</p>
         <% } else { %>
@@ -133,7 +133,8 @@
 
   <%- include("../partials/location-image", {
     src: "/images/drevan-ruins-interior.webp",
-    caption: "Blue crystals light the stone passage.",
+    caption: "Floor 1 of The Ruins.",
+    alt: "Blue crystals light a stone passage.",
   }) %>
   <% } %>
 </section>

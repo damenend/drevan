@@ -3,22 +3,24 @@
 
   <%- include("../partials/location-image", {
     src: "/images/home.webp",
-    caption: "A cozy stone-and-timber cottage with glowing windows and futuristic technology.",
+    alt: "A stone-and-timber cottage with lit windows and machinery outside.",
+    caption: "A place of your own in Nexaris.",
   }) %>
 
-  <p>Welcome back, <%= formatPlayerName(user.name) %>!</p>
+  <p>Welcome back, <%= formatPlayerName(user.name) %>. There’s room here to stow your gear and prepare for the next outing.</p>
 
   <section class="character" aria-labelledby="character-heading">
-    <h3 id="character-heading">Character Overview</h3>
+    <h3 id="character-heading">Character overview</h3>
 
     <%- include("../partials/player-avatar", { player: user }) %>
     <p>Class: <%= formatPlayerName(user.characterClass) %></p>
 
-    <h4>Combat Stats</h4>
+    <h4>Combat stats</h4>
+    <p>Speed affects who attacks first and how often they attack. Defense reduces damage taken.</p>
 
     <dl class="character-stats">
       <div class="character-stat">
-        <dt>Health</dt>
+        <dt>HP</dt>
         <dd><%= formatNumber(user.hp) %> / <%= formatNumber(user.maxHp) %></dd>
       </div>
 
@@ -49,21 +51,22 @@
 
       <div class="character-stat">
         <% if (progression.nextLevelXp === null) { %>
-        <dt>Lifetime experience</dt>
+        <dt>Lifetime XP</dt>
         <dd><%= formatNumber(user.exp) %></dd>
         <% } else { %>
-        <dt>Experience</dt>
+        <dt>XP toward next level</dt>
         <dd><%= formatNumber(progression.currentLevelXp) %> / <%= formatNumber(progression.nextLevelXp) %></dd>
         <% } %>
       </div>
 
       <div class="character-stat">
-        <dt>Unspent stat points</dt>
+        <dt>Unspent attribute points</dt>
         <dd><%= formatNumber(progression.unspentPoints) %></dd>
       </div>
     </dl>
 
-    <h4>Primary Attributes</h4>
+    <h4>Primary attributes</h4>
+    <p>Strength, Agility, and Intellect each add 1 Attack Power per point. Fortitude adds 3 max HP per point.</p>
     <dl class="character-stats">
       <div class="character-stat">
         <dt>Strength</dt>
@@ -94,7 +97,7 @@
     <h3 id="equipped-heading">Equipped</h3>
 
     <% if (equipped.length === 0) { %>
-    <p>You have no equipment equipped.</p>
+    <p>You have nothing equipped.</p>
     <% } else { %>
     <div class="table-responsive">
       <table class="table">
@@ -145,7 +148,7 @@
             <th scope="col">Description</th>
             <th scope="col">Quantity</th>
             <th scope="col">Effect</th>
-            <th scope="col">Effect Value</th>
+            <th scope="col">Value</th>
             <th scope="col">Action</th>
           </tr>
         </thead>
@@ -157,7 +160,7 @@
             </td>
             <td><%= item.description %></td>
             <td><%= formatNumber(item.quantity) %></td>
-            <td><%= item.effect === "attack_power" ? "Attack Power" : item.effect %></td>
+            <td><%= ({ attack_power: "Attack Power", defense: "Defense", heal: "Restore HP" })[item.effect] ?? item.effect ?? "—" %></td>
             <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
             <td>
               <%

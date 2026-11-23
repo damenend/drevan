@@ -1,19 +1,22 @@
 <section class="page">
-  <h2>Welcome to <%= title %>!</h2>
+  <h2><%= title %></h2>
   <%- include("../partials/location-image", {
     src: "/images/dominion.webp",
-    caption: "A stone battle arena with towering walls, red banners, and a glowing blue energy crystal.",
+    alt: "Red banners hang above a stone arena lit by a blue crystal.",
+    caption: "The training grounds at Dominion.",
   }) %>
+
+  <p>Steel and sorcery share the floor at Dominion. Try your strength against a training dummy. A win pays in gold and XP.</p>
   <% if (dead) { %>
   <%- include("../partials/arena-heal-notice") %>
   <% } else { %>
   <form action="/game/training" method="POST">
     <div class="form-group">
-      <label for="level">Trainer level</label>
+      <label for="level">Training dummy level</label>
       <input type="number" name="level" id="level" value="<%= level %>" min="1" max="<%= maxTrainingLevel %>" step="1" required />
     </div>
 
-    <button type="submit">Fight Training Dummy</button>
+    <button type="submit">Fight training dummy</button>
   </form>
   <% } %>
 </section>

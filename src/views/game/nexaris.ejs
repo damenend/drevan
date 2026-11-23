@@ -3,14 +3,17 @@
 
   <%- include("../partials/location-image", {
     src: "/images/nexaris-v2.webp",
-    caption: "Nexaris, the gateway to Drevan's locations.",
+    alt: "",
+    caption: "Nexaris, a refuge among the remnants of the old world.",
   }) %>
+
+  <p>Nexaris grew around the remains of the old world. Machinery of uncertain purpose stands beside homes and market stalls, and there is room here for anyone trying to make a living.</p>
 
   <% if (message) { %>
   <p role="status"><%= message %></p>
   <% } %>
   <% if (battle) { %>
-  <h3>The Ruins expedition ended</h3>
+  <h3>Expedition ended</h3>
   <%- include("../partials/battle-log", battle) %>
   <% if (battle.playerHp === 0) { %>
   <p><a href="/game/hospital">Heal at Sanctum</a> before starting another expedition.</p>
@@ -22,41 +25,41 @@
       <thead>
         <tr>
           <th scope="col">Destination</th>
-          <th scope="col">What you can do</th>
+          <th scope="col">At this location</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th scope="row"><a href="/game">The Quarters</a></th>
-          <td>Review your character, manage equipment, and prepare for adventures.</td>
+          <td>Manage your gear and spend attribute points.</td>
         </tr>
         <tr>
           <th scope="row"><a href="/game/arena">Dominion</a></th>
-          <td>Test your strength and earn glory in the arena.</td>
+          <td>Train against practice dummies in the arena.</td>
         </tr>
         <tr>
           <th scope="row"><a href="/game/store">Curious Emporium</a></th>
-          <td>Discover goods and curiosities from across Drevan.</td>
+          <td>Buy supplies and sell spare gear or fish.</td>
         </tr>
         <tr>
           <th scope="row"><a href="/game/hospital">Sanctum</a></th>
-          <td>Seek healing and restore your vitality.</td>
+          <td>Pay gold to restore HP.</td>
         </tr>
         <tr>
           <th scope="row"><a href="/game/users">The Registry</a></th>
-          <td>Meet the wanderers who call Drevan home.</td>
+          <td>Find players and view their profiles.</td>
         </tr>
         <tr>
           <th scope="row"><a href="/game/reliquary">The Reliquary</a></th>
-          <td>Uncover the forgotten history of the old world.</td>
+          <td>Read surviving accounts of the old world.</td>
         </tr>
         <tr>
           <th scope="row"><a href="/game/fishing">The Driftwater</a></th>
-          <td>Cast your line into enchanted waters and discover what lurks beneath the surface.</td>
+          <td>Cast a line in the glowing waters beyond Nexaris.</td>
         </tr>
         <tr>
           <th scope="row"><a href="/game/ruins">The Ruins</a></th>
-          <td>Explore the remnants of Drevan's lost civilizations.</td>
+          <td>Search buried chambers for supplies and gold.</td>
         </tr>
       </tbody>
     </table>

@@ -3,7 +3,7 @@
     <% battleLog.forEach(entry => { %>
     <% if (entry.type === "encounter") { %>
     <p>
-      <span class="player"><%= entry.player %></span> encounters <span class="enemy"><%= entry.target %></span>!
+      <span class="player"><%= entry.player %></span> encounters <span class="enemy"><%= entry.target %></span>.
     </p>
     <h<%= headingLevel %>>Battle log</h<%= headingLevel %>>
     <% } else if (entry.type === "attack") { %>
@@ -13,9 +13,9 @@
       <span class="<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
       for
       <strong><%= formatNumber(entry.damage) %></strong>
-      damage!
+      damage.
       <% if (entry.critical) { %>
-      <strong class="critical-hit">Critical Hit!</strong>
+      <strong class="critical-hit">Critical hit.</strong>
       <% } %>
     </p>
     <% } else if (entry.type === "outcome") { %>
@@ -25,11 +25,11 @@
       <p><span class="enemy"><%= enemyName %></span> HP: <%= formatNumber(startingEnemyHp) %> → <%= formatNumber(enemyHp) %></p>
       <% if (entry.result === "win") { %>
       <p>
-        <span class="player"><%= entry.player %></span> wins!
+        <span class="player"><%= entry.player %></span> wins.
       </p>
       <p>Reward: <%= formatNumber(entry.reward) %> gold, <%= formatNumber(xpEarned) %> XP</p>
       <% } else if (entry.result === "loss") { %>
-      <p><span class="player"><%= entry.player %></span> was defeated!</p>
+      <p><span class="player"><%= entry.player %></span> was defeated.</p>
       <% } else if (entry.result === "draw") { %>
       <p>
         The battle ended in a draw.

@@ -69,7 +69,10 @@ export function actInRuins(
     (tx): ActionResult => {
       const player = tx.select().from(users).where(eq(users.id, userId)).get();
       if (!player || player.ruinsRevision !== revision) {
-        return { message: "That expedition action is out of date." };
+        return {
+          message:
+            "Your expedition has moved on. Choose an action from the current map.",
+        };
       }
 
       // Every successful action invalidates the forms for the previous state.
@@ -118,7 +121,10 @@ export function actInRuins(
               );
               changes.gold = player.gold + awarded;
               if (awarded > 0) result.discovery = "gold";
-              result.message = `${encounter.description} You collect ${formatNumber(awarded)} gold.`;
+              result.message =
+                awarded > 0
+                  ? `${encounter.description} You collect ${formatNumber(awarded)} gold.`
+                  : `${encounter.description} You cannot carry any more gold.`;
             } else if (encounter?.kind === "item") {
               const item = tx
                 .select({ id: items.id })
@@ -143,7 +149,10 @@ export function actInRuins(
           case "recall": {
             const today = getGameDate();
             if (player.recallDate === today)
-              return { message: "Your Recall Beacon is on cooldown." };
+              return {
+                message:
+                  "Your Recall Beacon recharges at midnight Central time.",
+              };
             const beacon = tx
               .select({ id: items.id })
               .from(inventory)
@@ -170,7 +179,7 @@ export function actInRuins(
             const encounter = getRuinsEncounter(position);
             if (!player.ruinsEnemyPending || encounter?.kind !== "enemy") {
               return {
-                message: "There is no enemy waiting to be engaged here.",
+                message: "There is no enemy to fight here.",
               };
             }
             changes.ruinsEnemyPending = false;

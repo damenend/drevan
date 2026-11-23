@@ -1,9 +1,12 @@
 <section class="page">
-  <h2>Welcome to <%= title %>!</h2>
+  <h2><%= title %></h2>
   <%- include("../partials/location-image", {
     src: "/images/curious-emporium.webp",
-    caption: "A fantasy marketplace filled with glowing crystals and merchant supplies beneath a bronze dome.",
+    alt: "Supply stalls and glowing crystals beneath a bronze dome.",
+    caption: "The stalls at Curious Emporium.",
   }) %>
+
+  <p>Curious Emporium buys spare gear and fish and sells provisions for the road. Ask where a relic came from and the proprietor may suddenly remember an errand.</p>
   <%- include("../partials/player-gold", { gold: user.gold }) %>
   <h3>Buy items</h3>
   <form id="purchase-form" action="/game/store" method="POST">
@@ -14,7 +17,7 @@
             <th scope="col">Item</th>
             <th scope="col">Description</th>
             <th scope="col">Effect</th>
-            <th scope="col">Effect Value</th>
+            <th scope="col">Value</th>
             <th scope="col">Price</th>
             <th scope="col">Quantity</th>
           </tr>
@@ -26,7 +29,7 @@
               <%- include("../partials/item-figure", { item }) %>
             </td>
             <td><%= item.description %></td>
-            <td><%= item.effect === "attack_power" ? "Attack Power" : item.effect %></td>
+            <td><%= ({ attack_power: "Attack Power", defense: "Defense", heal: "Restore HP" })[item.effect] ?? item.effect ?? "—" %></td>
             <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
             <td><%= formatNumber(item.price) %> gold</td>
             <td>
@@ -55,7 +58,7 @@
     <p role="status">Sale complete.</p>
     <% } %>
     <% if (sellableItems.length === 0) { %>
-    <p>You have no items Curious Emporium buys.</p>
+    <p>You have nothing available to sell here.</p>
     <% } else { %>
     <form id="sell-form" action="/game/store/sell" method="POST">
       <div class="table-responsive">

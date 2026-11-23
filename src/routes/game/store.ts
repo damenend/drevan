@@ -50,7 +50,8 @@ router.get("/", (req, res) => {
       available: item.quantity - Number(getEquippedSlot(player, item) !== null),
     }));
 
-  const errorMessage = req.query.err === "gold" ? "Not enough gold" : undefined;
+  const errorMessage =
+    req.query.err === "gold" ? "You do not have enough gold." : undefined;
 
   return res.render("game/store", {
     title: "Curious Emporium",
@@ -190,7 +191,8 @@ router.post("/sell", (req, res) => {
   const selectedItems = parseItemSelection(req.body?.items);
   if (!selectedItems?.length) {
     return renderError(res, 400, {
-      message: "Enter a positive whole quantity for at least one item to sell.",
+      message:
+        "Enter a whole quantity of at least 1 for an item you want to sell.",
     });
   }
 

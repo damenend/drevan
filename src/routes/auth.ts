@@ -72,7 +72,9 @@ router.post("/signup", async (req, res) => {
     !email.trim() ||
     !password
   ) {
-    return renderError(res, 400, { message: "Invalid signup information." });
+    return renderError(res, 400, {
+      message: "Check your account details and try again.",
+    });
   }
 
   if (passwordConfirmation !== password) {
@@ -87,7 +89,7 @@ router.post("/signup", async (req, res) => {
   }
 
   if (avatarModel !== "male" && avatarModel !== "female") {
-    return renderError(res, 400, { message: "Choose a valid gender." });
+    return renderError(res, 400, { message: "Choose an avatar model." });
   }
 
   const passwordHash = await argon2.hash(password);
@@ -137,8 +139,8 @@ router.post("/signup", async (req, res) => {
 
     return renderError(res, 409, {
       message: nameTaken
-        ? "Player name already taken."
-        : "Email already registered.",
+        ? "That player name is already taken."
+        : "That email is already registered.",
     });
   }
 

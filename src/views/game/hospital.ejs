@@ -1,10 +1,13 @@
 <section class="page">
-  <h2>Welcome to <%= title %>!</h2>
+  <h2><%= title %></h2>
 
   <%- include("../partials/location-image", {
     src: "/images/sanctum.webp",
-    caption: "A futuristic healing sanctuary with glowing blue windows and a domed stone entrance.",
+    alt: "Blue-lit windows flank a domed stone entrance.",
+    caption: "The entrance to Sanctum.",
   }) %>
+
+  <p>Old healing apparatus hums in the quiet halls of Sanctum. The attendants charge 1 gold for each HP restored.</p>
 
   <%- include("../partials/player-gold", { gold: user.gold }) %>
 
@@ -13,12 +16,12 @@
   <% } %>
 
   <% if (user.hp >= user.maxHp) { %>
-  <p>You're currently at full health.</p>
+  <p>You’re at full health.</p>
   <% } else { %>
-  <p>Current cost: <%= formatNumber(cost) %></p>
+  <p>Healing costs <%= formatNumber(cost) %> gold.</p>
 
   <% if (cost > user.gold) { %>
-  <p>You can't currently afford to heal.</p>
+  <p>You do not have enough gold to heal.</p>
   <% } else { %>
   <form action="/game/hospital" method="POST">
     <button type="submit">Heal</button>

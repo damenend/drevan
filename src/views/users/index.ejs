@@ -3,8 +3,11 @@
 
   <%- include("../partials/location-image", {
     src: "/images/the-registry.webp",
-    caption: "The Registry, Drevan's directory of players.",
+    alt: "",
+    caption: "The Registry keeps a record of Drevan’s players.",
   }) %>
+
+  <p>Browse player names and levels. Select a name to open that player’s profile.</p>
 
   <% if (players.length === 0) { %>
   <p>No players are listed yet.</p>

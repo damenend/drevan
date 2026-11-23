@@ -51,7 +51,7 @@
 
   connectCart("purchase-form", "total-gold", "purchase-message", {
     maxTotal: availableGold,
-    limitMessage: "You don't have enough gold!",
+    limitMessage: "You do not have enough gold.",
   });
   connectCart("sell-form", "sell-total", "sell-message", {
     maxTotal: Number.MAX_SAFE_INTEGER - availableGold,
