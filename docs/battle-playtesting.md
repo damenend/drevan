@@ -373,3 +373,47 @@ items, level 3 kept slightly more gold than level 4 in this 50-bout
 sample. The larger audit put level 4 ahead by 0.24 gold per fight, so
 treat their returns as close. Random timing ties are now the default in
 the shared simulator.
+
+## Early XP pacing trial
+
+From the repository root, run this after `nvm use`.
+
+```sh
+node --import tsx scripts/playtest-progression.ts > /tmp/drevan-progression.csv
+```
+
+Expect 30 data rows. The script models two candidate rewards for training
+wins. Flat pays 30 XP and scaled pays 10 XP per dummy level. Both use
+cumulative thresholds of 60, 150, and 270 XP for character levels 2, 3,
+and 4. Losses and draws grant zero XP.
+
+Each matchup runs 1,000 seeded sessions with the adopted combat rules. A
+session starts with 100 gold and full HP. The equipped build starts with
+both starter items already owned. Each session sticks to one dummy and
+pays Sanctum after each bout before fighting again. It stops at character
+level 4, after 30 bouts, or when it cannot afford the next full heal.
+The model saves all stat points so this comparison isolates XP pacing.
+Results measure bouts. A timed player session is still needed to measure
+how long a level takes.
+
+| Training plan       | Flat bouts to level 4 | Scaled bouts to level 2 | Scaled bouts to level 3 | Scaled bouts to level 4 | Scaled sessions reaching level 4 |
+| ------------------- | --------------------: | ----------------------: | ----------------------: | ----------------------: | -------------------------------: |
+| Level 1, no gear    |                  9.00 |                    6.00 |                   15.00 |                   27.00 |                             100% |
+| Level 2, no gear    |                  9.00 |                    3.00 |                    8.00 |                   14.00 |                             100% |
+| Level 3, no gear    |                  9.00 |                    2.00 |                    5.00 |                    9.00 |                             100% |
+| Level 4, no gear    |                 15.11 |                    3.45 |                    6.80 |                   11.74 |                            61.6% |
+| Level 4, both items |                  9.36 |                    2.09 |                    4.16 |                    7.29 |                             100% |
+
+Mean bouts to each level include only sessions that reached that level.
+Of 1,000 unequipped level 4 sessions, 384 could no longer afford healing
+before reaching character level 4 under scaled XP. Under flat XP, 460
+ran out of healing gold before reaching the same goal. The scaled run
+typically stops earlier when it succeeds, so these totals compare failure
+to reach the goal and are not per-bout affordability rates.
+
+Prototype scaled XP with these early thresholds. Flat XP gives the three
+easiest dummies the same progression pace. Scaled XP makes level 3 a
+reliable starter route and gives equipped players a faster route at
+level 4, while an unequipped player can still earn XP from easier fights.
+Next, test spending versus saving the first point and switching dummies
+mid-session before choosing later thresholds.

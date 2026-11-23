@@ -54,6 +54,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 5. Add basic XP, leveling, and stat allocation (P0 · Large)
 
+- **Status.** Balance testing started. The [early XP pacing trial](battle-playtesting.md#early-xp-pacing-trial) supports prototyping 10 XP per dummy level on a win. Test spending versus saving the first point before locking in thresholds.
 - **Dependencies.** Combat audit (4), Dominion training, and existing player attributes.
 - **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Start with Strength, Speed, and max HP as allocation candidates and evaluate whether Defense should also be directly allocatable. Track base attributes, permanent gains, point-funded increases, and equipment bonuses separately so classes, Intellect, Agility, and Artificer refunds can build on the same records.
 - **Done when.** Players can reach an early level in a short session, see XP, level, and unspent points on Home, and see earned levels in The Registry and on player profiles. They can spend or save points across sessions and see the effect of their choices in training.
