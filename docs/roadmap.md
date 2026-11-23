@@ -1,13 +1,13 @@
 # Drevan gameplay roadmap
 
-Equipment playtesting, basic fishing, and Curious Emporium buyback are complete. The combat stat audit is complete. Continue playtesting character progression through level 10. Then open The Ruins for exploration and PvE, and build loot and rewards on the playable expedition.
+Starter equipment playtesting, basic fishing, Curious Emporium buyback, the combat stat audit, and the level 10 progression prototype are complete. The next milestone is a playable Ruins expedition. Establish its difficulty and rewards through automated playtesting before adding victory loot and material drops.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse the existing combat simulator, equipment, inventory, and gold systems. Start with independently playable features and use repeatable simulations and actual play to guide expansion. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
 | Priority | Focus                                    | Readiness                                        |
 | -------- | ---------------------------------------- | ------------------------------------------------ |
-| P0       | Combat foundations and basic progression | Playtest XP and stat allocation through level 10 |
-| P1       | Ruins exploration and starter loot       | Playtest expeditions before expanding rewards    |
+| P0       | Combat foundations and basic progression | Complete through the level 10 prototype          |
+| P1       | Ruins exploration and starter loot       | Build and playtest basic Ruins expeditions next  |
 | P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met  |
 | P3       | Equipment economy and advanced systems   | Build on established systems and balance results |
 | P4       | Future concepts                          | Needs further design before scheduling           |
@@ -48,13 +48,14 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 4a. Prototype a named Dominion boss (P0 · Small, optional)
 
-- **Dependencies.** Initial combat audit (4), the training simulator, and reliable equipment calculations (1). This optional prototype can proceed independently after the audit.
+- **Dependencies.** Initial combat audit (4), the training simulator, and reliable equipment calculations (1). This optional prototype can proceed independently after the audit. The Ruins can proceed without it.
 - **Scope.** Start with one opponent, such as The Blighted Guardian. Define its ID, name, lore, recommended level, fixed attributes, and basic rewards in TypeScript. Tune its stat spread against a comparable training dummy so it has a recognizable matchup. Resolve challenges automatically through the shared simulator and show the existing battle log. The first encounter uses ordinary attacks and keeps its difficulty fixed. Revisit database-backed definitions if the catalog, location-specific rewards, or administrative tools warrant them. Track player progress separately from the opponent definition.
 - **Done when.** Players can challenge and defeat the boss. Starter characters are clearly outmatched through combat itself, and prepared characters have a realistic path to victory. Compare win rate, remaining HP, and battle length across differently equipped builds. Verify the same boss stats are used for every challenger and training still resolves as before.
 
 ### 5. Add basic XP, leveling, and stat allocation (P0 · Large)
 
-- **Status.** Prototype capped at character level 10 for continued playtesting. Wins award 10 XP per dummy level. Levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP per level-up. Excess XP carries over toward the next level. Each level-up grants one point to save or spend on Strength, Speed, or max HP. The fresh-character route playtest covered levels 1–4 under the previous cumulative thresholds. Continue through level 10 and measure how long the new levels take. [XP playtest results](battle-playtesting.md#fresh-character-progression-route-playtest)
+- **Status.** Complete for the prototype. Training wins award 10 XP per dummy level. Levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP per level-up. Excess XP carries over toward the next level. Each level-up grants one point to save or spend on Strength, Speed, or max HP.
+- **Playtest results.** New accounts start with 125 gold and three Lesser Potions. All 10 accounts in the starter-supplies rerun reached level 10. Counting from signup, the plan that switched to dummy level 4 after buying armor took 159 bouts. The plan that switched to dummy level 5 took 131–134. Manual testing of the opening felt good to the maintainer. Keep these rules as the baseline for The Ruins. [Level 10 playtest results](battle-playtesting.md#starter-supplies-rerun)
 - **Dependencies.** Combat audit (4), Dominion training, and existing player attributes.
 - **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Start with Strength, Speed, and max HP as allocation candidates and evaluate whether Defense should also be directly allocatable. Track base attributes, permanent gains, point-funded increases, and equipment bonuses separately so classes, Intellect, Agility, and Artificer refunds can build on the same records.
 - **Done when.** Players can reach an early level in a short session, see XP, level, and unspent points in The Quarters, and see earned levels in The Registry and on player profiles. They can spend or save points across sessions and see the effect of their choices in training.
@@ -63,13 +64,17 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 6. Open The Ruins for basic exploration and PvE (P1 · Large)
 
+- **Status.** Next to build.
 - **Dependencies.** Combat audit (4), the shared simulator, and existing gold and inventory systems.
-- **Scope.** Add a text-based expedition into Drevan's lost civilizations. An exploration action can yield an empty result, a simple discovery such as gold or an existing item, or a hostile encounter. Use a small set of fixed-stat enemies and resolve fights automatically with the existing simulator. Define the consequences of combat, how retreat and defeat work, and when expeditions end. Start without maps, mandatory stamina, daily limits, or complex procedural generation.
-- **Done when.** Players can resolve every event type and return to Nexaris. Encounter consequences and expedition completion are clear, and a playtest measures survival, encounter difficulty, and rewards after Sanctum healing.
+- **Scope.** Add a text-based expedition into Drevan's lost civilizations. An exploration action can yield an empty result, a simple discovery such as gold or an existing item, or a hostile encounter. Use a small set of fixed-stat enemies and resolve fights automatically with the existing simulator. Define what happens to HP and rewards after combat, how retreat and defeat work, and when expeditions end. Start without maps, mandatory stamina, daily limits, or complex procedural generation.
+- **Automated route checks.** Force an empty result, a discovery, a combat win, a defeat, and a retreat. Verify the resulting HP and rewards, expedition state, and return to Nexaris.
+- **Seeded balance playtest.** Run the same expeditions with a fresh character, one with both starter gear pieces, and a leveled character with spent points. Measure enemy win rates, HP remaining, completion, retreats, defeats, and net gold after Sanctum healing. Compare the results with Dominion dummy levels 4 and 5.
+- **Done when.** Players can resolve every event type and return to Nexaris. Encounter consequences and expedition completion are clear, and the baseline is recorded before adding loot.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
-- **Dependencies.** Playable Ruins expeditions (6), the item catalog, and stackable inventory.
+- **Status.** Planned after the expedition baseline.
+- **Dependencies.** Playtested Ruins expeditions (6), the item catalog, and stackable inventory.
 - **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies award their existing gold rewards and grant no random loot.
 - **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest until selling is available. Materials can support future crafting, salvaging, and services at The Forge.
 - **Scope limits.** Use fixed item stats and keep procedural gear, elaborate rarity systems, and crafting for later design. Players return to Nexaris to equip, use, or sell eligible rewards. Material selling follows in milestone 13.
@@ -223,7 +228,7 @@ These entries are candidates for design and playtesting. Their completion criter
 
 ## Recurring playtest checks
 
-- **Early progression.** Establish combat baselines before adding XP. Measure time and wins to the first few levels, how often players spend or save points, and how those choices affect training.
+- **Early progression.** When progression rules or XP sources change, measure time and wins to the first few levels, how often players spend or save points, and how those choices affect training.
 - **Ruins expeditions.** Track enemy difficulty, survival, retreat and defeat rates, and net gold after Sanctum healing. Once loot lands, measure item acquisition and material accumulation before expanding tables or adding sources.
 - **Economy.** Compare short, realistic sessions across training, fishing, contracts, exploration, equipment and material sales, and salvage. Account for Sanctum healing, gear purchases, and future Forge and Artificer fees. Compare recipe costs with reagent sale values and gathering time. Keep rare ingredients tied primarily to gameplay if shops eventually stock basics.
 - **Starter economy playtest.** Run separate 10-minute fishing and training sessions with fresh characters and the same starting gear. Record actions completed, gold earned, Sanctum costs, starter potions used, and gold kept after healing. Note how long it takes to earn 100 additional gold, the price of one starter gear piece. Characters start with 125 gold and three Lesser Potions, so track earned gold separately. If a session ends before the player earns 100 gold, record their progress and ask whether either activity felt required to afford upgrades. Repeat once Ruins drops add another source of items to sell.
@@ -237,7 +242,7 @@ These entries are candidates for design and playtesting. Their completion criter
 
 ### Basic progression
 
-- Which Dominion victories should earn XP, and how many wins should the first few levels take?
+- How should future encounter modes award XP, and does the current per-level cost still fit once expeditions are available?
 - Should Defense be directly allocatable? How should point costs and gains fit future class attributes and Artificer refunds?
 
 ### Combat and PvP
