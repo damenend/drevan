@@ -1,8 +1,7 @@
 # Battle rules and playtesting
 
 Worn Leather Armor grants **+3 Defense** so it can save HP in fights a starter
-can win. The Rusted Sword grants **+1 Strength**. With both pieces, level 4
-training is a reliable win and level 5 is still difficult. Each piece costs
+can win. The Rusted Sword grants **+1 Attack Power**. Each piece costs
 100 gold. The [item seed](../src/db/seed.ts) controls these values.
 
 ## Rerun the starter equipment playtest
@@ -16,7 +15,7 @@ training is a reliable win and level 5 is still difficult. Each piece costs
    ```
 
    Expect 64 data rows. Each row reports 1,000 fights for one combination of
-   dummy level, Strength, and Defense. The script uses the production battle
+   dummy level, historical offensive rating, and Defense. The script uses the production battle
    simulator and runs without a database. The loadouts are explicit so you can
    compare the original armor with a candidate even after the catalog changes.
    This run preserves the historical player-first timing rule.
@@ -25,21 +24,27 @@ training is a reliable win and level 5 is still difficult. Each piece costs
    `yarn db:seed` with the app's local database setup. The seed updates the
    matching catalog row, so owned and equipped copies receive the new bonus.
    Open Curious Emporium and verify the item values, then equip both pieces on
-   a fresh character. The Quarters should show 6 Strength and 3 Defense. Start a
+   a fresh character. The Quarters should show 11 Attack Power and 3 Defense. Start a
    Dominion training fight and inspect the attack log. Use a disposable
    database for repeatable checks that need fixed stats or gold.
 
 ## How battles work
 
-- A new character starts with 25 HP, 5 Strength, 5 Speed, and 0 Defense. The Quarters
-  and training use the same effective stats, which add the bonuses from owned,
-  equipped gear to the stored base values.
+- Strength, Agility, and Intellect each add 1 Attack Power per point, including
+  allocated points. Equipped attack bonuses are added to that sum. A fresh
+  character has 5 Strength, 5 Agility, and 0 Intellect for 10 Attack Power.
+- Speed starts at 5 and is independent of Agility. Defense starts at 0 and
+  receives bonuses from equipped gear. Maximum HP is 10 plus 3 per total
+  Fortitude. A fresh character starts at 25 HP with 5 Fortitude.
+- The Quarters and Admin show the class identifier. New and migrated characters
+  default to `unaligned`. The database also accepts `melee`, `ranged`, and
+  `caster` for future use. Class selection and bonuses are future work.
 - The opening attacker is picked once. Each side's chance is its share of
   combined Speed, with a minimum effective Speed of 1. After the opening
   roll, attacks follow intervals of `100 / speed`. An even roll orders
   later attacks due together. The second fighter attacks if they survive.
-- Base damage is drawn uniformly from half of Strength rounded up through
-  full Strength, with a minimum of 1. A critical hit occurs on 5% of attacks
+- Base damage is drawn uniformly from half of Attack Power rounded up through
+  full Attack Power, with a minimum of 1. A critical hit occurs on 5% of attacks
   and multiplies the roll by 1.5 before rounding up.
 - Defense cuts damage after the critical bonus. The reduction for nonnegative
   Defense is `0.6 * defense / (defense + 10)`. Final damage rounds to the
@@ -51,7 +56,7 @@ training is a reliable win and level 5 is still difficult. Each piece costs
   damage, target HP, and critical-hit flag for each attack.
 
 Dominion requires positive starting HP and accepts dummy levels 1–100.
-At level `L`, a dummy has `10 + 5 * (L - 1)` HP, `L + 1` Strength,
+At level `L`, a dummy has `10 + 5 * (L - 1)` HP, `L + 1` Attack Power,
 `L + 1` Speed, and `floor(L / 4)` Defense. Training saves remaining HP and
 awards `10 * L` gold on a win. Draws retain any HP loss and award nothing.
 Future encounter modes can use the simulator
@@ -60,7 +65,13 @@ with their own persistence and reward rules.
 [Training route](../src/routes/game/training.ts) ·
 [Equipment stats](../src/services/equipment.ts)
 
-## Starter equipment results
+## Historical combat playtests
+
+The simulations below record the earlier Strength-based rules. Their scripts
+keep the original combat ratings for reproducibility. The current Ruins and
+Dominion comparison appears at the end of this guide.
+
+### Starter equipment results
 
 Each fight started at full HP. For each dummy level, the simulation used the
 same 1,000 random seeds across all eight loadouts. The original +1 armor and
@@ -564,30 +575,30 @@ test a different XP curve or a less aggressive path to harder dummies.
 
 Fortitude replaces the direct HP allocation recorded in the historical
 playtests. Characters start with 5 Fortitude and 25 HP. One AP still adds
-3 max HP, and Agility carries forward the former
-Speed stat one-for-one. Intellect has no combat effect. Existing simulations
-can use the same combat inputs because this refactor preserves the health
-and timing of an equivalent build.
+3 max HP. The later class foundation migration preserves each existing
+player's effective Speed at migration time and stores it independently.
+Their base Agility and spent points also carry forward, where both contribute
+to Attack Power.
 
 ## Ruins Floor 1 baseline
 
 Coordinates use (0, 0) at the upper-left entrance. These encounters appear on arrival. Move away and return to repeat a discovery or receive another enemy offer.
 
-| Square | Encounter          |  HP | Strength | Speed | Defense | Reward                       |
-| ------ | ------------------ | --: | -------: | ----: | ------: | ---------------------------- |
-| (1, 0) | Coin cache         |   — |        — |     — |       — | 8 gold                       |
-| (0, 2) | Supply case        |   — |        — |     — |       — | 1 Lesser Potion              |
-| (2, 1) | Vault Scavenger    |  18 |        4 |     4 |       0 | 30 gold and 30 XP on victory |
-| (4, 3) | Fractured Sentinel |  24 |        5 |     5 |       2 | 40 gold and 40 XP on victory |
-| (6, 6) | Alloy Warden       |  28 |        6 |     6 |       2 | 50 gold and 50 XP on victory |
+| Square | Encounter          |  HP | Attack Power | Speed | Defense | Reward                       |
+| ------ | ------------------ | --: | -----------: | ----: | ------: | ---------------------------- |
+| (1, 0) | Coin cache         |   — |            — |     — |       — | 8 gold                       |
+| (0, 2) | Supply case        |   — |            — |     — |       — | 1 Lesser Potion              |
+| (2, 1) | Vault Scavenger    |  18 |            4 |     4 |       0 | 30 gold and 30 XP on victory |
+| (4, 3) | Fractured Sentinel |  24 |            5 |     5 |       2 | 40 gold and 40 XP on victory |
+| (6, 6) | Alloy Warden       |  28 |            6 |     6 |       2 | 50 gold and 50 XP on victory |
 
 After `nvm use` from the repository root, run the seeded comparison:
 
 ```sh
-node --import tsx scripts/playtest-ruins.ts > /tmp/drevan-ruins.csv
+node --import tsx scripts/playtest-ruins.ts --historical > /tmp/drevan-ruins-historical.csv
 ```
 
-The script prints 18 data rows, with 1,000 full-health fights per row. The three
+The historical run prints 18 data rows, with 1,000 full-health fights per row. The three
 builds are a fresh player, a player with both starter items, and a level 4 player
 with both items and one point in each of Strength, Speed, and max HP. Every
 Ruins enemy is paired with its Dominion baseline on the same seeds. Net gold
@@ -614,3 +625,29 @@ starters, while the level 4 build survived 95.5% of fights from full HP.
 These results establish a combat baseline. A timed play session can measure
 how carrying damage between encounters and spending potions affect the
 decision to fight, walk back, or use the Recall Beacon.
+
+## Class-neutral Attack Power comparison
+
+Run the same Ruins and Dominion matchups with the live player builds.
+
+```sh
+node --import tsx scripts/playtest-ruins.ts > /tmp/drevan-ruins.csv
+```
+
+Each matchup uses the same 1,000 seeds and starts both sides at full HP.
+The fresh and geared builds go from 5 to 10 and from 6 to 11 offensive power,
+respectively. The level 4 build uses 13 Attack Power, 5 Speed, and 28 HP after
+two offensive points and one Fortitude point. Opponent stats, rewards, and
+damage rules are identical across the runs.
+
+| Matchup                       | Historical win rate | Class-neutral win rate |
+| ----------------------------- | ------------------: | ---------------------: |
+| Fresh vs. Fractured Sentinel  |               56.6% |                  99.8% |
+| Fresh vs. Alloy Warden        |                1.0% |                  83.6% |
+| Fresh vs. level 5 dummy       |                0.4% |                  86.6% |
+| Starter gear vs. Alloy Warden |               11.9% |                  99.1% |
+
+The fresh build's base damage range rises from 3–5 to 5–10 before critical
+hits and Defense. In these full-health simulations, the easier wins and higher
+remaining HP also improve gold after healing. The fresh build's mean net gold
+against the Warden rose from −24.48 to +21.22 per fight.

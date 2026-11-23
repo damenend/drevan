@@ -1,4 +1,5 @@
 import {
+  getBaseAttackPower,
   getPrimaryAttributes,
   getSpentPoints,
 } from "../../services/character-stats";
@@ -76,6 +77,7 @@ router.get("/", (req, res) => {
       };
     });
 
+  const attributes = getPrimaryAttributes(player);
   const equipped = playerInventory.filter((item) => item.equippedSlot);
 
   return res.render("game/index", {
@@ -83,7 +85,8 @@ router.get("/", (req, res) => {
     equipped,
     inventory: playerInventory.filter((item) => item.quantity > 0),
     effectiveStats: applyEquipmentBonuses(player, equipped),
-    attributes: getPrimaryAttributes(player),
+    attributes,
+    baseAttackPower: getBaseAttackPower(attributes),
     progression: getProgression(player.exp, getSpentPoints(player)),
     statAllocations,
     message:

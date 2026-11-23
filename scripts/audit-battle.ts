@@ -5,20 +5,32 @@ import {
 } from "../src/services/battle";
 import { seededRandom } from "./seeded-random";
 
-const starter = { name: "starter", hp: 25, strength: 5, speed: 5, defense: 0 };
+const starter = {
+  name: "starter",
+  hp: 25,
+  attackPower: 5,
+  speed: 5,
+  defense: 0,
+};
 // Each mixed build spends four hypothetical points. One point buys +3 HP
 // or +1 to another stat, except in the explicit +2 Defense trial.
 const mixedBuilds: Combatant[] = [
-  { name: "mixed-defense", hp: 28, strength: 6, speed: 6, defense: 1 },
-  { name: "mixed-double-defense", hp: 28, strength: 6, speed: 6, defense: 2 },
-  { name: "mixed-strength", hp: 28, strength: 7, speed: 6, defense: 0 },
-  { name: "mixed-speed", hp: 28, strength: 6, speed: 7, defense: 0 },
-  { name: "mixed-hp", hp: 31, strength: 6, speed: 6, defense: 0 },
+  { name: "mixed-defense", hp: 28, attackPower: 6, speed: 6, defense: 1 },
+  {
+    name: "mixed-double-defense",
+    hp: 28,
+    attackPower: 6,
+    speed: 6,
+    defense: 2,
+  },
+  { name: "mixed-strength", hp: 28, attackPower: 7, speed: 6, defense: 0 },
+  { name: "mixed-speed", hp: 28, attackPower: 6, speed: 7, defense: 0 },
+  { name: "mixed-hp", hp: 31, attackPower: 6, speed: 6, defense: 0 },
 ];
 
 const builds: Combatant[] = [
   starter,
-  { ...starter, name: "strength-1", strength: 6 },
+  { ...starter, name: "strength-1", attackPower: 6 },
   { ...starter, name: "speed-1", speed: 6 },
   { ...starter, name: "defense-1", defense: 1 },
   { ...starter, name: "defense-2", defense: 2 },
@@ -26,13 +38,13 @@ const builds: Combatant[] = [
   { ...starter, name: "hp-1", hp: 26 },
   { ...starter, name: "hp-2", hp: 27 },
   { ...starter, name: "hp-3", hp: 28 },
-  { ...starter, name: "strength-4", strength: 9 },
+  { ...starter, name: "strength-4", attackPower: 9 },
   { ...starter, name: "speed-4", speed: 9 },
   { ...starter, name: "defense-4", defense: 4 },
   { ...starter, name: "hp-4", hp: 29 },
   { ...starter, name: "hp-8", hp: 33 },
   { ...starter, name: "hp-12", hp: 37 },
-  { name: "balanced-4", hp: 26, strength: 6, speed: 6, defense: 1 },
+  { name: "balanced-4", hp: 26, attackPower: 6, speed: 6, defense: 1 },
   ...mixedBuilds,
   ...mixedBuilds.map((build) => ({
     ...build,
@@ -42,10 +54,10 @@ const builds: Combatant[] = [
   ...mixedBuilds.map((build) => ({
     ...build,
     name: `equipped-${build.name}`,
-    strength: build.strength + 1,
+    attackPower: build.attackPower + 1,
     defense: build.defense + 3,
   })),
-  { ...starter, name: "equipped", strength: 6, defense: 3 },
+  { ...starter, name: "equipped", attackPower: 6, defense: 3 },
 ];
 
 const opponents: (Combatant & { trainingLevel?: number })[] = [
@@ -55,8 +67,8 @@ const opponents: (Combatant & { trainingLevel?: number })[] = [
     trainingLevel: level,
   })),
   { ...starter, name: "mirror" },
-  { name: "heavy", hp: 30, strength: 8, speed: 3, defense: 3 },
-  { name: "quick", hp: 20, strength: 4, speed: 9, defense: 0 },
+  { name: "heavy", hp: 30, attackPower: 8, speed: 3, defense: 3 },
+  { name: "quick", hp: 20, attackPower: 4, speed: 9, defense: 0 },
 ];
 
 const fights = 5000;

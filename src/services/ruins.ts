@@ -5,7 +5,6 @@ import { formatNumber } from "../utils/format-number";
 import { formatPlayerName } from "../utils/format-player-name";
 import { getGameDate } from "../utils/game-date";
 import { simulateBattle, type BattleResult } from "./battle";
-import { getAgility } from "./character-stats";
 import { getEffectiveStats } from "./equipment";
 import {
   canMoveInRuins,
@@ -192,7 +191,6 @@ export function actInRuins(
               {
                 name: formatPlayerName(player.name),
                 hp: player.hp,
-                speed: getAgility(player),
                 ...getEffectiveStats(player, tx),
               },
               encounter.enemy,

@@ -10,7 +10,7 @@ import {
 const player: Combatant = {
   name: "Player",
   hp: 100,
-  strength: 10,
+  attackPower: 10,
   speed: 1,
   defense: 0,
 };
@@ -21,7 +21,7 @@ test("training dummies scale from the starter to the highest level", () => {
   assert.deepEqual(createTrainingDummy(1), {
     name: "Training Dummy",
     hp: 10,
-    strength: 2,
+    attackPower: 2,
     speed: 2,
     defense: 0,
   });
@@ -30,7 +30,7 @@ test("training dummies scale from the starter to the highest level", () => {
   assert.deepEqual(createTrainingDummy(MAX_TRAINING_LEVEL), {
     name: "Training Dummy",
     hp: 505,
-    strength: 101,
+    attackPower: 101,
     speed: 101,
     defense: 25,
   });
@@ -90,7 +90,7 @@ test("Speed determines the opening odds and later attack frequency", (t) => {
 
 test("combat ends in a draw after 1,000 attacks and damage stays at least 1", (t) => {
   t.mock.method(Math, "random", () => 0.5);
-  const stats = { hp: 2000, strength: 1, defense: 100 };
+  const stats = { hp: 2000, attackPower: 1, defense: 100 };
 
   const result = simulateBattle(
     { ...player, ...stats },

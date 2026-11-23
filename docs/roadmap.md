@@ -54,7 +54,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 5. Add basic XP, leveling, and stat allocation (P0 · Large)
 
-- **Status.** Complete for the prototype. Training wins award 10 XP per dummy level. Levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP per level-up. Excess XP carries over toward the next level. Each level-up grants one point to save or spend on Strength, Agility, Intellect, or Fortitude. Agility preserves the existing Speed progression, and each Fortitude adds 3 max HP without healing. Intellect has no combat effect yet.
+- **Status.** Complete for the prototype. Training wins award 10 XP per dummy level. Levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP per level-up. Excess XP carries over toward the next level. Each level-up grants one point to save or spend on Strength, Agility, Intellect, or Fortitude. Each Strength, Agility, and Intellect point adds 1 Attack Power. Each Fortitude point adds 3 max HP without healing. Speed is independent of allocation.
 - **Playtest results.** New accounts start with 125 gold and three Lesser Potions. All 10 accounts in the starter-supplies rerun reached level 10. Counting from signup, the plan that switched to dummy level 4 after buying armor took 159 bouts. The plan that switched to dummy level 5 took 131–134. Manual testing of the opening felt good to the maintainer. Keep these rules as the baseline for The Ruins. [Level 10 playtest results](battle-playtesting.md#starter-supplies-rerun)
 - **Dependencies.** Combat audit (4), Dominion training, and existing player attributes.
 - **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Track base attributes, allocated points, and gear bonuses separately. Characters start with 5 Fortitude and 25 HP. Maximum HP is 10 plus 3 per total Fortitude. Admin shows current and maximum HP and refills health when base Fortitude changes. Class-specific effects and Artificer refunds remain future work.
@@ -83,11 +83,12 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ## P2 — Medium: Character depth and supporting gameplay
 
-### 8. Add classes and primary attributes (P2 · Large)
+### 8. Add class specializations (P2 · Large)
 
 - **Dependencies.** Combat audit (4) and basic stat allocation (5).
-- **Scope.** Add Warrior (Strength), Wizard (Intellect), and Archer (Agility) using the existing attributes. Calculate Attack Power after gear bonuses, weighting each class's primary attribute most heavily and letting the two secondary offensive attributes contribute. Give Speed and HP the same role across classes. Playtest a Wizard critical-hit bonus. Allow switching in The Quarters during tuning while preserving permanent gains and any allocated stats.
-- **Done when.** The Quarters shows the primary stat and Attack Power. The shared simulator uses the same damage rules across encounter modes, with classless players and dummies retaining Strength-based damage. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
+- **Status.** Class-neutral Attack Power and class storage are complete. Players begin Unaligned, and the database reserves the Melee, Ranged, and Caster identifiers. Class selection and bonuses are future work.
+- **Scope.** Add Melee (Strength), Ranged (Agility), and Caster (Intellect) specializations. Each will receive additional offensive scaling from its preferred attribute. All three offensive attributes will still contribute to Attack Power for every class.
+- **Done when.** Players can select an implemented specialization, The Quarters shows their class and calculated Attack Power, and the shared simulator applies the same damage rules across encounter modes. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
 
 ### 9. Add gear with multiple modifiers and requirements (P2 · Medium)
 
@@ -295,7 +296,7 @@ These entries are candidates for design and playtesting. Their completion criter
 
 These concepts are playtest candidates. See [AGENTS.md](../AGENTS.md#established-gameplay-concepts) for live rules.
 
-- **Combat and progression.** A candidate Speed curve uses the current minimum and applies diminishing returns above 5 with `5 * sqrt(Speed / 5)`. A candidate Attack Power formula uses the full primary stat plus one quarter of each secondary stat, rounded down. Try one point per level, with max HP bought in larger increments than offensive stats, and review the starter spread before setting defaults.
+- **Combat and progression.** A candidate Speed curve uses the current minimum and applies diminishing returns above 5 with `5 * sqrt(Speed / 5)`. A future class bonus could add extra Attack Power from the preferred attribute on top of the class-neutral sum. Try one point per level, with max HP bought in larger increments than offensive stats, and review the starter spread before setting defaults.
 - **Material expansion.** Worn Components are salvaged device parts for mechanical or Speed effects. Beast Essence could support Strength or HP, Arcane Fragments Intellect, Ether Dust Speed or magic, and Reinforced Alloy Defense. Metal Scraps suit physical bonuses, Enchantment Powder binds recipes, and Power Cells could power physical or magical effects. Ancient Mechanisms, Void Crystals, Primal Essence, and Resonance Cores could come from dangerous expeditions or powerful enemies. Match salvage to the gear, such as alloy from heavy armor, Beast Essence from leather, Arcane Fragments from magical weapons, and Power Cells from technological items.
 - **First enchantment candidates.** Mighty increases Strength, Arcane increases Intellect, Agile increases Agility, Swift increases Speed, Fortified increases Defense, and Vital increases max HP. Minor Might, Mighty, and Greater Might illustrate possible tiers.
 - **Contract and title examples.** Supply the Settlement originally asked for three fish. A title could recognize 1,000 training wins or 1,000 qualifying PvP wins, with a possible earlier milestone at 100. Revisit thresholds once repeated matchups and actual play frequency can be measured.

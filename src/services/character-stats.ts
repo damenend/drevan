@@ -20,19 +20,24 @@ type AttributeBases = {
   fortitude: number;
 };
 
-/** Agility currently contributes one-for-one to combat Speed. */
-export function getAgility(player: { agility: number; agilityPoints: number }) {
-  return player.agility + player.agilityPoints;
-}
-
 /** Adds allocated points to base attributes before applying equipment. */
 export function getPrimaryAttributes(player: AttributeBases & AttributePoints) {
   return {
     strength: player.strength + player.strengthPoints,
-    agility: getAgility(player),
+    agility: player.agility + player.agilityPoints,
     intellect: player.intellect + player.intellectPoints,
     fortitude: player.fortitude + player.fortitudePoints,
   };
+}
+
+/**
+ * Converts offensive attribute totals, including allocated points, to base
+ * Attack Power at one per point.
+ */
+export function getBaseAttackPower(
+  attributes: Pick<AttributeBases, "strength" | "agility" | "intellect">,
+) {
+  return attributes.strength + attributes.agility + attributes.intellect;
 }
 
 /** Counts spent AP across all attributes. Each Fortitude purchase costs one AP. */

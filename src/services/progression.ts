@@ -3,9 +3,9 @@ import { HP_PER_FORTITUDE } from "./character-stats";
 const levelXpCosts = [60, 150, 270, 420, 600, 810, 1050, 1320, 1620] as const;
 
 export const statAllocations = {
-  strength: { label: "+1 Strength" },
-  agility: { label: "+1 Agility" },
-  intellect: { label: "+1 Intellect" },
+  strength: { label: "+1 Strength (+1 Attack Power)" },
+  agility: { label: "+1 Agility (+1 Attack Power)" },
+  intellect: { label: "+1 Intellect (+1 Attack Power)" },
   fortitude: { label: `+1 Fortitude (+${HP_PER_FORTITUDE} max HP)` },
 } as const;
 

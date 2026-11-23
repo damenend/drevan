@@ -13,10 +13,10 @@ const matchups = [
 ];
 
 const firstPointBonuses = {
-  save: { strength: 0, speed: 0, hp: 0 },
-  strength: { strength: 1, speed: 0, hp: 0 },
-  speed: { strength: 0, speed: 1, hp: 0 },
-  hp: { strength: 0, speed: 0, hp: 3 },
+  save: { attackPower: 0, speed: 0, hp: 0 },
+  strength: { attackPower: 1, speed: 0, hp: 0 },
+  speed: { attackPower: 0, speed: 1, hp: 0 },
+  hp: { attackPower: 0, speed: 0, hp: 3 },
 };
 type Plan = {
   xpRule: "flat" | "scaled";
@@ -64,7 +64,7 @@ for (const { xpRule, level, equipped, nextDummyLevel, firstPoint } of plans) {
   const starter = {
     name: "Starter",
     hp: 25,
-    strength: equipped ? 6 : 5,
+    attackPower: equipped ? 6 : 5,
     speed: 5,
     defense: equipped ? 3 : 0,
   };
@@ -72,7 +72,7 @@ for (const { xpRule, level, equipped, nextDummyLevel, firstPoint } of plans) {
   const trained = {
     ...starter,
     hp: starter.hp + bonus.hp,
-    strength: starter.strength + bonus.strength,
+    attackPower: starter.attackPower + bonus.attackPower,
     speed: starter.speed + bonus.speed,
   };
   const checkpoints = thresholds.map((xp) => ({ xp, reached: 0, fights: 0 }));

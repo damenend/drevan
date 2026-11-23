@@ -20,6 +20,8 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
       id: users.id,
       name: users.name,
       avatarModel: users.avatarModel,
+      characterClass: users.characterClass,
+      speed: users.speed,
       email: users.email,
       gold: users.gold,
       hp: users.hp,

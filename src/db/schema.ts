@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   sqliteTable,
+  check,
   integer,
   text,
   uniqueIndex,
@@ -11,6 +12,9 @@ import {
   STARTING_HP,
 } from "../services/character-stats";
 
+const characterClasses = ["unaligned", "melee", "ranged", "caster"] as const;
+export type CharacterClass = (typeof characterClasses)[number];
+
 export const users = sqliteTable(
   "users",
   {
@@ -19,17 +23,21 @@ export const users = sqliteTable(
     avatarModel: text("avatar_model", { enum: ["male", "female"] })
       .notNull()
       .default("male"),
+    characterClass: text("character_class", { enum: characterClasses })
+      .notNull()
+      .default("unaligned"),
     email: text("email").notNull().unique(),
     passwordHash: text("password_hash").notNull(),
     gold: integer("gold").notNull().default(125),
     strength: integer("strength").notNull().default(5),
-    agility: integer("speed").notNull().default(5),
+    agility: integer("agility").notNull().default(5),
+    speed: integer("speed").notNull().default(5),
     intellect: integer("intellect").notNull().default(0),
     fortitude: integer("fortitude").notNull().default(STARTING_FORTITUDE),
     hp: integer("hp").notNull().default(STARTING_HP),
     exp: integer("exp").notNull().default(0),
     strengthPoints: integer("strength_points").notNull().default(0),
-    agilityPoints: integer("speed_points").notNull().default(0),
+    agilityPoints: integer("agility_points").notNull().default(0),
     intellectPoints: integer("intellect_points").notNull().default(0),
     fortitudePoints: integer("fortitude_points").notNull().default(0),
     equippedWeaponId: integer("equipped_weapon_id"),
@@ -45,6 +53,10 @@ export const users = sqliteTable(
     recallDate: text("recall_date"),
   },
   (table) => [
+    check(
+      "users_character_class_check",
+      sql`${table.characterClass} in ('unaligned', 'melee', 'ranged', 'caster')`,
+    ),
     uniqueIndex("users_name_lower_unique").on(sql`lower(${table.name})`),
   ],
 );

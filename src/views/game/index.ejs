@@ -12,6 +12,9 @@
     <h3 id="character-heading">Character Overview</h3>
 
     <%- include("../partials/player-avatar", { player: user }) %>
+    <p>Class: <%= formatPlayerName(user.characterClass) %></p>
+
+    <h4>Combat Stats</h4>
 
     <dl class="character-stats">
       <div class="character-stat">
@@ -25,13 +28,13 @@
       </div>
 
       <div class="character-stat">
-        <dt>Combat Strength</dt>
-        <dd><%- include("../partials/stat-total", { total: effectiveStats.strength, base: attributes.strength }) %></dd>
+        <dt>Attack Power</dt>
+        <dd><%- include("../partials/stat-total", { total: effectiveStats.attackPower, base: baseAttackPower }) %></dd>
       </div>
 
       <div class="character-stat">
         <dt>Speed</dt>
-        <dd><%= formatNumber(attributes.agility) %></dd>
+        <dd><%= formatNumber(effectiveStats.speed) %></dd>
       </div>
 
       <div class="character-stat">
@@ -154,7 +157,7 @@
             </td>
             <td><%= item.description %></td>
             <td><%= formatNumber(item.quantity) %></td>
-            <td><%= item.effect %></td>
+            <td><%= item.effect === "attack_power" ? "Attack Power" : item.effect %></td>
             <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
             <td>
               <%

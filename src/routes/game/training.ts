@@ -2,7 +2,6 @@ import { Router } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
-import { getAgility } from "../../services/character-stats";
 import { getEffectiveStats } from "../../services/equipment";
 import { getProgression } from "../../services/progression";
 import { formatPlayerName } from "../../utils/format-player-name";
@@ -47,6 +46,11 @@ router.post("/", (req, res) => {
           strengthPoints: users.strengthPoints,
           agility: users.agility,
           agilityPoints: users.agilityPoints,
+          intellect: users.intellect,
+          intellectPoints: users.intellectPoints,
+          fortitude: users.fortitude,
+          fortitudePoints: users.fortitudePoints,
+          speed: users.speed,
           defense: users.defense,
           equippedWeaponId: users.equippedWeaponId,
           equippedArmorId: users.equippedArmorId,
@@ -60,7 +64,6 @@ router.post("/", (req, res) => {
         {
           name: formatPlayerName(player.name),
           hp: player.hp,
-          speed: getAgility(player),
           ...getEffectiveStats(player, tx),
         },
         enemy,

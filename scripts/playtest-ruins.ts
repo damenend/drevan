@@ -3,18 +3,27 @@ import { ruinsEnemies } from "../src/services/ruins-map";
 import { seededRandom } from "./seeded-random";
 
 const bouts = 1000;
-// Effective stats include the starter sword (+1 Strength) and armor (+3 Defense).
-const builds = [
-  { name: "Fresh", hp: 25, speed: 5, strength: 5, defense: 0 },
-  { name: "Starter gear", hp: 25, speed: 5, strength: 6, defense: 3 },
+// The historical fixtures reproduce the original Floor 1 comparison.
+const historicalBuilds = [
+  { name: "Fresh", hp: 25, speed: 5, attackPower: 5, defense: 0 },
+  { name: "Starter gear", hp: 25, speed: 5, attackPower: 6, defense: 3 },
   {
     name: "Level 4 with gear and AP",
     hp: 28,
     speed: 6,
-    strength: 7,
+    attackPower: 7,
     defense: 3,
   },
 ];
+
+// The live level 4 build spends two offensive points and one Fortitude point.
+const builds = process.argv.includes("--historical")
+  ? historicalBuilds
+  : [
+      { ...historicalBuilds[0], attackPower: 10 },
+      { ...historicalBuilds[1], attackPower: 11 },
+      { ...historicalBuilds[2], attackPower: 13, speed: 5 },
+    ];
 
 console.log(
   "build,opponent,training_level,bouts,wins,survived,mean_hp,mean_net_gold",

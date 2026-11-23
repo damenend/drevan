@@ -47,7 +47,7 @@ async function seed() {
       price: 100,
       sellPrice: 50,
       type: "weapon",
-      effect: "strength",
+      effect: "attack_power",
       effectValue: 1,
       image: "/images/rusted-sword.webp",
     },

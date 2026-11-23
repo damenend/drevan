@@ -15,7 +15,7 @@ import path from "node:path";
 import { after, before, beforeEach, test } from "node:test";
 import Database from "better-sqlite3";
 import { sql } from "drizzle-orm";
-import { maximumHp } from "../src/services/character-stats";
+import { getBaseAttackPower, maximumHp } from "../src/services/character-stats";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { getRuinsEncounter } from "../src/services/ruins-map";
@@ -50,7 +50,7 @@ before(async () => {
   sqlite.exec(`
     INSERT INTO items (id, name, description, price, type, effect, effect_value)
     VALUES (1, 'Lesser Potion', 'Test potion', 5, 'consumable', 'heal', 10),
-           (2, 'Rusted Sword', 'Test sword', 100, 'weapon', 'strength', 1),
+           (2, 'Rusted Sword', 'Test sword', 100, 'weapon', 'attack_power', 1),
            (3, 'Murkfin', 'Test fish', NULL, 'fish', NULL, NULL),
            (4, 'Recall Beacon', 'Test utility', NULL, 'utility', NULL, NULL);
     UPDATE items SET sell_price = 50 WHERE id = 2;
@@ -68,9 +68,11 @@ before(async () => {
   assert.equal(player().hp, 25);
   assert.deepEqual(
     sqlite
-      .prepare("SELECT fortitude, fortitude_points FROM users WHERE email = ?")
+      .prepare(
+        "SELECT fortitude, fortitude_points, character_class FROM users WHERE email = ?",
+      )
       .get(account.email),
-    { fortitude: 5, fortitude_points: 0 },
+    { fortitude: 5, fortitude_points: 0, character_class: "unaligned" },
   );
   assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 3 }]);
   cookie = sessionCookie(signup);
@@ -90,10 +92,10 @@ after(async () => {
 beforeEach(() => {
   sqlite.exec(`
     DELETE FROM inventory;
-    UPDATE users SET gold = 100, hp = 25, strength = 5,
-      speed = 5, defense = 0, equipped_weapon_id = NULL, equipped_armor_id = NULL,
+    UPDATE users SET gold = 100, hp = 25, strength = 5, character_class = 'unaligned',
+      speed = 5, agility = 5, defense = 0, equipped_weapon_id = NULL, equipped_armor_id = NULL,
       intellect = 0, fortitude = 5, intellect_points = 0,
-      exp = 0, strength_points = 0, speed_points = 0, fortitude_points = 0,
+      exp = 0, strength_points = 0, agility_points = 0, fortitude_points = 0,
       fishing_casts_used = 0, fishing_cast_date = NULL,
       ruins_tile = NULL, ruins_revision = 0, ruins_enemy_pending = 0, recall_date = NULL;
   `);
@@ -270,15 +272,67 @@ test("Changing base Fortitude in Admin refills HP without changing spent points"
 
 test("each other primary attribute still spends exactly one point", async () => {
   sqlite.exec("UPDATE users SET exp = 480");
-  for (const stat of ["strength", "agility", "intellect"]) {
+  for (const [index, stat] of ["strength", "agility", "intellect"].entries()) {
     const spent = await post("/game/progression", { stat });
     assert.match(spent.headers.get("location") ?? "", /Point%20spent/);
+    const { html } = await request("/game", { headers: { cookie } });
+    assert.match(
+      html,
+      new RegExp(`<dt>Attack Power</dt>\\s*<dd>\\s*${11 + index}\\s*</dd>`),
+    );
+    assert.match(html, /<dt>Speed<\/dt>\s*<dd>5<\/dd>/);
   }
   const home = await request("/game", { headers: { cookie } });
   assert.match(home.html, /<dt>Strength<\/dt>\s*<dd>6<\/dd>/);
   assert.match(home.html, /<dt>Agility<\/dt>\s*<dd>6<\/dd>/);
   assert.match(home.html, /<dt>Intellect<\/dt>\s*<dd>1<\/dd>/);
   assert.match(home.html, /<dt>Unspent stat points<\/dt>\s*<dd>0<\/dd>/);
+});
+
+test("equal offensive totals yield equal Attack Power regardless of Fortitude", () => {
+  for (const [strength, agility, intellect, fortitude] of [
+    [5, 5, 0, 5],
+    [0, 5, 5, 6],
+    [0, 0, 10, 7],
+  ]) {
+    const attributes = { strength, agility, intellect, fortitude };
+    assert.equal(getBaseAttackPower(attributes), 10);
+  }
+});
+
+test("class identifiers are constrained and Admin leaves the class read-only", async () => {
+  for (const characterClass of ["melee", "ranged", "caster", "unaligned"]) {
+    sqlite.prepare("UPDATE users SET character_class = ?").run(characterClass);
+  }
+  assert.throws(
+    () => sqlite.exec("UPDATE users SET character_class = 'invalid'"),
+    /CHECK constraint failed/,
+  );
+  await post("/game/admin", {
+    stats: { characterClass: "melee", intellect: 2 },
+  });
+  const headers = { cookie };
+  const home = await request("/game", { headers });
+  assert.match(home.html, /Class: Unaligned/);
+  const admin = await request("/game/admin", { headers });
+  assert.match(admin.html, /Class: <strong>Unaligned<\/strong>/);
+  assert.match(admin.html, /Attack Power: <strong>12<\/strong>/);
+  assert.doesNotMatch(admin.html, /name="stats\[characterClass\]"/);
+});
+
+test("Dominion and The Ruins use the same calculated player Attack Power", async (t) => {
+  sqlite.exec(`
+    UPDATE users SET strength = 0, agility = 0, intellect = 10, intellect_points = 1,
+      equipped_weapon_id = 2, character_class = 'melee';
+    INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 2, 1 FROM users;
+  `);
+  t.mock.method(Math, "random", () => 0.1);
+  const playerHit =
+    /battle-log-entry--player">\s*<span class="player">[^<]+<\/span>\s*attacks\s*<span class="enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage!/;
+  assert.match((await post("/game/training", { level: 1 })).html, playerHit);
+  await reachScavenger();
+  await explore("engage");
+  assert.match((await viewRuins()).html, playerHit);
 });
 
 test("Fortitude migration preserves spent HP points and current health", () => {
@@ -316,20 +370,24 @@ test("Fortitude migration preserves spent HP points and current health", () => {
       INSERT INTO users (name, email, password_hash, hp, max_hp, max_hp_points, speed, speed_points, exp)
       VALUES ('Legacy', 'legacy@example.test', 'fixture', 12, 25, 2, 7, 1, 480),
              ('Custom', 'custom@example.test', 'fixture', 29, 23, 2, 5, 0, 210);
-      INSERT INTO items (name, description) VALUES ('Test item', 'Fixture');
+      INSERT INTO items (name, description, type, effect, effect_value)
+      VALUES ('Test item', 'Fixture', 'weapon', 'strength', 1);
+      UPDATE users SET equipped_weapon_id = 1 WHERE id = 1;
       INSERT INTO inventory (user_id, item_id, quantity) VALUES (1, 1, 3);
     `);
     migrate(database, { migrationsFolder });
     const migrated =
-      database.all(sql`SELECT hp, fortitude, fortitude_points, speed, speed_points,
+      database.all(sql`SELECT hp, fortitude, fortitude_points, agility, agility_points, speed, character_class,
       exp, ${maximumHp(sql.raw("(fortitude + fortitude_points)"))} as cap FROM users ORDER BY id`);
     assert.deepEqual(migrated, [
       {
         hp: 12,
         fortitude: 5,
         fortitude_points: 2,
-        speed: 7,
-        speed_points: 1,
+        agility: 7,
+        agility_points: 1,
+        speed: 8,
+        character_class: "unaligned",
         exp: 480,
         cap: 31,
       },
@@ -337,8 +395,10 @@ test("Fortitude migration preserves spent HP points and current health", () => {
         hp: 28,
         fortitude: 4,
         fortitude_points: 2,
+        agility: 5,
+        agility_points: 0,
         speed: 5,
-        speed_points: 0,
+        character_class: "unaligned",
         exp: 210,
         cap: 28,
       },
@@ -346,6 +406,14 @@ test("Fortitude migration preserves spent HP points and current health", () => {
     assert.deepEqual(
       legacy.prepare("SELECT user_id, item_id, quantity FROM inventory").all(),
       [{ user_id: 1, item_id: 1, quantity: 3 }],
+    );
+    assert.deepEqual(
+      legacy
+        .prepare(
+          "SELECT equipped_weapon_id, effect, effect_value FROM users JOIN items ON items.id = users.equipped_weapon_id",
+        )
+        .get(),
+      { equipped_weapon_id: 1, effect: "attack_power", effect_value: 1 },
     );
     assert.deepEqual(legacy.pragma("foreign_key_check"), []);
   } finally {
@@ -535,8 +603,15 @@ test("consumption, gear and Sanctum use current player state", async () => {
   await post("/game/admin", { stats: { gold: 100 } });
   await post("/game/store", { items: { "item-2": 1 } });
   await post("/game/inventory/equip", { itemId: 2 });
+  sqlite.exec(`
+    INSERT INTO items (id, name, description, type, effect, effect_value)
+    VALUES (5, 'Worn Leather Armor', 'Test armor', 'armor', 'defense', 3);
+    INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 5, 2 FROM users;
+  `);
+  await post("/game/inventory/equip", { itemId: 5 });
   const home = await request("/game", { headers: { cookie } });
-  assert.match(home.html, /<dt>Combat Strength<\/dt>\s*<dd>\s*6\s*<span/);
+  assert.match(home.html, /<dt>Attack Power<\/dt>\s*<dd>\s*11\s*<span/);
+  assert.match(home.html, /<dt>Defense<\/dt>\s*<dd>\s*3\s*<span/);
   await post("/game/inventory/unequip", { itemId: 2 });
   assert.equal(player().equipped_weapon_id, null);
 });
@@ -556,7 +631,7 @@ test("training rejects malformed levels and saves the fight result", async (t) =
   assert.match(fight.html, /Training Dummy/);
   assert.deepEqual(player(), {
     gold: 110,
-    hp: 23,
+    hp: 24,
     equipped_weapon_id: null,
     fishing_casts_used: 0,
   });
@@ -613,13 +688,13 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
     /Unspent stat points<\/dt>\s*<dd>0<\/dd>/,
   );
   const nextFight = await post("/game/training", { level: 1 });
-  assert.match(nextFight.html, /HP: 28 → 26/);
-  assert.equal(player().hp, 26);
+  assert.match(nextFight.html, /HP: 28 → 27/);
+  assert.equal(player().hp, 27);
 });
 
 test("a capped training draw saves HP loss and awards no gold", async (t) => {
   sqlite.exec(
-    "UPDATE users SET hp = 100000, fortitude = 33330, strength = 1, speed = 101;",
+    "UPDATE users SET hp = 100000, fortitude = 33330, strength = 1, agility = 0, speed = 101;",
   );
   t.mock.method(Math, "random", () => 0.5);
 

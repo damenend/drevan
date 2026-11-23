@@ -45,7 +45,7 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
       enemy: {
         name: "Vault Scavenger",
         hp: 18,
-        strength: 4,
+        attackPower: 4,
         speed: 4,
         defense: 0,
       },
@@ -61,7 +61,7 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
       enemy: {
         name: "Fractured Sentinel",
         hp: 24,
-        strength: 5,
+        attackPower: 5,
         speed: 5,
         defense: 2,
       },
@@ -77,7 +77,7 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
       enemy: {
         name: "Alloy Warden",
         hp: 28,
-        strength: 6,
+        attackPower: 6,
         speed: 6,
         defense: 2,
       },

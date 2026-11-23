@@ -25,7 +25,7 @@ export type BattleLogEntry =
 export type Combatant = {
   name: string;
   hp: number;
-  strength: number;
+  attackPower: number;
   speed: number;
   defense: number;
 };
@@ -57,7 +57,7 @@ export function createTrainingDummy(level: number): Combatant {
   return {
     name: "Training Dummy",
     hp: 10 + (level - 1) * 5,
-    strength: 2 + (level - 1),
+    attackPower: 2 + (level - 1),
     speed: 2 + (level - 1),
     defense: Math.floor(level / 4),
   };
@@ -68,13 +68,17 @@ type DamageResult = {
   critical: boolean;
 };
 
+/**
+ * Rolls base damage, rounds up any critical bonus, then applies Defense.
+ * Final damage rounds to the nearest whole number with a minimum of 1.
+ */
 function generateDamage(
-  strength: number,
+  attackPower: number,
   defense: number,
   random: () => number,
   criticalChance: number,
 ): DamageResult {
-  const maxDamage = Math.max(1, strength);
+  const maxDamage = Math.max(1, attackPower);
   const minDamage = Math.ceil(maxDamage * 0.5);
 
   // Generate base damage
@@ -173,7 +177,7 @@ export function simulateBattle(
     const attacker = combatants[actor];
     const defender = combatants[actor === "player" ? "enemy" : "player"];
     const { damage, critical } = generateDamage(
-      attacker.strength,
+      attacker.attackPower,
       defender.defense,
       random,
       criticalChance,

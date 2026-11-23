@@ -1,5 +1,5 @@
 import { createTrainingDummy, simulateBattle } from "../src/services/battle";
-import { getProgression, statAllocations } from "../src/services/progression";
+import { getProgression } from "../src/services/progression";
 import { seededRandom } from "./seeded-random";
 
 const sessions = 1000;
@@ -43,11 +43,11 @@ for (const plan of plans) {
         ? 4 + Math.floor((level - 1) / 2)
         : 4;
       const reward = dummyLevel * 10;
-      const strengthPoints = plan.spendOnStrength ? level - 1 : 0;
+      const attackPowerPoints = plan.spendOnStrength ? level - 1 : 0;
       const player = {
         name: "Starter",
         hp: 25,
-        strength: 6 + strengthPoints * statAllocations.strength.amount,
+        attackPower: 6 + attackPowerPoints,
         speed: 5,
         defense: 3,
       };

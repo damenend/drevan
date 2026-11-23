@@ -4,13 +4,13 @@ import { seededRandom } from "./seeded-random";
 
 const fightsPerMatchup = 1000;
 const rows = [
-  "level,strength,defense,fights,wins,losses,draws,mean_attacks,mean_hp_on_wins,matched_incoming_hits,reduced_hits",
+  "level,attackPower,defense,fights,wins,losses,draws,mean_attacks,mean_hp_on_wins,matched_incoming_hits,reduced_hits",
 ];
 
 for (let level = 1; level <= 8; level++) {
   const dummy = createTrainingDummy(level);
 
-  for (const strength of [5, 6]) {
+  for (const attackPower of [5, 6]) {
     const baselineDamage: number[][] = [];
 
     for (const defense of [0, 1, 2, 3]) {
@@ -23,7 +23,7 @@ for (let level = 1; level <= 8; level++) {
 
       for (let fight = 0; fight < fightsPerMatchup; fight++) {
         const result = simulateBattle(
-          { name: "Player", hp: 25, speed: 5, strength, defense },
+          { name: "Player", hp: 25, speed: 5, attackPower, defense },
           dummy,
           level * 10,
           { random: seededRandom(fight + 1), rollTimingTie: null },
@@ -58,7 +58,7 @@ for (let level = 1; level <= 8; level++) {
       rows.push(
         [
           level,
-          strength,
+          attackPower,
           defense,
           fightsPerMatchup,
           wins,

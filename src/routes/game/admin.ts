@@ -13,6 +13,7 @@ import {
   getFishingDate,
 } from "../../services/fishing";
 
+import { getEffectiveStats } from "../../services/equipment";
 import { parseFormInteger } from "../../utils/parse-form-integer";
 
 const router = Router();
@@ -41,6 +42,7 @@ router.get("/", (req, res) => {
   return res.render("game/admin", {
     title: "Admin",
     editableStats,
+    effectiveStats: getEffectiveStats(player),
     statLabels,
     fortitude: getPrimaryAttributes(player).fortitude,
     hpPerFortitude: HP_PER_FORTITUDE,
