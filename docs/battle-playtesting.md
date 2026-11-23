@@ -473,8 +473,43 @@ Rusted Sword matched the Strength point's fight outcomes on the same
 seeds, and the 100-gold purchase preserved the point for later. Buying
 max HP kept current HP steady until the player paid Sanctum to heal.
 
-The prototype thresholds worked through the actual routes, and level 3
-gave players a reliable way to bank points. Keep the current thresholds
-for the next playtest. These automated sessions measure actions and
-outcomes. A timed human session can measure time spent reading, choosing
-a stat, and deciding when to move to a harder dummy.
+The original thresholds worked through the actual routes, and dummy level 3
+gave players a reliable way to bank points. These automated sessions measured
+actions and outcomes before the switch to per-level XP costs.
+
+### Level 10 progression playtest
+
+Run the baseline from the repository root with the Node version pinned in
+`.nvmrc`:
+
+```sh
+node --import tsx scripts/playtest-level-cap.ts > /tmp/drevan-level-cap.csv
+```
+
+Expect 15 data rows with checkpoints at character levels 2, 4, 6, 8, and 10.
+The script uses the shared combat simulator and current progression rules,
+including XP carryover and the 6,300 lifetime XP needed for level 10. It runs
+1,000 seeded sessions per plan, each capped at 250 bouts. Every session starts
+with 100 gold, the Rusted Sword, and Worn Leather Armor already equipped. It
+buys a full Sanctum heal after every fight and stops if the player cannot
+afford one. Starting with both items isolates training and allocation from
+the time and gold needed to acquire gear.
+
+| Training plan                                                              | Reached level 6 | Reached level 10 | Mean bouts to level 10 | Mean defeats through level 10 | Mean gold after final heal |
+| -------------------------------------------------------------------------- | --------------: | ---------------: | ---------------------: | ----------------------------: | -------------------------: |
+| Dummy level 4, save all points                                             |           1,000 |            1,000 |                 164.26 |                          6.26 |                   3,416.42 |
+| Dummy level 4, spend all points on Strength                                |           1,000 |            1,000 |                 158.11 |                          0.11 |                   4,857.37 |
+| Raise dummy level every two character levels, spend all points on Strength |             255 |                0 |                      — |                             — |                          — |
+
+The rising plan starts at dummy level 4 and switches to levels 5 and 6 at
+character levels 3 and 5, respectively. Every session on that plan ran out of
+healing gold before character level 8. At fixed dummy level 4, Strength cut
+defeats and healing costs, but saved only about six bouts on the way to the
+cap. This baseline covers a single stat choice and two difficulty plans.
+
+For the next timed session, start with a fresh account and play for 10 minutes
+without Admin changes. Record character level, XP toward the next level,
+stat choices, dummy levels, wins, defeats, gear purchases, and gold after
+healing. Note when a harder dummy feels worth trying and when repeating the
+same fight starts to feel slow. Use those observations to decide whether to
+test a different XP curve or a less aggressive path to harder dummies.
