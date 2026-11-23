@@ -214,7 +214,7 @@ test("Nexaris links to each location using its display name", async () => {
   }
 });
 
-test("Admin rejects malformed values and caps HP when maximum HP falls", async () => {
+test("Admin rejects malformed values and fills HP to the new cap", async () => {
   const initial = player();
   const invalid = await post("/game/admin", { stats: { gold: 1, maxHp: "" } });
   assert.equal(invalid.headers.get("location"), "/game/admin?message=err");
@@ -231,11 +231,38 @@ test("Admin rejects malformed values and caps HP when maximum HP falls", async (
   await post("/game/admin", { stats: { maxHp: 25, hp: 1 } });
   assert.deepEqual(player(), {
     gold: 100,
-    hp: 10,
+    hp: 25,
     max_hp: 25,
     equipped_weapon_id: null,
     fishing_casts_used: 0,
   });
+});
+
+test("Admin max HP edits refill HP including allocated bonuses", async () => {
+  sqlite.exec("UPDATE users SET hp = 0, exp = 210, max_hp_points = 2");
+  const headers = { cookie };
+  const before = await request("/game", { headers });
+  assert.match(before.html, /<dd>0 \/ 31<\/dd>/);
+
+  const saved = await post(
+    "/game/admin",
+    new URLSearchParams({ "stats[maxHp]": "10" }),
+  );
+  assert.equal(saved.headers.get("location"), "/game/admin?message=success");
+  assert.equal(player().max_hp, 10);
+  const quarters = await request("/game", { headers });
+  assert.match(quarters.html, /<dd>16 \/ 16<\/dd>/);
+
+  sqlite.exec("UPDATE users SET hp = 7");
+  const unchanged = await post("/game/admin", {
+    stats: { gold: 101, maxHp: 10 },
+  });
+  assert.equal(
+    unchanged.headers.get("location"),
+    "/game/admin?message=success",
+  );
+  assert.equal(player().gold, 101);
+  assert.equal(player().hp, 7);
 });
 
 test("Emporium charges catalog prices and rejects invalid or unaffordable carts", async () => {

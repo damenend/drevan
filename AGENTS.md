@@ -218,8 +218,9 @@ When changing behavior, review nearby comments for accuracy.
 - `/game` and its child routes use the shared `requireAuth` middleware. The homepage and authentication endpoints are public. The Registry and player profiles at `/game/users/:id` require sign-in. The player pages expose game IDs, names, and levels. Levels are derived from lifetime XP.
 - The Admin page lets signed-in players edit only these stats on their own
   account: gold, strength, speed, maximum HP, Defense, and today's fishing casts
-  used (0 through the daily cast limit). Lowering maximum HP also caps current
-  HP. Raising maximum HP does not heal the player. Admin edits base stats before allocation bonuses. Admin has no separate role
+  used (0 through the daily cast limit). Changing base max HP sets current HP
+  to the new cap, including allocated HP. Saving an unchanged base max HP
+  leaves current HP alone. Admin edits base stats before allocation bonuses. Admin has no separate role
   check. Keep it out of authorization decisions for other features.
 
 ## Git, environment, and safety

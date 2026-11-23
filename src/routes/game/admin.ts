@@ -85,11 +85,13 @@ router.post("/", (req, res) => {
     .update(users)
     .set({
       ...updates,
-      // Lower current HP with the cap in the same update. Raising the cap leaves existing HP alone.
+      // The form submits every stat. Refill HP only when the saved base cap changes.
       hp:
         updates.maxHp === undefined
           ? undefined
-          : sql`min(${users.hp}, ${updates.maxHp} + ${maxHpIncrease})`,
+          : sql`case when ${users.maxHp} <> ${updates.maxHp}
+              then ${updates.maxHp} + ${maxHpIncrease}
+              else ${users.hp} end`,
       fishing_cast_date:
         updates.fishing_casts_used === undefined ? undefined : getFishingDate(),
     })
