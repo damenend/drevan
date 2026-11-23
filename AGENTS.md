@@ -222,8 +222,11 @@ When changing behavior, review nearby comments for accuracy.
 ## Current development direction
 
 The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
-playtest, basic fishing, and Emporium buyback. The next milestone is basic
-combat item drops. Follow the [battle playtest guide](docs/battle-playtesting.md)
+playtest, basic fishing, and Emporium buyback. The next milestone is the
+combat stat audit and balancing, followed by basic XP and stat allocation.
+The Ruins will introduce playable expeditions first, then combat item and
+material drops. Follow the
+[battle playtest guide](docs/battle-playtesting.md)
 to rerun seeded matchups and record balance decisions. The playtest script at
 `scripts/playtest-battle.ts` runs the shared simulator with fixed loadouts and
 writes CSV results without opening the local database.
