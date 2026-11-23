@@ -1,22 +1,24 @@
 # Drevan gameplay roadmap
 
-Starter equipment playtesting, basic fishing, Curious Emporium buyback, the combat stat audit, and the level 10 progression prototype are complete. The Ruins Floor 1 MVP is playable and has an automated combat baseline. Manual expedition playtesting is underway. Victory loot and material drops are the next implementation milestone.
+Drevan has a playable level 10 progression loop and a playable first floor of The Ruins. Fortitude determines maximum HP, the three offensive attributes contribute equally to Attack Power, and Speed is independent of allocation. Characters remain Unaligned while class specializations are in design.
+
+**Next implementation milestone.** Add victory loot and material drops to Floor 1. Use the current Attack Power benchmarks to guide drop values, and play through full expeditions to measure healing costs and repeatable payouts before finalizing them. Material selling follows once players have a source of materials.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse the existing combat simulator, equipment, inventory, and gold systems. Start with independently playable features and use repeatable simulations and actual play to guide expansion. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
-| Priority | Focus                                    | Readiness                                        |
-| -------- | ---------------------------------------- | ------------------------------------------------ |
-| P0       | Combat foundations and basic progression | Complete through the level 10 prototype          |
-| P1       | Ruins exploration and starter loot       | Floor 1 MVP complete, starter loot next          |
-| P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met  |
-| P3       | Equipment economy and advanced systems   | Build on established systems and balance results |
-| P4       | Future concepts                          | Needs further design before scheduling           |
+| Priority | Focus                                    | Readiness                                            |
+| -------- | ---------------------------------------- | ---------------------------------------------------- |
+| P0       | Combat foundations and basic progression | Level 10 and class-neutral stats playable            |
+| P1       | Ruins exploration and starter loot       | Floor 1 playable, loot next and balance under review |
+| P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met      |
+| P3       | Equipment economy and advanced systems   | Build on established systems and balance results     |
+| P4       | Future concepts                          | Needs further design before scheduling               |
 
 Milestone numbers show the recommended order. Dependencies list the systems or design decisions each feature needs. The recommended order reflects playtest and development priorities. Independent work can move ahead when those prerequisites are met. Each heading gives the priority and relative complexity. **Small** means a limited change to an existing system, **Medium** spans a few systems, and **Large** includes substantial data changes, multiple systems, or unresolved design.
 
 ## Combat design
 
-Players make their choices before the fight through class, attributes, stat allocation, gear, and eventually enchantments and equipment effects. A single action starts the fight. The server resolves it automatically and shows what happened in the battle log. Training, named NPC fights, and practice PvP share one simulator, while each encounter mode controls what results it saves and what rewards it grants.
+Players prepare for fights through attribute allocation and gear. A single action starts the fight, and the server resolves it automatically and shows the battle log. Dominion training and The Ruins share the simulator and effective player stats. Each mode controls what results it saves and what rewards it grants. Future named Dominion bosses and practice PvP should use the same simulator.
 
 Balance PvE first so progression feels rewarding, upgrades matter, and stronger opponents justify their rewards. Specialized enemies give different builds room to excel. Use practice PvP to check competitive fairness as it becomes relevant. Introduce one mechanic at a time and use observed matchups to decide whether a mode needs different rules.
 
@@ -24,8 +26,8 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 1. Finish equipment effectiveness playtesting (P0 · Small)
 
-- **Status.** Complete. The Rusted Sword stays at +1 Strength. Worn Leather Armor now grants +3 Defense so it can preserve HP against starter opponents.
-- **Results.** With both pieces equipped, the starter won 99.5% of level 4 fights and 21.6% of level 5 fights. The [battle playtest guide](battle-playtesting.md) records the comparison, rules, and rerun command.
+- **Status.** Complete. The Rusted Sword grants +1 Attack Power. Worn Leather Armor now grants +3 Defense so it can preserve HP against starter opponents.
+- **Results.** In the original equipment trial, before class-neutral Attack Power, the starter with both pieces won 99.5% of level 4 fights and 21.6% of level 5 fights. The [battle playtest guide](battle-playtesting.md) records the comparison, rules, and rerun command.
 
 ### 2. Add basic fishing (P0 · Small)
 
@@ -37,13 +39,13 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 - **Status.** Complete. The Emporium buys owned weapons, armor, and fish. Players can sell several stacks in one transaction and see the combined payout before submitting. An equipped slot reserves one copy, and the Emporium can buy the rest of the stack.
 - **Starting payouts.** Rusted Sword and Worn Leather Armor sell for 50 gold each, giving future salvage a guaranteed gold alternative. Murkfin sells for 1 gold, Glassscale for 3, and Astral Koi for 10. The fish remain available only through gameplay.
-- **Economy comparison.** A full 50-cast allowance averages 78 gold at these payouts. Across 1,000 seeded fights per matchup with a full heal at Sanctum after each fight, an unequipped starter averaged 8.43 net gold at level 1 and 17.77 at level 3. A starter wearing both gear pieces averaged 23.17 net gold at level 4. That puts a full fishing allowance near nine level-1 fights or three to four equipped level-4 fights in gold terms. Session duration still needs a playtest.
+- **Economy comparison.** A full 50-cast allowance averages 78 gold at these payouts. In the historical Strength-based training rules, across 1,000 seeded fights per matchup with a full heal at Sanctum after each fight, an unequipped starter averaged 8.43 net gold at level 1 and 17.77 at level 3. A starter wearing both gear pieces averaged 23.17 net gold at level 4. That puts a full fishing allowance near nine level-1 fights or three to four equipped level-4 fights in gold terms. Session duration still needs a playtest.
 
 ### 4. Combat stat audit and balancing (P0 · Medium)
 
-- **Status.** Complete. The [combat audit](battle-playtesting.md#combat-stat-audit) led to random ordering for later attacks due together, with existing Speed, damage, and payouts. Level 3 is a repeatable starter fight and level 4 is a gear check. Draws retain HP loss and grant zero rewards. Start the allocation prototype with +1 Strength, +1 Speed, or +3 max HP per point and keep Defense on gear for the prototype.
+- **Status.** Complete. The [combat audit](battle-playtesting.md#combat-stat-audit) led to random ordering for later attacks due together, with existing Speed, damage, and payouts. Draws retain HP loss and grant zero rewards. The original matchup and allocation results reflect the earlier Strength-based rules. Use the [current comparison](battle-playtesting.md#class-neutral-attack-power-comparison) for live starter fights.
 - **Dependencies.** Starter equipment playtest (1) and the existing battle simulator.
-- **Scope.** Compare Strength, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Use controlled or seeded rolls. Measure win rate, HP remaining, total attacks, encounter duration, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to measure timing bias and validate the random tie rule.
+- **Scope.** Compare offensive power, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Use controlled or seeded rolls. Measure win rate, HP remaining, total attacks, encounter duration, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to measure timing bias and validate the random tie rule.
 - **Done when.** Results document where stats and combinations excel, including timing bias and low-impact bonuses. Tune one rule or bonus at a time and rerun the same matchups before expanding progression or PvE encounters.
 
 ### 4a. Prototype a named Dominion boss (P0 · Small, optional)
@@ -55,9 +57,9 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 ### 5. Add basic XP, leveling, and stat allocation (P0 · Large)
 
 - **Status.** Complete for the prototype. Training wins award 10 XP per dummy level. Levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP per level-up. Excess XP carries over toward the next level. Each level-up grants one point to save or spend on Strength, Agility, Intellect, or Fortitude. Each Strength, Agility, and Intellect point adds 1 Attack Power. Each Fortitude point adds 3 max HP without healing. Speed is independent of allocation.
-- **Playtest results.** New accounts start with 125 gold and three Lesser Potions. All 10 accounts in the starter-supplies rerun reached level 10. Counting from signup, the plan that switched to dummy level 4 after buying armor took 159 bouts. The plan that switched to dummy level 5 took 131–134. Manual testing of the opening felt good to the maintainer. Keep these rules as the baseline for The Ruins. [Level 10 playtest results](battle-playtesting.md#starter-supplies-rerun)
+- **Starter supplies and pacing.** New accounts start with 125 gold and three Lesser Potions. All 10 accounts in the historical starter-supplies rerun reached level 10. Counting from signup, the plan that switched to dummy level 4 after buying armor took 159 bouts. The plan that switched to dummy level 5 took 131–134. Rerun the opening and time to level 10 with the current offensive formula before drawing conclusions about live pacing. [Level 10 playtest results](battle-playtesting.md#starter-supplies-rerun)
 - **Dependencies.** Combat audit (4), Dominion training, and existing player attributes.
-- **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Track base attributes, allocated points, and gear bonuses separately. Characters start with 5 Fortitude and 25 HP. Maximum HP is 10 plus 3 per total Fortitude. Admin shows current and maximum HP and refills health when base Fortitude changes. Class-specific effects and Artificer refunds remain future work.
+- **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Track base attributes, allocated points, and gear bonuses separately. Characters start with 5 Fortitude and 25 HP. Maximum HP is 10 plus 3 per total Fortitude. Admin shows current and maximum HP and refills health when base Fortitude changes. Spending a Fortitude point in The Quarters or The Ruins leaves current HP as it was. Class-specific effects and Artificer refunds remain future work.
 - **Done when.** Players can reach an early level in a short session, see XP, level, and unspent points in The Quarters, and see earned levels in The Registry and on player profiles. They can spend or save points across sessions and see the effect of their choices in training.
 
 ## P1 — High: Ruins exploration and loot
@@ -66,29 +68,29 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 - **Status.** Floor 1 MVP complete. Automated route checks cover movement, discoveries, all three combat outcomes, saved position across login, both escapes, and expedition restrictions. Manual playtesting is underway.
 - **Exploration and interface.** Enter from Nexaris at (0, 0) and move one square at a time in the four cardinal directions on a fixed 7×7 floor. Position persists across sessions. The map and gameplay controls appear above the interior artwork. Discoveries and enemy sightings are highlighted above the map, and enemy details and fight choices appear below it.
-- **Encounters and rewards.** Floor 1 has one gold cache, one Lesser Potion cache, and three optional fights: Vault Scavenger, Fractured Sentinel, and Alloy Warden. Wins award gold and XP and save remaining HP. Defeats and draws save HP and earlier rewards and return the player to Nexaris. Revisiting a square offers its event again. Replayed forms cannot award the same action twice.
+- **Encounters and rewards.** Floor 1 has an 8-gold cache, one Lesser Potion cache, and three optional fights: Vault Scavenger, Fractured Sentinel, and Alloy Warden. Wins award gold and XP and save remaining HP. Defeats and draws save HP and earlier rewards and return the player to Nexaris. Revisiting a square offers its event again. Replayed forms cannot award the same action twice.
 - **Expedition controls.** Players can use healing potions and spend attribute points. Equipment changes and other gameplay locations require leaving the expedition. Walk back to the entrance for a free exit or use the permanent Recall Beacon once per Central calendar day from any square.
 - **Temporary playtest markers.** The map shows gold, items, enemies, and the sealed Floor 2 entrance two squares east of the exit at (2, 0). Standing on the stairs shows `P2` and a disabled **Descend to Floor 2** button. After manual playtesting, remove the gold, item, and enemy markers and reveal the Floor 2 marker only while the player stands on that square.
-- **Balance baseline.** In 18,000 seeded full-HP bouts across Ruins enemies and their Dominion counterparts, fresh characters survived every Scavenger fight. Players wearing both starter items survived 96.3% of Sentinel fights and 11.9% of Warden fights. The geared level 4 build survived 95.5% of Warden fights. [Encounter map and benchmark results](battle-playtesting.md#ruins-floor-1-baseline)
-- **Still to validate.** Track how carrying damage between fights affects potion use, retreats, and net gold after healing. Measure repeatable cache income during actual sessions before tuning rewards. Additional floors, random encounters, and per-player encounter completion remain deferred.
+- **Current balance baseline.** Across 1,000 seeded full-health fights per matchup, fresh characters win 99.8% against the Sentinel and 83.6% against the Warden, up from 1.0% under the old rules. With both starter items, the Warden win rate is 99.1%. Fresh characters win 86.6% against the level 5 dummy. Opponent stats and rewards stayed the same when fresh Attack Power increased from 5 to 10. [Historical and current comparison](battle-playtesting.md#class-neutral-attack-power-comparison)
+- **Still to validate.** Play consecutive fights with carried HP and record potion use, retreats, Recall Beacon use, and net gold after healing. Compare repeatable cache and encounter income with Dominion and fishing. Use these sessions to decide whether the Warden still serves as a tougher fight and how much loot each encounter can support. Additional floors, random encounters, and per-player encounter completion remain deferred.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
-- **Status.** Next implementation milestone. Use Floor 1 and the recorded combat baseline for the first drop tables while manual playtesting continues.
+- **Status.** Next implementation milestone. Use the current Floor 1 benchmarks for initial drop tables. Validate payout and drop frequency in full expeditions before expanding the tables.
 - **Dependencies.** Playtested Ruins expeditions (6), the item catalog, and stackable inventory.
-- **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies award their existing gold rewards and grant no random loot.
+- **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies continue to award gold and XP on a win.
 - **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest until selling is available. Materials can support future crafting, salvaging, and services at The Forge.
 - **Scope limits.** Use fixed item stats and keep procedural gear, elaborate rarity systems, and crafting for later design. Players can use eligible healing potions inside The Ruins. Equipment changes and selling require returning to Nexaris. Material selling follows in milestone 13.
-- **Done when.** Each qualifying victory allows at most one loot roll and repeated submissions cannot grant the reward twice. Players can identify materials and their quantities, and repeat drops add to existing stacks.
+- **Done when.** Each qualifying victory rolls loot once and saves the drops together with HP, gold, XP, and expedition state. Repeated submissions cannot grant extra rewards. The battle report shows what dropped, and repeat drops add to existing inventory stacks.
 
 ## P2 — Medium: Character depth and supporting gameplay
 
 ### 8. Add class specializations (P2 · Large)
 
 - **Dependencies.** Combat audit (4) and basic stat allocation (5).
-- **Status.** Class-neutral Attack Power and class storage are complete. Players begin Unaligned, and the database reserves the Melee, Ranged, and Caster identifiers. Class selection and bonuses are future work.
+- **Status.** Class-neutral Attack Power and class storage are complete. New and existing characters default to Unaligned, shown in The Quarters and Admin. The database reserves Melee, Ranged, and Caster identifiers. Existing characters keep the Speed they had before the split from Agility. Class selection and bonuses are future work.
 - **Scope.** Add Melee (Strength), Ranged (Agility), and Caster (Intellect) specializations. Each will receive additional offensive scaling from its preferred attribute. All three offensive attributes will still contribute to Attack Power for every class.
-- **Done when.** Players can select an implemented specialization, The Quarters shows their class and calculated Attack Power, and the shared simulator applies the same damage rules across encounter modes. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
+- **Done when.** Players can select an implemented specialization, The Quarters shows their selected class and calculated Attack Power, and the shared simulator applies the same damage rules across encounter modes. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
 
 ### 9. Add gear with multiple modifiers and requirements (P2 · Medium)
 
@@ -201,7 +203,7 @@ These entries are candidates for design and playtesting. Their completion criter
 ### 23. Additional character content (P4 · Large)
 
 - **Dependencies.** Class playtesting (8) for moves and build-specific encounters. A playable alien race needs lore and avatar models.
-- **Scope.** Consider an alien race with two models, appearance and lore first. Explore further customization, a weapon that trades Speed for Strength, and once-per-battle signatures such as a Warrior brace, Wizard armor pierce, or Archer aimed shot.
+- **Scope.** Consider an alien race with two models, appearance and lore first. Explore further customization, a weapon that trades Speed for Attack Power, and once-per-battle signatures such as a Melee brace, Caster armor pierce, or Ranged aimed shot.
 - **Done when.** A chosen addition fits Drevan's lore or creates a distinct, tested combat choice.
 
 ### 24. Optional economy and contract expansion (P4 · Medium)
@@ -230,7 +232,7 @@ These entries are candidates for design and playtesting. Their completion criter
 
 ## Recurring playtest checks
 
-- **Early progression.** When progression rules or XP sources change, measure time and wins to the first few levels, how often players spend or save points, and how those choices affect training.
+- **Early progression.** Repeat the starter-supplies playtest with the current Attack Power formula. Measure time and wins to the first few levels and to level 10, when players move up in dummy difficulty, how often they spend or save points, and how much they spend on healing.
 - **Ruins expeditions.** Track enemy difficulty, survival, retreat and defeat rates, and net gold after Sanctum healing. Once loot lands, measure item acquisition and material accumulation before expanding tables or adding sources.
 - **Economy.** Compare short, realistic sessions across training, fishing, contracts, exploration, equipment and material sales, and salvage. Account for Sanctum healing, gear purchases, and future Forge and Artificer fees. Compare recipe costs with reagent sale values and gathering time. Keep rare ingredients tied primarily to gameplay if shops eventually stock basics.
 - **Starter economy playtest.** Run separate 10-minute fishing and training sessions with fresh characters and the same starting gear. Record actions completed, gold earned, Sanctum costs, starter potions used, and gold kept after healing. Note how long it takes to earn 100 additional gold, the price of one starter gear piece. Characters start with 125 gold and three Lesser Potions, so track earned gold separately. If a session ends before the player earns 100 gold, record their progress and ask whether either activity felt required to afford upgrades. Repeat once Ruins drops add another source of items to sell.
@@ -296,7 +298,7 @@ These entries are candidates for design and playtesting. Their completion criter
 
 These concepts are playtest candidates. See [AGENTS.md](../AGENTS.md#established-gameplay-concepts) for live rules.
 
-- **Combat and progression.** A candidate Speed curve uses the current minimum and applies diminishing returns above 5 with `5 * sqrt(Speed / 5)`. A future class bonus could add extra Attack Power from the preferred attribute on top of the class-neutral sum. Try one point per level, with max HP bought in larger increments than offensive stats, and review the starter spread before setting defaults.
+- **Combat and progression.** A candidate Speed curve uses the current minimum and applies diminishing returns above 5 with `5 * sqrt(Speed / 5)`. A future class bonus could add extra Attack Power from the preferred attribute on top of the class-neutral sum. Revisit the starter attribute spread after the current progression and expedition playtests.
 - **Material expansion.** Worn Components are salvaged device parts for mechanical or Speed effects. Beast Essence could support Strength or HP, Arcane Fragments Intellect, Ether Dust Speed or magic, and Reinforced Alloy Defense. Metal Scraps suit physical bonuses, Enchantment Powder binds recipes, and Power Cells could power physical or magical effects. Ancient Mechanisms, Void Crystals, Primal Essence, and Resonance Cores could come from dangerous expeditions or powerful enemies. Match salvage to the gear, such as alloy from heavy armor, Beast Essence from leather, Arcane Fragments from magical weapons, and Power Cells from technological items.
 - **First enchantment candidates.** Mighty increases Strength, Arcane increases Intellect, Agile increases Agility, Swift increases Speed, Fortified increases Defense, and Vital increases max HP. Minor Might, Mighty, and Greater Might illustrate possible tiers.
 - **Contract and title examples.** Supply the Settlement originally asked for three fish. A title could recognize 1,000 training wins or 1,000 qualifying PvP wins, with a possible earlier milestone at 100. Revisit thresholds once repeated matchups and actual play frequency can be measured.
