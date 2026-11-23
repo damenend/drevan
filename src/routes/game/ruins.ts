@@ -1,3 +1,7 @@
+import {
+  getPrimaryAttributes,
+  getSpentPoints,
+} from "../../services/character-stats";
 import { Router } from "express";
 import { getProgression, statAllocations } from "../../services/progression";
 import { actInRuins, getRuinsSupplies } from "../../services/ruins";
@@ -46,10 +50,8 @@ router.get("/", (req, res) => {
     discovery:
       (encounter?.kind === "gold" || encounter?.kind === "item") &&
       req.query.discovery === encounter.kind,
-    progression: getProgression(
-      player.exp,
-      player.strengthPoints + player.speedPoints + player.maxHpPoints,
-    ),
+    attributes: getPrimaryAttributes(player),
+    progression: getProgression(player.exp, getSpentPoints(player)),
     statAllocations,
     ...(position === null ? {} : getRuinsSupplies(player.id)),
     recalledToday: player.recallDate === getGameDate(),

@@ -25,13 +25,13 @@
       </div>
 
       <div class="character-stat">
-        <dt>Strength</dt>
-        <dd><%- include("../partials/stat-total", { total: effectiveStats.strength, base: user.strength + user.strengthPoints }) %></dd>
+        <dt>Combat Strength</dt>
+        <dd><%- include("../partials/stat-total", { total: effectiveStats.strength, base: attributes.strength }) %></dd>
       </div>
 
       <div class="character-stat">
         <dt>Speed</dt>
-        <dd><%= formatNumber(user.speed + user.speedPoints) %></dd>
+        <dd><%= formatNumber(attributes.agility) %></dd>
       </div>
 
       <div class="character-stat">
@@ -57,6 +57,26 @@
       <div class="character-stat">
         <dt>Unspent stat points</dt>
         <dd><%= formatNumber(progression.unspentPoints) %></dd>
+      </div>
+    </dl>
+
+    <h4>Primary Attributes</h4>
+    <dl class="character-stats">
+      <div class="character-stat">
+        <dt>Strength</dt>
+        <dd><%= formatNumber(attributes.strength) %></dd>
+      </div>
+      <div class="character-stat">
+        <dt>Agility</dt>
+        <dd><%= formatNumber(attributes.agility) %></dd>
+      </div>
+      <div class="character-stat">
+        <dt>Intellect</dt>
+        <dd><%= formatNumber(attributes.intellect) %></dd>
+      </div>
+      <div class="character-stat">
+        <dt>Fortitude</dt>
+        <dd><%= formatNumber(attributes.fortitude) %></dd>
       </div>
     </dl>
 

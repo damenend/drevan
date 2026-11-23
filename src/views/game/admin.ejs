@@ -7,6 +7,10 @@
   <p role="status">Update successful.</p>
   <% } %>
 
+  <p>Current HP: <strong><%= formatNumber(user.hp) %></strong></p>
+  <p>Effective max HP: <strong><%= formatNumber(user.maxHp) %></strong></p>
+  <p>Total Fortitude: <%= formatNumber(fortitude) %>. Each point adds <%= formatNumber(hpPerFortitude) %> max HP. Changing Base Fortitude refills current HP to the new cap.</p>
+
   <form action="/game/admin" method="POST">
     <div class="table-responsive">
       <table class="table">
@@ -20,12 +24,9 @@
         <tbody>
           <% editableStats.forEach(key => { %>
           <tr>
-            <td><label for="<%= key %>"><%= key === "fishing_casts_used" ? "Fishing casts used today" : key === "maxHp" ? "Base max HP" : key === "strength" ? "Base Strength" : key === "speed" ? "Base Speed" : key %></label></td>
+            <td><label for="<%= key %>"><%= statLabels[key] %></label></td>
             <td>
-              <input type="number" id="<%= key %>" name="stats[<%= key %>]" value="<%= statValues[key] %>" min="0" step="1" required <% if (key === "fishing_casts_used") { %>max="<%= dailyCastLimit %>"<% } else if (key === "maxHp") { %>aria-describedby="max-hp-help"<% } %>>
-              <% if (key === "maxHp") { %>
-              <p id="max-hp-help">The Quarters shows base max HP plus <%= formatNumber(user.maxHp - user.baseMaxHp) %> HP from spent attribute points. Changing base max HP also sets current HP to the new total.</p>
-              <% } %>
+              <input type="number" id="<%= key %>" name="stats[<%= key %>]" value="<%= statValues[key] %>" min="0" step="1" required <% if (key === "fishing_casts_used") { %>max="<%= dailyCastLimit %>"<% } %>>
             </td>
           </tr>
           <% }) %>

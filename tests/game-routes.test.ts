@@ -1,12 +1,21 @@
 import assert from "node:assert/strict";
 import { once } from "node:events";
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, before, beforeEach, test } from "node:test";
 import Database from "better-sqlite3";
+import { sql } from "drizzle-orm";
+import { maximumHp } from "../src/services/character-stats";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { getRuinsEncounter } from "../src/services/ruins-map";
@@ -56,6 +65,13 @@ before(async () => {
   const signup = await post("/signup", account, "");
   assert.equal(signup.headers.get("location"), "/game");
   assert.equal(player().gold, 125);
+  assert.equal(player().hp, 25);
+  assert.deepEqual(
+    sqlite
+      .prepare("SELECT fortitude, fortitude_points FROM users WHERE email = ?")
+      .get(account.email),
+    { fortitude: 5, fortitude_points: 0 },
+  );
   assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 3 }]);
   cookie = sessionCookie(signup);
 });
@@ -74,9 +90,10 @@ after(async () => {
 beforeEach(() => {
   sqlite.exec(`
     DELETE FROM inventory;
-    UPDATE users SET gold = 100, hp = 25, max_hp = 25, strength = 5,
+    UPDATE users SET gold = 100, hp = 25, strength = 5,
       speed = 5, defense = 0, equipped_weapon_id = NULL, equipped_armor_id = NULL,
-      exp = 0, strength_points = 0, speed_points = 0, max_hp_points = 0,
+      intellect = 0, fortitude = 5, intellect_points = 0,
+      exp = 0, strength_points = 0, speed_points = 0, fortitude_points = 0,
       fishing_casts_used = 0, fishing_cast_date = NULL,
       ruins_tile = NULL, ruins_revision = 0, ruins_enemy_pending = 0, recall_date = NULL;
   `);
@@ -124,12 +141,11 @@ function player() {
       {
         gold: number;
         hp: number;
-        max_hp: number;
         equipped_weapon_id: number | null;
         fishing_casts_used: number;
       }
     >(
-      `SELECT gold, hp, max_hp, equipped_weapon_id, fishing_casts_used
+      `SELECT gold, hp, equipped_weapon_id, fishing_casts_used
        FROM users WHERE email = ?`,
     )
     .get(account.email);
@@ -214,55 +230,127 @@ test("Nexaris links to each location using its display name", async () => {
   }
 });
 
-test("Admin rejects malformed values and fills HP to the new cap", async () => {
+test("Admin rejects malformed or overflowing Fortitude", async () => {
   const initial = player();
-  const invalid = await post("/game/admin", { stats: { gold: 1, maxHp: "" } });
-  assert.equal(invalid.headers.get("location"), "/game/admin?message=err");
-  assert.deepEqual(player(), initial);
-
-  await post("/game/admin", new URLSearchParams({ "stats[maxHp]": "10" }));
-  assert.deepEqual(player(), {
-    gold: 100,
-    hp: 10,
-    max_hp: 10,
-    equipped_weapon_id: null,
-    fishing_casts_used: 0,
-  });
-  await post("/game/admin", { stats: { maxHp: 25, hp: 1 } });
-  assert.deepEqual(player(), {
-    gold: 100,
-    hp: 25,
-    max_hp: 25,
-    equipped_weapon_id: null,
-    fishing_casts_used: 0,
-  });
+  for (const fortitude of ["", Number.MAX_SAFE_INTEGER]) {
+    const invalid = await post("/game/admin", {
+      stats: { gold: 1, fortitude },
+    });
+    assert.equal(invalid.headers.get("location"), "/game/admin?message=err");
+    assert.deepEqual(player(), initial);
+  }
 });
 
-test("Admin max HP edits refill HP including allocated bonuses", async () => {
-  sqlite.exec("UPDATE users SET hp = 0, exp = 210, max_hp_points = 2");
+test("Changing base Fortitude in Admin refills HP without changing spent points", async () => {
+  sqlite.exec("UPDATE users SET hp = 0, exp = 210, fortitude_points = 2");
   const headers = { cookie };
-  const before = await request("/game", { headers });
-  assert.match(before.html, /<dd>0 \/ 31<\/dd>/);
+  assert.match((await request("/game", { headers })).html, /<dd>0 \/ 31<\/dd>/);
 
   const saved = await post(
     "/game/admin",
-    new URLSearchParams({ "stats[maxHp]": "10" }),
+    new URLSearchParams({ "stats[fortitude]": "3" }),
   );
   assert.equal(saved.headers.get("location"), "/game/admin?message=success");
-  assert.equal(player().max_hp, 10);
-  const quarters = await request("/game", { headers });
-  assert.match(quarters.html, /<dd>16 \/ 16<\/dd>/);
+  assert.match(
+    (await request("/game", { headers })).html,
+    /<dd>25 \/ 25<\/dd>/,
+  );
+  const admin = await request("/game/admin", { headers });
+  assert.match(admin.html, /Effective max HP: <strong>25<\/strong>/);
+  assert.doesNotMatch(admin.html, /name="stats\[(hp|baseHp)\]"/);
+  assert.equal(ruinsState().fortitude_points, 2);
 
   sqlite.exec("UPDATE users SET hp = 7");
-  const unchanged = await post("/game/admin", {
-    stats: { gold: 101, maxHp: 10 },
-  });
-  assert.equal(
-    unchanged.headers.get("location"),
-    "/game/admin?message=success",
-  );
+  await post("/game/admin", { stats: { fortitude: 3, gold: 101, hp: 99 } });
   assert.equal(player().gold, 101);
   assert.equal(player().hp, 7);
+  await post("/game/admin", { stats: { fortitude: 4 } });
+  assert.equal(player().hp, 28);
+});
+
+test("each other primary attribute still spends exactly one point", async () => {
+  sqlite.exec("UPDATE users SET exp = 480");
+  for (const stat of ["strength", "agility", "intellect"]) {
+    const spent = await post("/game/progression", { stat });
+    assert.match(spent.headers.get("location") ?? "", /Point%20spent/);
+  }
+  const home = await request("/game", { headers: { cookie } });
+  assert.match(home.html, /<dt>Strength<\/dt>\s*<dd>6<\/dd>/);
+  assert.match(home.html, /<dt>Agility<\/dt>\s*<dd>6<\/dd>/);
+  assert.match(home.html, /<dt>Intellect<\/dt>\s*<dd>1<\/dd>/);
+  assert.match(home.html, /<dt>Unspent stat points<\/dt>\s*<dd>0<\/dd>/);
+});
+
+test("Fortitude migration preserves spent HP points and current health", () => {
+  const migrationsFolder = path.resolve(__dirname, "../drizzle");
+  const legacyFolder = path.join(testDirectory, "legacy-migrations");
+  mkdirSync(path.join(legacyFolder, "meta"), { recursive: true });
+  const journal = JSON.parse(
+    readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8"),
+  ) as {
+    entries: { tag: string }[];
+  };
+  const fortitudeMigration = journal.entries.findIndex(
+    ({ tag }) => tag === "0011_fortitude",
+  );
+  assert.ok(fortitudeMigration > 0);
+  journal.entries = journal.entries.slice(0, fortitudeMigration);
+  for (const entry of journal.entries) {
+    const migration = entry.tag + ".sql";
+    copyFileSync(
+      path.join(migrationsFolder, migration),
+      path.join(legacyFolder, migration),
+    );
+  }
+  writeFileSync(
+    path.join(legacyFolder, "meta/_journal.json"),
+    JSON.stringify(journal),
+  );
+
+  const legacy = new Database(":memory:");
+  try {
+    const database = drizzle(legacy);
+    migrate(database, { migrationsFolder: legacyFolder });
+    legacy.pragma("foreign_keys = ON");
+    legacy.exec(`
+      INSERT INTO users (name, email, password_hash, hp, max_hp, max_hp_points, speed, speed_points, exp)
+      VALUES ('Legacy', 'legacy@example.test', 'fixture', 12, 25, 2, 7, 1, 480),
+             ('Custom', 'custom@example.test', 'fixture', 29, 23, 2, 5, 0, 210);
+      INSERT INTO items (name, description) VALUES ('Test item', 'Fixture');
+      INSERT INTO inventory (user_id, item_id, quantity) VALUES (1, 1, 3);
+    `);
+    migrate(database, { migrationsFolder });
+    const migrated =
+      database.all(sql`SELECT hp, fortitude, fortitude_points, speed, speed_points,
+      exp, ${maximumHp(sql.raw("(fortitude + fortitude_points)"))} as cap FROM users ORDER BY id`);
+    assert.deepEqual(migrated, [
+      {
+        hp: 12,
+        fortitude: 5,
+        fortitude_points: 2,
+        speed: 7,
+        speed_points: 1,
+        exp: 480,
+        cap: 31,
+      },
+      {
+        hp: 28,
+        fortitude: 4,
+        fortitude_points: 2,
+        speed: 5,
+        speed_points: 0,
+        exp: 210,
+        cap: 28,
+      },
+    ]);
+    assert.deepEqual(
+      legacy.prepare("SELECT user_id, item_id, quantity FROM inventory").all(),
+      [{ user_id: 1, item_id: 1, quantity: 3 }],
+    );
+    assert.deepEqual(legacy.pragma("foreign_key_check"), []);
+  } finally {
+    legacy.close();
+  }
 });
 
 test("Emporium charges catalog prices and rejects invalid or unaffordable carts", async () => {
@@ -440,7 +528,6 @@ test("consumption, gear and Sanctum use current player state", async () => {
   assert.deepEqual(player(), {
     gold: 83,
     hp: 25,
-    max_hp: 25,
     equipped_weapon_id: null,
     fishing_casts_used: 0,
   });
@@ -449,7 +536,7 @@ test("consumption, gear and Sanctum use current player state", async () => {
   await post("/game/store", { items: { "item-2": 1 } });
   await post("/game/inventory/equip", { itemId: 2 });
   const home = await request("/game", { headers: { cookie } });
-  assert.match(home.html, /<dt>Strength<\/dt>\s*<dd>\s*6\s*<span/);
+  assert.match(home.html, /<dt>Combat Strength<\/dt>\s*<dd>\s*6\s*<span/);
   await post("/game/inventory/unequip", { itemId: 2 });
   assert.equal(player().equipped_weapon_id, null);
 });
@@ -470,7 +557,6 @@ test("training rejects malformed levels and saves the fight result", async (t) =
   assert.deepEqual(player(), {
     gold: 110,
     hp: 23,
-    max_hp: 25,
     equipped_weapon_id: null,
     fishing_casts_used: 0,
   });
@@ -509,8 +595,8 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
   });
   assert.match(invalid.headers.get("location") ?? "", /Choose/);
   const spends = await Promise.all([
-    post("/game/progression", { stat: "maxHp", amount: 999 }),
-    post("/game/progression", { stat: "maxHp" }),
+    post("/game/progression", { stat: "fortitude", amount: 999 }),
+    post("/game/progression", { stat: "fortitude" }),
   ]);
   assert.equal(
     spends.filter((spend) =>
@@ -519,7 +605,6 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
     1,
   );
   assert.equal(player().hp, 25);
-  assert.equal(player().max_hp, 25);
   const healed = await post("/game/hospital");
   assert.equal(healed.headers.get("location"), "/game/hospital?healed=3");
   assert.equal(player().hp, 28);
@@ -527,11 +612,14 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
     (await request("/game", { headers })).html,
     /Unspent stat points<\/dt>\s*<dd>0<\/dd>/,
   );
+  const nextFight = await post("/game/training", { level: 1 });
+  assert.match(nextFight.html, /HP: 28 → 26/);
+  assert.equal(player().hp, 26);
 });
 
 test("a capped training draw saves HP loss and awards no gold", async (t) => {
   sqlite.exec(
-    "UPDATE users SET hp = 100000, max_hp = 100000, strength = 1, speed = 101;",
+    "UPDATE users SET hp = 100000, fortitude = 33330, strength = 1, speed = 101;",
   );
   t.mock.method(Math, "random", () => 0.5);
 
@@ -585,10 +673,10 @@ function ruinsState() {
         ruins_enemy_pending: number;
         recall_date: string | null;
         exp: number;
-        max_hp_points: number;
+        fortitude_points: number;
       }
     >(
-      "SELECT ruins_tile, ruins_revision, ruins_enemy_pending, recall_date, exp, max_hp_points FROM users WHERE email = 'test@example.test'",
+      "SELECT ruins_tile, ruins_revision, ruins_enemy_pending, recall_date, exp, fortitude_points FROM users WHERE email = 'test@example.test'",
     )
     .get()!;
 }
@@ -842,7 +930,7 @@ test("Ruins draw applies damage but ends the expedition without combat rewards",
   t.after(() => {
     encounter.enemy.hp = originalHp;
   });
-  sqlite.exec("UPDATE users SET hp = 100000, max_hp = 100000, strength = 1");
+  sqlite.exec("UPDATE users SET hp = 100000, fortitude = 33330, strength = 1");
   t.mock.method(Math, "random", () => 0.5);
 
   await reachScavenger();
@@ -871,12 +959,12 @@ test("Ruins use normal healing and attribute allocation without moving", async (
   assert.match(before.html, /Use Lesser Potion \(2\)/);
   assert.match(before.html, /Unspent attribute points<\/dt>\s*<dd>1<\/dd>/);
   assert.match(
-    (await post("/game/progression", { stat: "maxHp" })).headers.get(
+    (await post("/game/progression", { stat: "fortitude" })).headers.get(
       "location",
     ) ?? "",
     /^\/game\/ruins/,
   );
-  assert.equal(ruinsState().max_hp_points, 1);
+  assert.equal(ruinsState().fortitude_points, 1);
   assert.equal(player().hp, 20);
   assert.match(
     (await post("/game/inventory/use", { itemId: 1 })).headers.get(

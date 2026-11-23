@@ -54,10 +54,10 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 5. Add basic XP, leveling, and stat allocation (P0 · Large)
 
-- **Status.** Complete for the prototype. Training wins award 10 XP per dummy level. Levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP per level-up. Excess XP carries over toward the next level. Each level-up grants one point to save or spend on Strength, Speed, or max HP.
+- **Status.** Complete for the prototype. Training wins award 10 XP per dummy level. Levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP per level-up. Excess XP carries over toward the next level. Each level-up grants one point to save or spend on Strength, Agility, Intellect, or Fortitude. Agility preserves the existing Speed progression, and each Fortitude adds 3 max HP without healing. Intellect has no combat effect yet.
 - **Playtest results.** New accounts start with 125 gold and three Lesser Potions. All 10 accounts in the starter-supplies rerun reached level 10. Counting from signup, the plan that switched to dummy level 4 after buying armor took 159 bouts. The plan that switched to dummy level 5 took 131–134. Manual testing of the opening felt good to the maintainer. Keep these rules as the baseline for The Ruins. [Level 10 playtest results](battle-playtesting.md#starter-supplies-rerun)
 - **Dependencies.** Combat audit (4), Dominion training, and existing player attributes.
-- **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Start with Strength, Speed, and max HP as allocation candidates and evaluate whether Defense should also be directly allocatable. Track base attributes, permanent gains, point-funded increases, and equipment bonuses separately so classes, Intellect, Agility, and Artificer refunds can build on the same records.
+- **Scope.** Award XP for qualifying Dominion training victories. Set level thresholds and grant allocation points on level-up. Players can spend or save points. Track base attributes, allocated points, and gear bonuses separately. Characters start with 5 Fortitude and 25 HP. Maximum HP is 10 plus 3 per total Fortitude. Admin shows current and maximum HP and refills health when base Fortitude changes. Class-specific effects and Artificer refunds remain future work.
 - **Done when.** Players can reach an early level in a short session, see XP, level, and unspent points in The Quarters, and see earned levels in The Registry and on player profiles. They can spend or save points across sessions and see the effect of their choices in training.
 
 ## P1 — High: Ruins exploration and loot
@@ -86,7 +86,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 ### 8. Add classes and primary attributes (P2 · Large)
 
 - **Dependencies.** Combat audit (4) and basic stat allocation (5).
-- **Scope.** Add Warrior (Strength), Wizard (Intellect), and Archer (Agility). Calculate Attack Power after gear bonuses, weighting each class's primary attribute most heavily and letting the two secondary offensive attributes contribute. Give Speed and HP the same role across classes. Playtest a Wizard critical-hit bonus. Allow switching in The Quarters during tuning while preserving permanent gains and any allocated stats.
+- **Scope.** Add Warrior (Strength), Wizard (Intellect), and Archer (Agility) using the existing attributes. Calculate Attack Power after gear bonuses, weighting each class's primary attribute most heavily and letting the two secondary offensive attributes contribute. Give Speed and HP the same role across classes. Playtest a Wizard critical-hit bonus. Allow switching in The Quarters during tuning while preserving permanent gains and any allocated stats.
 - **Done when.** The Quarters shows the primary stat and Attack Power. The shared simulator uses the same damage rules across encounter modes, with classless players and dummies retaining Strength-based damage. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
 
 ### 9. Add gear with multiple modifiers and requirements (P2 · Medium)

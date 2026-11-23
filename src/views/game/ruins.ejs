@@ -83,6 +83,8 @@
         <dl>
           <dt>HP</dt>
           <dd><%= formatNumber(user.hp) %> / <%= formatNumber(user.maxHp) %></dd>
+          <dt>Fortitude</dt>
+          <dd><%= formatNumber(attributes.fortitude) %></dd>
           <dt>Level</dt>
           <dd><%= formatNumber(progression.level) %></dd>
           <% if (progression.nextLevelXp === null) { %>

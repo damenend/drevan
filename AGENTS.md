@@ -59,6 +59,9 @@ Expected locations (verify before editing):
 - `src/routes/`: public and authentication routes
 - `src/routes/game/`: signed-in gameplay routes and the expedition access guard in `index.ts`. The inventory router handles consumable use and equipment.
 - `src/services/`: battle simulation and item effects shared by route handlers
+- `src/services/character-stats.ts`: primary attribute totals, spent attribute
+  points, and the shared SQL expression for maximum HP. The schema uses it for
+  the saved health cap, and Admin and progression use it to check proposed stats.
 - `src/services/fishing.ts`: catch rolls and the daily cast limit shared by The
   Driftwater and Admin
 - `src/services/ruins.ts`: expedition actions and supplies. The fixed map and
@@ -79,7 +82,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - Signup names use 3–24 characters drawn from ASCII letters, digits, spaces, underscores, and hyphens. Spaces are allowed only inside the name. Enforce case-insensitive uniqueness with the SQLite name index. Use `formatPlayerName` for title case in player-facing text and keep the submitted spelling in storage.
 - Signup stores the selected avatar model (`male` or `female`) on the player. The default is `male`, including for existing accounts. Use the shared player-avatar partial in The Quarters and player profiles.
 
-- Player attributes include gold, strength, speed, Defense, HP, maximum HP, and experience. Defense defaults to 0 for new and existing players, appears in The Quarters, and reduces incoming damage in training.
+- Player state includes gold, experience, current HP, Defense, and the primary attributes Strength, Agility, Intellect, and Fortitude. Agility supplies combat Speed one-for-one. Intellect starts at 0 and has no combat effect yet. Defense defaults to 0 for new and existing players, appears in The Quarters, and reduces incoming damage in training.
 - New accounts start with 125 gold and three Lesser Potions. Signup requires
   the seeded Lesser Potion and saves the account and its potions together.
 - Equipment includes weapons and armor. Equipping stores the item ID on the user. The Quarters and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats. The Rusted Sword grants +1 Strength and Worn Leather Armor grants +3 Defense.
@@ -144,7 +147,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   next level. Excess XP carries over, and the database stores lifetime XP.
   Each level-up grants one point, up to nine. Level 10 starts at 6,300
   lifetime XP, which continues to accumulate and is displayed at the cap.
-- In The Quarters, players spend one point on +1 Strength, +1 Speed, or +3 max HP. Store spent points by stat so base stats and gear stay separate. Max HP increases do not restore current HP. Sanctum and healing items use the increased cap.
+- Players spend one attribute point (AP) on +1 Strength, Agility, Intellect, or Fortitude. Store allocated points separately from base attributes. Each Fortitude adds 3 max HP, and new characters start with 5 Fortitude and 25 current HP. Both The Quarters and The Ruins allow allocation without refilling current HP.
+- Use the shared effective HP expression for healing and stat validation. The cap is 10 plus 3 HP per total Fortitude. Migration `0011_fortitude` preserves spent HP points as Fortitude allocations. Migration `0012_fortitude_health` converts legacy base health and base Fortitude into the nearest nonnegative base Fortitude, then removes the stored base HP column. It preserves allocated points and clamps current HP only when the new cap is lower. Existing SQLite Speed fields are mapped to Agility.
 - Preserve the distinction between training combat and future player-versus-player combat.
 
 ## Visual and UX conventions
@@ -216,12 +220,12 @@ When changing behavior, review nearby comments for accuracy.
   JSON integers. Apply each route's own bounds after parsing.
 
 - `/game` and its child routes use the shared `requireAuth` middleware. The homepage and authentication endpoints are public. The Registry and player profiles at `/game/users/:id` require sign-in. The player pages expose game IDs, names, and levels. Levels are derived from lifetime XP.
-- The Admin page lets signed-in players edit only these stats on their own
-  account: gold, strength, speed, maximum HP, Defense, and today's fishing casts
-  used (0 through the daily cast limit). Changing base max HP sets current HP
-  to the new cap, including allocated HP. Saving an unchanged base max HP
-  leaves current HP alone. Admin edits base stats before allocation bonuses. Admin has no separate role
-  check. Keep it out of authorization decisions for other features.
+- The Admin page lets signed-in players edit their own base primary attributes,
+  gold, Defense, and today's fishing casts used (0 through the daily cast
+  limit). Current and maximum HP are read-only. Changing base Fortitude
+  refills current HP to its new cap, including allocated Fortitude. Saving
+  other changes preserves current HP. Admin has no separate role check. Keep
+  it out of authorization decisions for other features.
 
 ## Git, environment, and safety
 

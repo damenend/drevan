@@ -1,3 +1,7 @@
+import {
+  getPrimaryAttributes,
+  getSpentPoints,
+} from "../../services/character-stats";
 import { Router } from "express";
 import { requireAuth } from "../../middleware/auth";
 import { and, eq, gt, asc } from "drizzle-orm";
@@ -79,10 +83,8 @@ router.get("/", (req, res) => {
     equipped,
     inventory: playerInventory.filter((item) => item.quantity > 0),
     effectiveStats: applyEquipmentBonuses(player, equipped),
-    progression: getProgression(
-      player.exp,
-      player.strengthPoints + player.speedPoints + player.maxHpPoints,
-    ),
+    attributes: getPrimaryAttributes(player),
+    progression: getProgression(player.exp, getSpentPoints(player)),
     statAllocations,
     message:
       typeof req.query.message === "string" ? req.query.message : undefined,

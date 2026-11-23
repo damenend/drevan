@@ -78,6 +78,20 @@
       "when": 1795465229422,
       "tag": "0010_ruins",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1795471089097,
+      "tag": "0011_fortitude",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1795471897995,
+      "tag": "0012_fortitude_health",
+      "breakpoints": true
     }
   ]
 }

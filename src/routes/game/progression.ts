@@ -2,6 +2,7 @@ import { Router } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
+import { getSpentPoints, maximumHp } from "../../services/character-stats";
 import {
   getProgression,
   isAllocationStat,
@@ -25,28 +26,30 @@ router.post("/", (req, res) => {
         .select({
           exp: users.exp,
           strength: users.strength,
-          speed: users.speed,
-          maxHp: users.maxHp,
+          agility: users.agility,
+          intellect: users.intellect,
+          fortitude: users.fortitude,
           strengthPoints: users.strengthPoints,
-          speedPoints: users.speedPoints,
-          maxHpPoints: users.maxHpPoints,
+          agilityPoints: users.agilityPoints,
+          intellectPoints: users.intellectPoints,
+          fortitudePoints: users.fortitudePoints,
+          nextMaxHp: maximumHp(
+            sql`(${users.fortitude} + ${users.fortitudePoints} + 1)`,
+          ),
         })
         .from(users)
         .where(eq(users.id, id))
         .get();
       if (!player) return "Player not found.";
 
-      const spent =
-        player.strengthPoints + player.speedPoints + player.maxHpPoints;
-      if (!getProgression(player.exp, spent).unspentPoints) {
+      if (!getProgression(player.exp, getSpentPoints(player)).unspentPoints) {
         return "You have no points to spend.";
       }
-      const purchasedPoints = player[pointColumn] + 1;
-      if (
-        !Number.isSafeInteger(
-          player[stat] + purchasedPoints * statAllocations[stat].amount,
-        )
-      ) {
+      const nextValue =
+        stat === "fortitude"
+          ? player.nextMaxHp
+          : player[stat] + player[pointColumn] + 1;
+      if (!Number.isSafeInteger(nextValue)) {
         return "That stat is already at its limit.";
       }
 

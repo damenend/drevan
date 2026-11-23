@@ -560,6 +560,15 @@ healing. Note when a harder dummy feels worth trying and when repeating the
 same fight starts to feel slow. Use those observations to decide whether to
 test a different XP curve or a less aggressive path to harder dummies.
 
+## Fortitude compatibility
+
+Fortitude replaces the direct HP allocation recorded in the historical
+playtests. Characters start with 5 Fortitude and 25 HP. One AP still adds
+3 max HP, and Agility carries forward the former
+Speed stat one-for-one. Intellect has no combat effect. Existing simulations
+can use the same combat inputs because this refactor preserves the health
+and timing of an equivalent build.
+
 ## Ruins Floor 1 baseline
 
 Coordinates use (0, 0) at the upper-left entrance. These encounters appear on arrival. Move away and return to repeat a discovery or receive another enemy offer.
