@@ -96,3 +96,73 @@ intended to become reliable once a player is equipped.
   quickly someone can afford gear or recover after a loss.
 - Keep deterministic rule checks in the [battle unit tests](../tests/battle.test.ts).
   Record balance decisions with the matchups that support them in this guide.
+
+## Combat stat audit
+
+Run this from the repository root after `nvm use`.
+
+```sh
+node --import tsx scripts/audit-battle.ts > /tmp/drevan-battle-audit.csv
+```
+
+Expect 462 data rows, each summarized from 5,000 fights using seeds 1–5,000.
+Every matchup repeats with the build in each fighter slot. The audit starts at
+full HP and uses dummies 3–6, a starter mirror, a slow heavy opponent, and a
+quick opponent. The CSV includes win, loss, and draw counts, mean remaining HP
+on wins, per-side attack and critical counts, and rolled damage (including any
+damage beyond the target's remaining HP). Mean duration uses the simulator
+clock, where a Speed 1 attack interval is 100. It measures combat pacing in the
+rules. Every draw in this full-HP matrix would represent a fight reaching the
+1,000-attack cap. No fights reached it.
+
+The starter has 25 HP, 5 Strength, 5 Speed, and 0 Defense. The balanced build
+adds one of each. The specialized builds each add four to one stat. These
+equal numerical increases are a diagnostic. Progression point costs and HP
+gains still need to be designed.
+
+### Live baseline
+
+The table shows win rates with the tested build in the player slot.
+
+| Build       | Dummy 4 | Dummy 5 | Heavy | Quick |
+| ----------- | ------: | ------: | ----: | ----: |
+| Starter     |   70.4% |    0.5% |  2.5% | 41.0% |
+| +4 Strength |    100% |   79.4% | 96.6% | 99.9% |
+| +4 Speed    |    100% |   74.7% | 85.0% |  100% |
+| +4 Defense  |   98.8% |    6.7% | 29.6% | 97.0% |
+| +4 HP       |   95.2% |    1.9% | 20.5% | 82.9% |
+| Balanced    |   93.9% |   34.8% | 61.8% | 96.4% |
+
+- Against dummy 4, +1 Strength raised the win rate from 70.4% to 89.7% and
+  cut the average fight from 11.59 to 10.55 attacks. +1 HP raised it to 79.4%.
+  +1 Defense produced identical results to the starter because of damage
+  rounding in this matchup. +1 Speed raised wins to 72.2% and shortened mean
+  duration from 102.98 to 90.63 clock units.
+- Strength and Speed opened the clearest path through dummy 5. Defense and
+  HP helped substantially against the quick foe, where surviving more hits
+  gave the build more chances to answer. Even the specialized builds won
+  fewer than 1% of dummy 6 fights.
+- In the starter mirror, the same build won 70.4% in the player slot and
+  29.6% in the enemy slot. The player averaged 6.15 attacks and the enemy
+  averaged 5.45. The opening roll is even in this matchup. Later attacks
+  are due at the same times, and repeated player-first ties let the player
+  land a lethal hit before the opponent can respond.
+
+### One-rule experiments
+
+- **Critical hits.** Turning off critical hits on both sides raised the
+  unequipped dummy 4 win rate from 70.4% to 71.8% and lowered the equipped
+  dummy 5 win rate from 20.7% to 15.1%. Critical hits can swing close fights
+  in either direction. The audit keeps the same seed and consumes the
+  critical roll even when its chance is zero.
+- **Speed.** The candidate curve uses `5 * sqrt(Speed / 5)` above Speed 5 and
+  applies to both initiative and attack frequency. Against dummy 5, the
+  +4 Speed build's opening odds fell from 60.0% to 55.1%, its attack count
+  fell from 7.40 to 6.45, and the slower dummy's rose from 4.70 to 5.43.
+  The build's win rate fell from 74.7% to 34.2%. Against the quick opponent,
+  the starter's win rate rose from 41.0% to 96.2%. Both sides use the curve,
+  so fast enemies can lose much of their advantage too.
+
+Keep the live rules for this pass. Test a slot-neutral timing tie rule on
+the same seeded matrix next. Then reassess Speed and compare larger HP
+increments with Strength and Defense before pricing progression points.

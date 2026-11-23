@@ -37,6 +37,7 @@ export type BattleResult = {
   playerHp: number;
   enemyHp: number;
   goldEarned: number;
+  elapsedTime: number;
 };
 
 export const MAX_TRAINING_LEVEL = 100;
@@ -67,16 +68,20 @@ type DamageResult = {
   critical: boolean;
 };
 
-function generateDamage(strength: number, defense: number): DamageResult {
+function generateDamage(
+  strength: number,
+  defense: number,
+  random: () => number,
+  criticalChance: number,
+): DamageResult {
   const maxDamage = Math.max(1, strength);
   const minDamage = Math.ceil(maxDamage * 0.5);
 
   // Generate base damage
-  let damage =
-    Math.floor(Math.random() * (maxDamage - minDamage + 1)) + minDamage;
+  let damage = Math.floor(random() * (maxDamage - minDamage + 1)) + minDamage;
 
   // Determine whether this attack is critical
-  const critical = Math.random() < BASE_CRIT_CHANCE;
+  const critical = random() < criticalChance;
 
   if (critical) {
     damage = Math.ceil(damage * CRIT_MULTIPLIER);
@@ -103,12 +108,21 @@ function createBattleState(combatant: Combatant) {
  * The simulation leaves the input combatants and database unchanged.
  *
  * @param goldReward - Gold included in the result if the player wins.
- * @returns The battle log, starting and remaining HP, and gold earned.
+ * @param options - Playtest overrides for the random source and per-hit critical chance.
+ * @returns Battle log, HP totals, gold earned, and the last attack's time on the
+ * simulator clock (an interval of 100 at Speed 1).
  */
 export function simulateBattle(
   player: Combatant,
   enemy: Combatant,
   goldReward = 0,
+  {
+    random = Math.random,
+    criticalChance = BASE_CRIT_CHANCE,
+  }: {
+    random?: () => number;
+    criticalChance?: number;
+  } = {},
 ): BattleResult {
   const combatants = {
     player: createBattleState(player),
@@ -121,8 +135,9 @@ export function simulateBattle(
     combatants.player.speed /
     (combatants.player.speed + combatants.enemy.speed);
   const firstAttacker: Actor =
-    Math.random() < playerInitiativeChance ? "player" : "enemy";
+    random() < playerInitiativeChance ? "player" : "enemy";
 
+  let elapsedTime = 0;
   for (let attackCount = 0; attackCount < MAX_ATTACKS; attackCount++) {
     if (combatants.player.hp <= 0 || combatants.enemy.hp <= 0) break;
 
@@ -138,9 +153,12 @@ export function simulateBattle(
     const { damage, critical } = generateDamage(
       attacker.strength,
       defender.defense,
+      random,
+      criticalChance,
     );
 
     defender.hp = Math.max(0, defender.hp - damage);
+    elapsedTime = attacker.nextAttack;
     attacker.nextAttack += attacker.attackInterval;
 
     battleLog.push({
@@ -184,5 +202,6 @@ export function simulateBattle(
     playerHp,
     enemyHp,
     goldEarned,
+    elapsedTime,
   };
 }

@@ -25,7 +25,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 ### 1. Finish equipment effectiveness playtesting (P0 · Small)
 
 - **Status.** Complete. The Rusted Sword stays at +1 Strength. Worn Leather Armor now grants +3 Defense so it can preserve HP against starter opponents.
-- **Results.** With both pieces equipped, the starter won 97.5% of level 4 fights and 21.6% of level 5 fights. The [battle playtest guide](battle-playtesting.md) records the comparison, rules, and rerun command.
+- **Results.** With both pieces equipped, the starter won 99.5% of level 4 fights and 21.6% of level 5 fights. The [battle playtest guide](battle-playtesting.md) records the comparison, rules, and rerun command.
 
 ### 2. Add basic fishing (P0 · Small)
 
@@ -41,7 +41,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 4. Combat stat audit and balancing (P0 · Medium)
 
-- **Status.** Next active milestone.
+- **Status.** In progress. The [first audit pass](battle-playtesting.md#combat-stat-audit) documents the live baseline, slot bias, and a trial Speed curve. Isolate the attack timing tie rule next.
 - **Dependencies.** Starter equipment playtest (1) and the existing battle simulator.
 - **Scope.** Compare Strength, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Use controlled or seeded rolls. Measure win rate, HP remaining, total attacks, encounter duration, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to test the current tie rule, which favors the player on equal attack times.
 - **Done when.** Results document where stats and combinations excel, including timing bias and low-impact bonuses. Tune one rule or bonus at a time and rerun the same matchups before expanding progression or PvE encounters.

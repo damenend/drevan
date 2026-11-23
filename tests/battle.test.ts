@@ -108,3 +108,25 @@ test("combat ends in a draw after 1,000 attacks and damage stays at least 1", (t
   });
   assert.equal(result.goldEarned, 0);
 });
+
+test("playtest overrides preserve roll order and report simulated duration", () => {
+  const rolls = [0.75, 0, 0, 0, 0, 0, 0];
+  const result = simulateBattle(
+    { ...player, hp: 10 },
+    { ...enemy, hp: 10 },
+    0,
+    { random: () => rolls.shift() ?? 0, criticalChance: 0 },
+  );
+  const attacks = result.battleLog.filter((entry) => entry.type === "attack");
+
+  assert.deepEqual(
+    attacks.map(({ actor, damage, critical }) => [actor, damage, critical]),
+    [
+      ["enemy", 5, false],
+      ["player", 5, false],
+      ["player", 5, false],
+    ],
+  );
+  assert.equal(rolls.length, 0);
+  assert.equal(result.elapsedTime, 100);
+});
