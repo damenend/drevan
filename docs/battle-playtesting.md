@@ -105,7 +105,7 @@ Run this from the repository root after `nvm use`.
 node --import tsx scripts/audit-battle.ts > /tmp/drevan-battle-audit.csv
 ```
 
-Expect 792 data rows, each summarized from 5,000 fights using seeds 1–5,000.
+Expect 1,350 data rows, each summarized from 5,000 fights using seeds 1–5,000.
 Every matchup repeats with the build in each fighter slot. The audit starts at
 full HP and uses dummies 1–6, a starter mirror, a slow heavy opponent, and a
 quick opponent. The CSV includes win, loss, and draw counts, mean remaining HP
@@ -220,5 +220,53 @@ when it takes away a timing advantage from the dummy.
 The audit supports keeping random ties as a candidate at current training
 payouts. If the goal is for equipped players to earn meaningfully more at
 level 4 than at level 3, test that margin in a timed training session.
-For progression, use the candidate timing rule to reassess Speed and test
-larger HP increments against Strength and Defense.
+
+### Stat allocation trial with random ties
+
+The following rows use random timing ties and the live Speed formula. For
+the HP budget, compare +2 or +3 max HP for one point with +1 to another
+stat. At four points, compare +8 or +12 max HP with +4 to another stat.
+These are candidate exchange rates. Every build starts at full HP.
+
+| Candidate investment | Level 4 wins | Level 5 wins | Heavy wins | Quick wins | Level 4 net gold |
+| -------------------- | -----------: | -----------: | ---------: | ---------: | ---------------: |
+| Starter              |        49.6% |         0.4% |       2.7% |      39.4% |            -3.29 |
+| +1 Strength          |        72.6% |         3.3% |      10.6% |      62.1% |             7.64 |
+| +1 Speed             |        84.1% |         4.8% |      24.5% |      79.5% |            12.44 |
+| +1 Defense           |        49.6% |         0.4% |       2.7% |      39.4% |            -3.29 |
+| +2 HP                |        67.4% |         0.7% |       9.2% |      60.0% |             3.10 |
+| +3 HP                |        75.0% |         0.9% |      14.5% |      69.2% |             5.90 |
+| +4 Strength          |        99.8% |        79.1% |      88.7% |      99.9% |            25.62 |
+| +4 Speed             |         100% |        70.6% |      91.4% |      99.9% |            25.58 |
+| +4 Defense           |        94.1% |         6.2% |      29.6% |      92.7% |            19.06 |
+| +8 HP                |        96.5% |         6.2% |      54.7% |      94.4% |            14.01 |
+| +12 HP               |        99.8% |        23.6% |      81.2% |      99.3% |            15.26 |
+
+Start further allocation tests at +3 max HP per point. That bonus was
+competitive with +1 Strength for surviving the level 4, heavy, and quick
+matchups. Even +12 HP fell behind offensive builds against level 5. When
+the player loses, Sanctum charges for the extra missing HP as well. The
+starter with +12 HP won almost every level 4 fight yet kept less gold than
+the +4 Defense build, which reduced the damage taken per hit. +1 Defense
+still left the level 4 result unchanged, so direct Defense allocation
+needs a separate look at when it starts reducing actual damage.
+
+### Speed curve with random ties
+
+Compare `random-ties` with `random-ties-speed-curve` to isolate the existing
+square-root Speed candidate under the same tie policy and seeds.
+
+| Matchup                 | Random ties | Random ties with Speed curve |
+| ----------------------- | ----------: | ---------------------------: |
+| +4 Speed vs. level 5    |       70.6% |                        34.2% |
+| +4 Speed vs. heavy      |       91.4% |                        38.3% |
+| Starter vs. quick       |       39.4% |                        96.2% |
+| +4 Strength vs. level 5 |       79.1% |                        79.4% |
+
+With the curve, the +4 Speed build went from 7.27 to 6.45 attacks per
+level 5 fight, and the dummy went from 4.86 to 5.43. The Speed build's net
+gold there went from +13.24 to -6.88. The heavy and quick results show how
+much the same curve changes the roles of different enemies. Keep the
+current Speed formula for the next allocation tests. Compare +3 HP in
+mixed builds, and test Defense around the points where one more point
+actually reduces damage.

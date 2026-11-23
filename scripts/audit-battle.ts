@@ -12,10 +12,14 @@ const builds: Combatant[] = [
   { ...starter, name: "speed-1", speed: 6 },
   { ...starter, name: "defense-1", defense: 1 },
   { ...starter, name: "hp-1", hp: 26 },
+  { ...starter, name: "hp-2", hp: 27 },
+  { ...starter, name: "hp-3", hp: 28 },
   { ...starter, name: "strength-4", strength: 9 },
   { ...starter, name: "speed-4", speed: 9 },
   { ...starter, name: "defense-4", defense: 4 },
   { ...starter, name: "hp-4", hp: 29 },
+  { ...starter, name: "hp-8", hp: 33 },
+  { ...starter, name: "hp-12", hp: 37 },
   { name: "balanced-4", hp: 26, strength: 6, speed: 6, defense: 1 },
   { ...starter, name: "equipped", strength: 6, defense: 3 },
 ];
@@ -32,7 +36,13 @@ const opponents: (Combatant & { trainingLevel?: number })[] = [
 ];
 
 const fights = 5000;
-const rules = ["live", "no-crits", "speed-curve", "random-ties"] as const;
+const rules = [
+  { name: "live" },
+  { name: "no-crits", criticalChance: 0 },
+  { name: "speed-curve", speedCurve: true },
+  { name: "random-ties", randomTies: true },
+  { name: "random-ties-speed-curve", randomTies: true, speedCurve: true },
+];
 
 /** Applies the roadmap's candidate Speed curve to initiative and attack intervals. */
 function withSpeedCurve(fighter: Combatant): Combatant {
@@ -52,10 +62,9 @@ for (const rule of rules) {
       for (const slot of ["player", "enemy"] as const) {
         const [player, enemy] =
           slot === "player" ? [build, opponent] : [opponent, build];
-        const fighters =
-          rule === "speed-curve"
-            ? ([withSpeedCurve(player), withSpeedCurve(enemy)] as const)
-            : ([player, enemy] as const);
+        const fighters = rule.speedCurve
+          ? ([withSpeedCurve(player), withSpeedCurve(enemy)] as const)
+          : ([player, enemy] as const);
         // Model the training route only when the tested build is the player.
         const trainingLevel =
           slot === "player" ? opponent.trainingLevel : undefined;
@@ -72,9 +81,10 @@ for (const rule of rules) {
         for (let seed = 1; seed <= fights; seed++) {
           const result = simulateBattle(...fighters, goldReward, {
             random: seededRandom(seed),
-            criticalChance: rule === "no-crits" ? 0 : undefined,
-            rollTimingTie:
-              rule === "random-ties" ? seededRandom(seed + fights) : undefined,
+            criticalChance: rule.criticalChance,
+            rollTimingTie: rule.randomTies
+              ? seededRandom(seed + fights)
+              : undefined,
           });
           const [buildHp, opponentHp] =
             slot === "player"
@@ -105,7 +115,7 @@ for (const rule of rules) {
         const mean = (total: number) => (total / fights).toFixed(2);
         console.log(
           [
-            rule,
+            rule.name,
             build.name,
             opponent.name,
             slot,
