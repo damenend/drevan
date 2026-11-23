@@ -31,7 +31,7 @@ const opponents: Combatant[] = [
 ];
 
 const fights = 5000;
-const rules = ["live", "no-crits", "speed-curve"] as const;
+const rules = ["live", "no-crits", "speed-curve", "random-ties"] as const;
 
 /** Applies the roadmap's candidate Speed curve to initiative and attack intervals. */
 function withSpeedCurve(fighter: Combatant): Combatant {
@@ -66,6 +66,8 @@ for (const rule of rules) {
           const result = simulateBattle(...fighters, 0, {
             random: seededRandom(seed),
             criticalChance: rule === "no-crits" ? 0 : undefined,
+            rollTimingTie:
+              rule === "random-ties" ? seededRandom(seed + fights) : undefined,
           });
           const [buildHp, opponentHp] =
             slot === "player"

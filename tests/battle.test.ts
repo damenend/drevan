@@ -130,3 +130,23 @@ test("playtest overrides preserve roll order and report simulated duration", () 
   assert.equal(rolls.length, 0);
   assert.equal(result.elapsedTime, 100);
 });
+
+test("the timing trial rolls at later ties, including rounded intervals", (t) => {
+  const rollTimingTie = t.mock.fn(() => 0.75);
+  const result = simulateBattle(
+    { ...player, speed: 3, hp: 25 },
+    { ...enemy, speed: 9 },
+    0,
+    { random: () => 0, criticalChance: 0, rollTimingTie },
+  );
+  const attacks = result.battleLog.filter((entry) => entry.type === "attack");
+
+  // At 100 / 3, the enemy's fourth attack and the player's second are due.
+  // The enemy wins the tie and lands the fifth hit before the next player attack.
+  assert.deepEqual(
+    attacks.map(({ actor }) => actor),
+    ["player", "enemy", "enemy", "enemy", "enemy", "player", "enemy"],
+  );
+  assert.equal(rollTimingTie.mock.callCount(), 1);
+  assert.equal(result.playerHp, 0);
+});

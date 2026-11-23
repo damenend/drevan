@@ -41,7 +41,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 4. Combat stat audit and balancing (P0 · Medium)
 
-- **Status.** In progress. The [first audit pass](battle-playtesting.md#combat-stat-audit) documents the live baseline, slot bias, and a trial Speed curve. Isolate the attack timing tie rule next.
+- **Status.** In progress. The [combat audit](battle-playtesting.md#combat-stat-audit) documents the live baseline and trials for critical hits, Speed, and timing ties. The random tie trial brought identical fighters close to even. Compare its effect on training rewards after healing before adopting it.
 - **Dependencies.** Starter equipment playtest (1) and the existing battle simulator.
 - **Scope.** Compare Strength, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Use controlled or seeded rolls. Measure win rate, HP remaining, total attacks, encounter duration, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to test the current tie rule, which favors the player on equal attack times.
 - **Done when.** Results document where stats and combinations excel, including timing bias and low-impact bonuses. Tune one rule or bonus at a time and rerun the same matchups before expanding progression or PvE encounters.

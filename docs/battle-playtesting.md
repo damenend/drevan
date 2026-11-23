@@ -105,7 +105,7 @@ Run this from the repository root after `nvm use`.
 node --import tsx scripts/audit-battle.ts > /tmp/drevan-battle-audit.csv
 ```
 
-Expect 462 data rows, each summarized from 5,000 fights using seeds 1–5,000.
+Expect 616 data rows, each summarized from 5,000 fights using seeds 1–5,000.
 Every matchup repeats with the build in each fighter slot. The audit starts at
 full HP and uses dummies 3–6, a starter mirror, a slow heavy opponent, and a
 quick opponent. The CSV includes win, loss, and draw counts, mean remaining HP
@@ -163,6 +163,33 @@ The table shows win rates with the tested build in the player slot.
   the starter's win rate rose from 41.0% to 96.2%. Both sides use the curve,
   so fast enemies can lose much of their advantage too.
 
-Keep the live rules for this pass. Test a slot-neutral timing tie rule on
-the same seeded matrix next. Then reassess Speed and compare larger HP
-increments with Strength and Defense before pricing progression points.
+### Timing tie trial
+
+The `random-ties` run keeps the opening Speed-weighted roll and the same
+attack intervals. When two later attacks are due together, an even coin
+flip decides who goes first. The simulator treats tiny differences from
+floating-point rounding as ties. The tie rolls have their own seed stream
+so they leave the sequence of initiative, damage, and critical rolls intact.
+If a fighter dies on the first hit at a shared time, its pending attack is
+lost, just as in live combat.
+
+| Player-slot matchup  | Live win rate | Random ties | Live HP on wins | Random ties HP on wins |
+| -------------------- | ------------: | ----------: | --------------: | ---------------------: |
+| Starter mirror       |         70.4% |       49.6% |            4.17 |                   3.80 |
+| Starter vs. dummy 3  |          100% |        100% |           12.84 |                  12.38 |
+| Starter vs. dummy 4  |         70.4% |       49.6% |            4.17 |                   3.80 |
+| Equipped vs. dummy 4 |         99.4% |       96.0% |            8.43 |                   6.98 |
+| Equipped vs. dummy 5 |         20.7% |       13.6% |            3.21 |                   3.10 |
+| +4 Speed vs. dummy 5 |         74.7% |       70.6% |            4.86 |                   4.14 |
+
+The enemy-slot mirror won 50.4% of the trial fights. Both slots averaged
+5.78 attacks, compared with 6.15 for the player and 5.45 for the enemy in
+the live baseline. Mean fight duration moved from 102.98 to 102.72 clock
+units. The trial brought the slots close to even with little change in pace.
+The equipped starter still won most level 4 fights, with about 1.45 less
+HP left on wins. That matters for the cost of repeated training.
+
+Keep random ties as a candidate for shared combat. Before adopting it, compare
+training rewards after healing under the candidate, then use that timing rule
+to reassess Speed and test larger HP increments against Strength and Defense
+for progression.

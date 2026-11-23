@@ -104,11 +104,28 @@ function createBattleState(combatant: Combatant) {
 }
 
 /**
+ * Picks the earlier attack. An optional independent roll resolves later ties,
+ * including times that differ only because of accumulated floating-point error.
+ */
+function nextAttacker(
+  playerTime: number,
+  enemyTime: number,
+  rollTimingTie?: () => number,
+): Actor {
+  const tolerance = Math.max(playerTime, enemyTime) * 1e-12;
+  if (rollTimingTie && Math.abs(playerTime - enemyTime) <= tolerance) {
+    return rollTimingTie() < 0.5 ? "player" : "enemy";
+  }
+  return playerTime <= enemyTime ? "player" : "enemy";
+}
+
+/**
  * Resolves a fight and records each attack for the battle log.
  * The simulation leaves the input combatants and database unchanged.
  *
  * @param goldReward - Gold included in the result if the player wins.
- * @param options - Playtest overrides for the random source and per-hit critical chance.
+ * @param options - Playtest overrides for combat rolls, critical chance, and a separate
+ * random source for resolving ties after the opening attack.
  * @returns Battle log, HP totals, gold earned, and the last attack's time on the
  * simulator clock (an interval of 100 at Speed 1).
  */
@@ -119,9 +136,11 @@ export function simulateBattle(
   {
     random = Math.random,
     criticalChance = BASE_CRIT_CHANCE,
+    rollTimingTie,
   }: {
     random?: () => number;
     criticalChance?: number;
+    rollTimingTie?: () => number;
   } = {},
 ): BattleResult {
   const combatants = {
@@ -145,9 +164,11 @@ export function simulateBattle(
     const actor: Actor =
       attackCount === 0
         ? firstAttacker
-        : combatants.player.nextAttack <= combatants.enemy.nextAttack
-          ? "player"
-          : "enemy";
+        : nextAttacker(
+            combatants.player.nextAttack,
+            combatants.enemy.nextAttack,
+            rollTimingTie,
+          );
     const attacker = combatants[actor];
     const defender = combatants[actor === "player" ? "enemy" : "player"];
     const { damage, critical } = generateDamage(
@@ -158,7 +179,7 @@ export function simulateBattle(
     );
 
     defender.hp = Math.max(0, defender.hp - damage);
-    elapsedTime = attacker.nextAttack;
+    elapsedTime = Math.max(elapsedTime, attacker.nextAttack);
     attacker.nextAttack += attacker.attackInterval;
 
     battleLog.push({
