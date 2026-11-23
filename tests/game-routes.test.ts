@@ -596,6 +596,16 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   const start = await viewRuins();
   assert.equal(start.status, 200);
   assert.match(start.html, /Position \(0, 0\)/);
+  assert.match(start.html, /aria-label="Move to \(1, 0\), gold discovery">G</);
+  assert.equal(
+    (start.html.match(/ruins-tile--item" aria-hidden="true">I</g) ?? []).length,
+    1,
+  );
+  assert.equal(
+    (start.html.match(/ruins-tile--enemy" aria-hidden="true">X</g) ?? [])
+      .length,
+    3,
+  );
   assert.equal((start.html.match(/class="ruins-tile/g) ?? []).length, 49);
   assert.equal((start.html.match(/name="destination"/g) ?? []).length, 2);
   assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);

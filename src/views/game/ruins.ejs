@@ -10,11 +10,6 @@
       height: 887,
     },
   }) %>
-  <% } else { %>
-  <%- include("../partials/location-image", {
-    src: "/images/drevan-ruins-interior.webp",
-    caption: "Blue crystals light the stone passage.",
-  }) %>
   <% } %>
   <% if (message) { %>
   <p<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %> role="status">
@@ -43,18 +38,21 @@
   <% } %>
 
   <div class="ruins-sections">
-    <section aria-labelledby="ruins-floor">
+    <section class="ruins-exploration" aria-labelledby="ruins-floor">
       <h3 id="ruins-floor">Floor 1</h3>
-      <p>Position (<%= position % size %>, <%= Math.floor(position / size) %>). P marks your position. E marks the exit.<% if (nextFloorMarker !== null) { %> 2 marks the Floor 2 entrance.<% } %></p>
+      <p>Position (<%= position % size %>, <%= Math.floor(position / size) %>)</p>
+      <% const eventMarkers = { gold: ["G", "gold discovery"], item: ["I", "item discovery"], enemy: ["X", "enemy encounter"] }; %>
       <form class="ruins-map" action="/game/ruins/action" method="post" aria-label="Move to an adjacent square">
         <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
         <input type="hidden" name="action" value="move">
         <% for (let tile = 0; tile < size ** 2; tile++) { %>
         <% const label = `(${tile % size}, ${Math.floor(tile / size)})`; %>
-        <% const marker = (tile === position ? "P" : "") + (tile === entrance ? "E" : tile === nextFloorMarker ? "2" : ""); %>
-        <% const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : "") + (tile === position ? " ruins-tile--player" : ""); %>
+        <% const eventKind = getEventMarker(tile); %>
+        <% const [symbol, description] = tile === entrance ? ["E", "entrance and exit"] : tile === nextFloorMarker ? ["2", "Floor 2 entrance"] : eventMarkers[eventKind] ?? ["", ""]; %>
+        <% const marker = (tile === position ? "P" : "") + symbol; %>
+        <% const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : eventKind ? " ruins-tile--" + eventKind : "") + (tile === position ? " ruins-tile--player" : ""); %>
         <% if (canMove(position, tile)) { %>
-        <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move to <%= label %><%= tile === entrance ? ', entrance and exit' : tile === nextFloorMarker ? ', Floor 2 entrance' : '' %>"><%= marker %></button>
+        <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move to <%= label %><%= description ? ', ' + description : '' %>"><%= marker %></button>
         <% } else { %>
         <span class="<%= style %>" aria-hidden="true"><%= marker %></span>
         <% } %>
@@ -76,9 +74,10 @@
         <% } %>
       </form>
       <% } %>
+      <p class="ruins-map-legend">P: Player · E: Exit<% if (nextFloorMarker !== null) { %> · 2: Floor 2<% } %> · G: Gold · I: Item · X: Enemy</p>
     </section>
 
-    <div>
+    <div class="ruins-controls">
       <section aria-labelledby="ruins-character">
         <h3 id="ruins-character">Character</h3>
         <dl>
@@ -129,5 +128,10 @@
     <%- include("../partials/battle-log", battle) %>
   </section>
   <% } %>
+
+  <%- include("../partials/location-image", {
+    src: "/images/drevan-ruins-interior.webp",
+    caption: "Blue crystals light the stone passage.",
+  }) %>
   <% } %>
 </section>

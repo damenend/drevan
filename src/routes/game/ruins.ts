@@ -36,6 +36,8 @@ router.get("/", (req, res) => {
     atNextFloor,
     // After manual playtesting, reveal the marker only while standing on it.
     nextFloorMarker: RUINS_NEXT_FLOOR,
+    // Remove event markers after manual playtesting.
+    getEventMarker: (tile: number) => getRuinsEncounter(tile)?.kind,
     emptySquare:
       position !== null &&
       position !== RUINS_ENTRANCE &&

@@ -1,13 +1,35 @@
 @use "vars";
 
 .ruins-sections {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 1rem 2rem;
+  grid-template-areas:
+    "map"
+    "controls";
+
+  @media (min-width: 44rem) {
+    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+    grid-template-areas: "map controls";
+  }
 }
 
 .ruins-sections > * {
   min-width: 0;
+}
+
+.ruins-exploration {
+  grid-area: map;
+  justify-self: center;
+  width: min(100%, 21rem);
+}
+
+.ruins-controls {
+  grid-area: controls;
+}
+
+.ruins-map-legend {
+  color: vars.$color-muted;
+  font-size: 0.875rem;
 }
 
 .ruins-map {
@@ -34,6 +56,15 @@
 
   &--stairs {
     border-color: vars.$color-blue;
+  }
+
+  &--gold,
+  &--item {
+    border-color: vars.$color-primary;
+  }
+
+  &--enemy {
+    border-color: vars.$color-red;
   }
 
   &--player {

@@ -415,13 +415,34 @@ img {
 }
 
 .ruins-sections {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 1rem 2rem;
+  grid-template-areas: "map" "controls";
+}
+@media (min-width: 44rem) {
+  .ruins-sections {
+    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+    grid-template-areas: "map controls";
+  }
 }
 
 .ruins-sections > * {
   min-width: 0;
+}
+
+.ruins-exploration {
+  grid-area: map;
+  justify-self: center;
+  width: min(100%, 21rem);
+}
+
+.ruins-controls {
+  grid-area: controls;
+}
+
+.ruins-map-legend {
+  color: #999999;
+  font-size: 0.875rem;
 }
 
 .ruins-map {
@@ -447,6 +468,12 @@ img {
 }
 .ruins-map .ruins-tile--stairs {
   border-color: #54bdff;
+}
+.ruins-map .ruins-tile--gold, .ruins-map .ruins-tile--item {
+  border-color: #b58b4c;
+}
+.ruins-map .ruins-tile--enemy {
+  border-color: #ff5454;
 }
 .ruins-map .ruins-tile--player {
   background: #b58b4c;
