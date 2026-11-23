@@ -43,6 +43,13 @@
       "when": 1795406819077,
       "tag": "0005_red_madame_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1795409658830,
+      "tag": "0006_optional_item_prices",
+      "breakpoints": true
     }
   ]
 }

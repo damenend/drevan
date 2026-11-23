@@ -29,11 +29,13 @@ Expected locations (verify before editing):
 - `src/app.ts`: Express setup, middleware, session, routing
 - `src/db/schema.ts`: Drizzle tables, constraints, and foreign keys
 - `src/db/index.ts`: SQLite / Drizzle connection
-- `src/db/seed.ts`: starter item catalog. Inserts new item names and updates matching rows.
+- `src/db/seed.ts`: starter item and fish catalog. Inserts new item names and updates matching rows.
 - `src/middleware/auth.ts`: load the signed-in player and protect game routes
 - `src/routes/`: public and authentication routes
 - `src/routes/game/`: arena, training, hospital, store, admin, and inventory routes. The inventory router handles consumable use and equipment.
 - `src/services/`: battle simulation and item effects shared by route handlers
+- `src/services/fishing.ts`: catch rolls, the daily cast limit, and the Central
+  calendar date shared by The Driftwater and Admin
 - `src/utils/format-number.ts`: shared display-number formatter
 - `src/views/`: EJS layouts, partials, and pages
 - `src/scss/main.scss`: Sass entry point. Shared variables live in `src/scss/_vars.scss`.
@@ -54,6 +56,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - Seeded healing items are Lesser Potion (10 HP), Potion (50 HP), and Greater Potion (100 HP). Healing is capped at the player's missing HP. See `src/db/seed.ts` for item values.
 - The hospital, called **Sanctum**, heals missing HP at a cost of one gold per HP restored, with insufficient-funds handling.
 - The store is called **Curious Emporium**.
+- The item catalog includes items obtained outside the store. A null price
+  means the Emporium does not list or sell the item.
 - The arena is called **Dominion**.
 - The dashboard is **Home**.
 - **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on Home, Nexaris, Admin, and Logout.
@@ -63,6 +67,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   for the fish type (70% Murkfin, 25% Glassscale, 5% Astral Koi).
 - Players can cast 50 times per day at The Driftwater, including empty casts.
   The allowance resets at midnight in `America/Chicago`.
+- A successful catch adds one fish to inventory in the same transaction that
+  spends the cast.
 
 ### Combat
 
@@ -144,7 +150,10 @@ When changing behavior, review nearby comments for accuracy.
 - Use the shared error page for HTTP errors. Render expected route errors with `renderError` from `src/middleware/errors.ts`. Keep error copy safe for players to see.
 
 - `/game` and its child routes use the shared `requireAuth` middleware. The homepage and authentication endpoints are public. The Registry and player profiles at `/game/users/:id` require sign-in. The player pages expose game IDs, names, and levels. They display level 1 until XP progression is implemented.
-- The Admin page lets signed-in players edit only the following stats on their own account (gold, strength, speed, maximum HP, and Defense) and has no separate admin role check. Keep it out of authorization decisions for other features.
+- The Admin page lets signed-in players edit only these stats on their own
+  account: gold, strength, speed, maximum HP, Defense, and today's fishing casts
+  used (0 through the daily cast limit). It has no separate admin role check.
+  Keep it out of authorization decisions for other features.
 
 ## Git, environment, and safety
 
@@ -161,14 +170,18 @@ When changing behavior, review nearby comments for accuracy.
 
 - Run commands from the repository root. The app and seed script open `./data/game.sqlite`. Drizzle Kit reads `DATABASE_URL`, so point it at the same file for local development. Use `.env.example` as the starting point and supply a local `SESSION_SECRET`. `PORT` defaults to 3000.
 - For a fresh local database, create the `data/` directory, run `yarn db:migrate`, and run `yarn db:seed` to load the starter catalog. Rerunning the seed updates catalog entries by name.
-- After pulling changes to starter item stats, run `yarn db:seed` on your existing local database. The seed preserves item IDs, so owned and equipped copies use the updated bonuses.
+- After pulling item catalog changes, apply any new migrations before running
+  `yarn db:seed` on your existing local database. The Driftwater looks up caught
+  fish in the seeded catalog. The seed preserves item IDs, so owned and equipped
+  copies use any updated bonuses.
 - For schema changes, use `yarn db:generate` and review the SQL, snapshot, and journal together before applying the migration. Test on a disposable database when possible. If a database already has changes from `db:push`, check its migration history before running `db:migrate`.
 - See the [Drizzle cheatsheet](docs/drizzle-cheatsheet.md) for migration, seeding, and troubleshooting steps.
 
 ## Current development direction
 
 The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
-playtest and upcoming milestones. Follow the [battle playtest guide](docs/battle-playtesting.md)
+playtest and basic fishing. The next milestone is Emporium buyback for equipment
+and fish. Follow the [battle playtest guide](docs/battle-playtesting.md)
 to rerun seeded matchups and record balance decisions. The playtest script at
 `scripts/playtest-battle.ts` runs the shared simulator with fixed loadouts and
 writes CSV results without opening the local database.

@@ -2,6 +2,11 @@ import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
+import {
+  DAILY_CAST_LIMIT,
+  getDailyCastsUsed,
+  getFishingDate,
+} from "../../services/fishing";
 
 const router = Router();
 
@@ -11,15 +16,24 @@ const editableStats = [
   "speed",
   "maxHp",
   "defense",
+  "fishing_casts_used",
 ] as const;
 type EditableStat = (typeof editableStats)[number];
 
 // Admin page
 router.get("/", (req, res) => {
   const message = req.query.message;
+  const player = res.locals.user;
+  const castsUsed = getDailyCastsUsed(
+    player.fishingCastsUsed,
+    player.fishingCastDate,
+  );
+
   return res.render("game/admin", {
     title: "Admin",
     editableStats,
+    statValues: { ...player, fishing_casts_used: castsUsed },
+    dailyCastLimit: DAILY_CAST_LIMIT,
     message: message ?? null,
   });
 });
@@ -42,9 +56,21 @@ router.post("/", (req, res) => {
   for (const stat of editableStats) {
     if (!Object.hasOwn(requestedChanges, stat)) continue;
 
-    const parsedValue = Number(requestedChanges[stat]);
+    const value = requestedChanges[stat];
+    if (
+      stat === "fishing_casts_used" &&
+      (typeof value !== "string" || !/^\d+$/.test(value))
+    ) {
+      return res.redirect("/game/admin?message=err");
+    }
 
-    if (!Number.isSafeInteger(parsedValue) || parsedValue < 0) {
+    const parsedValue = Number(value);
+
+    if (
+      !Number.isSafeInteger(parsedValue) ||
+      parsedValue < 0 ||
+      (stat === "fishing_casts_used" && parsedValue > DAILY_CAST_LIMIT)
+    ) {
       return res.redirect("/game/admin?message=err");
     }
 
@@ -59,7 +85,14 @@ router.post("/", (req, res) => {
   // Update the logged-in player's stats
   const player = res.locals.user;
 
-  db.update(users).set(updates).where(eq(users.id, player.id)).run();
+  db.update(users)
+    .set({
+      ...updates,
+      fishing_cast_date:
+        updates.fishing_casts_used === undefined ? undefined : getFishingDate(),
+    })
+    .where(eq(users.id, player.id))
+    .run();
 
   return res.redirect("/game/admin?message=success");
 });

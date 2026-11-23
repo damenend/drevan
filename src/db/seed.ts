@@ -63,9 +63,39 @@ async function seed() {
     },
   ];
 
+  const fish: Item[] = [
+    {
+      name: "Murkfin",
+      description: "A common fish",
+      image: "/images/murkfin.webp",
+      price: null,
+      type: "fish",
+      effect: null,
+      effectValue: null,
+    },
+    {
+      name: "Glassscale",
+      description: "An uncommon fish",
+      image: "/images/glassscale.webp",
+      price: null,
+      type: "fish",
+      effect: null,
+      effectValue: null,
+    },
+    {
+      name: "Astral Koi",
+      description: "A rare fish",
+      image: "/images/astral-koi.webp",
+      price: null,
+      type: "fish",
+      effect: null,
+      effectValue: null,
+    },
+  ];
+
   await db
     .insert(items)
-    .values([...potions, ...weapons, ...armor])
+    .values([...potions, ...weapons, ...armor, ...fish])
     .onConflictDoUpdate({
       target: items.name,
       set: {

@@ -37,7 +37,7 @@ export const items = sqliteTable("items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull().unique(),
   description: text("description").notNull(),
-  price: integer("price").notNull(),
+  price: integer("price"),
   type: text("type").notNull().default("consumable"),
   effect: text("effect"),
   effectValue: integer("effect_value"),

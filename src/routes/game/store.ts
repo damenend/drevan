@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, eq, gte, sql, asc } from "drizzle-orm";
+import { and, eq, gte, sql, asc, isNotNull } from "drizzle-orm";
 import { db } from "../../db";
 import { users, items, inventory } from "../../db/schema";
 
@@ -7,7 +7,12 @@ const router = Router();
 
 // Store page
 router.get("/", (req, res) => {
-  const storeItems = db.select().from(items).orderBy(asc(items.price)).all();
+  const storeItems = db
+    .select()
+    .from(items)
+    .where(isNotNull(items.price))
+    .orderBy(asc(items.price))
+    .all();
 
   const errorMessage = req.query.err === "gold" ? "Not enough gold" : undefined;
 
@@ -67,7 +72,7 @@ router.post("/", (req, res) => {
       .where(eq(items.id, purchase.itemId))
       .get();
 
-    if (!item) {
+    if (!item || item.price === null) {
       return res.redirect("/game/store");
     }
 

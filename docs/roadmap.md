@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-Start with equipment playtesting, then add fishing and equipment buyback. Build small, independently playable features for a server-rendered, early-2000s science-fantasy RPG. Reuse the existing combat, inventory, and gold systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
+Equipment playtesting and basic fishing are complete. Next, add Curious Emporium buyback for equipment and caught fish. Build small, independently playable features for a server-rendered, early-2000s science-fantasy RPG. Reuse the existing combat, inventory, and gold systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
 | Priority | Focus                                     | Readiness                                               |
 | -------- | ----------------------------------------- | ------------------------------------------------------- |
@@ -27,15 +27,15 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 2. Add basic fishing (P0 · Small)
 
-- **Dependencies.** Nexaris, the existing gold balance, and training and Sanctum as comparison points.
-- **Scope.** Add one server-rendered fishing spot with a **Cast** action, common catches, occasional rare catches, and empty attempts. Automatically sell catches for modest gold.
-- **Done when.** Players can cast and see the outcome and payout. A short session helps pay for healing or starter gear, and its income has been compared with training after healing costs.
+- **Status.** Complete. Players can visit The Driftwater from Nexaris, cast, and see the result. A successful catch adds one fish to the corresponding inventory stack. Saving the fish and spending the cast happen in one transaction.
+- **Playtest rules.** Each cast has an 80% chance of a bite. Successful catches are 70% Murkfin, 25% Glassscale, and 5% Astral Koi. Players get 50 casts per day, including empty casts, with a midnight Central reset. Admin can edit today's casts used for playtesting.
+- **Next step.** Sell caught fish at Curious Emporium in milestone 3. Rods, reels, and bait are future ideas.
 
-### 3. Establish equipment buyback (P0 · Medium)
+### 3. Establish equipment and fish buyback (P0 · Medium)
 
-- **Dependencies.** Curious Emporium, inventory quantities, and equipped slots.
-- **Scope.** Buy back owned weapons and armor at guaranteed server-set gold values. Require players to unequip an item before selling that catalog item while equipped gear is tracked by catalog ID.
-- **Done when.** A valid sale deducts the selected quantity and credits gold together. Equipped gear, unowned items, and invalid quantities leave player state intact. Buyback prices establish the cash alternative to salvage.
+- **Dependencies.** Basic fishing (2), Curious Emporium, inventory quantities, and equipped slots.
+- **Scope.** Let players sell owned weapons, armor, and caught fish at server-set gold values. Set fish payouts separately from shop purchase prices so the Emporium can buy Murkfin, Glassscale, and Astral Koi from players without offering them for purchase. Require players to unequip gear before selling that catalog item while equipped gear is tracked by catalog ID.
+- **Done when.** A valid sale deducts the selected quantity and credits gold in one transaction. Equipped gear, unowned items, and invalid quantities leave player state intact. Compare fishing income with training after Sanctum healing costs, and use equipment buyback prices as the cash alternative to salvage.
 
 ## P1 — High: Near-term gameplay improvements
 
@@ -53,13 +53,13 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 6. Add material selling and inventory grouping (P1 · Medium)
 
-- **Dependencies.** Equipment buyback (3) and the starter reagents (5).
+- **Dependencies.** Emporium buyback (3) and the starter reagents (5).
 - **Scope.** Extend merchant selling to materials. Group inventory into Equipment, Consumables, and Materials as needed, with Collectibles available as a future category. Keep the existing stacks.
 - **Done when.** Players can find their materials and sell a valid quantity at the listed price. Gold and inventory update together, and failed sales leave both intact.
 
 ### 7. Add basic equipment salvaging (P1 · Medium)
 
-- **Dependencies.** Equipment buyback (3), starter reagents (5), and material selling (6).
+- **Dependencies.** Emporium buyback (3), starter reagents (5), and material selling (6).
 - **Scope.** Open The Forge with a service for a few ordinary weapons and armor pieces. Preview predefined yields, ask for confirmation, and show recovered materials. A spare Rusted Sword can become Metal Scraps or be sold for guaranteed gold.
 - **Done when.** A confirmed action consumes exactly one eligible unequipped piece and grants materials in the same transaction. Failed or duplicate actions cannot consume extra gear or grant extra rewards. Selling and salvaging each have a purpose, and buying gear to salvage loses gold on average.
 
@@ -181,7 +181,7 @@ These entries are candidates for design and playtesting. Their completion criter
 
 ### 22. Equipment rarity and quality (P4 · Medium)
 
-- **Dependencies.** Equipment buyback (3), differentiated drops (16), and expanded salvage (19).
+- **Dependencies.** Emporium buyback (3), differentiated drops (16), and expanded salvage (19).
 - **Scope.** Compare visible tiers with item-specific properties for communicating drop value, buyback prices, and salvage rewards. Color-based rarity needs a demonstrated gameplay benefit.
 - **Done when.** Playtesting shows what information helps players choose what to use, sell, or salvage and supports a decision about visible tiers.
 
