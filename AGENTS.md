@@ -59,6 +59,10 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on Home, Nexaris, Admin, and Logout.
 - **The Reliquary** is Drevan's lore library at `/game/reliquary`.
 - **The Registry** is Drevan's player directory at `/game/users`.
+- At The Driftwater, each cast has an 80% chance of a bite. Only a bite rolls
+  for the fish type (70% Murkfin, 25% Glassscale, 5% Astral Koi).
+- Players can cast 50 times per day at The Driftwater, including empty casts.
+  The allowance resets at midnight in `America/Chicago`.
 
 ### Combat
 

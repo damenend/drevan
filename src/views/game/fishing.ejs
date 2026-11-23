@@ -1,0 +1,22 @@
+<section class="page">
+  <h3>Welcome to <%= title %>!</h3>
+  <%- include("../partials/location-image", {
+    src: "/images/the-driftwater.webp",
+    caption: "A mystical shoreline where glowing waters meet ancient ruins beneath a sky filled with distant worlds.",
+  }) %>
+  <p>The Driftwater is a serene spot where anglers can cast their lines into the glowing waters and discover the mysteries that lie beneath the surface.</p>
+  <p>Number of casts left: <%= formatNumber(castsRemaining) %></p>
+  <% if (castsRemaining > 0) { %>
+  <form action="/game/fishing" method="POST">
+    <div class="form-group"><button type="submit">Cast</button></div>
+  </form>
+  <% } else { %>
+  <p>You've used all your casts for today. Come back after midnight Central time.</p>
+  <% } %>
+  <% if (caughtFish) { %>
+  <img src="/images/<%= caughtFish.toLowerCase().replace(" ", "-") %>.webp" alt="<%= caughtFish %>" class="fish-image" />
+  <p>You caught a <strong><%= caughtFish %></strong>!</p>
+  <% } else if (caughtFish === null) { %>
+  <p>Nothing bit this time.</p>
+  <% } %>
+</section>

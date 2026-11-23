@@ -12,6 +12,7 @@ import adminRouter from "./admin";
 import trainingRouter from "./training";
 import inventoryRouter from "./inventory";
 import usersRouter from "./users";
+import fishingRouter from "./fishing";
 
 const router = Router();
 
@@ -66,5 +67,6 @@ router.use("/store", storeRouter);
 router.use("/admin", adminRouter);
 router.use("/inventory", inventoryRouter);
 router.use("/users", usersRouter);
+router.use("/fishing", fishingRouter);
 
 export default router;

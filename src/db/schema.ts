@@ -25,6 +25,8 @@ export const users = sqliteTable(
     equippedWeaponId: integer("equipped_weapon_id"),
     equippedArmorId: integer("equipped_armor_id"),
     defense: integer("defense").notNull().default(0),
+    fishing_casts_used: integer("fishing_casts_used").notNull().default(0),
+    fishing_cast_date: text("fishing_cast_date"),
   },
   (table) => [
     uniqueIndex("users_name_lower_unique").on(sql`lower(${table.name})`),

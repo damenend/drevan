@@ -30,6 +30,8 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
       equippedWeaponId: users.equippedWeaponId,
       equippedArmorId: users.equippedArmorId,
       defense: users.defense,
+      fishingCastsUsed: users.fishing_casts_used,
+      fishingCastDate: users.fishing_cast_date,
     })
     .from(users)
     .where(eq(users.id, userId))
