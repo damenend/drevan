@@ -24,16 +24,28 @@ version has no Corepack executable at `$NVM_BIN/corepack`, run
 `npm install --global corepack`. Then run `"$NVM_BIN/corepack" enable yarn`
 and `yarn install`.
 
-### Updating dependencies and Node
+### Updating Node
 
-1. From the repository root, run `yarn deps:update`. You can also run
-   `bash scripts/update-dependencies.sh` if Yarn is unavailable in your shell.
-   The script installs and uses the latest Node LTS release through nvm,
-   enables Corepack's Yarn shim for that Node version, upgrades direct
-   dependencies and dev dependencies through Yarn, and runs `yarn check`
-   under the new runtime. Node and dependency updates can include major upgrades.
-2. Review the changes to `.nvmrc`, `package.json`, and `yarn.lock` before
-   committing. Run `nvm use` in your terminal to activate the updated pin there.
+1. From the repository root, run `yarn node:update`. It installs the latest
+   Node LTS through nvm, activates it for the script, and pins the installed
+   version in `.nvmrc`.
+2. Run `nvm use` in your terminal to switch that shell to the new pin. If the
+   new version needs a Yarn shim, follow the Corepack setup above.
+
+### Updating dependencies
+
+1. From the repository root, run `yarn deps:refresh`. Yarn resolves the
+   registry's `latest` releases for direct dependencies and dev dependencies,
+   updates `package.json` and `yarn.lock`, reinstalls into a fresh
+   `node_modules/` directory, and runs `yarn check`.
+2. Review the manifest and lockfile changes before committing. A refresh can
+   include major upgrades. If checks fail, use `git diff -- package.json` to
+   identify the version changes. Restore a problematic package's previous range
+   with a command such as `yarn up 'package-name@^2.4.0'`, then run `yarn check`
+   again.
+
+Use `yarn deps:update` to update and install dependencies without a clean
+reinstall or the check suite.
 
 ## Project structure
 
@@ -234,9 +246,9 @@ with `git diff -- AGENTS.md` before staging.
 - Use controlled random rolls in combat tests so balance changes produce repeatable results. The combat and item-effect tests run without a server or local database.
 - Run `yarn check` for the Prettier check, Oxlint, TypeScript checking, and unit tests.
 - Run `yarn build` to compile TypeScript and rebuild the Sass stylesheet.
-- Run `yarn clean` to remove `dist/`, `node_modules/`, and Yarn's local
-  install state. Run `yarn install --immutable` to reinstall from the lockfile,
-  then `yarn build` to regenerate the build output.
+- Run `yarn clean` to delete `node_modules/` and reinstall dependencies.
+  If Yarn reports a missing `node_modules` state file before the script can
+  start, run `yarn` directly to restore the installation.
 - Run `yarn dev` to watch the server and Sass sources together. `yarn start` runs `dist/app.js` with the views under `src/views` and assets under `public`.
 - Run `yarn hooks:install` once per clone to set up the repository hook. The
   installer preserves existing Git hooks. Vault Radar runs the executable
