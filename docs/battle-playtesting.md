@@ -105,7 +105,7 @@ Run this from the repository root after `nvm use`.
 node --import tsx scripts/audit-battle.ts > /tmp/drevan-battle-audit.csv
 ```
 
-Expect 1,980 data rows, each summarized from 5,000 fights using seeds 1–5,000.
+Expect 2,880 data rows, each summarized from 5,000 fights using seeds 1–5,000.
 Every matchup repeats with the build in each fighter slot. The audit starts at
 full HP and uses dummies 1–6, a starter mirror, a slow heavy opponent, and a
 quick opponent. The CSV includes win, loss, and draw counts, mean remaining HP
@@ -309,8 +309,33 @@ level 5 dummy hits harder, so 2 Defense already cuts its highest
 ordinary roll from 6 to 5. These thresholds depend on the enemy's
 damage range and the player's total Defense, including gear.
 
-For the initial allocation prototype, test Strength, Speed, and +3 HP
-per point. Keep direct Defense allocation provisional until the same
-point increments have been tested on top of Worn Leather Armor's +3
-Defense. That comparison will show how much the breakpoint at 3
-contributes to the value of the first piece of armor.
+### Defense allocation with starter gear
+
+The same four-point builds fought under random ties with Worn Leather
+Armor alone, then with both starter items. The armor adds +3 Defense and
+the Rusted Sword adds +1 Strength. The table shows wins and net gold
+after a full Sanctum heal.
+
+| Fourth point | Armor only, level 5 wins | Armor only, level 5 net | Both items, level 5 wins | Both items, level 5 net | Both items, level 6 wins |
+| ------------ | -----------------------: | ----------------------: | -----------------------: | ----------------------: | -----------------------: |
+| +1 Defense   |                    82.6% |                  +18.51 |                    98.0% |                  +30.02 |                    22.5% |
+| +2 Defense   |                    83.3% |                  +18.89 |                    98.2% |                  +30.20 |                    22.9% |
+| +1 Strength  |                    96.7% |                  +28.10 |                    98.7% |                  +30.64 |                    41.9% |
+| +1 Speed     |                    92.6% |                  +23.96 |                    99.3% |                  +31.29 |                    43.0% |
+| +3 HP        |                    90.5% |                  +20.69 |                    99.4% |                  +29.40 |                    41.2% |
+
+Wearing armor made all five builds profitable at level 5. Raising total
+Defense from 4 to 5 barely moved the results there because all four
+ordinary damage rolls from the level 5 dummy land for the same amount at
+both values. Fully equipped, the HP build won the most level 5 fights and
+kept about two gold less per fight than the Speed build. The Speed build
+lost slightly more often and paid less to heal overall. All five builds
+still lost gold on average at level 6.
+
+Start the allocation prototype with +1 Strength, +1 Speed, or +3 max HP
+per point. Keep Defense as a gear bonus for the prototype. That gives
+armor a clear role while avoiding an allocation choice whose value
+depends heavily on damage rounding. Revisit direct Defense allocation
+with stronger enemies or a wider gear catalog. The next live check is a
+short Dominion session with random ties and ordinary Sanctum visits to
+see whether the simulated difficulty and healing costs match play.

@@ -6,6 +6,16 @@ import {
 import { seededRandom } from "./seeded-random";
 
 const starter = { name: "starter", hp: 25, strength: 5, speed: 5, defense: 0 };
+// Each mixed build spends four hypothetical points. One point buys +3 HP
+// or +1 to another stat, except in the explicit +2 Defense trial.
+const mixedBuilds: Combatant[] = [
+  { name: "mixed-defense", hp: 28, strength: 6, speed: 6, defense: 1 },
+  { name: "mixed-double-defense", hp: 28, strength: 6, speed: 6, defense: 2 },
+  { name: "mixed-strength", hp: 28, strength: 7, speed: 6, defense: 0 },
+  { name: "mixed-speed", hp: 28, strength: 6, speed: 7, defense: 0 },
+  { name: "mixed-hp", hp: 31, strength: 6, speed: 6, defense: 0 },
+];
+
 const builds: Combatant[] = [
   starter,
   { ...starter, name: "strength-1", strength: 6 },
@@ -23,13 +33,18 @@ const builds: Combatant[] = [
   { ...starter, name: "hp-8", hp: 33 },
   { ...starter, name: "hp-12", hp: 37 },
   { name: "balanced-4", hp: 26, strength: 6, speed: 6, defense: 1 },
-  // Each mixed build spends four hypothetical points. One point buys +3 HP
-  // or +1 to another stat, except in the explicit +2 Defense trial.
-  { name: "mixed-defense", hp: 28, strength: 6, speed: 6, defense: 1 },
-  { name: "mixed-double-defense", hp: 28, strength: 6, speed: 6, defense: 2 },
-  { name: "mixed-strength", hp: 28, strength: 7, speed: 6, defense: 0 },
-  { name: "mixed-speed", hp: 28, strength: 6, speed: 7, defense: 0 },
-  { name: "mixed-hp", hp: 31, strength: 6, speed: 6, defense: 0 },
+  ...mixedBuilds,
+  ...mixedBuilds.map((build) => ({
+    ...build,
+    name: `armored-${build.name}`,
+    defense: build.defense + 3,
+  })),
+  ...mixedBuilds.map((build) => ({
+    ...build,
+    name: `equipped-${build.name}`,
+    strength: build.strength + 1,
+    defense: build.defense + 3,
+  })),
   { ...starter, name: "equipped", strength: 6, defense: 3 },
 ];
 
