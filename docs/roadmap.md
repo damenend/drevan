@@ -1,13 +1,13 @@
 # Drevan gameplay roadmap
 
-Starter equipment playtesting, basic fishing, Curious Emporium buyback, the combat stat audit, and the level 10 progression prototype are complete. The Ruins exploration MVP is complete with its initial automated combat baseline. The next milestone adds victory loot and material drops.
+Starter equipment playtesting, basic fishing, Curious Emporium buyback, the combat stat audit, and the level 10 progression prototype are complete. The Ruins Floor 1 MVP is playable and has an automated combat baseline. Manual expedition playtesting is underway. Victory loot and material drops are the next implementation milestone.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse the existing combat simulator, equipment, inventory, and gold systems. Start with independently playable features and use repeatable simulations and actual play to guide expansion. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
 | Priority | Focus                                    | Readiness                                        |
 | -------- | ---------------------------------------- | ------------------------------------------------ |
 | P0       | Combat foundations and basic progression | Complete through the level 10 prototype          |
-| P1       | Ruins exploration and starter loot       | Expeditions complete, starter loot next          |
+| P1       | Ruins exploration and starter loot       | Floor 1 MVP complete, starter loot next          |
 | P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met  |
 | P3       | Equipment economy and advanced systems   | Build on established systems and balance results |
 | P4       | Future concepts                          | Needs further design before scheduling           |
@@ -64,19 +64,21 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 6. Open The Ruins for basic exploration and PvE (P1 · Large)
 
-- **Status.** Complete for the MVP. HTTP tests cover movement, discoveries, optional combat and all three outcomes, saved position across login, both escape methods, allowed actions, and blocked locations.
-- **Implemented.** Enter from Nexaris and explore one open 7×7 floor from the entrance at (0, 0). The map shows the player and exit. Gold, item, and enemy squares are marked during manual playtesting. Remove those event markers afterward. The sealed Floor 2 entrance is marked at (2, 0) during manual playtesting. Restore the hidden marker afterward so it appears only when the player stands on that square. Position persists across sessions. Players can use healing potions and spend attribute points while exploring. Equipment changes and other gameplay locations require returning to Nexaris.
-- **Encounter and exit rules.** Fixed squares offer gold, a Lesser Potion, or a choice to fight. Victories save remaining HP and award gold and XP. Defeats and draws end the expedition, saving HP and previous rewards. Exit for free at the entrance or use the permanent Recall Beacon once per Central calendar day from anywhere on the floor.
-- **Change from the earlier plan.** The open grid and fixed encounter squares replace random events and the proposed action budget. Discoveries and enemy offers repeat on revisiting a square. Replayed forms cannot award the same action twice. Additional floors, random encounters, per-player completion tracking, victory loot, and material drops remain deferred.
-- **Baseline.** The [Ruins playtest](battle-playtesting.md#ruins-floor-1-baseline) records encounter positions, stats, and results against Dominion dummy levels 3–5. Human session pacing and repeatable-discovery economics remain open.
+- **Status.** Floor 1 MVP complete. Automated route checks cover movement, discoveries, all three combat outcomes, saved position across login, both escapes, and expedition restrictions. Manual playtesting is underway.
+- **Exploration and interface.** Enter from Nexaris at (0, 0) and move one square at a time in the four cardinal directions on a fixed 7×7 floor. Position persists across sessions. The map and gameplay controls appear above the interior artwork. Discoveries and enemy sightings are highlighted above the map, and enemy details and fight choices appear below it.
+- **Encounters and rewards.** Floor 1 has one gold cache, one Lesser Potion cache, and three optional fights: Vault Scavenger, Fractured Sentinel, and Alloy Warden. Wins award gold and XP and save remaining HP. Defeats and draws save HP and earlier rewards and return the player to Nexaris. Revisiting a square offers its event again. Replayed forms cannot award the same action twice.
+- **Expedition controls.** Players can use healing potions and spend attribute points. Equipment changes and other gameplay locations require leaving the expedition. Walk back to the entrance for a free exit or use the permanent Recall Beacon once per Central calendar day from any square.
+- **Temporary playtest markers.** The map shows gold, items, enemies, and the sealed Floor 2 entrance two squares east of the exit at (2, 0). Standing on the stairs shows `P2` and a disabled **Descend to Floor 2** button. After manual playtesting, remove the gold, item, and enemy markers and reveal the Floor 2 marker only while the player stands on that square.
+- **Balance baseline.** In 18,000 seeded full-HP bouts across Ruins enemies and their Dominion counterparts, fresh characters survived every Scavenger fight. Players wearing both starter items survived 96.3% of Sentinel fights and 11.9% of Warden fights. The geared level 4 build survived 95.5% of Warden fights. [Encounter map and benchmark results](battle-playtesting.md#ruins-floor-1-baseline)
+- **Still to validate.** Track how carrying damage between fights affects potion use, retreats, and net gold after healing. Measure repeatable cache income during actual sessions before tuning rewards. Additional floors, random encounters, and per-player encounter completion remain deferred.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
-- **Status.** Planned after the expedition baseline.
+- **Status.** Next implementation milestone. Use Floor 1 and the recorded combat baseline for the first drop tables while manual playtesting continues.
 - **Dependencies.** Playtested Ruins expeditions (6), the item catalog, and stackable inventory.
 - **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies award their existing gold rewards and grant no random loot.
 - **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest until selling is available. Materials can support future crafting, salvaging, and services at The Forge.
-- **Scope limits.** Use fixed item stats and keep procedural gear, elaborate rarity systems, and crafting for later design. Players return to Nexaris to equip, use, or sell eligible rewards. Material selling follows in milestone 13.
+- **Scope limits.** Use fixed item stats and keep procedural gear, elaborate rarity systems, and crafting for later design. Players can use eligible healing potions inside The Ruins. Equipment changes and selling require returning to Nexaris. Material selling follows in milestone 13.
 - **Done when.** Each qualifying victory allows at most one loot roll and repeated submissions cannot grant the reward twice. Players can identify materials and their quantities, and repeat drops add to existing stacks.
 
 ## P2 — Medium: Character depth and supporting gameplay
