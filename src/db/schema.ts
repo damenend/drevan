@@ -31,6 +31,12 @@ export const users = sqliteTable(
     defense: integer("defense").notNull().default(0),
     fishing_casts_used: integer("fishing_casts_used").notNull().default(0),
     fishing_cast_date: text("fishing_cast_date"),
+    ruinsTile: integer("ruins_tile"),
+    ruinsRevision: integer("ruins_revision").notNull().default(0),
+    ruinsEnemyPending: integer("ruins_enemy_pending", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    recallDate: text("recall_date"),
   },
   (table) => [
     uniqueIndex("users_name_lower_unique").on(sql`lower(${table.name})`),

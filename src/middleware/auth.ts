@@ -36,6 +36,10 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
       defense: users.defense,
       fishingCastsUsed: users.fishing_casts_used,
       fishingCastDate: users.fishing_cast_date,
+      ruinsTile: users.ruinsTile,
+      ruinsRevision: users.ruinsRevision,
+      ruinsEnemyPending: users.ruinsEnemyPending,
+      recallDate: users.recallDate,
     })
     .from(users)
     .where(eq(users.id, userId))

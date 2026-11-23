@@ -34,8 +34,10 @@ function findOwnedItem(
     .get();
 }
 
+/** Returns to The Ruins during an expedition or The Quarters otherwise. */
 function redirectHome(res: Response, message: string) {
-  return res.redirect(`/game?message=${encodeURIComponent(message)}`);
+  const path = res.locals.user.ruinsTile === null ? "/game" : "/game/ruins";
+  return res.redirect(`${path}?message=${encodeURIComponent(message)}`);
 }
 
 // Use an inventory item
@@ -44,13 +46,19 @@ router.post("/use", (req, res) => {
   const itemId = parseFormInteger(req.body?.itemId);
 
   if (itemId === null || itemId <= 0) {
-    return res.redirect("/game");
+    return res.redirect(
+      res.locals.user.ruinsTile === null ? "/game" : "/game/ruins",
+    );
   }
 
   const result = db.transaction((tx) => {
     // Fetch the player's current stats inside the transaction
     const currentPlayer = tx
-      .select({ hp: users.hp, maxHp: effectiveMaxHp })
+      .select({
+        hp: users.hp,
+        maxHp: effectiveMaxHp,
+        ruinsTile: users.ruinsTile,
+      })
       .from(users)
       .where(eq(users.id, player.id))
       .get();
@@ -66,6 +74,14 @@ router.post("/use", (req, res) => {
     }
 
     if (!ownedItem.effect || ownedItem.effectValue === null) {
+      return null;
+    }
+
+    if (
+      ownedItem.effect === "heal"
+        ? currentPlayer.hp <= 0
+        : currentPlayer.ruinsTile !== null
+    ) {
       return null;
     }
 

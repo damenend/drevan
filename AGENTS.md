@@ -54,13 +54,17 @@ Expected locations (verify before editing):
 - `src/app.ts`: Express setup, middleware, session, routing
 - `src/db/schema.ts`: Drizzle tables, constraints, and foreign keys
 - `src/db/index.ts`: SQLite / Drizzle connection
-- `src/db/seed.ts`: starter item and fish catalog. Inserts new item names and updates matching rows.
+- `src/db/seed.ts`: item catalog, including starter gear, fish, and the Recall Beacon. Inserts new item names and updates matching rows.
 - `src/middleware/auth.ts`: load the signed-in player and protect game routes
 - `src/routes/`: public and authentication routes
-- `src/routes/game/`: arena, training, hospital, store, admin, and inventory routes. The inventory router handles consumable use and equipment.
+- `src/routes/game/`: signed-in gameplay routes and the expedition access guard in `index.ts`. The inventory router handles consumable use and equipment.
 - `src/services/`: battle simulation and item effects shared by route handlers
-- `src/services/fishing.ts`: catch rolls, the daily cast limit, and the Central
-  calendar date shared by The Driftwater and Admin
+- `src/services/fishing.ts`: catch rolls and the daily cast limit shared by The
+  Driftwater and Admin
+- `src/services/ruins.ts`: expedition actions and supplies. The fixed map and
+  enemy definitions live in `src/services/ruins-map.ts`, which the playtest can
+  import without opening SQLite.
+- `src/utils/game-date.ts`: Central calendar date used by fishing and the Recall Beacon
 - `src/utils/format-number.ts`: shared display-number formatter
 - `src/views/`: EJS layouts, partials, and pages
 - `src/scss/main.scss`: Sass entry point. Shared variables live in `src/scss/_vars.scss`.
@@ -80,7 +84,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   the seeded Lesser Potion and saves the account and its potions together.
 - Equipment includes weapons and armor. Equipping stores the item ID on the user. The Quarters and training calculate effective Strength and Defense from base stats plus bonuses from owned gear in the matching slots. Equipment changes preserve stored base stats. The Rusted Sword grants +1 Strength and Worn Leather Armor grants +3 Defense.
 - Inventory has one row per player and item. Equipping and consuming require positive owned quantity. Save each purchase in one transaction so the gold deduction and inventory update either both succeed or both roll back. Use the same approach for healing and item consumption.
-- Seeded healing items are Lesser Potion (10 HP), Potion (50 HP), and Greater Potion (100 HP). Healing is capped at the player's missing HP. See `src/db/seed.ts` for item values.
+- Seeded healing items are Lesser Potion (10 HP), Potion (50 HP), and Greater Potion (100 HP). Healing is capped at the player's missing HP. Potions require positive HP. See `src/db/seed.ts` for item values.
 - The hospital, called **Sanctum**, heals missing HP at a cost of one gold per HP restored, with insufficient-funds handling.
 - The store is called **Curious Emporium**.
 - The Emporium reads catalog prices and owned quantities inside the purchase
@@ -105,6 +109,16 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   The allowance resets at midnight in `America/Chicago`.
 - A successful catch adds one fish to inventory in the same transaction that
   spends the cast.
+
+### The Ruins
+
+- The Ruins opens from Nexaris at `/game/ruins`. Entering and fighting require positive HP. Floor 1 is a fixed 7×7 grid with cardinal movement and the entrance and exit at (0, 0). The map shows the player and exit. During manual playtesting, the sealed Floor 2 entrance is marked at (2, 0). After playtesting, hide the marker until the player stands on that square. Fixed discoveries and optional enemy offers repeat on arrival.
+- The player row stores the current tile (null outside), whether an enemy is available on that visit, and the form revision. Each successful expedition action increments the revision. Movement, discovery rewards, combat results, and exits commit with their corresponding state in one transaction.
+- The shared simulator uses equipped bonuses and allocated stats. A win awards gold and XP and preserves exploration. Defeat and draw save remaining HP, grant no fight reward, and return the player to Nexaris.
+- The session carries the battle report to the next page. Show it once in The
+  Ruins after victory or in Nexaris after defeat or a draw.
+- The first entry grants a seeded Recall Beacon through normal inventory. It stays owned and returns the player to Nexaris once per Central calendar day from any square. Use the same date helper as fishing.
+- The game router redirects other gameplay routes to The Ruins while the player is inside. The existing inventory-use and progression endpoints allow healing potions and attribute point allocation. Equipment changes require leaving the expedition. Login resumes the stored position.
 
 ### Combat
 
@@ -196,7 +210,7 @@ When changing behavior, review nearby comments for accuracy.
 
 - Use the shared error page for HTTP errors. Render expected route errors with `renderError` from `src/middleware/errors.ts`. Keep error copy safe for players to see.
 - Login and signup create a fresh session and save the signed-in player ID
-  before redirecting to the game.
+  before redirecting to The Quarters or resuming an active expedition in The Ruins.
 - Use `parseFormInteger` from `src/utils/parse-form-integer.ts` for nonnegative
   whole numbers submitted to game routes. It accepts digit-only text and safe
   JSON integers. Apply each route's own bounds after parsing.
@@ -225,23 +239,19 @@ When changing behavior, review nearby comments for accuracy.
 - For a fresh local database, create the `data/` directory, run `yarn db:migrate`, and run `yarn db:seed` to load the starter catalog. Rerunning the seed updates catalog entries by name.
 - After pulling item catalog changes, apply any new migrations before running
   `yarn db:seed` on your existing local database. The Driftwater looks up caught
-  fish in the seeded catalog. The seed preserves item IDs, so owned and equipped
+  fish in the seeded catalog, and The Ruins uses it to grant the Recall Beacon. The seed preserves item IDs, so owned and equipped
   copies use any updated bonuses.
 - For schema changes, use `yarn db:generate` and review the SQL, snapshot, and journal together before applying the migration. Test on a disposable database when possible. If a database already has changes from `db:push`, check its migration history before running `db:migrate`.
 - See the [Drizzle cheatsheet](docs/drizzle-cheatsheet.md) for migration, seeding, and troubleshooting steps.
 
 ## Current development direction
 
-The [gameplay roadmap](docs/roadmap.md) records the completed starter equipment
-playtest, basic fishing, Emporium buyback, and combat stat audit. Continue
-playtesting XP and stat allocation through character level 10 before moving
-on to The Ruins.
-The Ruins will introduce playable expeditions first, then combat item and
-material drops. Follow the
-[battle playtest guide](docs/battle-playtesting.md)
-to rerun seeded matchups and record balance decisions. The playtest script at
-`scripts/playtest-battle.ts` runs the shared simulator with fixed loadouts and
-writes CSV results without opening the local database.
+The [gameplay roadmap](docs/roadmap.md) records the completed starter systems,
+level 10 progression prototype, and playable Ruins MVP. The next Ruins milestone
+adds victory loot and material drops. Follow the
+[battle playtest guide](docs/battle-playtesting.md) to run seeded matchups and
+record balance decisions. The Ruins playtest uses the live enemy definitions
+and runs without opening the local database.
 
 When adding combat modes, reuse the effective-stat calculation in
 `src/services/equipment.ts` and resolve fights automatically with the shared

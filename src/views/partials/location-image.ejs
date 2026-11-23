@@ -1,4 +1,8 @@
-<figure class="location-image">
+<figure class="location-image<%= locals.banner ? ' location-image--banner' : '' %>">
+  <% if (locals.banner) { %>
+  <img src="<%= src %>" alt="<%= banner.alt %>" width="<%= banner.width %>" height="<%= banner.height %>" decoding="async">
+  <% } else { %>
   <img src="<%= src %>" alt="">
+  <% } %>
   <figcaption><%= caption %></figcaption>
 </figure>

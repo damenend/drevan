@@ -60,13 +60,7 @@
       </div>
     </dl>
 
-    <% if (progression.unspentPoints > 0) { %>
-    <form action="/game/progression" method="POST" aria-label="Spend one stat point">
-      <% for (const [stat, option] of Object.entries(statAllocations)) { %>
-      <button type="submit" name="stat" value="<%= stat %>"><%= option.label %></button>
-      <% } %>
-    </form>
-    <% } %>
+    <%- include("../partials/stat-allocation") %>
   </section>
 
   <% if (message) { %>

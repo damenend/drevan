@@ -9,6 +9,7 @@ import { after, before, beforeEach, test } from "node:test";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { getRuinsEncounter } from "../src/services/ruins-map";
 import { getFishingDate } from "../src/services/fishing";
 
 const originalDirectory = process.cwd();
@@ -41,7 +42,8 @@ before(async () => {
     INSERT INTO items (id, name, description, price, type, effect, effect_value)
     VALUES (1, 'Lesser Potion', 'Test potion', 5, 'consumable', 'heal', 10),
            (2, 'Rusted Sword', 'Test sword', 100, 'weapon', 'strength', 1),
-           (3, 'Murkfin', 'Test fish', NULL, 'fish', NULL, NULL);
+           (3, 'Murkfin', 'Test fish', NULL, 'fish', NULL, NULL),
+           (4, 'Recall Beacon', 'Test utility', NULL, 'utility', NULL, NULL);
     UPDATE items SET sell_price = 50 WHERE id = 2;
     UPDATE items SET sell_price = 1 WHERE id = 3;
   `);
@@ -75,7 +77,8 @@ beforeEach(() => {
     UPDATE users SET gold = 100, hp = 25, max_hp = 25, strength = 5,
       speed = 5, defense = 0, equipped_weapon_id = NULL, equipped_armor_id = NULL,
       exp = 0, strength_points = 0, speed_points = 0, max_hp_points = 0,
-      fishing_casts_used = 0, fishing_cast_date = NULL;
+      fishing_casts_used = 0, fishing_cast_date = NULL,
+      ruins_tile = NULL, ruins_revision = 0, ruins_enemy_pending = 0, recall_date = NULL;
   `);
 });
 
@@ -541,4 +544,347 @@ test("only one request spends the last fishing cast and awards a catch", async (
   );
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
   assert.equal(player().fishing_casts_used, 50);
+});
+
+const ruinsPage = "/game/ruins";
+
+function ruinsState() {
+  return sqlite
+    .prepare<
+      [],
+      {
+        ruins_tile: number | null;
+        ruins_revision: number;
+        ruins_enemy_pending: number;
+        recall_date: string | null;
+        exp: number;
+        max_hp_points: number;
+      }
+    >(
+      "SELECT ruins_tile, ruins_revision, ruins_enemy_pending, recall_date, exp, max_hp_points FROM users WHERE email = 'test@example.test'",
+    )
+    .get()!;
+}
+
+/** Submits the current form revision by default. Pass an older revision to test a replay. */
+function explore(
+  action: string,
+  destination?: number,
+  revision = ruinsState().ruins_revision,
+) {
+  return post(ruinsPage + "/action", { action, destination, revision });
+}
+
+function viewRuins(session = cookie) {
+  return request(ruinsPage, { headers: { cookie: session } });
+}
+
+async function reachScavenger() {
+  await explore("enter");
+  for (const tile of [1, 2, 9]) await explore("move", tile);
+  assert.equal(ruinsState().ruins_tile, 9);
+}
+
+test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit", async () => {
+  assert.equal((await request(ruinsPage)).headers.get("location"), "/");
+  assert.match(
+    (await request("/game/nexaris", { headers: { cookie } })).html,
+    /href="\/game\/ruins"/,
+  );
+  assert.match((await viewRuins()).html, /Enter The Ruins/);
+  await explore("enter");
+  const start = await viewRuins();
+  assert.equal(start.status, 200);
+  assert.match(start.html, /Position \(0, 0\)/);
+  assert.equal((start.html.match(/class="ruins-tile/g) ?? []).length, 49);
+  assert.equal((start.html.match(/name="destination"/g) ?? []).length, 2);
+  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
+
+  for (const invalid of [-1, 2, 8, 49]) {
+    await explore("move", invalid);
+    assert.equal(ruinsState().ruins_tile, 0);
+  }
+
+  const revision = ruinsState().ruins_revision;
+  const moves = await Promise.all([
+    explore("move", 1, revision),
+    explore("move", 1, revision),
+  ]);
+  assert.equal(
+    moves.filter((r) => r.headers.get("location")?.includes("collect")).length,
+    1,
+  );
+  const goldLocation = moves
+    .map((move) => move.headers.get("location") ?? "")
+    .find((location) => location.includes("collect"));
+  assert.ok(goldLocation);
+  const goldPage = await request(goldLocation, { headers: { cookie } });
+  assert.match(
+    goldPage.html,
+    /ruins-notice--discovery[\s\S]*You collect 8 gold/,
+  );
+  assert.equal(player().gold, 108);
+  assert.match((await viewRuins()).html, /Position \(1, 0\)/);
+  await explore("exit");
+  assert.equal(ruinsState().ruins_tile, 1);
+
+  await explore("move", 0);
+  await explore("move", 7);
+  assert.match(
+    (await viewRuins()).html,
+    /ruins-empty[^>]*>There’s nothing of interest here/,
+  );
+  const discovery = await explore("move", 14);
+  const itemLocation = discovery.headers.get("location");
+  assert.ok(itemLocation);
+  const itemPage = await request(itemLocation, { headers: { cookie } });
+  assert.match(
+    itemPage.html,
+    /ruins-notice--discovery[\s\S]*You collect a Lesser Potion/,
+  );
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 4, quantity: 1 },
+  ]);
+  for (const tile of [7, 0]) await explore("move", tile);
+  assert.equal(
+    (await explore("exit")).headers.get("location"),
+    "/game/nexaris",
+  );
+  assert.equal(ruinsState().ruins_tile, null);
+  await explore("enter");
+  assert.equal(ruinsState().ruins_tile, 0);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 4, quantity: 1 },
+  ]);
+});
+
+test("Ruins location survives logout and login, and other gameplay is blocked", async () => {
+  sqlite.exec(
+    "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 2, 1 FROM users",
+  );
+  await post("/game/inventory/equip", { itemId: 2 });
+  await explore("enter");
+  await explore("move", 7);
+  const logout = await post("/logout");
+  assert.equal(logout.headers.get("location"), "/");
+  assert.equal((await viewRuins()).headers.get("location"), "/");
+  const login = await post("/login", account, "");
+  assert.equal(login.headers.get("location"), ruinsPage);
+  cookie = sessionCookie(login);
+  assert.match((await viewRuins()).html, /Position \(0, 1\)/);
+
+  for (const path of [
+    "/game",
+    "/game/nexaris",
+    "/game/store",
+    "/game/hospital",
+    "/game/admin",
+    "/game/fishing",
+    "/game/arena",
+  ]) {
+    const blocked = await request(path, { headers: { cookie } });
+    assert.match(
+      blocked.headers.get("location") ?? "",
+      /^\/game\/ruins\?message=/,
+    );
+  }
+
+  for (const [path, body] of [
+    ["/game/hospital", {}],
+    ["/game/training", { level: 1 }],
+    ["/game/store", { quantities: { 1: 1 } }],
+    ["/game/store/sell", {}],
+    ["/game/inventory/equip", { itemId: 2 }],
+    ["/game/inventory/unequip", { itemId: 2 }],
+    ["/game/admin", { stats: { gold: 999 } }],
+    ["/game/fishing", {}],
+  ] as const) {
+    assert.match(
+      (await post(path, body)).headers.get("location") ?? "",
+      /^\/game\/ruins\?message=/,
+    );
+  }
+  assert.equal(player().equipped_weapon_id, 2);
+  assert.equal(player().gold, 100);
+  assert.equal(player().hp, 25);
+});
+
+test("Ruins Recall Beacon is permanent and resets at midnight Central time", async (t) => {
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-07-03T04:59:59Z"),
+  });
+  await explore("enter");
+  await explore("move", 1);
+  assert.match(
+    (await explore("recall")).headers.get("location") ?? "",
+    /^\/game\/nexaris/,
+  );
+  assert.equal(ruinsState().ruins_tile, null);
+  assert.equal(ruinsState().recall_date, "2026-07-02");
+  assert.equal(player().gold, 108);
+  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
+
+  await explore("enter");
+  assert.match((await viewRuins()).html, /on cooldown/);
+  await explore("recall");
+  assert.equal(ruinsState().ruins_tile, 0);
+
+  t.mock.timers.tick(1000);
+  assert.match((await viewRuins()).html, /Recall Beacon available/);
+  await explore("recall");
+  assert.equal(ruinsState().ruins_tile, null);
+  assert.equal(ruinsState().recall_date, "2026-07-03");
+});
+
+test("Ruins fights are optional and a victory applies HP, XP and gold once", async (t) => {
+  sqlite.exec("UPDATE users SET strength = 100, speed = 100, exp = 30");
+  t.mock.method(Math, "random", () => 0.99);
+  await reachScavenger();
+  assert.equal(player().hp, 25);
+  assert.equal(ruinsState().exp, 30);
+  const sighting = (await viewRuins()).html;
+  assert.match(
+    sighting,
+    /ruins-notice--encounter[\s\S]*Enemy sighted[\s\S]*ruins-map[\s\S]*Vault Scavenger/,
+  );
+
+  await explore("ignore");
+  assert.doesNotMatch((await viewRuins()).html, /Vault Scavenger/);
+  await explore("engage");
+  assert.equal(ruinsState().exp, 30);
+  await explore("move", 2);
+  await explore("move", 9);
+
+  const revision = ruinsState().ruins_revision;
+  await Promise.all([
+    explore("engage", undefined, revision),
+    explore("engage", undefined, revision),
+  ]);
+  assert.equal(ruinsState().ruins_tile, 9);
+  assert.equal(ruinsState().exp, 60);
+  assert.equal(player().gold, 138);
+  assert.equal(player().hp, 21);
+  assert.match((await viewRuins()).html, /wins!/);
+  assert.doesNotMatch((await viewRuins()).html, /wins!/);
+});
+
+test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires healing", async (t) => {
+  sqlite.exec("UPDATE users SET hp = 1, speed = 1");
+  t.mock.method(Math, "random", () => 0.5);
+  await reachScavenger();
+  const fight = await explore("engage");
+  assert.equal(fight.headers.get("location"), "/game/nexaris");
+  assert.equal(ruinsState().ruins_tile, null);
+  assert.equal(ruinsState().exp, 0);
+  assert.equal(player().hp, 0);
+  assert.equal(player().gold, 108);
+  assert.match(
+    (await request("/game/nexaris", { headers: { cookie } })).html,
+    /was defeated/,
+  );
+  await explore("enter");
+  assert.equal(ruinsState().ruins_tile, null);
+  sqlite.exec(
+    "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 1 FROM users",
+  );
+  await post("/game/inventory/use", { itemId: 1 });
+  assert.equal(player().hp, 0);
+  await post("/game/hospital");
+  await explore("enter");
+  assert.equal(ruinsState().ruins_tile, 0);
+});
+
+test("Ruins draw applies damage but ends the expedition without combat rewards", async (t) => {
+  const encounter = getRuinsEncounter(9);
+  assert.ok(encounter?.kind === "enemy");
+  const originalHp = encounter.enemy.hp;
+  encounter.enemy.hp = 100000;
+  t.after(() => {
+    encounter.enemy.hp = originalHp;
+  });
+  sqlite.exec("UPDATE users SET hp = 100000, max_hp = 100000, strength = 1");
+  t.mock.method(Math, "random", () => 0.5);
+
+  await reachScavenger();
+  assert.equal(
+    (await explore("engage")).headers.get("location"),
+    "/game/nexaris",
+  );
+  assert.equal(ruinsState().ruins_tile, null);
+  assert.equal(player().gold, 108);
+  assert.equal(ruinsState().exp, 0);
+  assert.ok(player().hp > 0 && player().hp < 100000);
+  assert.match(
+    (await request("/game/nexaris", { headers: { cookie } })).html,
+    /ended in a draw/,
+  );
+});
+
+test("Ruins use normal healing and attribute allocation without moving", async () => {
+  sqlite.exec("UPDATE users SET hp = 20, exp = 60");
+  sqlite.exec(
+    "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 2 FROM users",
+  );
+  await explore("enter");
+  await explore("move", 7);
+  const before = await viewRuins();
+  assert.match(before.html, /Use Lesser Potion \(2\)/);
+  assert.match(before.html, /Unspent attribute points<\/dt>\s*<dd>1<\/dd>/);
+  assert.match(
+    (await post("/game/progression", { stat: "maxHp" })).headers.get(
+      "location",
+    ) ?? "",
+    /^\/game\/ruins/,
+  );
+  assert.equal(ruinsState().max_hp_points, 1);
+  assert.equal(player().hp, 20);
+  assert.match(
+    (await post("/game/inventory/use", { itemId: 1 })).headers.get(
+      "location",
+    ) ?? "",
+    /Restored%208%20HP/,
+  );
+  assert.equal(player().hp, 28);
+  assert.equal(ruinsState().ruins_tile, 7);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 4, quantity: 1 },
+  ]);
+
+  sqlite.exec("UPDATE users SET hp = 0");
+  await post("/game/inventory/use", { itemId: 1 });
+  assert.equal(player().hp, 0);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 4, quantity: 1 },
+  ]);
+});
+
+test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stairs", async () => {
+  await explore("enter");
+  const entrance = (await viewRuins()).html;
+  assert.match(entrance, /ruins-tile--stairs" aria-hidden="true">2</);
+  assert.doesNotMatch(entrance, /Descend to Floor 2/);
+
+  await explore("move", 1);
+  await explore("move", 2);
+  const discovered = (await viewRuins()).html;
+  assert.match(discovered, /Floor 2 entrance discovered/);
+  assert.match(
+    discovered,
+    /ruins-tile--stairs ruins-tile--player" aria-hidden="true">P2</,
+  );
+  assert.match(discovered, /id="ruins-floor">Floor 1</);
+  assert.match(
+    discovered,
+    /<button type="button" disabled>Descend to Floor 2<\/button>/,
+  );
+
+  await explore("move", 1);
+  const nearby = (await viewRuins()).html;
+  assert.match(nearby, /aria-label="Move to \(2, 0\), Floor 2 entrance">2</);
+  assert.doesNotMatch(nearby, /Descend to Floor 2/);
 });

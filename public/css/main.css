@@ -290,6 +290,9 @@ img {
   font-size: 0.875rem;
   font-style: italic;
 }
+.location-image--banner {
+  max-width: 100%;
+}
 
 .player-avatar {
   width: 10rem;
@@ -409,6 +412,72 @@ img {
   display: block;
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+.ruins-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+
+.ruins-sections > * {
+  min-width: 0;
+}
+
+.ruins-map {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  width: min(100%, 21rem);
+  gap: 0.25rem;
+}
+
+.ruins-map .ruins-tile {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
+  border-radius: 3px;
+  background: #242424;
+  color: #e5e5e5;
+  font-size: 0.875rem;
+}
+.ruins-map .ruins-tile--exit {
+  border-color: #719270;
+}
+.ruins-map .ruins-tile--stairs {
+  border-color: #54bdff;
+}
+.ruins-map .ruins-tile--player {
+  background: #b58b4c;
+  color: #171717;
+  font-weight: bold;
+}
+
+.ruins-map button.ruins-tile:hover,
+.ruins-map button.ruins-tile:focus-visible {
+  outline: 2px solid #b58b4c;
+  outline-offset: -2px;
+}
+
+.ruins-actions {
+  margin-block-start: 1rem;
+}
+
+.ruins-empty {
+  color: #999999;
+}
+
+.ruins-notice {
+  background: #242424;
+  border-inline-start: 3px solid currentColor;
+  padding: 0.5rem 0.75rem;
+}
+.ruins-notice--discovery {
+  color: #b58b4c;
+}
+.ruins-notice--encounter {
+  color: #ff5454;
 }
 
 *,

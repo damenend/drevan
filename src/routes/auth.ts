@@ -53,7 +53,7 @@ router.post("/login", async (req, res) => {
 
   await signIn(req, user.id);
 
-  return res.redirect("/game");
+  return res.redirect(user.ruinsTile === null ? "/game" : "/game/ruins");
 });
 
 // Signup

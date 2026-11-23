@@ -1,0 +1,133 @@
+<section class="page" aria-labelledby="ruins-heading">
+  <h2 id="ruins-heading">The Ruins</h2>
+  <% if (position === null) { %>
+  <%- include("../partials/location-image", {
+    src: "/images/drevan-ruins-banner.webp",
+    caption: "Beyond the crumbling archway, the remnants of a forgotten civilization await.",
+    banner: {
+      alt: "An ancient stone archway covered in fading blue runes, leading into the darkened ruins.",
+      width: 1774,
+      height: 887,
+    },
+  }) %>
+  <% } else { %>
+  <%- include("../partials/location-image", {
+    src: "/images/drevan-ruins-interior.webp",
+    caption: "Blue crystals light the stone passage.",
+  }) %>
+  <% } %>
+  <% if (message) { %>
+  <p<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %> role="status">
+    <% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %>
+  </p>
+  <% } %>
+
+  <% if (position === null) { %>
+  <p>Enter the remnants of Drevan's lost civilizations. Set your equipment before entering.</p>
+  <% if (user.hp > 0) { %>
+  <form action="/game/ruins/action" method="post">
+    <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
+    <button type="submit" name="action" value="enter">Enter The Ruins</button>
+  </form>
+  <% } else { %>
+  <p><a href="/game/hospital">Heal at Sanctum</a> before entering.</p>
+  <% } %>
+  <% } else { %>
+
+  <% if (encounter) { %>
+  <p class="ruins-notice ruins-notice--encounter" role="status"><strong>Enemy sighted.</strong> You can engage or pass by.</p>
+  <% } else if (atNextFloor) { %>
+  <p class="ruins-notice ruins-notice--discovery" role="status"><strong>Floor 2 entrance discovered.</strong> The way down is sealed.</p>
+  <% } else if (emptySquare) { %>
+  <p class="ruins-empty" role="status">There’s nothing of interest here.</p>
+  <% } %>
+
+  <div class="ruins-sections">
+    <section aria-labelledby="ruins-floor">
+      <h3 id="ruins-floor">Floor 1</h3>
+      <p>Position (<%= position % size %>, <%= Math.floor(position / size) %>). P marks your position. E marks the exit.<% if (nextFloorMarker !== null) { %> 2 marks the Floor 2 entrance.<% } %></p>
+      <form class="ruins-map" action="/game/ruins/action" method="post" aria-label="Move to an adjacent square">
+        <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
+        <input type="hidden" name="action" value="move">
+        <% for (let tile = 0; tile < size ** 2; tile++) { %>
+        <% const label = `(${tile % size}, ${Math.floor(tile / size)})`; %>
+        <% const marker = (tile === position ? "P" : "") + (tile === entrance ? "E" : tile === nextFloorMarker ? "2" : ""); %>
+        <% const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : "") + (tile === position ? " ruins-tile--player" : ""); %>
+        <% if (canMove(position, tile)) { %>
+        <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move to <%= label %><%= tile === entrance ? ', entrance and exit' : tile === nextFloorMarker ? ', Floor 2 entrance' : '' %>"><%= marker %></button>
+        <% } else { %>
+        <span class="<%= style %>" aria-hidden="true"><%= marker %></span>
+        <% } %>
+        <% } %>
+      </form>
+      <% if (position === entrance || atNextFloor || encounter) { %>
+      <form class="ruins-actions" action="/game/ruins/action" method="post">
+        <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
+        <% if (position === entrance) { %>
+        <button type="submit" name="action" value="exit">Return to Nexaris</button>
+        <% } else if (atNextFloor) { %>
+        <button type="button" disabled>Descend to Floor 2</button>
+        <% } %>
+        <% if (encounter) { %>
+        <h4><%= encounter.enemy.name %></h4>
+        <p><%= encounter.description %></p>
+        <button type="submit" name="action" value="engage">Engage</button>
+        <button type="submit" name="action" value="ignore">Ignore</button>
+        <% } %>
+      </form>
+      <% } %>
+    </section>
+
+    <div>
+      <section aria-labelledby="ruins-character">
+        <h3 id="ruins-character">Character</h3>
+        <dl>
+          <dt>HP</dt>
+          <dd><%= formatNumber(user.hp) %> / <%= formatNumber(user.maxHp) %></dd>
+          <dt>Level</dt>
+          <dd><%= formatNumber(progression.level) %></dd>
+          <% if (progression.nextLevelXp === null) { %>
+          <dt>Lifetime XP</dt>
+          <dd><%= formatNumber(user.exp) %></dd>
+          <% } else { %>
+          <dt>XP toward next level</dt>
+          <dd><%= formatNumber(progression.currentLevelXp) %> / <%= formatNumber(progression.nextLevelXp) %></dd>
+          <% } %>
+          <dt>Unspent attribute points</dt>
+          <dd><%= formatNumber(progression.unspentPoints) %></dd>
+        </dl>
+        <%- include("../partials/player-gold", { gold: user.gold }) %>
+        <%- include("../partials/stat-allocation") %>
+      </section>
+
+      <section aria-labelledby="ruins-items">
+        <h3 id="ruins-items">Items and Escape</h3>
+        <% if (!potions.length) { %>
+        <p>You have no healing potions.</p>
+        <% } else { %>
+        <form action="/game/inventory/use" method="post" aria-label="Use a healing potion">
+          <% for (const potion of potions) { %>
+          <button type="submit" name="itemId" value="<%= potion.id %>">Use <%= potion.name %> (<%= formatNumber(potion.quantity) %>)</button>
+          <% } %>
+        </form>
+        <% } %>
+        <% if (hasBeacon && !recalledToday) { %>
+        <p>Recall Beacon available.</p>
+        <form action="/game/ruins/action" method="post">
+          <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
+          <button type="submit" name="action" value="recall">Activate Recall Beacon</button>
+        </form>
+        <% } else if (hasBeacon) { %>
+        <p>Recall Beacon on cooldown until midnight Central time.</p>
+        <% } %>
+      </section>
+    </div>
+  </div>
+
+  <% if (battle) { %>
+  <section aria-label="Battle result">
+    <%- include("../partials/battle-log", battle) %>
+  </section>
+  <% } %>
+  <% } %>
+</section>

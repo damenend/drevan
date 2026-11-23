@@ -71,6 +71,13 @@
       "when": 1795463030990,
       "tag": "0009_starter_gold",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1795465229422,
+      "tag": "0010_ruins",
+      "breakpoints": true
     }
   ]
 }

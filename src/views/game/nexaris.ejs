@@ -6,6 +6,17 @@
     caption: "Nexaris, the gateway to Drevan's locations.",
   }) %>
 
+  <% if (message) { %>
+  <p role="status"><%= message %></p>
+  <% } %>
+  <% if (battle) { %>
+  <h3>The Ruins expedition ended</h3>
+  <%- include("../partials/battle-log", battle) %>
+  <% if (battle.playerHp === 0) { %>
+  <p><a href="/game/hospital">Heal at Sanctum</a> before starting another expedition.</p>
+  <% } %>
+  <% } %>
+
   <div class="table-responsive">
     <table class="table">
       <thead>
@@ -42,6 +53,10 @@
         <tr>
           <th scope="row"><a href="/game/fishing">The Driftwater</a></th>
           <td>Cast your line into enchanted waters and discover what lurks beneath the surface.</td>
+        </tr>
+        <tr>
+          <th scope="row"><a href="/game/ruins">The Ruins</a></th>
+          <td>Explore the remnants of Drevan's lost civilizations.</td>
         </tr>
       </tbody>
     </table>

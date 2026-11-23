@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "./index";
+import { RECALL_BEACON } from "../services/ruins-map";
 import { items } from "./schema";
 
 type Item = typeof items.$inferInsert;
@@ -100,7 +101,19 @@ async function seed() {
 
   await db
     .insert(items)
-    .values([...potions, ...weapons, ...armor, ...fish])
+    .values([
+      ...potions,
+      ...weapons,
+      ...armor,
+      ...fish,
+      {
+        name: RECALL_BEACON,
+        description:
+          "Returns you to Nexaris from The Ruins once per Central calendar day.",
+        type: "utility",
+        image: "/images/recall-beacon.webp",
+      },
+    ])
     .onConflictDoUpdate({
       target: items.name,
       set: {

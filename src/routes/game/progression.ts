@@ -11,9 +11,10 @@ import {
 const router = Router();
 
 router.post("/", (req, res) => {
+  const path = res.locals.user.ruinsTile === null ? "/game" : "/game/ruins";
   const stat = req.body?.stat;
   if (!isAllocationStat(stat)) {
-    return res.redirect(303, "/game?message=Choose+a+stat+to+increase.");
+    return res.redirect(303, `${path}?message=Choose+a+stat+to+increase.`);
   }
 
   const pointColumn = `${stat}Points` as const;
@@ -58,7 +59,7 @@ router.post("/", (req, res) => {
     { behavior: "immediate" },
   );
 
-  return res.redirect(303, `/game?message=${encodeURIComponent(message)}`);
+  return res.redirect(303, `${path}?message=${encodeURIComponent(message)}`);
 });
 
 export default router;

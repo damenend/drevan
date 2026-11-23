@@ -27,16 +27,21 @@ export function getEquippedSlot(
 }
 
 /**
- * Loads owned gear bonuses for the equipped slots and returns combat stats. Each slot contributes once, regardless of quantity.
+ * Loads owned gear bonuses for the equipped slots and returns combat stats.
+ * Each slot contributes once, regardless of quantity. Pass the current
+ * transaction to read equipment alongside other combat state.
  */
-export function getEffectiveStats(player: EquippedPlayer) {
+export function getEffectiveStats(
+  player: EquippedPlayer,
+  database: Pick<typeof db, "select"> = db,
+) {
   const { equippedWeaponId, equippedArmorId } = player;
 
   if (equippedWeaponId === null && equippedArmorId === null) {
     return applyEquipmentBonuses(player, []);
   }
 
-  const equipment = db
+  const equipment = database
     .select({ effect: items.effect, effectValue: items.effectValue })
     .from(inventory)
     .innerJoin(items, eq(inventory.itemId, items.id))

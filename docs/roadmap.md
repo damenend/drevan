@@ -1,13 +1,13 @@
 # Drevan gameplay roadmap
 
-Starter equipment playtesting, basic fishing, Curious Emporium buyback, the combat stat audit, and the level 10 progression prototype are complete. The next milestone is a playable Ruins expedition. Establish its difficulty and rewards through automated playtesting before adding victory loot and material drops.
+Starter equipment playtesting, basic fishing, Curious Emporium buyback, the combat stat audit, and the level 10 progression prototype are complete. The Ruins exploration MVP is complete with its initial automated combat baseline. The next milestone adds victory loot and material drops.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse the existing combat simulator, equipment, inventory, and gold systems. Start with independently playable features and use repeatable simulations and actual play to guide expansion. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
 | Priority | Focus                                    | Readiness                                        |
 | -------- | ---------------------------------------- | ------------------------------------------------ |
 | P0       | Combat foundations and basic progression | Complete through the level 10 prototype          |
-| P1       | Ruins exploration and starter loot       | Build and playtest basic Ruins expeditions next  |
+| P1       | Ruins exploration and starter loot       | Expeditions complete, starter loot next          |
 | P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met  |
 | P3       | Equipment economy and advanced systems   | Build on established systems and balance results |
 | P4       | Future concepts                          | Needs further design before scheduling           |
@@ -64,12 +64,11 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 6. Open The Ruins for basic exploration and PvE (P1 · Large)
 
-- **Status.** Next to build.
-- **Dependencies.** Combat audit (4), the shared simulator, and existing gold and inventory systems.
-- **Scope.** Add a text-based expedition into Drevan's lost civilizations. An exploration action can yield an empty result, a simple discovery such as gold or an existing item, or a hostile encounter. Use a small set of fixed-stat enemies and resolve fights automatically with the existing simulator. Define what happens to HP and rewards after combat, how retreat and defeat work, and when expeditions end. Start without maps, mandatory stamina, daily limits, or complex procedural generation.
-- **Automated route checks.** Force an empty result, a discovery, a combat win, a defeat, and a retreat. Verify the resulting HP and rewards, expedition state, and return to Nexaris.
-- **Seeded balance playtest.** Run the same expeditions with a fresh character, one with both starter gear pieces, and a leveled character with spent points. Measure enemy win rates, HP remaining, completion, retreats, defeats, and net gold after Sanctum healing. Compare the results with Dominion dummy levels 4 and 5.
-- **Done when.** Players can resolve every event type and return to Nexaris. Encounter consequences and expedition completion are clear, and the baseline is recorded before adding loot.
+- **Status.** Complete for the MVP. HTTP tests cover movement, discoveries, optional combat and all three outcomes, saved position across login, both escape methods, allowed actions, and blocked locations.
+- **Implemented.** Enter from Nexaris and explore one open 7×7 floor from the entrance at (0, 0). The map shows the player and exit. The sealed Floor 2 entrance is marked at (2, 0) during manual playtesting. Restore the hidden marker afterward so it appears only when the player stands on that square. Position persists across sessions. Players can use healing potions and spend attribute points while exploring. Equipment changes and other gameplay locations require returning to Nexaris.
+- **Encounter and exit rules.** Fixed squares offer gold, a Lesser Potion, or a choice to fight. Victories save remaining HP and award gold and XP. Defeats and draws end the expedition, saving HP and previous rewards. Exit for free at the entrance or use the permanent Recall Beacon once per Central calendar day from anywhere on the floor.
+- **Change from the earlier plan.** The open grid and fixed encounter squares replace random events and the proposed action budget. Discoveries and enemy offers repeat on revisiting a square. Replayed forms cannot award the same action twice. Additional floors, random encounters, per-player completion tracking, victory loot, and material drops remain deferred.
+- **Baseline.** The [Ruins playtest](battle-playtesting.md#ruins-floor-1-baseline) records encounter positions, stats, and results against Dominion dummy levels 3–5. Human session pacing and repeatable-discovery economics remain open.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
@@ -270,7 +269,7 @@ These entries are candidates for design and playtesting. Their completion criter
 
 ### Exploration
 
-- How dangerous should The Ruins be? Can players retreat? What does defeat cost and when does an expedition count as complete?
+- How should deeper floors change difficulty, and how far will players push before returning to the entrance or using the Recall Beacon?
 - What rewards make expeditions worth choosing over another training fight?
 
 ### Equipment and rarity

@@ -3,50 +3,10 @@
   <% if (dead) { %>
   <%- include("../partials/arena-heal-notice") %>
   <% } else { %>
-  <div class="battle-log">
-    <% battleLog.forEach(entry => { %>
-    <% if (entry.type === "encounter") { %>
-    <p>
-      <span class="player"><%= entry.player %></span> encounters <span class="enemy"><%= entry.target %></span>!
-    </p>
-    <h4>Battle log</h4>
-    <% } else if (entry.type === "attack") { %>
-    <p class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
-      <span class="<%= entry.actor %>"><%= entry.player %></span>
-      attacks
-      <span class="<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
-      for
-      <strong><%= formatNumber(entry.damage) %></strong>
-      damage!
-      <% if (entry.critical) { %>
-      <strong class="critical-hit">Critical Hit!</strong>
-      <% } %>
-    </p>
-    <% } else if (entry.type === "outcome") { %>
-    <div class="battle-stats">
-      <h4>Battle summary</h4>
-      <p><span class="player"><%= formatPlayerName(user.name) %></span> HP: <%= formatNumber(startingPlayerHp) %> → <%= formatNumber(playerHp) %></p>
-      <p><span class="enemy">Level <%= formatNumber(level) %> Training Dummy</span> HP: <%= formatNumber(startingEnemyHp) %> → <%= formatNumber(enemyHp) %></p>
-      <% if (entry.result === "win") { %>
-      <p>
-        <span class="player"><%= entry.player %></span> wins!
-      </p>
-      <p>Reward: <%= formatNumber(entry.reward) %> gold, <%= formatNumber(xpEarned) %> XP</p>
-      <% if (gainedLevel !== null) { %>
-      <p>You reached level <%= formatNumber(gainedLevel) %>! <a href="/game#character-heading">Spend stat points in The Quarters</a>.</p>
-      <% } %>
-      <% } else if (entry.result === "loss") { %>
-      <p><span class="player"><%= entry.player %></span> was defeated!</p>
-      <% } else if (entry.result === "draw") { %>
-      <p>
-        The battle ended in a draw.
-        You keep your remaining HP and earn no reward.
-      </p>
-      <% } %>
-    </div>
-    <% } %>
-    <% }) %>
-  </div>
+  <%- include("../partials/battle-log", { enemyName: `Level ${formatNumber(level)} Training Dummy` }) %>
+  <% if (gainedLevel !== null) { %>
+  <p>You reached level <%= formatNumber(gainedLevel) %>! <a href="/game#character-heading">Spend stat points in The Quarters</a>.</p>
+  <% } %>
   <a href="/game/arena?level=<%= level %>">Return to Dominion</a>
   <% } %>
 </section>

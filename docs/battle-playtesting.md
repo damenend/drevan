@@ -559,3 +559,49 @@ stat choices, dummy levels, wins, defeats, gear purchases, and gold after
 healing. Note when a harder dummy feels worth trying and when repeating the
 same fight starts to feel slow. Use those observations to decide whether to
 test a different XP curve or a less aggressive path to harder dummies.
+
+## Ruins Floor 1 baseline
+
+Coordinates use (0, 0) at the upper-left entrance. These encounters appear on arrival. Move away and return to repeat a discovery or receive another enemy offer.
+
+| Square | Encounter          |  HP | Strength | Speed | Defense | Reward                       |
+| ------ | ------------------ | --: | -------: | ----: | ------: | ---------------------------- |
+| (1, 0) | Coin cache         |   — |        — |     — |       — | 8 gold                       |
+| (0, 2) | Supply case        |   — |        — |     — |       — | 1 Lesser Potion              |
+| (2, 1) | Vault Scavenger    |  18 |        4 |     4 |       0 | 30 gold and 30 XP on victory |
+| (4, 3) | Fractured Sentinel |  24 |        5 |     5 |       2 | 40 gold and 40 XP on victory |
+| (6, 6) | Alloy Warden       |  28 |        6 |     6 |       2 | 50 gold and 50 XP on victory |
+
+After `nvm use` from the repository root, run the seeded comparison:
+
+```sh
+node --import tsx scripts/playtest-ruins.ts > /tmp/drevan-ruins.csv
+```
+
+The script prints 18 data rows, with 1,000 full-health fights per row. The three
+builds are a fresh player, a player with both starter items, and a level 4 player
+with both items and one point in each of Strength, Speed, and max HP. Every
+Ruins enemy is paired with its Dominion baseline on the same seeds. Net gold
+subtracts one gold per missing HP for a full Sanctum heal, including after a
+loss. Mean remaining HP includes defeats as zero. All survivors won in this
+run. This isolates the fights and excludes travel, discoveries, equipment
+purchase costs, potions, and healing affordability.
+
+| Build                    | Opponent pair | Survival (Ruins / Dominion) | Mean HP (Ruins / Dominion) | Mean net gold (Ruins / Dominion) |
+| ------------------------ | ------------- | --------------------------: | -------------------------: | -------------------------------: |
+| Fresh                    | Scavenger / 3 |             100.0% / 100.0% |              13.38 / 12.26 |                  +18.39 / +17.26 |
+| Fresh                    | Sentinel / 4  |               56.6% / 49.6% |                2.26 / 1.83 |                    −0.10 / −3.33 |
+| Fresh                    | Warden / 5    |                 1.0% / 0.4% |                0.01 / 0.01 |                  −24.48 / −24.79 |
+| Starter gear             | Scavenger / 3 |             100.0% / 100.0% |              15.86 / 14.86 |                  +20.86 / +19.86 |
+| Starter gear             | Sentinel / 4  |               96.3% / 95.7% |                6.41 / 6.70 |                  +19.93 / +19.98 |
+| Starter gear             | Warden / 5    |               11.9% / 14.1% |                0.35 / 0.42 |                  −18.70 / −17.53 |
+| Level 4 with gear and AP | Scavenger / 3 |             100.0% / 100.0% |              21.59 / 21.10 |                  +23.59 / +23.10 |
+| Level 4 with gear and AP | Sentinel / 4  |             100.0% / 100.0% |              14.03 / 14.64 |                  +26.03 / +26.64 |
+| Level 4 with gear and AP | Warden / 5    |               95.5% / 95.3% |                7.18 / 7.76 |                  +26.93 / +27.41 |
+
+The Scavenger was a reliable fresh-character fight. The Sentinel became
+profitable with starter gear. The Warden still defeated 88.1% of geared
+starters, while the level 4 build survived 95.5% of fights from full HP.
+These results establish a combat baseline. A timed play session can measure
+how carrying damage between encounters and spending potions affect the
+decision to fight, walk back, or use the Recall Beacon.

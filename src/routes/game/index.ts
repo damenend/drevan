@@ -17,12 +17,31 @@ import inventoryRouter from "./inventory";
 import usersRouter from "./users";
 import fishingRouter from "./fishing";
 import progressionRouter from "./progression";
+import ruinsRouter from "./ruins";
 import { getProgression, statAllocations } from "../../services/progression";
 
 const router = Router();
 
 // Require authentication for all game routes
 router.use(requireAuth);
+router.use("/ruins", ruinsRouter);
+
+// An expedition permits only potion use and point allocation outside its router.
+router.use((req, res, next) => {
+  if (
+    res.locals.user.ruinsTile !== null &&
+    !(
+      req.method === "POST" &&
+      /^\/(inventory\/use|progression)\/?$/i.test(req.path)
+    )
+  ) {
+    return res.redirect(
+      303,
+      "/game/ruins?message=Leave+The+Ruins+to+visit+Nexaris+locations.",
+    );
+  }
+  next();
+});
 
 // Game homepage
 router.get("/", (req, res) => {
@@ -71,8 +90,17 @@ router.get("/", (req, res) => {
 });
 
 // Location directory
-router.get("/nexaris", (_req, res) => {
-  return res.render("game/nexaris", { title: "Nexaris" });
+router.get("/nexaris", (req, res) => {
+  const latestBattle = req.session.ruinsBattle;
+  const battle =
+    latestBattle && latestBattle.enemyHp > 0 ? latestBattle : undefined;
+  if (battle) delete req.session.ruinsBattle;
+  return res.render("game/nexaris", {
+    title: "Nexaris",
+    battle,
+    message:
+      typeof req.query.message === "string" ? req.query.message : undefined,
+  });
 });
 
 // Lore library

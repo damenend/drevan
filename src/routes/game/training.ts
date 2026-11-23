@@ -60,7 +60,7 @@ router.post("/", (req, res) => {
           name: formatPlayerName(player.name),
           hp: player.hp,
           speed: player.speed + player.speedPoints,
-          ...getEffectiveStats(player),
+          ...getEffectiveStats(player, tx),
         },
         enemy,
         goldReward,
