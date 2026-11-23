@@ -339,3 +339,36 @@ depends heavily on damage rounding. Revisit direct Defense allocation
 with stronger enemies or a wider gear catalog. The next live check is a
 short Dominion session with random ties and ordinary Sanctum visits to
 see whether the simulated difficulty and healing costs match play.
+
+### Dominion and Sanctum route playtest
+
+A temporary copy of the app ran both tie rules over HTTP using migrated
+disposable SQLite databases. Each session began at full HP with 100 gold
+after gear purchases. The equipped runs bought and equipped both starter
+items through the Emporium and inventory routes. Each session opened
+Dominion, submitted a training fight, then visited Sanctum to heal.
+Sessions ran up to 50 bouts or stopped when a full heal was unaffordable.
+Both rules used the audit's combat seeds 1–50 and random ties used the
+separate tie stream. This was an automated route playtest. Time spent by a
+player reading, choosing actions, or switching activities was outside its
+scope.
+
+| Starter gear | Dummy level | Live wins / bouts | Live ending gold | Random ties wins / bouts | Random ties ending gold |
+| ------------ | ----------: | ----------------: | ---------------: | -----------------------: | ----------------------: |
+| None         |           3 |           50 / 50 |            1,008 |                  50 / 50 |                     987 |
+| None         |           4 |           34 / 50 |              373 |                  18 / 36 |                      12 |
+| Both items   |           3 |           50 / 50 |            1,117 |                  50 / 50 |                   1,115 |
+| Both items   |           4 |           50 / 50 |            1,278 |                  48 / 50 |                   1,089 |
+
+Under random ties, unequipped level 4 training ended at 0 HP with 12 gold,
+short of the 25 gold required to heal. A follow-up request confirmed that
+Dominion blocks another fight at 0 HP. The player could still fish, sell
+the catch, and heal. The route test forced 13 Murkfin catches to verify
+that recovery path without depending on fishing luck.
+
+The route results support describing level 3 as the repeatable starter
+fight and level 4 as a gear check if random ties are adopted. With both
+items, level 3 kept slightly more gold than level 4 in this 50-bout
+sample. The larger audit put level 4 ahead by 0.24 gold per fight, so
+treat their returns as close. The timing candidate is ready for a
+gameplay decision with that difficulty tradeoff documented.
