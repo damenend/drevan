@@ -1088,3 +1088,32 @@ test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stai
   assert.match(nearby, /aria-label="Move to \(2, 0\), Floor 2 entrance">2</);
   assert.doesNotMatch(nearby, /Descend to Floor 2/);
 });
+
+test("a Dominion win credits only the gold that fits in the balance", async (t) => {
+  sqlite.prepare("UPDATE users SET gold = ?").run(Number.MAX_SAFE_INTEGER - 2);
+  t.mock.method(Math, "random", () => 0.25);
+
+  const fight = await post("/game/training", { level: 1 });
+
+  assert.equal(fight.status, 200);
+  assert.match(fight.html, /Reward: 2 gold, 10 XP/);
+  assert.equal(player().gold, Number.MAX_SAFE_INTEGER);
+});
+
+test("a catch at the stack limit still spends one fishing cast", async (t) => {
+  sqlite
+    .prepare(
+      "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 3, ? FROM users WHERE email = ?",
+    )
+    .run(Number.MAX_SAFE_INTEGER, account.email);
+  t.mock.method(Math, "random", () => 0.25);
+
+  const cast = await post("/game/fishing");
+
+  assert.equal(cast.status, 200);
+  assert.match(cast.html, /You released the <strong>Murkfin<\/strong>/);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 3, quantity: Number.MAX_SAFE_INTEGER },
+  ]);
+  assert.equal(player().fishing_casts_used, 1);
+});

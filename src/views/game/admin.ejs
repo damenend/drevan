@@ -1,5 +1,5 @@
 <section class="page">
-  <h3>Admin portal</h3>
+  <h2>Admin portal</h2>
 
   <% if (message === 'err') { %>
   <p role="status">An error occurred.</p>
@@ -27,7 +27,7 @@
         <tbody>
           <% editableStats.forEach(key => { %>
           <tr>
-            <td><label for="<%= key %>"><%= statLabels[key] %></label></td>
+            <th scope="row"><label for="<%= key %>"><%= statLabels[key] %></label></th>
             <td>
               <input type="number" id="<%= key %>" name="stats[<%= key %>]" value="<%= statValues[key] %>" min="0" step="1" required <% if (key === "fishing_casts_used") { %>max="<%= dailyCastLimit %>"<% } %>>
             </td>

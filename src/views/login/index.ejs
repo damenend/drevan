@@ -2,22 +2,21 @@
   <h2>Login</h2>
   <form action="/login" method="POST">
     <div class="form-group">
+      <label for="login-email">Email</label>
       <input
-        autofocus
+        id="login-email"
         type="email"
-        aria-label="Email"
         autocomplete="username"
         name="email"
-        placeholder="Email"
         required
       />
     </div>
     <div class="form-group">
+      <label for="login-password">Password</label>
       <input
+        id="login-password"
         type="password"
         name="password"
-        aria-label="Password"
-        placeholder="Password"
         autocomplete="current-password"
         required
       />
@@ -30,7 +29,8 @@
   <h2>Sign Up</h2>
   <form id="signup-form" action="/signup" method="POST">
     <div class="form-group">
-      <input type="text" name="name" placeholder="Player name" aria-label="Player name" aria-describedby="player-name-rules signup-name-error" autocomplete="nickname" minlength="3" maxlength="24" pattern="[A-Za-z0-9_\-][A-Za-z0-9_ \-]{1,22}[A-Za-z0-9_\-]" required />
+      <label for="signup-name">Player name</label>
+      <input type="text" id="signup-name" name="name" aria-describedby="player-name-rules signup-name-error" autocomplete="nickname" minlength="3" maxlength="24" pattern="[A-Za-z0-9_\-][A-Za-z0-9_ \-]{1,22}[A-Za-z0-9_\-]" required />
       <p id="player-name-rules">3–24 characters. Use letters A–Z, numbers, spaces, underscores, or hyphens. Keep spaces inside the name. Names are unique regardless of capitalization.</p>
       <p id="signup-name-error" hidden></p>
     </div>
@@ -43,28 +43,29 @@
       <p id="signup-avatarModel-error" hidden></p>
     </div>
     <div class="form-group">
-      <input type="email" name="email" placeholder="Email" aria-label="Email" aria-describedby="signup-email-error" autocomplete="email" required />
+      <label for="signup-email">Email</label>
+      <input type="email" id="signup-email" name="email" aria-describedby="signup-email-error" autocomplete="email" required />
       <p id="signup-email-error" hidden></p>
     </div>
     <div class="form-group">
+      <label for="signup-password">Password</label>
       <input
         type="password"
+        id="signup-password"
         name="password"
-        aria-label="Password"
         aria-describedby="signup-password-error"
-        placeholder="Password"
         autocomplete="new-password"
         required
       />
       <p id="signup-password-error" hidden></p>
     </div>
     <div class="form-group">
+      <label for="signup-passwordConfirmation">Confirm password</label>
       <input
         type="password"
+        id="signup-passwordConfirmation"
         name="passwordConfirmation"
-        aria-label="Confirm password"
         aria-describedby="signup-passwordConfirmation-error"
-        placeholder="Confirm password"
         autocomplete="new-password"
         required
       />

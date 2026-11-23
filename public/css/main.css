@@ -54,7 +54,7 @@ a:hover {
 }
 
 .err {
-  color: red;
+  color: #ff5454;
 }
 
 .text-muted {
@@ -78,7 +78,7 @@ textarea {
   width: 100%;
   padding: 0.5rem 0.75rem;
   background: #242424;
-  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
+  border: 1px solid #999999;
   border-radius: 3px;
 }
 input[type=text]::placeholder,
@@ -481,6 +481,10 @@ img {
   font-weight: bold;
 }
 
+.ruins-map button.ruins-tile {
+  background: color-mix(in srgb, #242424, #b58b4c 20%);
+}
+
 .ruins-map button.ruins-tile:hover,
 .ruins-map button.ruins-tile:focus-visible {
   outline: 2px solid #b58b4c;
@@ -543,6 +547,19 @@ main {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 1rem;
+  background: #242424;
+  padding: 0.5rem 0.75rem;
+  text-decoration: underline;
+}
+.skip-link:not(:focus) {
+  transform: translateY(calc(-100% - 0.5rem));
 }
 
 /*# sourceMappingURL=main.css.map */

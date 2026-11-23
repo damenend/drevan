@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { db } from "../../db";
 import { and, eq, isNull, lt, ne, or, sql } from "drizzle-orm";
-import { inventory, items, users } from "../../db/schema";
+import { items, users } from "../../db/schema";
 import {
   DAILY_CAST_LIMIT,
   getDailyCastsUsed,
   getFishingDate,
   rollFishingCatch,
 } from "../../services/fishing";
+
+import { grantInventoryItem } from "../../services/inventory";
 
 const router = Router();
 
@@ -22,6 +24,7 @@ router.get("/", (req, res) => {
   return res.render("game/fishing", {
     title: "The Driftwater",
     caughtFish: undefined,
+    releasedFish: null,
     castsRemaining: Math.max(0, DAILY_CAST_LIMIT - castsUsed),
   });
 });
@@ -53,7 +56,7 @@ router.post("/", (req, res) => {
       .get();
 
     if (!cast) {
-      return { caughtFish: undefined, castsRemaining: 0 };
+      return { caughtFish: undefined, releasedFish: null, castsRemaining: 0 };
     }
 
     const caughtFish = rollFishingCatch();
@@ -69,16 +72,20 @@ router.post("/", (req, res) => {
         throw new Error(`Missing fish in the item catalog: ${caughtFish}`);
       }
 
-      tx.insert(inventory)
-        .values({ userId: player.id, itemId: fish.id, quantity: 1 })
-        .onConflictDoUpdate({
-          target: [inventory.userId, inventory.itemId],
-          set: { quantity: sql`${inventory.quantity} + 1` },
-        })
-        .run();
+      if (!grantInventoryItem(tx, player.id, fish.id)) {
+        return {
+          caughtFish: undefined,
+          releasedFish: caughtFish,
+          castsRemaining: DAILY_CAST_LIMIT - cast.castsUsed,
+        };
+      }
     }
 
-    return { caughtFish, castsRemaining: DAILY_CAST_LIMIT - cast.castsUsed };
+    return {
+      caughtFish,
+      releasedFish: null,
+      castsRemaining: DAILY_CAST_LIMIT - cast.castsUsed,
+    };
   });
 
   return res.render("game/fishing", {

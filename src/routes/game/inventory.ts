@@ -1,7 +1,8 @@
 import { Router, type Response } from "express";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { effectiveMaxHp, users, items, inventory } from "../../db/schema";
+import { equipmentSlots, getEquipmentColumn } from "../../services/equipment";
 import { applyItemEffect } from "../../services/items";
 
 import { parseFormInteger } from "../../utils/parse-form-integer";
@@ -51,79 +52,86 @@ router.post("/use", (req, res) => {
     );
   }
 
-  const result = db.transaction((tx) => {
-    // Fetch the player's current stats inside the transaction
-    const currentPlayer = tx
-      .select({
-        hp: users.hp,
-        maxHp: effectiveMaxHp,
-        ruinsTile: users.ruinsTile,
-      })
-      .from(users)
-      .where(eq(users.id, player.id))
-      .get();
+  const result = db.transaction(
+    (tx) => {
+      // Fetch the player's current stats inside the transaction
+      const currentPlayer = tx
+        .select({
+          hp: users.hp,
+          maxHp: effectiveMaxHp,
+          ruinsTile: users.ruinsTile,
+        })
+        .from(users)
+        .where(eq(users.id, player.id))
+        .get();
 
-    if (!currentPlayer) {
-      return null;
-    }
+      if (!currentPlayer) {
+        return null;
+      }
 
-    const ownedItem = findOwnedItem(tx, player.id, itemId);
+      const ownedItem = findOwnedItem(tx, player.id, itemId);
 
-    if (!ownedItem || ownedItem.type !== "consumable") {
-      return null;
-    }
+      if (!ownedItem || ownedItem.type !== "consumable") {
+        return null;
+      }
 
-    if (!ownedItem.effect || ownedItem.effectValue === null) {
-      return null;
-    }
+      if (!ownedItem.effect || ownedItem.effectValue === null) {
+        return null;
+      }
 
-    if (
-      ownedItem.effect === "heal"
-        ? currentPlayer.hp <= 0
-        : currentPlayer.ruinsTile !== null
-    ) {
-      return null;
-    }
+      if (
+        ownedItem.effect === "heal"
+          ? currentPlayer.hp <= 0
+          : currentPlayer.ruinsTile !== null
+      ) {
+        return null;
+      }
 
-    // Calculate the item's effect
-    const effectResult = applyItemEffect(
-      currentPlayer,
-      ownedItem.effect,
-      ownedItem.effectValue,
-    );
+      // Calculate the item's effect
+      const effectResult = applyItemEffect(
+        currentPlayer,
+        ownedItem.effect,
+        ownedItem.effectValue,
+      );
 
-    if (!effectResult) {
-      return null;
-    }
+      if (!effectResult) {
+        return null;
+      }
 
-    // Consume one item
-    const consumed = tx
-      .update(inventory)
-      .set({
-        quantity: sql`${inventory.quantity} - 1`,
-      })
-      .where(and(inventoryEntry(player.id, itemId), gt(inventory.quantity, 0)))
-      .run();
+      // Consume one item
+      const consumed = tx
+        .update(inventory)
+        .set({
+          quantity: sql`${inventory.quantity} - 1`,
+        })
+        .where(
+          and(inventoryEntry(player.id, itemId), gt(inventory.quantity, 0)),
+        )
+        .run();
 
-    if (consumed.changes !== 1) {
-      tx.rollback();
-    }
+      if (consumed.changes !== 1) {
+        return null;
+      }
 
-    // Apply the effect to the player
-    tx.update(users)
-      .set({
-        hp: effectResult.hp,
-      })
-      .where(eq(users.id, player.id))
-      .run();
+      // Apply the effect to the player
+      tx.update(users)
+        .set({
+          hp: effectResult.hp,
+        })
+        .where(eq(users.id, player.id))
+        .run();
 
-    // Remove inventory rows with zero quantity
-    tx.delete(inventory)
-      .where(and(inventoryEntry(player.id, itemId), eq(inventory.quantity, 0)))
-      .run();
+      // Remove inventory rows with zero quantity
+      tx.delete(inventory)
+        .where(
+          and(inventoryEntry(player.id, itemId), eq(inventory.quantity, 0)),
+        )
+        .run();
 
-    return effectResult;
-  });
+      return effectResult;
+    },
+    { behavior: "immediate" },
+  );
 
   return redirectHome(res, result?.message ?? "No effect");
 });
@@ -144,21 +152,18 @@ router.post("/equip", (req, res) => {
         return "Item not found in inventory.";
       }
 
-      if (ownedItem.type === "weapon") {
-        tx.update(users)
-          .set({ equippedWeaponId: itemId })
-          .where(eq(users.id, player.id))
-          .run();
-      } else if (ownedItem.type === "armor") {
-        tx.update(users)
-          .set({ equippedArmorId: itemId })
-          .where(eq(users.id, player.id))
-          .run();
-      } else {
-        return "This item cannot be equipped.";
-      }
+      const slot = getEquipmentColumn(ownedItem.type);
+      if (!slot) return "This item cannot be equipped.";
 
-      return "Item equipped.";
+      const equipped = tx
+        .update(users)
+        .set({ [slot]: itemId })
+        .where(and(eq(users.id, player.id), isNull(users.ruinsTile)))
+        .run();
+
+      return equipped.changes
+        ? "Item equipped."
+        : "Leave The Ruins to change equipment.";
     },
     // Keep the ownership check and equip write together if a sale is in progress.
     { behavior: "immediate" },
@@ -175,21 +180,29 @@ router.post("/unequip", (req, res) => {
     return redirectHome(res, "Invalid item.");
   }
 
-  if (player.equippedWeaponId === itemId) {
-    db.update(users)
-      .set({ equippedWeaponId: null })
-      .where(eq(users.id, player.id))
-      .run();
-  } else if (player.equippedArmorId === itemId) {
-    db.update(users)
-      .set({ equippedArmorId: null })
-      .where(eq(users.id, player.id))
-      .run();
-  } else {
-    return redirectHome(res, "Item is not equipped.");
-  }
+  const slot = Object.values(equipmentSlots).find(
+    (key) => player[key] === itemId,
+  );
+  if (!slot) return redirectHome(res, "Item is not equipped.");
 
-  return redirectHome(res, "Item unequipped.");
+  const unequipped = db
+    .update(users)
+    .set({ [slot]: null })
+    .where(
+      and(
+        eq(users.id, player.id),
+        eq(users[slot], itemId),
+        isNull(users.ruinsTile),
+      ),
+    )
+    .run();
+
+  return redirectHome(
+    res,
+    unequipped.changes
+      ? "Item unequipped."
+      : "Equipment changed. Try again outside The Ruins.",
+  );
 });
 
 export default router;

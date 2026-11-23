@@ -20,6 +20,17 @@ type EquippedPlayer = Pick<
   | "equippedArmorId"
 >;
 
+export const equipmentSlots = {
+  weapon: "equippedWeaponId",
+  armor: "equippedArmorId",
+} as const;
+
+/** Maps a catalog item type to its player equipment column. */
+export function getEquipmentColumn(type: string) {
+  if (type === "weapon" || type === "armor") return equipmentSlots[type];
+  return null;
+}
+
 /**
  * Identifies the slot that reserves one copy of this inventory stack.
  */
@@ -27,10 +38,9 @@ export function getEquippedSlot(
   player: Pick<EquippedPlayer, "equippedWeaponId" | "equippedArmorId">,
   item: Pick<typeof items.$inferSelect, "id" | "type">,
 ) {
-  if (item.type === "weapon" && item.id === player.equippedWeaponId)
-    return "weapon";
-  if (item.type === "armor" && item.id === player.equippedArmorId)
-    return "armor";
+  if (item.type === "weapon" || item.type === "armor") {
+    if (item.id === player[equipmentSlots[item.type]]) return item.type;
+  }
   return null;
 }
 

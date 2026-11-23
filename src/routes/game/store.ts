@@ -106,19 +106,24 @@ router.post("/", (req, res) => {
     (tx) => {
       let totalCost = 0;
 
+      const catalog = tx
+        .select({ id: items.id, price: items.price, owned: inventory.quantity })
+        .from(items)
+        .leftJoin(
+          inventory,
+          and(eq(inventory.itemId, items.id), eq(inventory.userId, player.id)),
+        )
+        .where(
+          inArray(
+            items.id,
+            selectedItems.map(({ itemId }) => itemId),
+          ),
+        )
+        .all();
+      const catalogById = new Map(catalog.map((item) => [item.id, item]));
+
       for (const purchase of selectedItems) {
-        const item = tx
-          .select({ price: items.price, owned: inventory.quantity })
-          .from(items)
-          .leftJoin(
-            inventory,
-            and(
-              eq(inventory.itemId, items.id),
-              eq(inventory.userId, player.id),
-            ),
-          )
-          .where(eq(items.id, purchase.itemId))
-          .get();
+        const item = catalogById.get(purchase.itemId);
 
         if (
           !item ||
@@ -201,24 +206,33 @@ router.post("/sell", (req, res) => {
       let totalPayout = 0;
       const remainingStacks: { id: number; quantity: number }[] = [];
 
-      for (const { itemId, quantity } of selectedItems) {
-        const stack = tx
-          .select({
-            id: inventory.id,
-            quantity: inventory.quantity,
-            type: items.type,
-            sellPrice: items.sellPrice,
-          })
-          .from(inventory)
-          .innerJoin(items, eq(items.id, inventory.itemId))
-          .where(
-            and(
-              eq(inventory.userId, userId),
-              eq(inventory.itemId, itemId),
-              buybackEligible,
+      const stacks = tx
+        .select({
+          id: inventory.id,
+          itemId: inventory.itemId,
+          quantity: inventory.quantity,
+          type: items.type,
+          sellPrice: items.sellPrice,
+        })
+        .from(inventory)
+        .innerJoin(items, eq(items.id, inventory.itemId))
+        .where(
+          and(
+            eq(inventory.userId, userId),
+            inArray(
+              inventory.itemId,
+              selectedItems.map(({ itemId }) => itemId),
             ),
-          )
-          .get();
+            buybackEligible,
+          ),
+        )
+        .all();
+      const stacksByItemId = new Map(
+        stacks.map((stack) => [stack.itemId, stack]),
+      );
+
+      for (const { itemId, quantity } of selectedItems) {
+        const stack = stacksByItemId.get(itemId);
 
         if (
           !stack ||

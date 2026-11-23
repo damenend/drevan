@@ -52,7 +52,7 @@
         <% const marker = (tile === position ? "P" : "") + symbol; %>
         <% const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : eventKind ? " ruins-tile--" + eventKind : "") + (tile === position ? " ruins-tile--player" : ""); %>
         <% if (canMove(position, tile)) { %>
-        <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move to <%= label %><%= description ? ', ' + description : '' %>"><%= marker %></button>
+        <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move to <%= label %><%= description ? ', ' + description : '' %>"><%= marker || "·" %></button>
         <% } else { %>
         <span class="<%= style %>" aria-hidden="true"><%= marker %></span>
         <% } %>
@@ -127,7 +127,7 @@
 
   <% if (battle) { %>
   <section aria-label="Battle result">
-    <%- include("../partials/battle-log", battle) %>
+    <%- include("../partials/battle-log", { ...battle, battleHeadingLevel: 3 }) %>
   </section>
   <% } %>
 

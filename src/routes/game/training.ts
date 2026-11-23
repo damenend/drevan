@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { getEffectiveStats } from "../../services/equipment";
@@ -42,6 +42,7 @@ router.post("/", (req, res) => {
           name: users.name,
           hp: users.hp,
           exp: users.exp,
+          gold: users.gold,
           strength: users.strength,
           strengthPoints: users.strengthPoints,
           agility: users.agility,
@@ -67,7 +68,10 @@ router.post("/", (req, res) => {
           ...getEffectiveStats(player, tx),
         },
         enemy,
-        goldReward,
+        Math.min(
+          goldReward,
+          Math.max(0, Number.MAX_SAFE_INTEGER - player.gold),
+        ),
       );
 
       // Commit HP loss and any victory rewards together.
@@ -79,7 +83,8 @@ router.post("/", (req, res) => {
       tx.update(users)
         .set({
           hp: result.playerHp,
-          gold: sql`${users.gold} + ${result.goldEarned}`,
+          gold:
+            result.goldEarned > 0 ? player.gold + result.goldEarned : undefined,
           exp,
         })
         .where(eq(users.id, player.id))

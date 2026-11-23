@@ -74,6 +74,10 @@
   }
 }
 
+.ruins-map button.ruins-tile {
+  background: color-mix(in srgb, vars.$color-surface, vars.$color-primary 20%);
+}
+
 .ruins-map button.ruins-tile:hover,
 .ruins-map button.ruins-tile:focus-visible {
   outline: 2px solid vars.$color-primary;

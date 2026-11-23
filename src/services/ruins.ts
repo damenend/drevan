@@ -1,4 +1,4 @@
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import { db } from "../db";
 import { inventory, items, users } from "../db/schema";
 import { formatNumber } from "../utils/format-number";
@@ -6,6 +6,7 @@ import { formatPlayerName } from "../utils/format-player-name";
 import { getGameDate } from "../utils/game-date";
 import { simulateBattle, type BattleResult } from "./battle";
 import { getEffectiveStats } from "./equipment";
+import { grantInventoryItem } from "./inventory";
 import {
   canMoveInRuins,
   getRuinsEncounter,
@@ -126,17 +127,9 @@ export function actInRuins(
                 .get();
               if (!item)
                 return { message: "This discovery is currently unavailable." };
-              const grant = tx
-                .insert(inventory)
-                .values({ userId, itemId: item.id })
-                .onConflictDoUpdate({
-                  target: [inventory.userId, inventory.itemId],
-                  set: { quantity: sql`${inventory.quantity} + 1` },
-                  setWhere: sql`${inventory.quantity} < ${Number.MAX_SAFE_INTEGER}`,
-                })
-                .run();
-              if (grant.changes) result.discovery = "item";
-              result.message = grant.changes
+              const granted = grantInventoryItem(tx, userId, item.id);
+              if (granted) result.discovery = "item";
+              result.message = granted
                 ? `${encounter.description} You collect a ${encounter.item}.`
                 : "You cannot carry any more of this item.";
             }

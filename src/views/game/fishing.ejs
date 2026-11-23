@@ -1,5 +1,5 @@
 <section class="page">
-  <h3>Welcome to <%= title %>!</h3>
+  <h2>Welcome to <%= title %>!</h2>
   <%- include("../partials/location-image", {
     src: "/images/the-driftwater.webp",
     caption: "A mystical shoreline where glowing waters meet ancient ruins beneath a sky filled with distant worlds.",
@@ -14,8 +14,10 @@
   <p>You've used all your casts for today. Come back after midnight Central time.</p>
   <% } %>
   <% if (caughtFish) { %>
-  <img src="/images/<%= caughtFish.toLowerCase().replace(" ", "-") %>.webp" alt="<%= caughtFish %>" class="fish-image" />
+  <img src="/images/<%= caughtFish.toLowerCase().replace(" ", "-") %>.webp" alt="" class="fish-image" />
   <p>You caught a <strong><%= caughtFish %></strong>!</p>
+  <% } else if (releasedFish) { %>
+  <p>You released the <strong><%= releasedFish %></strong> because its inventory stack is full.</p>
   <% } else if (caughtFish === null) { %>
   <p>Nothing bit this time.</p>
   <% } %>

@@ -22,7 +22,6 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
       avatarModel: users.avatarModel,
       characterClass: users.characterClass,
       speed: users.speed,
-      email: users.email,
       gold: users.gold,
       hp: users.hp,
       maxHp: effectiveMaxHp,

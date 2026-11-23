@@ -1,12 +1,12 @@
 <section class="page">
-  <h3>Welcome to <%= title %>!</h3>
+  <h2>Welcome to <%= title %>!</h2>
   <%- include("../partials/location-image", {
     src: "/images/curious-emporium.webp",
     caption: "A fantasy marketplace filled with glowing crystals and merchant supplies beneath a bronze dome.",
   }) %>
   <%- include("../partials/player-gold", { gold: user.gold }) %>
-  <h4>Buy items</h4>
-  <form action="/game/store" method="POST">
+  <h3>Buy items</h3>
+  <form id="purchase-form" action="/game/store" method="POST">
     <div class="table-responsive">
       <table class="table">
         <thead>
@@ -42,15 +42,15 @@
     </div>
     <p>
       Total:
-      <output id="total-gold" aria-live="polite">0</output> gold
+      <output id="total-gold">0</output> gold
     </p>
     <p id="purchase-message" class="err" aria-live="polite">
       <%= err || "" %>
     </p>
-    <button type="submit" id="purchase-button" class="button">Purchase</button>
+    <button type="submit" class="button">Purchase</button>
   </form>
   <section id="sell" aria-labelledby="sell-heading">
-    <h4 id="sell-heading">Sell items</h4>
+    <h3 id="sell-heading">Sell items</h3>
     <% if (sold) { %>
     <p role="status">Sale complete.</p>
     <% } %>
@@ -81,7 +81,7 @@
                 <a href="/game#equipped">Unequip in The Quarters</a>
                 <% } else { %>
                 <label for="sell-<%= item.id %>" class="visually-hidden">Quantity of <%= item.name %> to sell</label>
-                <input type="number" id="sell-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" max="<%= item.available %>" step="1" data-price="<%= item.sellPrice %>">
+                <input type="number" id="sell-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" max="<%= item.available %>" step="1" data-price="<%= item.sellPrice %>" class="item-quantity">
                 <% } %>
               </td>
             </tr>
@@ -92,66 +92,14 @@
       <% if (sellableItems.some(item => item.available > 0)) { %>
       <p>
         Sell for
-        <output id="sell-total" aria-live="polite">0</output> gold
+        <output id="sell-total">0</output> gold
       </p>
-      <button type="submit" id="sell-button" class="button">Sell</button>
+      <p id="sell-message" class="err" aria-live="polite"></p>
+      <button type="submit" class="button">Sell</button>
       <% } %>
     </form>
     <% } %>
   </section>
 </section>
 
-<script>
-  const quantityInputs = document.querySelectorAll(".item-quantity");
-  const totalGold = document.querySelector("#total-gold");
-  const playerGold = document.querySelector("#player-gold");
-  const purchaseMessage = document.querySelector("#purchase-message");
-  const purchaseButton = document.querySelector("#purchase-button");
-
-  const availableGold = Number(playerGold.dataset.gold);
-
-  function getTotal(inputs) {
-    let total = 0;
-
-    inputs.forEach((input) => {
-      const price = Number(input.dataset.price);
-      const quantity = Number(input.value) || 0;
-
-      total += price * quantity;
-    });
-
-    return total;
-  }
-
-  function updatePurchaseTotal() {
-    const total = getTotal(quantityInputs);
-    totalGold.textContent = total.toLocaleString("en-US");
-
-    if (total > availableGold) {
-      purchaseMessage.textContent = "You don't have enough gold!";
-      purchaseButton.disabled = true;
-    } else {
-      purchaseMessage.textContent = "";
-      purchaseButton.disabled = false;
-    }
-  }
-
-  quantityInputs.forEach((input) => {
-    input.addEventListener("input", updatePurchaseTotal);
-  });
-
-  const sellInputs = Array.from(document.querySelectorAll("#sell-form input[data-price]"));
-  const sellTotal = document.querySelector("#sell-total");
-  const sellButton = document.querySelector("#sell-button");
-
-  if (sellTotal && sellButton) {
-    const updateSellTotal = () => {
-      const total = getTotal(sellInputs);
-      sellTotal.textContent = total.toLocaleString("en-US");
-      sellButton.disabled = total <= 0 || sellInputs.some(input => !input.validity.valid);
-    };
-
-    sellInputs.forEach(input => input.addEventListener("input", updateSellTotal));
-    updateSellTotal();
-  }
-</script>
+<script src="/js/store.js" defer></script>

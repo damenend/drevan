@@ -123,7 +123,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - Players can cast 50 times per day at The Driftwater, including empty casts.
   The allowance resets at midnight in `America/Chicago`.
 - A successful catch adds one fish to inventory in the same transaction that
-  spends the cast.
+  spends the cast. If that stack is full, the cast still counts and the fish
+  is released. Fishing and Ruins discoveries share the same stack-limit check.
 
 ### The Ruins
 
@@ -153,7 +154,10 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Attack Power = `2 + (level - 1)`
   - Speed = `2 + (level - 1)`
   - Defense = `Math.floor(level / 4)`
-- Training saves remaining HP and awards `dummy level * 10` gold and XP on a win in one transaction. Losses and draws grant zero rewards.
+- Training saves remaining HP and awards `dummy level * 10` gold and XP on a
+  win in one transaction. Each reward is capped by how much fits in its
+  balance, up to JavaScript’s maximum safe integer. Losses and draws grant
+  zero rewards.
 - Character levels 2 through 10 cost 60, 150, 270, 420, 600, 810, 1,050,
   1,320, and 1,620 XP per level-up. The Quarters shows XP earned toward the
   next level. Excess XP carries over, and the database stores lifetime XP.

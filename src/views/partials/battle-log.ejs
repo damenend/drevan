@@ -1,10 +1,11 @@
+  <% const headingLevel = typeof battleHeadingLevel === "undefined" ? 4 : battleHeadingLevel; %>
   <div class="battle-log">
     <% battleLog.forEach(entry => { %>
     <% if (entry.type === "encounter") { %>
     <p>
       <span class="player"><%= entry.player %></span> encounters <span class="enemy"><%= entry.target %></span>!
     </p>
-    <h4>Battle log</h4>
+    <h<%= headingLevel %>>Battle log</h<%= headingLevel %>>
     <% } else if (entry.type === "attack") { %>
     <p class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
       <span class="<%= entry.actor %>"><%= entry.player %></span>
@@ -19,7 +20,7 @@
     </p>
     <% } else if (entry.type === "outcome") { %>
     <div class="battle-stats">
-      <h4>Battle summary</h4>
+      <h<%= headingLevel %>>Battle summary</h<%= headingLevel %>>
       <p><span class="player"><%= formatPlayerName(user.name) %></span> HP: <%= formatNumber(startingPlayerHp) %> → <%= formatNumber(playerHp) %></p>
       <p><span class="enemy"><%= enemyName %></span> HP: <%= formatNumber(startingEnemyHp) %> → <%= formatNumber(enemyHp) %></p>
       <% if (entry.result === "win") { %>

@@ -5,17 +5,18 @@ import { effectiveMaxHp, users } from "../../db/schema";
 import { formatNumber } from "../../utils/format-number";
 import { formatPlayerName } from "../../utils/format-player-name";
 
+import { parseFormInteger } from "../../utils/parse-form-integer";
+
 const router = Router();
 
 // Hospital page
 router.get("/", (req, res) => {
   const player = res.locals.user;
 
-  const healed =
-    typeof req.query.healed === "string" ? Number(req.query.healed) : 0;
+  const healed = parseFormInteger(req.query.healed) ?? 0;
   let message;
 
-  if (Number.isSafeInteger(healed) && healed > 0) {
+  if (healed > 0) {
     message = `${formatPlayerName(player.name)} was healed for ${formatNumber(healed)} HP`;
   } else if (req.query.err) {
     message = "Unable to heal. Please check your gold and try again.";
