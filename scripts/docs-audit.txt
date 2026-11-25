@@ -1,0 +1,7 @@
+Review documentation for the current repository changes. Read AGENTS.md and use the ownership map in docs/README.md to choose the relevant references.
+
+Inspect Git status, staged and unstaged diffs, and relevant unignored new files. Skip local secrets, databases, dependencies, and irrelevant generated artifacts. Inspect the actual source, tests, schema, and configuration needed for claims under review.
+
+Update only documentation that needs a meaningful change. Put persistent agent instructions in AGENTS.md and domain detail in its owning document. Distinguish shipped behavior, approved requirements, proposals, and historical evidence. If approved rules conflict with implementation, summarize the discrepancy and decision needed. Do not change application code or silently revise the requirement. Routine refactors may need no documentation edits.
+
+Check relative links, heading anchors, and source or command references touched by the review. Flag missing or stale function and method comments where TSDoc would clarify a contract. Summarize edits, checks, unresolved contradictions, and decisions needed. Leave staging and committing to the contributor.

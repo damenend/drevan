@@ -4,7 +4,7 @@ Drevan is a text-driven science-fantasy RPG. The people of Nexaris make a living
 
 > The old world is gone. The unknown awaits.
 
-Consult [the lore reference](lore.md) before adding a claim about the world. Use [the roadmap](roadmap.md) for development plans.
+Consult [the lore reference](lore.md) before adding a claim about the world. Use [the roadmap](../planning/roadmap.md) for development plans.
 
 ## Write for the moment
 
@@ -26,11 +26,10 @@ Keep the delivery matter-of-fact. Let the mismatch between an object’s reputat
 
 > Zhurak'Thul spent forty years perfecting this instrument of unspeakable dark magic. It is primarily used to stir soup.
 
-## Names and mechanics
+## Functional copy
+
+Use [canonical terminology](terminology.md) for names and stats. Follow the [accessibility guide](../design/accessibility.md) for text alternatives and feedback. Captions can add setting or context.
 
 - Use American English and sentence case for ordinary labels, buttons, and messages. Use “Log in” for the action. Save exclamation marks for exceptional moments.
-- Preserve official names and articles, including The Quarters, The Ruins, The Driftwater, The Registry, The Reliquary, and Curious Emporium. Prefer “the arena” to inventing a variant of Dominion.
-- Use Strength, Agility, Intellect, and Fortitude for primary attributes. Use Attack Power, Speed, and Defense for combat stats. Use HP and XP consistently and spell out “attribute points” where space allows.
 - State units, costs, and reset times where players need them. Format dynamic numbers with the shared formatter and check zero, one, and several. Write “Restored 1 HP” and “Restored 50 HP” with the same unit.
 - Use concise action labels and identify the destination in recovery links, as in “Heal at Sanctum.” Keep form instructions beside the inputs they govern.
-- Describe meaningful visual details in alt text. Use an empty alt when the image is decorative or adjacent text supplies its purpose. Captions can add setting or context. Give players the outcome in words even when the interface also highlights it.

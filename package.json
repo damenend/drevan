@@ -55,6 +55,7 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "test:a11y": "node --import tsx scripts/test-accessibility.mjs",
     "test:watch": "node --import tsx --test --watch tests/*.test.ts",
-    "docs:agents": "codex exec --sandbox workspace-write \"Review AGENTS.md against the current tracked repository, including staged and unstaged changes, and any relevant new source or config files. Skip ignored files and local secrets. In the summary, flag missing or stale function and method comments in changed code where TSDoc would clarify behavior, following AGENTS.md. Update only AGENTS.md where gameplay rules, architecture, or contributor workflows have changed. Leave it untouched if it is current. Summarize findings without staging or committing anything.\""
+    "docs:agents": "yarn docs:audit",
+    "docs:audit": "codex exec --sandbox workspace-write - < scripts/docs-audit.txt"
   }
 }

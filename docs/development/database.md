@@ -1,18 +1,24 @@
-# Drevan Drizzle cheatsheet
+# Database development
 
 Drevan stores its local game data in a SQLite file at `data/game.sqlite`. Drizzle Kit manages changes to the tables, and Drevan's seed script loads the item catalog.
 
-| I want to…                      | What to run                                                             |
-| ------------------------------- | ----------------------------------------------------------------------- |
-| Add a column or change a table  | `yarn db:generate`, review the SQL and metadata, then `yarn db:migrate` |
-| Add an item or change its price | `yarn db:seed` after editing `src/db/seed.ts`                           |
-| Set up a new local database     | `mkdir -p data`, `yarn db:migrate`, then `yarn db:seed`                 |
+Run commands from the repository root after `nvm use`. Drizzle Kit reads `DATABASE_URL` from the environment, and Drevan opens `./data/game.sqlite` relative to its working directory. Keep both pointed at the same file for local development.
 
-Run commands from the project root after `nvm use`. Set `DATABASE_URL=./data/game.sqlite` in `.env` so Drizzle Kit opens the same file as the app and seed script.
+## Set up a fresh local database
+
+Complete the environment setup in [Run Drevan locally](getting-started.md). Then run the following commands.
+
+```sh
+mkdir -p data
+yarn db:migrate
+yarn db:seed
+```
+
+The migrations build the tables. The seed loads the starter catalog and prints `Database seeded!` on success.
 
 ## Add a column or change a table
 
-1. Edit [src/db/schema.ts](../src/db/schema.ts). For example, `defense: integer("defense").notNull().default(0)` makes defense required and gives existing users a starting value of zero when the column is added.
+1. Edit [src/db/schema.ts](../../src/db/schema.ts). For example, `defense: integer("defense").notNull().default(0)` makes defense required and gives existing users a starting value of zero when the column is added.
 2. Run `yarn db:generate`. It compares your schema (the table definitions in TypeScript) with the last saved snapshot. It writes a migration (a SQL file with instructions for changing the tables) in `drizzle/` and updates the metadata in `drizzle/meta/`. The snapshot describes the resulting tables, and the journal lists the migrations in order.
 3. Review the generated SQL, snapshot, and journal together. For a new column, look for `ALTER TABLE ... ADD` and check that the column type and default match your intent.
 4. Run `yarn db:migrate`. This runs the migrations your database has yet to apply and records each one in the database.
@@ -33,22 +39,22 @@ Resolve each conflict with the affected players before rerunning `yarn db:migrat
 
 ## Add an item to the catalog
 
-1. Open [src/db/seed.ts](../src/db/seed.ts) and add an entry to the appropriate catalog list. The current seed includes potions, weapons, armor, fish, and the Recall Beacon. Copy a similar entry to see which fields it uses.
+1. Open [src/db/seed.ts](../../src/db/seed.ts) and add an entry to the appropriate catalog list. The current seed includes potions, weapons, armor, fish, and the Recall Beacon. Copy a similar entry to see which fields it uses.
 2. Run `yarn db:seed`. It inserts new item names and updates existing items with matching names. For example, changing the price of `Rusted Sword` updates that row. Changing its name creates a new row and leaves the original in place.
 
 An item is a row in the existing table, so adding one only needs the seed script. If the item needs a new database column, apply the migration first and then run the seed.
 
-## Set up a fresh local database
+## Review existing player data
 
-After installing dependencies, use `.env.example` as the template for `.env` and supply a local `SESSION_SECRET`. Then run the following commands.
+Treat schema upgrades and catalog refreshes separately. After pulling catalog changes, apply pending migrations first, then seed. The seed preserves IDs on matching item names, so existing ownership and equipment use any updated bonuses. The Driftwater and The Ruins rely on seeded items.
 
-```sh
-mkdir -p data
-yarn db:migrate
-yarn db:seed
-```
+Test migrations on a disposable database first when possible. Before a destructive operation or data reset, get maintainer approval. Take a consistent backup before repairing migration history or changing important existing data.
 
-The existing migrations build the tables, and the seed loads the starter catalog.
+These migrations illustrate adjustments that preserved character progress.
+
+- [0011](../../drizzle/0011_fortitude.sql) preserves spent HP points as Fortitude allocations.
+- [0012](../../drizzle/0012_fortitude_health.sql) converts legacy base health and Fortitude to the nearest nonnegative base Fortitude, keeps allocated points, and clamps HP when the new cap is lower.
+- [0013](../../drizzle/0013_character_class_and_speed.sql) keeps Agility and allocated Agility, initializes independent Speed from their sum, and converts the old weapon and armor Strength effect to Attack Power in place.
 
 ## Troubleshooting
 
@@ -61,7 +67,7 @@ Start with the command that failed and its first error message. Run the checks b
 
 ### The SQLite driver fails to load
 
-If the error mentions a missing or incompatible `better-sqlite3` native module, check your Node version. The SQLite driver includes compiled code that must match the Node version it runs under. Run `nvm use` and `yarn install` from the project root, then retry the failed command.
+If the error mentions a missing or incompatible `better-sqlite3` native module, check your Node version. The SQLite driver includes compiled code that must match the Node version it runs under. If installation needs to compile it, follow the build tool requirements in the installer error for your platform. Run `nvm use` and `yarn install` from the project root, then retry the failed command.
 
 ### SQLite says the database is locked
 

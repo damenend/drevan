@@ -1,75 +1,17 @@
-# Battle rules and playtesting
+# Balance playtest results
 
-Worn Leather Armor grants **+3 Defense** so it can save HP in fights a starter
-can win. The Rusted Sword grants **+1 Attack Power**. Each piece costs
-100 gold. The [item seed](../src/db/seed.ts) controls these values.
+These trials record the builds, rules, and results used for earlier balance decisions. Explicit fixtures preserve older rules where the scripts support them. Use the [playtesting guide](../planning/playtesting.md) for current procedures and the [gameplay index](../gameplay/README.md) for live rules.
 
-## Rerun the historical starter equipment playtest
-
-1. From the repository root, select the pinned Node version with `nvm use`.
-   Run `yarn install` if you need to set up this clone.
-2. Run the simulation and open the CSV in a spreadsheet.
-
-   ```sh
-   node --import tsx scripts/playtest-battle.ts > /tmp/drevan-battle-playtest.csv
-   ```
-
-   Expect 64 data rows. Each row reports 1,000 fights for one combination of
-   dummy level, historical offensive rating, and Defense. The script uses the production battle
-   simulator and runs without a database. The loadouts are explicit so you can
-   compare the original armor with a candidate even after the catalog changes.
-   This run preserves the historical player-first timing rule.
-
-3. To verify the player flow on an existing development database, run
-   `yarn db:seed` with the app's local database setup. The seed updates the
-   matching catalog row, so owned and equipped copies receive the new bonus.
-   Open Curious Emporium and verify the item values, then equip both pieces on
-   a fresh character. The Quarters should show 11 Attack Power and 3 Defense. Start a
-   Dominion training fight and inspect the attack log. Use a disposable
-   database for repeatable checks that need fixed stats or gold.
-
-## How battles work
-
-- Strength, Agility, and Intellect each add 1 Attack Power per point, including
-  allocated points. Equipped attack bonuses are added to that sum. A fresh
-  character has 5 Strength, 5 Agility, and 0 Intellect for 10 Attack Power.
-- Speed starts at 5 and is independent of Agility. Defense starts at 0 and
-  receives bonuses from equipped gear. Maximum HP is 10 plus 3 per total
-  Fortitude. A fresh character starts at 25 HP with 5 Fortitude.
-- The Quarters and Admin show the class identifier. New and migrated characters
-  default to `unaligned`. The database also accepts `melee`, `ranged`, and
-  `caster` for future use. Class selection and bonuses are future work.
-- The opening attacker is picked once. Each side's chance is its share of
-  combined Speed, with a minimum effective Speed of 1. After the opening
-  roll, attacks follow intervals of `100 / speed`. An even roll orders
-  later attacks due together. The second fighter attacks if they survive.
-- Base damage is drawn uniformly from half of Attack Power rounded up through
-  full Attack Power, with a minimum of 1. A critical hit occurs on 5% of attacks
-  and multiplies the roll by 1.5 before rounding up.
-- Defense cuts damage after the critical bonus. The reduction for nonnegative
-  Defense is `0.6 * defense / (defense + 10)`. Final damage rounds to the
-  nearest whole number with a minimum of 1. Each additional point of Defense
-  contributes a smaller reduction. For example, a 4-damage hit lands for 4 at
-  +1 or +2 Defense and for 3 at +3.
-- A combatant at zero HP stops the fight. The simulator caps fights at 1,000
-  attacks and records a draw if both sides survive. The log records the actor,
-  damage, target HP, and critical-hit flag for each attack.
-
-Dominion requires positive starting HP and accepts dummy levels 1–100.
-At level `L`, a dummy has `10 + 5 * (L - 1)` HP, `L + 1` Attack Power,
-`L + 1` Speed, and `floor(L / 4)` Defense. Training saves remaining HP and
-awards `10 * L` gold and XP on a win, capped by what fits in each balance. Losses and draws retain any HP loss and award nothing. The training result appears once after the redirect.
-Future encounter modes can use the simulator
-with their own persistence and reward rules.
-[Simulator](../src/services/battle.ts) ·
-[Training route](../src/routes/game/training.ts) ·
-[Equipment stats](../src/services/equipment.ts)
+- [Starter equipment](#starter-equipment-results)
+- [Combat stat audit](#combat-stat-audit)
+- [Early XP pacing trial](#early-xp-pacing-trial)
+- [Level 10 progression playtest](#level-10-progression-playtest)
+- [Ruins comparison](#class-neutral-attack-power-comparison)
 
 ## Historical combat playtests
 
 The simulations below record the earlier Strength-based rules. Their scripts
-keep the original combat ratings for reproducibility. The current Ruins and
-Dominion comparison appears at the end of this guide.
+keep the original combat ratings for reproducibility. The class-neutral Ruins and Dominion comparison appears at the end of this report.
 
 ### Starter equipment results
 
@@ -82,8 +24,8 @@ no armor produced identical outcomes and HP at levels 1–5.
 | No gear                      |                   12.77 |            69.1% |                    4.18 |             0.8% |
 | Sword and original +1 armor  |                   13.64 |            89.5% |                    5.81 |             6.1% |
 | Sword and candidate +2 armor |                   13.70 |            91.5% |                    5.82 |             8.8% |
-| Sword and current +3 armor   |                   14.96 |            99.5% |                    8.41 |            21.6% |
-| Current +3 armor alone       |                   14.19 |            96.2% |                    6.34 |             2.8% |
+| Sword and adopted +3 armor   |                   14.96 |            99.5% |                    8.41 |            21.6% |
+| Adopted +3 armor alone       |                   14.19 |            96.2% |                    6.34 |             2.8% |
 
 The sword alone reduced the average attack count from 9.22 to 8.41 at
 level 3 and from 11.59 to 10.54 at level 4. With the sword equipped at
@@ -91,24 +33,6 @@ level 4, +2 armor reduced 162 of 4,824 matched incoming hits, while +3 armor
 reduced 3,326. All loadouts won every fight at levels 1–3 and lost every
 fight at levels 6–8. This supports +3 as the starter bonus if level 4 is
 intended to become reliable once a player is equipped.
-
-## Compare future changes
-
-- Record the player build, opponent, rules under test, seed range, and fights
-  per matchup. Change one rule or item value at a time and rerun the same fights.
-- Read win rate alongside **mean HP on wins** and **mean attacks across all
-  fights**. A higher win rate brings new fights into the winning group. More
-  attacks can also mean a losing player survived longer.
-- The CSV matches incoming hits by seed and attack order up to the point
-  where either fight ends. The comparison isolates damage changes here
-  because only Defense varies within each pair. For changes to Speed, attack
-  order can change, so compare outcomes and each side's share of attacks.
-- For economy comparisons, account for gold earned and missing HP on every
-  outcome. At Sanctum, each HP restored costs one gold. The starter run
-  resets HP between fights, so use a separate session playtest to assess how
-  quickly someone can afford gear or recover after a loss.
-- Keep deterministic rule checks in the [battle unit tests](../tests/battle.test.ts).
-  Record balance decisions with the matchups that support them in this guide.
 
 ## Combat stat audit
 
@@ -208,8 +132,8 @@ HP left on wins. That matters for the cost of repeated training.
 
 The CSV includes average training reward, Sanctum cost, and net gold per
 fight for training dummies in the enemy slot. The calculation uses the
-[training reward](../src/services/training.ts) of 10 gold per dummy level
-on a win and the [Sanctum rate](../src/routes/game/hospital.ts) of one gold
+[training reward](../../src/services/training.ts) of 10 gold per dummy level
+on a win and the [Sanctum rate](../../src/routes/game/hospital.ts) of one gold
 per missing HP after every fight. A loss pays zero gold and healing from
 zero HP costs the build's full max HP. Each run starts at full HP and
 assumes the player can afford to heal. This measures gold per fight.
@@ -237,7 +161,7 @@ level 4 than at level 3, test that margin in a timed training session.
 
 ### Stat allocation trial with random ties
 
-The following rows use random timing ties and the live Speed formula. For
+The following rows use random timing ties and the adopted Speed formula. For
 the HP budget, compare +2 or +3 max HP for one point with +1 to another
 stat. At four points, compare +8 or +12 max HP with +4 to another stat.
 These are candidate exchange rates. Every build starts at full HP.
@@ -281,13 +205,13 @@ With the curve, the +4 Speed build went from 7.27 to 6.45 attacks per
 level 5 fight, and the dummy went from 4.86 to 5.43. The Speed build's net
 gold there went from +13.24 to -6.88. The heavy and quick results show how
 much the same curve changes the roles of different enemies. Keep the
-current Speed formula for the next allocation tests. Compare +3 HP in
+adopted Speed formula for later allocation tests. Compare +3 HP in
 mixed builds, and test Defense around the points where one more point
 actually reduces damage.
 
 ### Mixed builds and Defense breakpoints
 
-This trial uses the live Speed formula and random timing ties. Each mixed
+This trial uses the adopted Speed formula and random timing ties. Each mixed
 build starts at 28 HP, 6 Strength, 6 Speed, and 0 Defense. That models
 spending three points on +3 HP, +1 Strength, and +1 Speed. The table shows
 where the fourth point goes, including a trial where it buys +2 Defense.
@@ -498,7 +422,7 @@ node --import tsx scripts/playtest-level-cap.ts > /tmp/drevan-level-cap.csv
 ```
 
 Expect 15 data rows with checkpoints at character levels 2, 4, 6, 8, and 10.
-The script uses the shared combat simulator and current progression rules,
+The script uses the shared combat simulator and the progression rules at the time,
 including XP carryover and the 6,300 lifetime XP needed for level 10. It runs
 1,000 seeded sessions per plan, each capped at 250 bouts. Every session starts
 with 100 gold, the Rusted Sword, and Worn Leather Armor already equipped. It
@@ -562,37 +486,9 @@ The seed that previously ran out of healing gold on dummy level 5 reached
 level 10 in 131 bouts. The rerun measures the combined effect of extra gold,
 potions, and switching dummies earlier when armor becomes affordable.
 
-#### Timed human session
+## Historical Ruins Floor 1 comparison
 
-For the next timed session, start with a fresh account and play for 10 minutes
-without Admin changes. Record character level, XP toward the next level,
-stat choices, dummy levels, wins, defeats, gear purchases, and gold after
-healing. Note when a harder dummy feels worth trying and when repeating the
-same fight starts to feel slow. Use those observations to decide whether to
-test a different XP curve or a less aggressive path to harder dummies.
-
-## Fortitude compatibility
-
-Fortitude replaces the direct HP allocation recorded in the historical
-playtests. Characters start with 5 Fortitude and 25 HP. One AP still adds
-3 max HP. The later class foundation migration preserves each existing
-player's effective Speed at migration time and stores it independently.
-Their base Agility and spent points also carry forward, where both contribute
-to Attack Power.
-
-## Live Ruins Floor 1 encounters and historical baseline
-
-Coordinates use (0, 0) at the upper-left entrance. These encounters appear on arrival. Move away and return to repeat a discovery or receive another enemy offer.
-
-| Square | Encounter          |  HP | Attack Power | Speed | Defense | Reward                                                              |
-| ------ | ------------------ | --: | -----------: | ----: | ------: | ------------------------------------------------------------------- |
-| (1, 0) | Coin cache         |   — |            — |     — |       — | 8 gold                                                              |
-| (0, 2) | Supply case        |   — |            — |     — |       — | 1 Lesser Potion                                                     |
-| (2, 1) | Vault Scavenger    |  18 |            4 |     4 |       0 | 25–35 gold, 30 XP, and a 20% chance of one Lesser Potion on victory |
-| (4, 3) | Fractured Sentinel |  24 |            5 |     5 |       2 | 35–45 gold and 40 XP on victory                                     |
-| (6, 6) | Alloy Warden       |  28 |            6 |     6 |       2 | 45–55 gold and 50 XP on victory                                     |
-
-After `nvm use` from the repository root, run the seeded comparison:
+Run from the repository root after selecting the pinned Node version.
 
 ```sh
 node --import tsx scripts/playtest-ruins.ts --historical > /tmp/drevan-ruins-historical.csv
@@ -656,4 +552,6 @@ hits and Defense. In these full-health simulations, the easier wins and higher
 remaining HP also improve gold after healing. The fresh build's mean net gold
 against the Warden rose from −24.48 to +21.22 per fight.
 
-For the [next roadmap milestone](roadmap.md#7-add-basic-ruins-loot-and-material-drops-p1--medium), play full expeditions with the live rewards. Record starting gear and supplies, route, fights, remaining HP, potions found and used, retreats, and gold after healing. Include repeat visits to compare cache and encounter income with Dominion and fishing.
+## Historical economy comparison
+
+At the starter fish prices, 50 casts returned an expected 78 gold before any stack limits. In the Strength-based training comparison over 1,000 seeded fights per matchup with a full Sanctum heal after every fight, an unequipped starter averaged 8.43 net gold at level 1 and 17.77 at level 3. A starter with both gear pieces averaged 23.17 at level 4. Session duration remained unmeasured in this comparison.

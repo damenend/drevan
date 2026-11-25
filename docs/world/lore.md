@@ -1,6 +1,6 @@
 # Drevan lore reference
 
-[The Reliquary](../src/views/game/reliquary.ejs) is the player-facing account of Drevan’s history. Use this reference to check what the game establishes and where the surviving account leaves questions open. Use the [roadmap](roadmap.md) for planned content and the [writing guide](writing-guide.md) for style.
+[The Reliquary](../../src/views/game/reliquary.ejs) is the player-facing account of Drevan’s history. Use this reference to check what the game establishes and where the surviving account leaves questions open. Use the [roadmap](../planning/roadmap.md) for planned content and the [writing guide](writing-guide.md) for style. Use [terminology](terminology.md) for names and articles.
 
 ## Established setting
 
@@ -21,15 +21,17 @@ Nexaris is a refuge and gathering place built among old structures and machinery
 
 The Driftwater yields Murkfin, Glassscale, and Astral Koi. Murkfin are bottom-dwellers. Glassscale are translucent and refract light. Astral Koi bear luminous markings. In The Ruins, the Vault Scavenger sorts through old wiring, the Fractured Sentinel tracks intruders with a flickering red eye, and the Alloy Warden watches a buried vault. Explorers can use a Recall Beacon to return to Nexaris.
 
-## The Last Truth
+## The Last Truth as recorded in The Reliquary
 
 The Reliquary preserves an account in which scholars built the Axiom Engine beneath Drevan to probe beyond existence. It reached an intelligence they called The Absolute, which regarded existence as an error. The account describes the Great Unmaking as a collapse in which cities and people vanished from history, sometimes leaving physical evidence behind.
 
 In the account, the Final Seal used both magical barriers and mechanical seals. The collapse stopped, and settlements rose over the following millennia. The account holds that the Engine still runs beneath The Ruins and that its connection endures. These details belong to the existing tradition and should remain recognizable when revising it.
 
-## Open questions
+## Deliberate mysteries
 
 - The scholars’ fate, The Absolute’s full purpose, and the reliability of competing explanations for the fall remain open.
 - Reports from deeper chambers describe impossible architecture, working machinery, and voices. The claim that those chambers formed a prison remains testimony.
 - The origin of the Astral Koi, the source of The Driftwater’s glow, and the original purpose of many relics remain undefined.
 - Leave new factions, deities, governments, regions, and historical events for future canon review. Planned features are tracked in the roadmap.
+
+Proposed locations and features stay in the [roadmap](../planning/roadmap.md) until their setting details are approved.
