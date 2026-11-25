@@ -207,6 +207,17 @@ button.button-link:hover:not(:disabled) {
   margin-bottom: 0;
 }
 
+.battle-details {
+  margin-bottom: 1rem;
+}
+.battle-details summary {
+  cursor: pointer;
+  color: #b58b4c;
+}
+.battle-details[open] summary {
+  margin-bottom: 0.75rem;
+}
+
 table {
   caption-side: bottom;
   border-collapse: collapse;
@@ -415,38 +426,170 @@ img {
 .ruins-sections {
   display: grid;
   gap: 1rem 2rem;
-  grid-template-areas: "map" "controls";
+  align-items: start;
+  max-width: 60rem;
+  grid-template-columns: minmax(0, 1fr);
 }
+
+.ruins-exploration,
+.ruins-controls {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+  align-content: start;
+}
+
 @media (min-width: 44rem) {
   .ruins-sections {
-    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
-    grid-template-areas: "map controls";
+    grid-template-columns: minmax(0, 28rem) minmax(0, 30rem);
   }
 }
-
-.ruins-sections > * {
-  min-width: 0;
+@media (width < 44rem) {
+  .ruins-exploration,
+  .ruins-controls {
+    display: contents;
+  }
+  .ruins-floor {
+    order: -2;
+  }
+  .ruins-health {
+    order: -1;
+  }
+  .ruins-controls .location-image {
+    order: 1;
+  }
+}
+.ruins-floor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  max-width: 28rem;
+}
+.ruins-floor h3,
+.ruins-floor p {
+  margin: 0;
+}
+.ruins-floor p {
+  color: #999999;
+  font-variant-numeric: tabular-nums;
 }
 
-.ruins-exploration {
-  grid-area: map;
-  justify-self: center;
-  width: min(100%, 21rem);
+.ruins-navigation {
+  max-width: 28rem;
 }
 
-.ruins-controls {
-  grid-area: controls;
-}
-
-.ruins-map-legend {
+.ruins-map-legend,
+#ruins-map-keys {
+  margin: 0.5rem 0 0;
   color: #999999;
   font-size: 0.875rem;
+}
+
+.ruins-controls .location-image {
+  margin: 0;
+}
+
+.ruins-health label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.ruins-health meter {
+  --hp-fill: #b58b4c;
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: 0.5rem;
+  margin-top: 0.25rem;
+  background: #242424;
+}
+.ruins-health .ruins-health--low {
+  --hp-fill: #ff5454;
+}
+.ruins-health meter::-webkit-meter-bar {
+  background: #242424;
+  border: 0;
+  border-radius: 0;
+}
+.ruins-health meter::-webkit-meter-optimum-value {
+  background: var(--hp-fill);
+}
+.ruins-health meter::-moz-meter-bar {
+  background: var(--hp-fill);
+}
+
+.ruins-stats {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) fit-content(60%);
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.ruins-stats dt {
+  color: #999999;
+}
+.ruins-stats dd {
+  margin: 0;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.ruins-stats + form {
+  margin-top: 0.75rem;
+}
+
+.ruins-controls section > :last-child,
+.ruins-surroundings > :last-child {
+  margin-bottom: 0;
+}
+
+.ruins-gold {
+  color: #b58b4c;
+}
+
+.ruins-consumables {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.ruins-consumables li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ruins-consumables .item-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.ruins-consumables figcaption {
+  overflow-wrap: anywhere;
+}
+
+.ruins-item-quantity {
+  display: block;
+  color: #999999;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+button.ruins-recall {
+  background: transparent;
+  color: #b58b4c;
+}
+button.ruins-recall:hover:not(:disabled) {
+  background: #242424;
 }
 
 .ruins-map {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  width: min(100%, 21rem);
+  width: min(100%, 28rem);
   gap: 0.25rem;
 }
 
@@ -494,8 +637,9 @@ img {
   outline-offset: -4px;
 }
 
-.ruins-actions {
-  margin-block-start: 1rem;
+.ruins-actions button,
+.ruins-controls [aria-label="Spend one attribute point"] button {
+  margin-block-end: 0.25rem;
 }
 
 .ruins-empty {

@@ -4,5 +4,7 @@
   <% } else { %>
   <img src="<%= src %>" alt="<%= locals.alt ?? '' %>">
   <% } %>
+  <% if (locals.caption) { %>
   <figcaption><%= caption %></figcaption>
+  <% } %>
 </figure>

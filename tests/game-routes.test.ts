@@ -1128,7 +1128,7 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   const sighting = (await viewRuins()).html;
   assert.match(
     sighting,
-    /ruins-notice--encounter[\s\S]*Enemy sighted[\s\S]*ruins-map[\s\S]*Vault Scavenger/,
+    /ruins-map[\s\S]*Surroundings[\s\S]*ruins-notice--encounter[\s\S]*Enemy sighted[\s\S]*Vault Scavenger/,
   );
 
   await explore("ignore");
@@ -1150,7 +1150,11 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   assert.equal(player().hp, 21);
   const report = (await viewRuins()).html;
   assert.match(report, /wins\./);
-  assert.match(report, /Reward: 35 gold, 30 XP/);
+  assert.match(
+    report,
+    /Surroundings[\s\S]*Reward: 35 gold, 30 XP[\s\S]*<details class="battle-details">/,
+  );
+  assert.match(report, /max="25" value="21"/);
   assert.doesNotMatch((await viewRuins()).html, /wins\./);
 });
 
@@ -1267,7 +1271,11 @@ test("Ruins use normal healing and attribute allocation without moving", async (
   await explore("enter");
   await explore("move", 7);
   const before = await viewRuins();
-  assert.match(before.html, /Use Lesser Potion \(2\)/);
+  assert.match(
+    before.html,
+    /Quantity: 2[\s\S]*aria-label="Use Lesser Potion">Use/,
+  );
+  assert.match(before.html, /max="25" value="20"/);
   assert.match(before.html, /Unspent attribute points<\/dt>\s*<dd>1<\/dd>/);
   assert.match(
     (await post("/game/progression", { stat: "fortitude" })).headers.get(
@@ -1284,6 +1292,7 @@ test("Ruins use normal healing and attribute allocation without moving", async (
     /Restored%208%20HP/,
   );
   assert.equal(player().hp, 28);
+  assert.match((await viewRuins()).html, /max="28" value="28"/);
   assert.equal(ruinsState().ruins_tile, 7);
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: 1 },

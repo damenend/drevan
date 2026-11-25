@@ -1,11 +1,22 @@
   <% const headingLevel = typeof battleHeadingLevel === "undefined" ? 4 : battleHeadingLevel; %>
+  <% const compactReport = locals.compactBattleReport; %>
+  <% if (compactReport) { %>
+  <% const outcome = battleLog.find(entry => entry.type === "outcome"); %>
+  <% if (outcome) { %>
+  <%- include("battle-summary", { entry: outcome, headingLevel }) %>
+  <% } %>
+  <details class="battle-details">
+    <summary>Battle log</summary>
+  <% } %>
   <div class="battle-log">
     <% battleLog.forEach(entry => { %>
     <% if (entry.type === "encounter") { %>
     <p>
       <span class="player"><%= entry.player %></span> encounters <span class="enemy"><%= entry.target %></span>.
     </p>
+    <% if (!compactReport) { %>
     <h<%= headingLevel %>>Battle log</h<%= headingLevel %>>
+    <% } %>
     <% } else if (entry.type === "attack") { %>
     <p class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
       <span class="<%= entry.actor %>"><%= entry.player %></span>
@@ -19,24 +30,12 @@
       <% } %>
     </p>
     <% } else if (entry.type === "outcome") { %>
-    <div class="battle-stats">
-      <h<%= headingLevel %>>Battle summary</h<%= headingLevel %>>
-      <p><span class="player"><%= formatPlayerName(user.name) %></span> HP: <%= formatNumber(startingPlayerHp) %> → <%= formatNumber(playerHp) %></p>
-      <p><span class="enemy"><%= enemyName %></span> HP: <%= formatNumber(startingEnemyHp) %> → <%= formatNumber(enemyHp) %></p>
-      <% if (entry.result === "win") { %>
-      <p>
-        <span class="player"><%= entry.player %></span> wins.
-      </p>
-      <p>Reward: <%= formatNumber(entry.reward) %> gold, <%= formatNumber(xpEarned) %> XP<% if (typeof loot !== "undefined" && loot) { %>, Loot: <%= loot %><% } %></p>
-      <% } else if (entry.result === "loss") { %>
-      <p><span class="player"><%= entry.player %></span> was defeated.</p>
-      <% } else if (entry.result === "draw") { %>
-      <p>
-        The battle ended in a draw.
-        You keep your remaining HP and earn no reward.
-      </p>
-      <% } %>
-    </div>
+    <% if (!compactReport) { %>
+    <%- include("battle-summary", { entry, headingLevel }) %>
+    <% } %>
     <% } %>
     <% }) %>
   </div>
+  <% if (compactReport) { %>
+  </details>
+  <% } %>

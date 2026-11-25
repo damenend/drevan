@@ -28,7 +28,10 @@ type ActionResult = {
   battle?: RuinsBattle;
 };
 
-/** Lists owned healing potions and Beacon ownership. The caller checks the daily cooldown separately. */
+/**
+ * Lists owned healing potions in order of HP restored and reports Beacon
+ * ownership. The caller checks the daily cooldown separately.
+ */
 export function getRuinsSupplies(userId: number) {
   const owned = db
     .select({
@@ -36,6 +39,7 @@ export function getRuinsSupplies(userId: number) {
       name: items.name,
       type: items.type,
       effect: items.effect,
+      image: items.image,
       quantity: inventory.quantity,
     })
     .from(inventory)
@@ -50,7 +54,7 @@ export function getRuinsSupplies(userId: number) {
         ),
       ),
     )
-    .orderBy(items.name)
+    .orderBy(items.effectValue, items.name)
     .all();
   return {
     hasBeacon: owned.some(

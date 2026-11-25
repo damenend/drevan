@@ -14,7 +14,7 @@
   <% } %>
   <% if (battle) { %>
   <h3>Expedition ended</h3>
-  <%- include("../partials/battle-log", battle) %>
+  <%- include("../partials/battle-log", { ...battle, compactBattleReport: true }) %>
   <% if (battle.playerHp === 0) { %>
   <p><a href="/game/hospital">Heal at Sanctum</a> before starting another expedition.</p>
   <% } %>

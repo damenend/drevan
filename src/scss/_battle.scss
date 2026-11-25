@@ -44,3 +44,16 @@
     margin-bottom: 0;
   }
 }
+
+.battle-details {
+  margin-bottom: 1rem;
+
+  summary {
+    cursor: pointer;
+    color: vars.$color-primary;
+  }
+
+  &[open] summary {
+    margin-bottom: 0.75rem;
+  }
+}

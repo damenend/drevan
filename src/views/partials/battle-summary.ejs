@@ -1,0 +1,18 @@
+<div class="battle-stats">
+  <h<%= headingLevel %>>Battle summary</h<%= headingLevel %>>
+  <p><span class="player"><%= formatPlayerName(user.name) %></span> HP: <%= formatNumber(startingPlayerHp) %> → <%= formatNumber(playerHp) %></p>
+  <p><span class="enemy"><%= enemyName %></span> HP: <%= formatNumber(startingEnemyHp) %> → <%= formatNumber(enemyHp) %></p>
+  <% if (entry.result === "win") { %>
+  <p>
+    <span class="player"><%= entry.player %></span> wins.
+  </p>
+  <p>Reward: <%= formatNumber(entry.reward) %> gold, <%= formatNumber(xpEarned) %> XP<% if (typeof loot !== "undefined" && loot) { %>, Loot: <%= loot %><% } %></p>
+  <% } else if (entry.result === "loss") { %>
+  <p><span class="player"><%= entry.player %></span> was defeated.</p>
+  <% } else if (entry.result === "draw") { %>
+  <p>
+    The battle ended in a draw.
+    You keep your remaining HP and earn no reward.
+  </p>
+  <% } %>
+</div>
