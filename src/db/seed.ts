@@ -1,10 +1,15 @@
 import { sql } from "drizzle-orm";
 import { db } from "./index";
 import { RECALL_BEACON } from "../services/ruins-map";
-import { LESSER_POTION, materials } from "./ruins-loot-catalog";
+import { LESSER_POTION, materials, ruinsEquipment } from "./ruins-loot-catalog";
 import { items } from "./schema";
 
 type Item = typeof items.$inferInsert;
+
+const equipmentImages = {
+  weapon: "/images/rusted-sword.webp",
+  armor: "/images/worn-leather-armor.webp",
+} as const;
 
 /**
  * Inserts starter items and updates matching names while preserving their IDs
@@ -52,7 +57,7 @@ async function seed() {
       type: "weapon",
       effect: "attack_power",
       effectValue: 1,
-      image: "/images/rusted-sword.webp",
+      image: equipmentImages.weapon,
     },
   ];
 
@@ -66,7 +71,7 @@ async function seed() {
       type: "armor",
       effect: "defense",
       effectValue: 3,
-      image: "/images/worn-leather-armor.webp",
+      image: equipmentImages.armor,
     },
   ];
 
@@ -112,6 +117,10 @@ async function seed() {
       ...potions,
       ...weapons,
       ...armor,
+      ...ruinsEquipment.map((item) => ({
+        image: equipmentImages[item.type],
+        ...item,
+      })),
       ...fish,
       ...materials.map((material) => ({
         type: "material",

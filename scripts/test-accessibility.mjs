@@ -336,6 +336,7 @@ try {
   } finally {
     Math.random = originalRandom;
   }
+  await page.getByText(/Wooden Axe ×1, Wooden Shield ×1/).waitFor();
   await scan("victory-loot");
   assert.equal(await page.locator(":focus").innerText(), "Battle summary");
 
@@ -347,6 +348,16 @@ try {
 
   await page.setViewportSize({ width: 320, height: 768 });
   await page.goto(base + "/game");
+  for (const [filter, gear] of [
+    ["Weapons", "Wooden Axe"],
+    ["Armor", "Wooden Shield"],
+  ]) {
+    const link = page.getByRole("link", { name: filter, exact: true });
+    await link.click();
+    assert.equal(await link.getAttribute("aria-current"), "page");
+    await page.getByRole("button", { name: `Equip ${gear}` }).waitFor();
+    await scan(`inventory-${filter.toLowerCase()}`);
+  }
   const materialsLink = page.getByRole("link", {
     name: "Materials",
     exact: true,

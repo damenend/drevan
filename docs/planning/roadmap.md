@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-**Next milestone.** Finish the reduced-marker map (6b) or continue fixed-stat equipment drops (7). Floor 1 now has hidden, randomized caches with split claim limits (6a), plus material drops and buyback (7 and 13). Economy tuning and longer playtests can follow in a later milestone.
+**Next milestone.** Finish the reduced-marker map (6b). Floor 1 now has hidden, randomized caches with split claim limits (6a), plus equipment and material drops and buyback (7 and 13). Economy tuning and longer playtests can follow in a later milestone.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse shared systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
@@ -74,10 +74,9 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
-- **Status.** Active.
-- **Progress.** The Scavenger and Warden award stackable materials through [Floor 1 victory loot tables](../gameplay/ruins.md#victory-loot). The Scavenger keeps its Lesser Potion roll. The battle report lists awarded quantities, and the drops save with the fight. Materials can be sold through milestone 13.
-- **Dependencies.** Playtested expeditions (6), the item catalog, and stackable inventory. Randomized caches (6a) have their own discovery rules. Victory loot rolls separately and uses the same inventory stacks.
-- **Remaining.** Add and verify fixed-stat equipment drops. Reinforced Bracers and Ancient Blade are candidates. Defer payout and drop-rate tuning to a dedicated playtest.
+- **Status.** Complete.
+- **Delivered.** The Scavenger and Warden award stackable materials and fixed-stat gear through [Floor 1 victory loot tables](../gameplay/ruins.md#victory-loot). The Scavenger keeps its Lesser Potion roll. Drops save with the fight and appear in the battle report. All ten gear pieces are available for purchase at Curious Emporium and use the existing slots and buyback rules. Materials can be sold through milestone 13.
+- **Deferred.** Evaluate equipment effectiveness, sale prices, and drop rates in a dedicated playtest. Arcane and Corrupt gear have no Ruins drops yet.
 
 ## P2 — Medium: Character depth and supporting gameplay
 

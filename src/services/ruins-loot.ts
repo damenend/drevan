@@ -1,9 +1,16 @@
-import { LESSER_POTION, type materials } from "../db/ruins-loot-catalog";
+import {
+  LESSER_POTION,
+  type materials,
+  type ruinsEquipment,
+} from "../db/ruins-loot-catalog";
 
 export type RuinsEnemyId =
   "vault-scavenger" | "fractured-sentinel" | "alloy-warden";
 
-type LootItem = typeof LESSER_POTION | (typeof materials)[number]["name"];
+type LootItem =
+  | typeof LESSER_POTION
+  | (typeof materials)[number]["name"]
+  | (typeof ruinsEquipment)[number]["name"];
 type LootEntry = {
   item: LootItem;
   chance: number;
@@ -21,6 +28,10 @@ const lootTables: Record<RuinsEnemyId, readonly LootEntry[]> = {
     { item: "Power Cell", chance: 0.05, quantity: 1 },
     { item: "Arcane Residue", chance: 0.04, quantity: 1 },
     { item: "Crystallized Aether", chance: 0.01, quantity: 1 },
+    { item: "Wooden Axe", chance: 0.05, quantity: 1 },
+    { item: "Wooden Shield", chance: 0.05, quantity: 1 },
+    { item: "Reinforced Sword", chance: 0.01, quantity: 1 },
+    { item: "Reinforced Bracers", chance: 0.01, quantity: 1 },
   ],
   "fractured-sentinel": [],
   "alloy-warden": [
@@ -34,6 +45,10 @@ const lootTables: Record<RuinsEnemyId, readonly LootEntry[]> = {
     { item: "Crystallized Aether", chance: 0.03, quantity: 1 },
     { item: "Fractured Energy Core", chance: 0.02, quantity: 1 },
     { item: "Voidstone Fragment", chance: 0.01, quantity: 1 },
+    { item: "Reinforced Sword", chance: 0.05, quantity: 1 },
+    { item: "Reinforced Bracers", chance: 0.05, quantity: 1 },
+    { item: "Ancient Blade", chance: 0.02, quantity: 1 },
+    { item: "Ancient Plate", chance: 0.02, quantity: 1 },
   ],
 };
 

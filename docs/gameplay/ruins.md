@@ -56,6 +56,19 @@ The server rolls each listed item independently after a win. Each successful rol
 | Fractured Energy Core |               — |           2% |
 | Voidstone Fragment    |               — |           1% |
 
+Equipment rolls are independent of the material and potion rolls. Each success grants one copy.
+
+| Equipment          | Vault Scavenger | Alloy Warden |
+| ------------------ | --------------: | -----------: |
+| Wooden Axe         |              5% |            — |
+| Wooden Shield      |              5% |            — |
+| Reinforced Sword   |              1% |           5% |
+| Reinforced Bracers |              1% |           5% |
+| Ancient Blade      |               — |           2% |
+| Ancient Plate      |               — |           2% |
+
+Arcane and Corrupt equipment are available at Curious Emporium and are outside the current victory loot tables. See the [equipment catalog reference](economy.md#ruins-equipment) for stats and buyback prices.
+
 The expedition checks the submitted revision before rolling. Drops create or increase normal inventory stacks in the same transaction as HP, gold, XP, and expedition state. An award that would exceed the stack limit is skipped in full. The battle summary lists only items successfully added. If a database write fails, the entire fight update rolls back.
 
 At the provisional [Emporium prices](economy.md#ruins-materials), the theoretical material sale value per victory is 4.32 gold for Vault Scavenger and 8.96 for Alloy Warden. Each total adds the drop probability times the sale price for each material. These figures exclude ordinary gold, potions, healing costs, and the chance of winning. Economic balancing remains open.

@@ -102,7 +102,10 @@ router.get("/", (req, res) => {
     })),
     inventory: available
       .filter(
-        (item) => category === "all" || getItemCategory(item.type) === category,
+        (item) =>
+          category === "all" ||
+          category === item.type ||
+          getItemCategory(item.type) === category,
       )
       .map((item) => ({
         ...item,

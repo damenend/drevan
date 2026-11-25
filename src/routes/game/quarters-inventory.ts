@@ -4,6 +4,8 @@ import { formatNumber } from "../../utils/format-number";
 export const inventoryCategories = {
   all: "All items",
   equipment: "Equipment",
+  weapon: "Weapons",
+  armor: "Armor",
   consumables: "Consumables",
   fish: "Fish",
   materials: "Materials",

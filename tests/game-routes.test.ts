@@ -22,7 +22,7 @@ import {
 } from "../src/services/character-stats";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
-import { materials } from "../src/db/ruins-loot-catalog";
+import { materials, ruinsEquipment } from "../src/db/ruins-loot-catalog";
 import type { RuinsDiscovery } from "../src/services/ruins-discoveries";
 import { getRuinsEncounter } from "../src/services/ruins-map";
 import { DAILY_CAST_LIMIT, getFishingDate } from "../src/services/fishing";
@@ -74,6 +74,22 @@ before(async () => {
       item.name,
       item.description,
       item.sellPrice,
+    );
+  }
+
+  const insertEquipment = sqlite.prepare(`
+    INSERT INTO items (name, description, type, effect, effect_value, sell_price, price)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+  for (const item of ruinsEquipment) {
+    insertEquipment.run(
+      item.name,
+      item.description,
+      item.type,
+      item.effect,
+      item.effectValue,
+      item.sellPrice,
+      item.price,
     );
   }
 
@@ -1592,11 +1608,20 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   assert.doesNotMatch((await viewRuins()).html, /wins\./);
 });
 
+function equipmentId(name: (typeof ruinsEquipment)[number]["name"]) {
+  return sqlite
+    .prepare<[string], { id: number }>("SELECT id FROM items WHERE name = ?")
+    .get(name)!.id;
+}
+
 test("a Scavenger victory stacks and reports multiple drops once even if replayed", async (t) => {
+  const axe = equipmentId("Wooden Axe");
+  const shield = equipmentId("Wooden Shield");
   sqlite.exec(`
     UPDATE users SET strength = 100, speed = 100;
     INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 2 FROM users
-    UNION ALL SELECT id, ${firstMaterialId}, 2 FROM users;
+    UNION ALL SELECT id, ${firstMaterialId}, 2 FROM users
+    UNION ALL SELECT id, ${axe}, 1 FROM users;
   `);
   t.mock.method(Math, "random", () => 0);
   await reachScavenger();
@@ -1611,6 +1636,10 @@ test("a Scavenger victory stacks and reports multiple drops once even if replaye
       item_id: firstMaterialId + index,
       quantity: index === 0 ? 3 : 1,
     })),
+    { item_id: axe, quantity: 2 },
+    { item_id: equipmentId("Reinforced Sword"), quantity: 1 },
+    { item_id: shield, quantity: 1 },
+    { item_id: equipmentId("Reinforced Bracers"), quantity: 1 },
   ]);
   assert.equal(player().gold, 100 + 8 + 25);
   assert.equal(ruinsState().exp, 30);
@@ -1620,7 +1649,51 @@ test("a Scavenger victory stacks and reports multiple drops once even if replaye
     report,
     /Loot: Lesser Potion ×1, Metal Scraps ×1, Frayed Circuitry ×1/,
   );
+  assert.match(report, /Wooden Axe ×1, Wooden Shield ×1/);
   assert.doesNotMatch((await viewRuins()).html, /Lesser Potion ×/);
+
+  assert.match(
+    (await post("/game/inventory/equip", { itemId: axe })).headers.get(
+      "location",
+    ) ?? "",
+    /^\/game\/ruins/,
+  );
+  await explore("recall");
+  const weapons = (
+    await request("/game?category=weapon", { headers: { cookie } })
+  ).html;
+  assert.match(weapons, /Equip Wooden Axe/);
+  assert.doesNotMatch(weapons, /Equip Wooden Shield/);
+  const armor = (await request("/game?category=armor", { headers: { cookie } }))
+    .html;
+  assert.match(armor, /Equip Wooden Shield/);
+  assert.doesNotMatch(armor, /Equip Wooden Axe/);
+
+  const { getEffectiveStats } = await import("../src/services/equipment.js");
+  const { db } = await import("../src/db/index.js");
+  const { users } = await import("../src/db/schema.js");
+  const readStats = () => getEffectiveStats(db.select().from(users).get()!);
+  const base = readStats();
+  await post("/game/inventory/equip?category=weapon", { itemId: axe });
+  await post("/game/inventory/equip?category=armor", { itemId: shield });
+  assert.deepEqual(readStats(), {
+    ...base,
+    attackPower: base.attackPower + 2,
+    defense: base.defense + 4,
+  });
+  const gold = player().gold;
+  assert.equal(
+    (await post("/game/store/sell", { items: { [`item-${axe}`]: 2 } })).status,
+    409,
+  );
+  assert.equal(
+    (await post("/game/store/sell", { items: { [`item-${axe}`]: 1 } })).status,
+    303,
+  );
+  assert.equal(player().gold, gold + 15);
+  await post("/game/inventory/unequip?category=weapon", { itemId: axe });
+  await post("/game/inventory/unequip?category=armor", { itemId: shield });
+  assert.deepEqual(readStats(), base);
 });
 
 test("a Scavenger loot roll at the cutoff grants no potion", async (t) => {
@@ -1690,7 +1763,7 @@ test("a failed Ruins reward write rolls back loot and leaves the encounter pendi
 
 test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires healing", async (t) => {
   sqlite.exec("UPDATE users SET hp = 1, speed = 1");
-  t.mock.method(Math, "random", () => 0.25);
+  t.mock.method(Math, "random", () => 0);
   await reachScavenger();
   const fight = await explore("engage");
   assert.equal(fight.headers.get("location"), "/game/nexaris");
@@ -1700,6 +1773,7 @@ test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires h
   assert.equal(ruinsState().exp, 0);
   assert.equal(player().hp, 0);
   assert.equal(player().gold, 108);
+  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
   assert.match(
     (await request("/game/nexaris", { headers: { cookie } })).html,
     /was defeated/,
@@ -1725,7 +1799,7 @@ test("Ruins draw applies damage but ends the expedition without combat rewards",
     encounter.enemy.hp = originalHp;
   });
   sqlite.exec("UPDATE users SET hp = 100000, fortitude = 33330, strength = 1");
-  t.mock.method(Math, "random", () => 0.25);
+  t.mock.method(Math, "random", () => 0);
 
   await reachScavenger();
   assert.equal(
@@ -1943,4 +2017,58 @@ test("Emporium gives explicit result feedback for purchase and empty selection",
   );
   assert.match(purchased.html, /data-result-focus>Purchase complete\./);
   assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 1 }]);
+});
+
+test("all new equipment is seeded with fixed modifiers and purchasable through Emporium", async () => {
+  const removeEquipment = sqlite.prepare("DELETE FROM items WHERE name = ?");
+  for (const { name } of ruinsEquipment) removeEquipment.run(name);
+  await import("../src/db/seed.js");
+  const stock = (await request("/game/store", { headers: { cookie } })).html;
+  const cart: Record<string, number> = {};
+  const purchased: { item_id: number; quantity: number }[] = [];
+  let total = 0;
+  for (const item of ruinsEquipment) {
+    const id = equipmentId(item.name);
+    assert.deepEqual(
+      sqlite
+        .prepare(
+          "SELECT type, effect, effect_value, price, sell_price, description, image FROM items WHERE id = ?",
+        )
+        .get(id),
+      {
+        type: item.type,
+        effect: item.effect,
+        effect_value: item.effectValue,
+        price: item.price,
+        sell_price: item.sellPrice,
+        description: item.description,
+        image:
+          item.type === "weapon"
+            ? "/images/rusted-sword.webp"
+            : "/images/worn-leather-armor.webp",
+      },
+    );
+    assert.match(stock, new RegExp(`Quantity of ${item.name}`));
+    cart[`item-${id}`] = 1;
+    purchased.push({ item_id: id, quantity: 1 });
+    total += item.price;
+  }
+  const tooExpensive = await post("/game/store", { items: cart });
+  assert.equal(tooExpensive.headers.get("location"), "/game/store?err=gold");
+  assert.deepEqual(ownedItems(), []);
+  sqlite.exec("UPDATE users SET gold = 1000");
+  const purchase = await post("/game/store", { items: cart });
+  assert.equal(purchase.headers.get("location"), "/game/store?purchased=1");
+  assert.equal(player().gold, 1000 - total);
+  assert.deepEqual(ownedItems(), purchased);
+  for (const category of ["weapon", "armor"] as const) {
+    const inventory = await request(`/game?category=${category}`, {
+      headers: { cookie },
+    });
+    for (const item of ruinsEquipment) {
+      const action = new RegExp(`Equip ${item.name}`);
+      if (item.type === category) assert.match(inventory.html, action);
+      else assert.doesNotMatch(inventory.html, action);
+    }
+  }
 });

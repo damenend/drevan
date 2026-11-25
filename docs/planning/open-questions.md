@@ -41,6 +41,8 @@ Use this reference for unresolved gameplay decisions and candidate values. The [
 
 ## Equipment and rarity
 
+Base equipment has fixed, deliberately designed attributes. Progression tiers and rarity are separate concepts. Attribute preferences can vary by class or build, and universal equipment should remain viable. Future specialized gear may favor particular builds while remaining available across classes. Enchantments may eventually let players choose how to customize attributes. The current design leaves randomized modifiers and mandatory per-class gear variants out of scope.
+
 - Do visible quality tiers help? Should category, quality, source, or enhancement level affect salvage yields?
 - Should every salvage grant materials? Should higher-quality pieces guarantee uncommon rewards? Should previews show exact yields and odds?
 - Should salvaging ever be available outside The Forge? How should inventory present stacked gear alongside several modified copies of the same item?

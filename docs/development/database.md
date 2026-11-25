@@ -39,7 +39,7 @@ Resolve each conflict with the affected players before rerunning `yarn db:migrat
 
 ## Add an item to the catalog
 
-1. Open [src/db/seed.ts](../../src/db/seed.ts) and add an entry to the appropriate catalog list. The current seed includes potions, weapons, armor, fish, [Ruins materials](../../src/db/ruins-loot-catalog.ts), and the Recall Beacon. Copy a similar entry to see which fields it uses.
+1. Open [src/db/seed.ts](../../src/db/seed.ts) and add an entry to the appropriate catalog list. The current seed includes potions, weapons, armor, fish, [Ruins materials and equipment](../../src/db/ruins-loot-catalog.ts), and the Recall Beacon. Copy a similar entry to see which fields it uses.
 2. Run `yarn db:seed`. It inserts new item names and updates existing items with matching names. For example, changing the price of `Rusted Sword` updates that row. Changing its name creates a new row and leaves the original in place.
 
 An item is a row in the existing table, so adding one only needs the seed script. If the item needs a new database column, apply the migration first and then run the seed.

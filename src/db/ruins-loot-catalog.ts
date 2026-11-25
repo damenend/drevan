@@ -68,3 +68,104 @@ export const materials = [
   typeof items.$inferInsert,
   "name" | "sellPrice" | "description" | "image"
 >[];
+
+export const ruinsEquipment = [
+  {
+    name: "Wooden Axe",
+    description:
+      "A crude but dependable axe. Equally suited to harvesting timber and discouraging unwanted company.",
+    type: "weapon",
+    effect: "attack_power",
+    effectValue: 2,
+    sellPrice: 15,
+    price: 30,
+  },
+  {
+    name: "Reinforced Sword",
+    description: "A sturdy blade strengthened with salvaged alloy.",
+    type: "weapon",
+    effect: "attack_power",
+    effectValue: 3,
+    sellPrice: 25,
+    price: 50,
+  },
+  {
+    name: "Ancient Blade",
+    description:
+      "A weapon of forgotten origin. Its edge has endured the passage of centuries.",
+    type: "weapon",
+    effect: "attack_power",
+    effectValue: 4,
+    sellPrice: 40,
+    price: 80,
+  },
+  {
+    name: "Arcane Mace",
+    description:
+      "Faintly glowing inscriptions adorn the head of this unusual weapon.",
+    type: "weapon",
+    effect: "attack_power",
+    effectValue: 5,
+    sellPrice: 60,
+    price: 120,
+  },
+  {
+    name: "Corrupt Staff",
+    description:
+      "A dark instrument that resonates with an unfamiliar and unsettling power.",
+    type: "weapon",
+    effect: "attack_power",
+    effectValue: 6,
+    sellPrice: 90,
+    price: 180,
+  },
+  {
+    name: "Wooden Shield",
+    description:
+      "Bound wooden planks that offer a modest degree of protection.",
+    type: "armor",
+    effect: "defense",
+    effectValue: 4,
+    sellPrice: 15,
+    price: 30,
+  },
+  {
+    name: "Reinforced Bracers",
+    description: "Protective forearm guards reinforced with old-world metal.",
+    type: "armor",
+    effect: "defense",
+    effectValue: 5,
+    sellPrice: 25,
+    price: 50,
+  },
+  {
+    name: "Ancient Plate",
+    description:
+      "Heavy protective plating recovered from the remnants of an ancient civilization.",
+    type: "armor",
+    effect: "defense",
+    effectValue: 6,
+    sellPrice: 40,
+    price: 80,
+  },
+  {
+    name: "Arcane Bulwark",
+    description:
+      "A shield imbued with an energy that its original creators seemingly understood.",
+    type: "armor",
+    effect: "defense",
+    effectValue: 7,
+    sellPrice: 60,
+    price: 120,
+  },
+  {
+    name: "Corrupt Armor",
+    description:
+      "Twisted armor bearing traces of an unknown corruption. It is surprisingly comfortable.",
+    type: "armor",
+    effect: "defense",
+    effectValue: 8,
+    sellPrice: 90,
+    price: 180,
+  },
+] as const satisfies readonly (typeof items.$inferInsert)[];
