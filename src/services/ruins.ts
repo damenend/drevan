@@ -196,10 +196,12 @@ export function actInRuins(
             }
             if (player.hp <= 0)
               return { message: "You need to heal before fighting." };
+            const { min, max } = encounter.goldReward;
+            const gold = min + Math.floor(Math.random() * (max - min + 1));
             const { battle, changes: rewards } = resolvePlayerBattle(
               player,
               encounter.enemy,
-              { gold: encounter.reward, xp: encounter.reward },
+              { gold, xp: encounter.xpReward },
               tx,
             );
             const won = battle.outcome === "win";

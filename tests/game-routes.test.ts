@@ -1132,18 +1132,21 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   ]);
   assert.equal(ruinsState().ruins_tile, 9);
   assert.equal(ruinsState().exp, 60);
-  assert.equal(player().gold, 138);
+  // The route to the Scavenger collects 8 gold before the maximum 35-gold win.
+  assert.equal(player().gold, 100 + 8 + 35);
   assert.equal(player().hp, 21);
-  assert.match((await viewRuins()).html, /wins\./);
+  const report = (await viewRuins()).html;
+  assert.match(report, /wins\./);
+  assert.match(report, /Reward: 35 gold, 30 XP/);
   assert.doesNotMatch((await viewRuins()).html, /wins\./);
 });
 
-test("a Scavenger victory stacks and reports one potion even if the fight is replayed", async (t) => {
+test("a minimum-gold Scavenger victory stacks and reports one potion even if replayed", async (t) => {
   sqlite.exec(`
     UPDATE users SET strength = 100, speed = 100;
     INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 2 FROM users;
   `);
-  t.mock.method(Math, "random", () => 0.1);
+  t.mock.method(Math, "random", () => 0);
   await reachScavenger();
   const revision = ruinsState().ruins_revision;
 
@@ -1153,7 +1156,11 @@ test("a Scavenger victory stacks and reports one potion even if the fight is rep
     { item_id: 1, quantity: 3 },
     { item_id: 4, quantity: 1 },
   ]);
-  assert.match((await viewRuins()).html, /Loot: Lesser Potion/);
+  assert.equal(player().gold, 100 + 8 + 25);
+  assert.equal(ruinsState().exp, 30);
+  const report = (await viewRuins()).html;
+  assert.match(report, /Reward: 25 gold, 30 XP/);
+  assert.match(report, /Loot: Lesser Potion/);
   assert.doesNotMatch((await viewRuins()).html, /Loot: Lesser Potion/);
 });
 

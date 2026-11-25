@@ -10,7 +10,11 @@ type RuinsEncounter =
   | {
       kind: "enemy";
       enemy: Combatant;
-      reward: number;
+      goldReward: {
+        min: number;
+        max: number;
+      };
+      xpReward: number;
       trainingLevel: number;
       description: string;
       drop?: { item: string; chance: number };
@@ -54,7 +58,11 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
         item: "Lesser Potion",
         chance: 0.2,
       },
-      reward: 30,
+      xpReward: 30,
+      goldReward: {
+        min: 25,
+        max: 35,
+      },
       trainingLevel: 3,
       description:
         "Claws rake through a heap of wiring. The scavenger pauses when you draw near.",
@@ -71,7 +79,11 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
         speed: 5,
         defense: 2,
       },
-      reward: 40,
+      xpReward: 40,
+      goldReward: {
+        min: 35,
+        max: 45,
+      },
       trainingLevel: 4,
       description:
         "The damaged sentinel turns with a scrape of metal. Its red eye follows you.",
@@ -88,7 +100,11 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
         speed: 6,
         defense: 2,
       },
-      reward: 50,
+      xpReward: 50,
+      goldReward: {
+        min: 45,
+        max: 55,
+      },
       trainingLevel: 5,
       description:
         "The warden stands before the buried vault. Its armor shifts as it turns toward you.",
