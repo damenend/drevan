@@ -8,7 +8,7 @@ Statuses are **Complete**, **Active**, **Planned**, and **Exploratory**. Depende
 
 ## Release verification
 
-The November 2026 UI pass updated authentication, The Quarters, The Driftwater, and The Ruins, with shared components and browser accessibility checks. The [accessibility audit](../audits/2026-11-24-accessibility.md#follow-up-verification) records the remaining manual checks. For a wider playtest or launch, verify the affected flows with screen readers, real browser zoom and text resizing, Windows High Contrast, and touch and orientation in addition to the Chromium suite. Follow the [regression procedure](../design/accessibility.md#regression-procedure).
+The November 2026 UI pass updated authentication, The Quarters, The Driftwater, The Ruins, and Curious Emporium. The Chromium suite covers hidden cache discovery, mixed victory loot, inventory categories, purchase filters, and shop feedback. The [accessibility audit](../audits/2026-11-24-accessibility.md#follow-up-verification) records the remaining manual checks. For a wider playtest or launch, verify the affected flows with screen readers, real browser zoom and text resizing, Windows High Contrast, and touch and orientation in addition to the Chromium suite. Follow the [regression procedure](../design/accessibility.md#regression-procedure).
 
 Before a public alpha, use the [launch architecture proposal](launch-architecture.md) to plan persistent sessions, HTTPS, off-server backups with a tested restore, monitoring, and a burst test for signup and training.
 
@@ -68,15 +68,15 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 ### 6b. Playtest Floor 1 with reduced map markers (P1 · Medium)
 
 - **Status.** Planned.
-- **Dependencies.** Floor 1 exploration (6). Cache locations are already hidden (6a).
+- **Dependencies.** Floor 1 exploration (6). Cache locations are already hidden (6a). Enemy and stair markers are still visible across the map.
 - **Scope.** Hide enemy spoilers in the map, marker list, and movement labels. Reveal the sealed stairs on arrival. At narrow widths, bring discovery and empty-cache feedback, current HP, and **Fight** and **Pass by** into view when relevant. Make walkout and Recall easy to locate and verify focus after both exits.
 - **Done when.** First-time players can orient themselves without a known route, notice discoveries, make a fight or retreat decision, and return to Nexaris. Check keyboard and screen-reader discovery and encounter feedback, battle summary and log, and return focus. Repeat the 320 CSS pixel walkthrough and browser regression checks. The [reduced-marker trial](../audits/balance-playtests.md#reduced-markers-at-320-css-pixels) records the baseline.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
 - **Status.** Complete.
-- **Delivered.** The Scavenger and Warden award stackable materials and fixed-stat gear through [Floor 1 victory loot tables](../gameplay/ruins.md#victory-loot). The Scavenger keeps its Lesser Potion roll. Drops save with the fight and appear in the battle report. All ten gear pieces are available for purchase at Curious Emporium and use the existing slots and buyback rules. Materials can be sold through milestone 13.
-- **Deferred.** Evaluate equipment effectiveness, sale prices, and drop rates in a dedicated playtest. Arcane and Corrupt gear have no Ruins drops yet.
+- **Delivered.** The Scavenger and Warden award stackable materials and fixed-stat gear through [Floor 1 victory loot tables](../gameplay/ruins.md#victory-loot). The Scavenger keeps its Lesser Potion roll. Drops save with the fight and appear in the battle report. All ten gear pieces are available for purchase at Curious Emporium and use the existing slots and buyback rules. Purchase categories organize the expanded stock. Materials can be sold through milestone 13.
+- **Deferred.** Evaluate equipment effectiveness, sale prices, and drop rates in a dedicated playtest. Arcane and Corrupt gear have no Ruins drops yet. Shop pagination remains future work.
 
 ## P2 — Medium: Character depth and supporting gameplay
 

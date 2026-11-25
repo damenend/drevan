@@ -56,6 +56,8 @@ These migrations illustrate adjustments that preserved character progress.
 - [0012](../../drizzle/0012_fortitude_health.sql) converts legacy base health and Fortitude to the nearest nonnegative base Fortitude, keeps allocated points, and clamps HP when the new cap is lower.
 - [0013](../../drizzle/0013_character_class_and_speed.sql) keeps Agility and allocated Agility, initializes independent Speed from their sum, and converts the old weapon and armor Strength effect to Attack Power in place.
 
+The November 25 Ruins changes use migration 0014 for discovery persistence and the seed for equipment, materials, and shop prices. A database already on 0014 only needs `yarn db:seed` to pick up catalog changes.
+
 ### Randomized Ruins discovery migration
 
 [Migration 0014](../../drizzle/0014_randomized_ruins_discoveries.sql) adds nullable columns for the expedition's discovery records and the last Central gold claim date. Active expeditions retain their position, pending enemy, and earned rewards. The former repeatable caches had no claim history to backfill, so these expeditions receive no caches until their next entry. The first expedition started under the new rules generates fresh caches and starts tracking claims. Apply the migration before starting the updated app.

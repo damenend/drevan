@@ -24,7 +24,7 @@ Armor starts one point above Worn Leather Armor and increases by one point per t
 
 ## Buy and sell
 
-Use the purchase category links to browse all items, equipment, weapons, armor, or consumables. Each category shows its own purchase form. Use **All items** to buy from several categories in one checkout.
+Use the purchase category links to browse all items, equipment, weapons, armor, or consumables. Changing categories opens a fresh purchase form. Checkout returns to the selected category. Use **All items** to buy from several categories in one checkout.
 
 The Emporium uses server-side catalog prices. A null purchase price keeps the item off the purchase list. A blank quantity counts as zero. Purchases read current prices, balance, and owned counts, then deduct gold and add inventory in one transaction. Reject totals or stacks outside JavaScript's safe integer range and show the result after redirect.
 

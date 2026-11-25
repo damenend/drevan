@@ -592,6 +592,8 @@ Keep the Warden as the tougher encounter for the next pass and retain the 20% Sc
 
 ## Floor 1 repeat-cache comparison
 
+This comparison predates the shipped [randomized cache locations and split claim limits](../gameplay/ruins.md#exploration-discoveries). Its payout figures use fixed routes.
+
 The November 24, 2026 follow-up used the rules at `ab85a8e` and varied only the cache claim rules in a simulation. For each build, rule, and trip schedule, 1,000 paired sessions ran 16 trips each. Each session began with three Lesser Potions. Each trip began at 25 HP, with Sanctum charging for any missing HP after every trip. The sessions omitted attribute spending, equipment purchases, potion purchases, and Recall. Survivors returned on foot. The builds, healing threshold, and route matched the full expedition playtest. The outward route visited the potion and gold caches once each, then fought the Scavenger, Sentinel, and Warden. The return route crossed the gold cache a second time.
 
 The simulation used the live map, combat simulator, and Scavenger drop chance. For each fight, the existing seeded generator used `(sessionSeed * 16 + tripIndex) * 49 + tile` with session seeds 1–1,000, trip indices 0–15, and tile indices 9, 25, and 48 for the fights. Each fight drew gold first, then combat, then the drop on eligible victories, matching the live order. Resetting the stream for each fight kept later rolls paired when potion availability changed a fight's length. Daily claims reset between modeled Central days. A per-expedition claim reset at each entry, including after defeat.
@@ -609,7 +611,7 @@ Net gold subtracts Sanctum costs. Warden clears use all trips as the denominator
 
 ### Short cache routes and candidate rule
 
-- On the five-arrival gold-cache loop from the live trial, the current rule yields 40 gold over 10 moves. Both a per-expedition claim and a daily claim yield 8 gold on that loop. Leaving and re-entering between each visit restores the per-expedition payout to 40 gold, at a cost of five entries and five exits in addition to the same 10 moves. Daily gold stays at 8 across those re-entries.
+- On the five-arrival gold-cache loop from the live trial, the every-arrival rule yields 40 gold over 10 moves. Both a per-expedition claim and a daily claim yield 8 gold on that loop. Leaving and re-entering between each visit restores the per-expedition payout to 40 gold, at a cost of five entries and five exits in addition to the same 10 moves. Daily gold stays at 8 across those re-entries.
 - The split rule still allows a player to leave and re-enter to collect another potion without fighting. The cache contributes one potion per full trip, while the Scavenger contributes about 0.19. The split rule preserves that supply while controlling repeat gold. Making both caches daily would increase the importance of the drop, but it sharply reduces completion under the tested healing policy.
 - Advance **one gold-cache claim per Central day and one potion-cache claim per expedition** to a live trial before expanding loot. Verify that walking out, Recall, and defeat start a new potion claim on re-entry, that logging out preserves the current claim, and that gold can be claimed again after Central midnight. Recheck discovery and exit visibility with reduced markers as planned.
 
