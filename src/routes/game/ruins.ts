@@ -37,6 +37,7 @@ router.get("/", (req, res) => {
     size: RUINS_SIZE,
     entrance: RUINS_ENTRANCE,
     canMove: canMoveInRuins,
+    restoreMapFocus: req.query.focus === "map",
     encounter: enemy,
     atNextFloor,
     // After manual playtesting, reveal the marker only while standing on it.
@@ -91,6 +92,7 @@ router.post("/action", (req, res) => {
   const query = new URLSearchParams();
   if (result.message) query.set("message", result.message);
   if (result.discovery) query.set("discovery", result.discovery);
+  if (kind === "move") query.set("focus", "map");
   return res.redirect(303, query.size ? `${path}?${query}` : path);
 });
 

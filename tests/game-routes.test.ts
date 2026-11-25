@@ -923,6 +923,15 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   const start = await viewRuins();
   assert.equal(start.status, 200);
   assert.match(start.html, /Position \(0, 0\)/);
+  assert.match(
+    start.html,
+    /class="ruins-map" data-position="0" data-size="7" action=/,
+  );
+  assert.match(
+    start.html,
+    /data-player-tile role="img" aria-label="Your position \(0, 0\), entrance and exit"/,
+  );
+  assert.match(start.html, /src="\/js\/ruins-map\.js" defer/);
   assert.match(start.html, /aria-label="Move to \(1, 0\), gold discovery">G</);
   assert.equal(
     (start.html.match(/ruins-tile--item" aria-hidden="true">I</g) ?? []).length,
@@ -956,6 +965,10 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
     .find((location) => location.includes("collect"));
   assert.ok(goldLocation);
   const goldPage = await request(goldLocation, { headers: { cookie } });
+  assert.match(
+    goldPage.html,
+    /data-position="1" data-size="7" data-restore-focus/,
+  );
   assert.match(
     goldPage.html,
     /ruins-notice--discovery[\s\S]*You collect 8 gold/,
@@ -1298,7 +1311,7 @@ test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stai
   assert.match(discovered, /Floor 2 entrance discovered/);
   assert.match(
     discovered,
-    /ruins-tile--stairs ruins-tile--player" aria-hidden="true">P2</,
+    /ruins-tile--stairs ruins-tile--player" data-player-tile role="img" aria-label="Your position \(2, 0\), Floor 2 entrance">P2</,
   );
   assert.match(discovered, /id="ruins-floor">Floor 1</);
   assert.match(

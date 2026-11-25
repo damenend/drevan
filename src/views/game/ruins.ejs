@@ -41,8 +41,9 @@
       <section class="ruins-exploration" aria-labelledby="ruins-floor">
         <h3 id="ruins-floor">Floor 1</h3>
         <p>Position (<%= position % size %>, <%= Math.floor(position / size) %>)</p>
+        <p id="ruins-map-keys" class="text-muted" hidden>Tab to the map, then use the arrow keys to choose a direction. Press Enter or Space to move.</p>
         <% const eventMarkers = { gold: ["G", "gold discovery"], item: ["I", "item discovery"], enemy: ["X", "enemy encounter"] }; %>
-        <form class="ruins-map" action="/game/ruins/action" method="post" aria-label="Move to an adjacent square">
+        <form class="ruins-map" data-position="<%= position %>" data-size="<%= size %>"<% if (restoreMapFocus) { %> data-restore-focus<% } %> action="/game/ruins/action" method="post" aria-label="Move to an adjacent square">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
           <input type="hidden" name="action" value="move">
           <% for (let tile = 0; tile < size ** 2; tile++) { %>
@@ -53,11 +54,14 @@
           <% const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : eventKind ? " ruins-tile--" + eventKind : "") + (tile === position ? " ruins-tile--player" : ""); %>
           <% if (canMove(position, tile)) { %>
           <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move to <%= label %><%= description ? ', ' + description : '' %>"><%= marker || "·" %></button>
+          <% } else if (tile === position) { %>
+          <span class="<%= style %>" data-player-tile role="img" aria-label="Your position <%= label %><%= description ? ', ' + description : '' %>"><%= marker %></span>
           <% } else { %>
           <span class="<%= style %>" aria-hidden="true"><%= marker %></span>
           <% } %>
           <% } %>
         </form>
+        <script src="/js/ruins-map.js" defer></script>
         <% if (position === entrance || atNextFloor || encounter) { %>
         <form class="ruins-actions" action="/game/ruins/action" method="post">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
