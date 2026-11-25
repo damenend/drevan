@@ -219,6 +219,39 @@ test("game routes require sign-in and sign-in replaces the session", async () =>
   );
 });
 
+test("homepage renders only the requested authentication form", async () => {
+  const login = await request("/");
+  assert.equal(login.status, 200);
+  assert.match(login.html, /action="\/login"/);
+  assert.doesNotMatch(login.html, /action="\/signup"/);
+
+  const signup = await request("/?view=register");
+  assert.equal(signup.status, 200);
+  assert.match(signup.html, /href="\/\?view=register" aria-current="page"/);
+  assert.match(signup.html, /action="\/signup"/);
+  assert.doesNotMatch(signup.html, /action="\/login"/);
+  assert.match(signup.html, /value="male"[^>]* checked/);
+});
+
+test("signup errors restore safe values and identify the affected field", async () => {
+  const signup = await post(
+    "/signup",
+    new URLSearchParams({ ...account, passwordConfirmation: "different" }),
+    "",
+  );
+  assert.equal(signup.status, 400);
+  assert.match(signup.html, /action="\/signup"/);
+  assert.match(
+    signup.html,
+    /id="signup-passwordConfirmation"[^>]*aria-invalid="true"/,
+  );
+  assert.match(signup.html, /Passwords must match/);
+  assert.match(signup.html, /value="female"[^>]* checked/);
+  assert.ok(signup.html.includes(`value="${account.name}"`));
+  assert.ok(signup.html.includes(`value="${account.email}"`));
+  assert.ok(!signup.html.includes(account.password));
+});
+
 test("an incorrect password does not create an authenticated session", async () => {
   const login = await post(
     "/login",
@@ -226,6 +259,9 @@ test("an incorrect password does not create an authenticated session", async () 
     "",
   );
   assert.equal(login.status, 401);
+  assert.match(login.html, /action="\/login"/);
+  assert.match(login.html, /Invalid email or password/);
+  assert.ok(!login.html.includes("wrong password"));
   assert.equal(login.headers.get("set-cookie"), null);
 });
 

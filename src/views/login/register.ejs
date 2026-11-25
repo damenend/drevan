@@ -1,0 +1,115 @@
+<%
+const error = locals.authError;
+const values = locals.formValues ?? {};
+const avatars = [
+  { value: "male", label: "Male", width: 1024, height: 1536 },
+  { value: "female", label: "Female", width: 765, height: 1024 },
+];
+%>
+<h2 id="auth-heading">Begin your journey</h2>
+<p>Create your character and find your place in Nexaris.</p>
+
+<% if (error) { %>
+<p class="err" role="alert">
+  <% if (error.field) { %>
+  <a href="#signup-<%= error.field %>">Review the highlighted field below.</a>
+  <% } else { %>
+  <%= error.message %>
+  <% } %>
+</p>
+<% } %>
+
+<form id="signup-form" action="/signup" method="POST">
+  <div class="form-group">
+    <label for="signup-name">Player name</label>
+    <input type="text" id="signup-name" name="name" value="<%= values.name ?? '' %>" aria-describedby="player-name-rules signup-name-error" <% if (error?.field === "name") { %>aria-invalid="true"<% } %> autocomplete="nickname" minlength="3" maxlength="24" pattern="[A-Za-z0-9_\-][A-Za-z0-9_ \-]{1,22}[A-Za-z0-9_\-]" required />
+    <p id="signup-name-error" class="err auth-field-feedback" <% if (error?.field !== "name") { %>hidden<% } %>><%= error?.field === "name" ? error.message : "" %></p>
+    <p id="player-name-rules" class="text-muted auth-field-feedback">
+      3–24 characters. Use letters A–Z, digits, spaces, underscores, or hyphens.<br />
+      Start and end without a space. Names are case-insensitive.
+    </p>
+  </div>
+
+  <fieldset class="form-group avatar-models">
+    <legend>Avatar model</legend>
+    <div class="avatar-options">
+      <% for (const avatar of avatars) { %>
+      <label class="avatar-option">
+        <img src="/images/drevan-avatar-<%= avatar.value %>.webp" alt="" width="<%= avatar.width %>" height="<%= avatar.height %>" />
+        <span>
+          <input type="radio" id="signup-<%= avatar.value === 'male' ? 'avatarModel' : 'avatar-female' %>" name="avatarModel" value="<%= avatar.value %>" aria-describedby="signup-avatarModel-error" <% if (error?.field === "avatarModel") { %>aria-invalid="true"<% } %> <% if ((values.avatarModel ?? "male") === avatar.value) { %>checked<% } %> required />
+          <%= avatar.label %>
+        </span>
+      </label>
+      <% } %>
+    </div>
+    <p id="signup-avatarModel-error" class="err auth-field-feedback" <% if (error?.field !== "avatarModel") { %>hidden<% } %>><%= error?.field === "avatarModel" ? error.message : "" %></p>
+  </fieldset>
+
+  <div class="form-group">
+    <label for="signup-email">Email</label>
+    <input type="email" id="signup-email" name="email" value="<%= values.email ?? '' %>" aria-describedby="signup-email-error" <% if (error?.field === "email") { %>aria-invalid="true"<% } %> autocomplete="email" required />
+    <p id="signup-email-error" class="err auth-field-feedback" <% if (error?.field !== "email") { %>hidden<% } %>><%= error?.field === "email" ? error.message : "" %></p>
+  </div>
+  <div class="form-group">
+    <label for="signup-password">Password</label>
+    <input type="password" id="signup-password" name="password" aria-describedby="signup-password-error" autocomplete="new-password" required />
+    <p id="signup-password-error" class="err auth-field-feedback" hidden></p>
+  </div>
+  <div class="form-group">
+    <label for="signup-passwordConfirmation">Confirm password</label>
+    <input type="password" id="signup-passwordConfirmation" name="passwordConfirmation" aria-describedby="signup-passwordConfirmation-error" <% if (error?.field === "passwordConfirmation") { %>aria-invalid="true"<% } %> autocomplete="new-password" required />
+    <p id="signup-passwordConfirmation-error" class="err auth-field-feedback" <% if (error?.field !== "passwordConfirmation") { %>hidden<% } %>><%= error?.field === "passwordConfirmation" ? error.message : "" %></p>
+  </div>
+  <div class="form-group">
+    <button type="submit">Create account</button>
+  </div>
+</form>
+<p>Already have an account? <a href="/">Log in</a>.</p>
+<script>
+  (() => {
+    const form = document.getElementById("signup-form");
+    const password = form.elements.namedItem("password");
+    const confirmation = form.elements.namedItem("passwordConfirmation");
+    const mismatchMessage = "Passwords must match.";
+
+    /** Uses a supplied message or native feedback and updates the invalid state. */
+    function showFieldError(field, message = "") {
+      const feedback = document.getElementById(`signup-${field.name}-error`);
+      const { valid, patternMismatch } = field.validity;
+      feedback.textContent = message || (patternMismatch
+        ? "Enter a player name that follows the rules above."
+        : field.validationMessage);
+      feedback.hidden = valid && !message;
+
+      if (feedback.hidden) {
+        field.removeAttribute("aria-invalid");
+      } else {
+        field.setAttribute("aria-invalid", "true");
+      }
+    }
+
+    form.addEventListener("invalid", (event) => {
+      showFieldError(event.target);
+    }, true);
+
+    form.addEventListener("input", (event) => {
+      const field = event.target;
+      if (field !== confirmation && field.hasAttribute("aria-invalid")) {
+        showFieldError(field);
+      }
+      if ((field === password || field === confirmation) && confirmation.hasAttribute("aria-invalid")) {
+        const mismatch = confirmation.value && confirmation.value !== password.value;
+        showFieldError(confirmation, mismatch ? mismatchMessage : "");
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      if (confirmation.value !== password.value) {
+        event.preventDefault();
+        showFieldError(confirmation, mismatchMessage);
+        confirmation.focus();
+      }
+    });
+  })();
+</script>

@@ -7,8 +7,10 @@ const router = Router();
 
 // Public homepage
 router.get("/", (req, res) => {
+  const registering = req.query.view === "register";
   return res.render("index", {
-    title: null,
+    title: registering ? "Create an account" : null,
+    authView: registering ? "register" : "login",
   });
 });
 

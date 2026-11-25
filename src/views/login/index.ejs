@@ -1,125 +1,19 @@
-<section class="page">
-  <h2>Log in</h2>
-  <form action="/login" method="POST">
-    <div class="form-group">
-      <label for="login-email">Email</label>
-      <input
-        id="login-email"
-        type="email"
-        autocomplete="username"
-        name="email"
-        required
-      />
-    </div>
-    <div class="form-group">
-      <label for="login-password">Password</label>
-      <input
-        id="login-password"
-        type="password"
-        name="password"
-        autocomplete="current-password"
-        required
-      />
-    </div>
-    <div class="form-group">
-      <button type="submit">Log in</button>
-    </div>
-  </form>
-  <hr />
-  <h2>Create an account</h2>
-  <form id="signup-form" action="/signup" method="POST">
-    <div class="form-group">
-      <label for="signup-name">Player name</label>
-      <input type="text" id="signup-name" name="name" aria-describedby="player-name-rules signup-name-error" autocomplete="nickname" minlength="3" maxlength="24" pattern="[A-Za-z0-9_\-][A-Za-z0-9_ \-]{1,22}[A-Za-z0-9_\-]" required />
-      <p id="player-name-rules">3–24 characters. Use letters A–Z, digits, spaces, underscores, or hyphens. Start and end without a space. Capitalization does not make a name unique.</p>
-      <p id="signup-name-error" hidden></p>
-    </div>
-    <div class="form-group">
-      <label for="signup-avatar-model">Avatar model</label>
-      <select id="signup-avatar-model" name="avatarModel" aria-describedby="signup-avatarModel-error" required>
-        <option value="male" selected>Male</option>
-        <option value="female">Female</option>
-      </select>
-      <p id="signup-avatarModel-error" hidden></p>
-    </div>
-    <div class="form-group">
-      <label for="signup-email">Email</label>
-      <input type="email" id="signup-email" name="email" aria-describedby="signup-email-error" autocomplete="email" required />
-      <p id="signup-email-error" hidden></p>
-    </div>
-    <div class="form-group">
-      <label for="signup-password">Password</label>
-      <input
-        type="password"
-        id="signup-password"
-        name="password"
-        aria-describedby="signup-password-error"
-        autocomplete="new-password"
-        required
-      />
-      <p id="signup-password-error" hidden></p>
-    </div>
-    <div class="form-group">
-      <label for="signup-passwordConfirmation">Confirm password</label>
-      <input
-        type="password"
-        id="signup-passwordConfirmation"
-        name="passwordConfirmation"
-        aria-describedby="signup-passwordConfirmation-error"
-        autocomplete="new-password"
-        required
-      />
-      <p id="signup-passwordConfirmation-error" hidden></p>
-    </div>
-    <div class="form-group">
-      <button type="submit">Create account</button>
-    </div>
-  </form>
-</section>
-
-<script>
-  (() => {
-    const form = document.getElementById("signup-form");
-    const password = form.elements.namedItem("password");
-    const confirmation = form.elements.namedItem("passwordConfirmation");
-    const mismatchMessage = "Passwords must match.";
-
-    function showFieldError(field, message = "") {
-      const feedback = document.getElementById(`signup-${field.name}-error`);
-      const { valid, patternMismatch } = field.validity;
-      feedback.textContent = message || (patternMismatch
-        ? "Enter a player name that follows the rules above."
-        : field.validationMessage);
-      feedback.hidden = valid && !message;
-
-      if (feedback.hidden) {
-        field.removeAttribute("aria-invalid");
-      } else {
-        field.setAttribute("aria-invalid", "true");
-      }
-    }
-
-    form.addEventListener("invalid", (event) => {
-      showFieldError(event.target);
-    }, true);
-
-    form.addEventListener("input", (event) => {
-      const field = event.target;
-      if (field !== confirmation && field.hasAttribute("aria-invalid")) {
-        showFieldError(field);
-      }
-      if ((field === password || field === confirmation) && confirmation.hasAttribute("aria-invalid")) {
-        const mismatch = confirmation.value && confirmation.value !== password.value;
-        showFieldError(confirmation, mismatch ? mismatchMessage : "");
-      }
-    });
-
-    form.addEventListener("submit", (event) => {
-      if (confirmation.value !== password.value) {
-        event.preventDefault();
-        showFieldError(confirmation, mismatchMessage);
-        confirmation.focus();
-      }
-    });
-  })();
-</script>
+<h2 id="auth-heading">Welcome back</h2>
+<p>Return to your adventures in Drevan.</p>
+<% if (locals.authError) { %>
+<p class="err" role="alert"><%= authError.message %></p>
+<% } %>
+<form action="/login" method="POST">
+  <div class="form-group">
+    <label for="login-email">Email</label>
+    <input id="login-email" type="email" autocomplete="username" name="email" value="<%= locals.formValues?.email ?? '' %>" required />
+  </div>
+  <div class="form-group">
+    <label for="login-password">Password</label>
+    <input id="login-password" type="password" name="password" autocomplete="current-password" required />
+  </div>
+  <div class="form-group">
+    <button type="submit">Log in</button>
+  </div>
+</form>
+<p>New to Drevan? <a href="/?view=register">Create an account</a>.</p>

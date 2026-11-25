@@ -1,5 +1,30 @@
-<section class="page">
-  <h2>Life among the ruins</h2>
-  <p>In Drevan, people make a living among the remnants of civilizations that once worked magic and machinery side by side. Find your footing in Nexaris, then decide how far beyond it you’re willing to go.</p>
-  <%- include("login/index") %>
-</section>
+<% const registering = authView === "register"; %>
+<div class="homepage">
+  <section class="homepage-intro" aria-labelledby="world-intro">
+    <h2 id="world-intro">Life among the ruins</h2>
+    <p>In Drevan, people make a living among the remnants of civilizations that once worked magic and machinery side by side. Find your footing in Nexaris, then decide how far beyond it you’re willing to go.</p>
+  </section>
+
+  <section class="homepage-auth" aria-labelledby="auth-heading">
+    <nav class="auth-navigation" aria-label="Account access">
+      <a href="/" <% if (!registering) { %>aria-current="page"<% } %>>Log in</a>
+      <a href="/?view=register" <% if (registering) { %>aria-current="page"<% } %>>Create an account</a>
+    </nav>
+    <% if (registering) { %>
+    <%- include("login/register") %>
+    <% } else { %>
+    <%- include("login/index") %>
+    <% } %>
+  </section>
+
+  <div class="homepage-art">
+    <%- include("partials/location-image", {
+      src: "/images/drevan-homepage.webp",
+      banner: {
+        alt: "Ruined stone arches overlook waterfalls and a city of illuminated towers.",
+        width: 1600,
+        height: 900,
+      },
+    }) %>
+  </div>
+</div>

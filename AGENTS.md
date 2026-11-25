@@ -56,7 +56,9 @@ Expected locations (verify before editing):
 - `src/db/index.ts`: SQLite / Drizzle connection
 - `src/db/seed.ts`: item catalog, including starter gear, fish, and the Recall Beacon. Inserts new item names and updates matching rows.
 - `src/middleware/auth.ts`: load the signed-in player and protect game routes
-- `src/routes/`: public and authentication routes
+- `src/routes/`: public and authentication routes. The homepage and auth
+  error responses share `src/views/index.ejs`, which selects the login or
+  signup form from `src/views/login/`.
 - `src/routes/game/`: signed-in gameplay routes and the expedition access guard in `index.ts`. The inventory router handles consumable use and equipment. The Quarters and its inventory redirects share category parsing from `quarters-inventory.ts`, which also formats item effects for display.
 - `src/services/` holds game rules and transactions. Route handlers validate
   requests, call the appropriate service, and handle reports and redirects.
@@ -266,7 +268,15 @@ When changing behavior, review nearby comments for accuracy.
 
 ### Route boundaries
 
-- Use the shared error page for HTTP errors. Render expected route errors with `renderError` from `src/middleware/errors.ts`. Keep error copy safe for players to see.
+- Use `renderError` from `src/middleware/errors.ts` for the shared HTTP error
+  page. This includes the signup 503 when the starter catalog is unavailable.
+  Keep error copy safe for players to see.
+- The public homepage shows login by default. Use `/?view=register` to link
+  directly to signup. Render login validation and credential errors and signup
+  validation and duplicate-account errors with the corresponding form and HTTP
+  status. Login restores the submitted email. Signup restores the submitted
+  player name, email, and valid avatar choice. Passwords are entered again
+  after a form error.
 - Login and signup create a fresh session and save the signed-in player ID
   before redirecting to The Quarters or resuming an active expedition in The Ruins.
 - Use `parseFormInteger` from `src/utils/parse-form-integer.ts` for nonnegative

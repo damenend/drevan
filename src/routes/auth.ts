@@ -24,15 +24,22 @@ async function signIn(req: Request, userId: number) {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body ?? {};
 
+  /** Restores the submitted email so the player can correct their credentials. */
+  const renderLoginError = (status: number, message: string) =>
+    res.status(status).render("index", {
+      title: null,
+      authView: "login",
+      authError: { message },
+      formValues: { email: typeof email === "string" ? email : "" },
+    });
+
   if (
     typeof email !== "string" ||
     typeof password !== "string" ||
     !email.trim() ||
     !password
   ) {
-    return renderError(res, 400, {
-      message: "Email and password are required.",
-    });
+    return renderLoginError(400, "Email and password are required.");
   }
 
   const user = db
@@ -42,13 +49,13 @@ router.post("/login", async (req, res) => {
     .get();
 
   if (!user) {
-    return renderError(res, 401, { message: "Invalid email or password." });
+    return renderLoginError(401, "Invalid email or password.");
   }
 
   const passwordMatches = await argon2.verify(user.passwordHash, password);
 
   if (!passwordMatches) {
-    return renderError(res, 401, { message: "Invalid email or password." });
+    return renderLoginError(401, "Invalid email or password.");
   }
 
   await signIn(req, user.id);
@@ -66,30 +73,53 @@ router.post("/signup", async (req, res) => {
     avatarModel = "male",
   } = req.body ?? {};
 
+  /**
+   * Restores the submitted name, email, and valid avatar choice. The optional
+   * field identifies the control that receives the feedback.
+   */
+  const renderSignupError = (
+    status: number,
+    message: string,
+    field?: "name" | "avatarModel" | "email" | "passwordConfirmation",
+  ) =>
+    res.status(status).render("index", {
+      title: "Create an account",
+      authView: "register",
+      authError: { message, field },
+      formValues: {
+        name: typeof name === "string" ? name : "",
+        email: typeof email === "string" ? email : "",
+        avatarModel: avatarModel === "female" ? "female" : "male",
+      },
+    });
+
   if (
     typeof email !== "string" ||
     typeof password !== "string" ||
     !email.trim() ||
     !password
   ) {
-    return renderError(res, 400, {
-      message: "Check your account details and try again.",
-    });
+    return renderSignupError(400, "Check your account details and try again.");
   }
 
   if (passwordConfirmation !== password) {
-    return renderError(res, 400, { message: "Passwords must match." });
+    return renderSignupError(
+      400,
+      "Passwords must match.",
+      "passwordConfirmation",
+    );
   }
 
   if (typeof name !== "string" || !playerNamePattern.test(name)) {
-    return renderError(res, 400, {
-      message:
-        "Player names must be 3–24 characters and use only letters A–Z, numbers, spaces, underscores, or hyphens. Spaces cannot appear at either end.",
-    });
+    return renderSignupError(
+      400,
+      "Enter a player name that follows the rules below.",
+      "name",
+    );
   }
 
   if (avatarModel !== "male" && avatarModel !== "female") {
-    return renderError(res, 400, { message: "Choose an avatar model." });
+    return renderSignupError(400, "Choose an avatar model.", "avatarModel");
   }
 
   const passwordHash = await argon2.hash(password);
@@ -127,6 +157,10 @@ router.post("/signup", async (req, res) => {
   if (signup.status === "catalog-unavailable") {
     return renderError(res, 503, {
       message: "Signup is temporarily unavailable. Please try again later.",
+      recoveryLink: {
+        href: "/?view=register",
+        label: "Return to account creation",
+      },
     });
   }
 
@@ -137,11 +171,9 @@ router.post("/signup", async (req, res) => {
       .where(sql`lower(${users.name}) = lower(${name})`)
       .get();
 
-    return renderError(res, 409, {
-      message: nameTaken
-        ? "That player name is already taken."
-        : "That email is already registered.",
-    });
+    return nameTaken
+      ? renderSignupError(409, "That player name is already taken.", "name")
+      : renderSignupError(409, "That email is already registered.", "email");
   }
 
   await signIn(req, signup.id);
