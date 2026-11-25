@@ -1,0 +1,5 @@
+<nav class="link-nav link-nav--filters" aria-label="<%= label %>">
+  <% for (const [key, text] of Object.entries(categories)) { %>
+  <a href="<%= path %><%= key === "all" ? "" : "?category=" + key %>#<%= headingId %>"<% if (category === key) { %> aria-current="page"<% } %>><%= text %></a>
+  <% } %>
+</nav>

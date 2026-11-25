@@ -20,12 +20,24 @@ export function getInventoryCategory(value: unknown) {
 }
 
 /** Groups supported gear slots under Equipment and unrecognized types under Other. */
-export function getItemCategory(type: string) {
+function getItemCategory(type: string) {
   if (getEquipmentColumn(type)) return "equipment";
   if (type === "consumable") return "consumables";
   if (type === "fish") return "fish";
   if (type === "material") return "materials";
   return "other";
+}
+
+/** Checks both grouped categories and individual equipment slots. */
+export function matchesItemCategory(
+  type: string,
+  category: keyof typeof inventoryCategories,
+) {
+  return (
+    category === "all" ||
+    category === type ||
+    getItemCategory(type) === category
+  );
 }
 
 /**

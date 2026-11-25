@@ -602,6 +602,39 @@ test("Emporium charges catalog prices and rejects invalid or unaffordable carts"
   assert.equal(player().gold, 85);
 });
 
+test("Emporium filters purchase stock and keeps the selected category at checkout", async () => {
+  const shop = (category: string) =>
+    request(`/game/store?category=${category}`, { headers: { cookie } });
+  const weapons = (await shop("weapon")).html;
+  assert.match(weapons, /category=weapon#buy-heading" aria-current="page"/);
+  assert.match(weapons, /action="\/game\/store\?category=weapon"/);
+  assert.match(weapons, /Quantity of Rusted Sword/);
+  assert.doesNotMatch(
+    weapons,
+    /Quantity of Lesser Potion|Quantity of Wooden Shield/,
+  );
+  assert.match((await shop("armor")).html, /Quantity of Wooden Shield/);
+  assert.match((await shop("consumables")).html, /Quantity of Lesser Potion/);
+  assert.match(
+    (await shop("unknown")).html,
+    /href="\/game\/store#buy-heading" aria-current="page"/,
+  );
+
+  const checkout = "/game/store?category=weapon";
+  const empty = await post(checkout, {});
+  assert.equal(
+    empty.headers.get("location"),
+    "/game/store?err=quantity&category=weapon",
+  );
+  const order = await post(checkout, { items: { "item-2": 1 } });
+  assert.equal(
+    order.headers.get("location"),
+    "/game/store?purchased=1&category=weapon",
+  );
+  assert.deepEqual(ownedItems(), [{ item_id: 2, quantity: 1 }]);
+  assert.equal(player().gold, 0);
+});
+
 test("Emporium buys owned fish at catalog prices and protects equipped gear", async () => {
   sqlite.exec(`
     INSERT INTO inventory (user_id, item_id, quantity)

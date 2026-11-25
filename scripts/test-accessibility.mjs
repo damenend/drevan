@@ -198,6 +198,21 @@ try {
   await scan("purchase-result");
   assert.equal(await page.locator(":focus").innerText(), "Purchase complete.");
 
+  const purchaseFilters = page.getByRole("navigation", {
+    name: "Purchase categories",
+  });
+  const weaponsFilter = purchaseFilters.getByRole("link", {
+    name: "Weapons",
+    exact: true,
+  });
+  await weaponsFilter.focus();
+  await page.keyboard.press("Enter");
+  await page.waitForURL("**/game/store?category=weapon#buy-heading");
+  assert.equal(await weaponsFilter.getAttribute("aria-current"), "page");
+  assert.equal(await page.getByLabel("Quantity of Lesser Potion").count(), 0);
+  await page.getByLabel("Quantity of Rusted Sword", { exact: true }).waitFor();
+  await scan("purchase-weapons");
+
   await page.goto(base + "/game");
   await page.getByRole("link", { name: "Equipment", exact: true }).click();
   await page.getByRole("button", { name: "Equip Rusted Sword" }).click();

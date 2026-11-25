@@ -1,0 +1,29 @@
+<tr>
+  <th scope="row">
+    <%- include("./item-figure", { item, showDescription: true }) %>
+    <% if (item.type === "material" && item.sellPrice > 0) { %>
+    <span class="item-description">Sells for <%= formatNumber(item.sellPrice) %> gold each</span>
+    <% } %>
+  </th>
+  <td class="quarters-quantity">
+    <%= formatNumber(item.quantity) %>
+  </td>
+  <td>
+    <% const effect = describeItemEffect(item.effect, item.effectValue); %>
+    <% if (effect) { %>
+    <%- include("./item-effect", { effect }) %>
+    <% } else { %>
+    <span class="text-muted">—</span>
+    <% } %>
+  </td>
+  <td>
+    <% if (item.action) { %>
+    <form action="/game/inventory/<%= item.action.toLowerCase() %><%= actionQuery %>" method="POST">
+      <input type="hidden" name="itemId" value="<%= item.id %>">
+      <button type="submit" aria-label="<%= item.action %> <%= item.name %>"><%= item.action %></button>
+    </form>
+    <% } else { %>
+    <span class="text-muted">—</span>
+    <% } %>
+  </td>
+</tr>

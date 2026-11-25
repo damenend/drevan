@@ -31,7 +31,7 @@ import { getProgression, statAllocations } from "../../services/progression";
 import {
   describeItemEffect,
   getInventoryCategory,
-  getItemCategory,
+  matchesItemCategory,
   inventoryCategories,
 } from "./quarters-inventory";
 
@@ -101,12 +101,7 @@ router.get("/", (req, res) => {
       item: equipped.find((item) => item.equippedSlot === slot),
     })),
     inventory: available
-      .filter(
-        (item) =>
-          category === "all" ||
-          category === item.type ||
-          getItemCategory(item.type) === category,
-      )
+      .filter((item) => matchesItemCategory(item.type, category))
       .map((item) => ({
         ...item,
         action:

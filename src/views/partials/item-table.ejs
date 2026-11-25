@@ -1,0 +1,16 @@
+<div class="table-responsive" data-scroll-label="<%= scrollLabel %>">
+  <table class="table<%= locals.tableClass ? ' ' + tableClass : '' %>" aria-labelledby="<%= headingId %>">
+    <thead>
+      <tr>
+        <% for (const column of columns) { %>
+        <th scope="col"><%= column %></th>
+        <% } %>
+      </tr>
+    </thead>
+    <tbody>
+      <% for (const item of rows) { %>
+      <%- include(rowView, { item }) %>
+      <% } %>
+    </tbody>
+  </table>
+</div>

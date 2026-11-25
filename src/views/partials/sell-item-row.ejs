@@ -1,0 +1,15 @@
+<tr>
+  <th scope="row">
+    <%- include("./item-figure", { item }) %>
+  </th>
+  <td><%= formatNumber(item.available) %></td>
+  <td><%= formatNumber(item.sellPrice) %></td>
+  <td>
+    <% if (item.available === 0) { %>
+    <a href="/game#equipped">Unequip in The Quarters</a>
+    <% } else { %>
+    <label for="sell-<%= item.id %>" class="visually-hidden">Quantity of <%= item.name %> to sell</label>
+    <input type="number" id="sell-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" max="<%= item.available %>" step="1" data-price="<%= item.sellPrice %>" class="item-quantity">
+    <% } %>
+  </td>
+</tr>

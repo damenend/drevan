@@ -126,62 +126,20 @@
 
   <section aria-labelledby="inventory-heading">
     <h2 id="inventory-heading" tabindex="-1">Inventory</h2>
-    <nav class="link-nav link-nav--filters" aria-label="Inventory categories">
-      <% for (const [key, label] of Object.entries(inventoryCategories)) { %>
-      <a href="/game<%= key === "all" ? "" : "?category=" + key %>#inventory-heading"<% if (category === key) { %> aria-current="page"<% } %>><%= label %></a>
-      <% } %>
-    </nav>
+    <%- include("../partials/item-category-nav", {
+      label: "Inventory categories", path: "/game", headingId: "inventory-heading", categories: inventoryCategories,
+    }) %>
 
     <% if (inventoryEmpty) { %>
     <p>Your inventory is empty.</p>
     <% } else if (inventory.length === 0) { %>
     <p>No items in this category.</p>
     <% } else { %>
-    <div class="table-responsive" data-scroll-label="Inventory items">
-      <table class="table quarters-inventory" aria-labelledby="inventory-heading">
-        <thead>
-          <tr>
-            <th scope="col">Item</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Effect</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (const item of inventory) { %>
-          <tr>
-            <th scope="row">
-              <%- include("../partials/item-figure", { item, showDescription: true }) %>
-              <% if (item.type === "material" && item.sellPrice > 0) { %>
-              <span class="item-description">Sells for <%= formatNumber(item.sellPrice) %> gold each</span>
-              <% } %>
-            </th>
-            <td class="quarters-quantity">
-              <%= formatNumber(item.quantity) %>
-            </td>
-            <td>
-              <% const effect = describeItemEffect(item.effect, item.effectValue); %>
-              <% if (effect) { %>
-              <%- include("../partials/item-effect", { effect }) %>
-              <% } else { %>
-              <span class="text-muted">—</span>
-              <% } %>
-            </td>
-            <td>
-              <% if (item.action) { %>
-              <form action="/game/inventory/<%= item.action.toLowerCase() %><%= actionQuery %>" method="POST">
-                <input type="hidden" name="itemId" value="<%= item.id %>">
-                <button type="submit" aria-label="<%= item.action %> <%= item.name %>"><%= item.action %></button>
-              </form>
-              <% } else { %>
-              <span class="text-muted">—</span>
-              <% } %>
-            </td>
-          </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
+    <%- include("../partials/item-table", {
+      rows: inventory, rowView: "./inventory-item-row", scrollLabel: "Inventory items",
+      headingId: "inventory-heading", tableClass: "quarters-inventory",
+      columns: ["Item", "Quantity", "Effect", "Action"],
+    }) %>
     <% } %>
   </section>
 </section>

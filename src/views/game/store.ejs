@@ -10,47 +10,24 @@
 
   <p>Curious Emporium buys spare gear, fish, and materials and sells provisions for the road. Ask where a relic came from and the proprietor may suddenly remember an errand.</p>
   <%- include("../partials/player-gold", { gold: user.gold }) %>
-  <h2>Buy items</h2>
+  <h2 id="buy-heading" tabindex="-1">Buy items</h2>
   <% if (purchased) { %>
   <p tabindex="-1" data-result-focus>Purchase complete.</p>
   <% } %>
   <% if (err) { %>
   <p class="text-error" tabindex="-1" data-result-focus><%= err %></p>
   <% } %>
-  <form id="purchase-form" action="/game/store" method="POST">
-    <div class="table-responsive" data-scroll-label="Items for purchase">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Item</th>
-            <th scope="col">Description</th>
-            <th scope="col">Effect</th>
-            <th scope="col">Value</th>
-            <th scope="col">Price</th>
-            <th scope="col">Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% items.forEach(item => { %>
-          <tr>
-            <th scope="row">
-              <%- include("../partials/item-figure", { item }) %>
-            </th>
-            <td><%= item.description %></td>
-            <td><%= ({ attack_power: "Attack Power", defense: "Defense", heal: "Restore HP" })[item.effect] ?? item.effect ?? "—" %></td>
-            <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
-            <td><%= formatNumber(item.price) %> gold</td>
-            <td>
-              <label for="item-<%= item.id %>" class="visually-hidden">
-                Quantity of <%= item.name %>
-              </label>
-              <input type="number" id="item-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" step="1" data-price="<%= item.price %>" class="item-quantity">
-            </td>
-          </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
+  <%- include("../partials/item-category-nav", {
+    label: "Purchase categories", path: "/game/store", headingId: "buy-heading", categories: purchaseCategories,
+  }) %>
+  <% if (items.length === 0) { %>
+  <p>No items for purchase in this category.</p>
+  <% } else { %>
+  <form id="purchase-form" action="/game/store<%= category === "all" ? "" : "?category=" + category %>" method="POST">
+    <%- include("../partials/item-table", {
+      rows: items, rowView: "./purchase-item-row", scrollLabel: "Items for purchase",
+      headingId: "buy-heading", columns: ["Item", "Description", "Effect", "Value", "Price", "Quantity"],
+    }) %>
     <p hidden>
       <label for="total-gold">Purchase total</label>:
       <output id="total-gold" aria-live="off">0</output> gold
@@ -58,6 +35,7 @@
     <p id="purchase-message" class="text-error" role="status"></p>
     <button type="submit" class="button--spaced">Purchase</button>
   </form>
+  <% } %>
   <section id="sell" aria-labelledby="sell-heading">
     <h2 id="sell-heading">Sell items</h2>
     <% if (sold) { %>
@@ -67,37 +45,10 @@
     <p>You have nothing available to sell here.</p>
     <% } else { %>
     <form id="sell-form" action="/game/store/sell" method="POST">
-      <div class="table-responsive" data-scroll-label="Items for sale">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Item</th>
-              <th scope="col">Available</th>
-              <th scope="col">Value</th>
-              <th scope="col">Sell quantity</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% sellableItems.forEach(item => { %>
-            <tr>
-              <th scope="row">
-                <%- include("../partials/item-figure", { item }) %>
-              </th>
-              <td><%= formatNumber(item.available) %></td>
-              <td><%= formatNumber(item.sellPrice) %></td>
-              <td>
-                <% if (item.available === 0) { %>
-                <a href="/game#equipped">Unequip in The Quarters</a>
-                <% } else { %>
-                <label for="sell-<%= item.id %>" class="visually-hidden">Quantity of <%= item.name %> to sell</label>
-                <input type="number" id="sell-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" max="<%= item.available %>" step="1" data-price="<%= item.sellPrice %>" class="item-quantity">
-                <% } %>
-              </td>
-            </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+      <%- include("../partials/item-table", {
+        rows: sellableItems, rowView: "./sell-item-row", scrollLabel: "Items for sale",
+        headingId: "sell-heading", columns: ["Item", "Available", "Value", "Sell quantity"],
+      }) %>
       <% if (sellableItems.some(item => item.available > 0)) { %>
       <p hidden>
         <label for="sell-total">Sale total</label>:

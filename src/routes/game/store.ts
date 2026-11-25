@@ -8,8 +8,26 @@ import {
   type ItemSelection,
 } from "../../services/emporium";
 import { parseFormInteger } from "../../utils/parse-form-integer";
+import {
+  getInventoryCategory,
+  inventoryCategories,
+  matchesItemCategory,
+} from "./quarters-inventory";
 
 const router = Router();
+
+const purchaseCategories = {
+  all: inventoryCategories.all,
+  equipment: inventoryCategories.equipment,
+  weapon: inventoryCategories.weapon,
+  armor: inventoryCategories.armor,
+  consumables: inventoryCategories.consumables,
+};
+
+function getPurchaseCategory(value: unknown) {
+  const category = getInventoryCategory(value);
+  return Object.hasOwn(purchaseCategories, category) ? category : "all";
+}
 
 // Store page
 router.get("/", (req, res) => {
@@ -17,6 +35,7 @@ router.get("/", (req, res) => {
     getAuthenticatedPlayer(res),
   );
 
+  const category = getPurchaseCategory(req.query.category);
   const errorMessage = {
     gold: "You do not have enough gold.",
     quantity:
@@ -32,7 +51,11 @@ router.get("/", (req, res) => {
 
   return res.render("game/store", {
     title: "Curious Emporium",
-    items: storeItems,
+    items: storeItems.filter((item) =>
+      matchesItemCategory(item.type, category),
+    ),
+    category,
+    purchaseCategories,
     sellableItems,
     sold: req.query.sold === "1",
     purchased: req.query.purchased === "1",
@@ -73,10 +96,16 @@ function parseItemSelection(requestedItems: unknown) {
 
 // Purchase items
 router.post("/", (req, res) => {
+  const category = getPurchaseCategory(req.query.category);
+  const redirectToPurchase = (feedback: Record<string, string>) => {
+    const query = new URLSearchParams(feedback);
+    if (category !== "all") query.set("category", category);
+    return res.redirect(303, `/game/store?${query}`);
+  };
   const selectedItems = parseItemSelection(req.body?.items);
 
   if (!selectedItems?.length) {
-    return res.redirect(303, "/game/store?err=quantity");
+    return redirectToPurchase({ err: "quantity" });
   }
 
   const result = buyEmporiumItems(
@@ -86,14 +115,11 @@ router.post("/", (req, res) => {
 
   // Redirect with an error if the player lacks gold
   if (result === "gold") {
-    return res.redirect(303, "/game/store?err=gold");
+    return redirectToPurchase({ err: "gold" });
   }
 
-  return res.redirect(
-    303,
-    result === "success"
-      ? "/game/store?purchased=1"
-      : "/game/store?err=invalid",
+  return redirectToPurchase(
+    result === "success" ? { purchased: "1" } : { err: "invalid" },
   );
 });
 
