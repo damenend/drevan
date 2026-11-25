@@ -91,6 +91,8 @@ Nexaris is the directory for signed-in gameplay destinations. The main navigatio
 
 A typical location page uses a heading, an illustration and caption, brief setting text, and the location’s primary controls. A repeatable activity can prioritize the map, form, or result over the artwork. Keep the most likely next action near any status or recovery message.
 
+The Driftwater places the location figure and description beside the fishing controls at widths of `44rem` and above. On narrower screens the controls and result come first, matching the reading order. A native meter pairs the available count and maximum with a visible reset time. The result panel sits below the action, uses a minimum height, and can grow with its content. Caught fish use the shared item icon styling at `5.5rem` with the result text beside the image. [Driftwater template](../src/views/game/fishing.ejs) · [Driftwater styles](../src/scss/_driftwater.scss)
+
 ### Forms and results
 
 - **Before submission.** Put the current balance, limits, and expected units beside the decision. The Emporium uses an `output` element for live gold totals and a polite live region for feedback.

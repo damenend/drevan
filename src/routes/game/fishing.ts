@@ -19,6 +19,7 @@ router.get("/", (req, res) => {
   return res.render("game/fishing", {
     title: "The Driftwater",
     report,
+    dailyCastLimit: DAILY_CAST_LIMIT,
     castsRemaining: Math.max(0, DAILY_CAST_LIMIT - castsUsed),
   });
 });

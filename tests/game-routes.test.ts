@@ -23,7 +23,7 @@ import {
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { getRuinsEncounter } from "../src/services/ruins-map";
-import { getFishingDate } from "../src/services/fishing";
+import { DAILY_CAST_LIMIT, getFishingDate } from "../src/services/fishing";
 
 const originalDirectory = process.cwd();
 const testDirectory = mkdtempSync(path.join(tmpdir(), "drevan-routes-"));
@@ -845,6 +845,54 @@ test("a capped training draw saves HP loss and awards no gold", async (t) => {
   assert.equal(player().gold, 100);
 });
 
+test("the Driftwater shows full availability and reports consecutive catches", async (t) => {
+  sqlite.exec(`
+    INSERT INTO items (id, name, description, type, image)
+    VALUES (103, 'Glassscale', 'Test fish', 'fish', '/images/glassscale.webp'),
+           (104, 'Astral Koi', 'Test fish', 'fish', '/images/astral-koi.webp');
+    UPDATE items SET image = '/images/murkfin.webp' WHERE id = 3;
+  `);
+
+  const initial = await request("/game/fishing", { headers: { cookie } });
+  assert.match(initial.html, /Last cast/);
+  assert.match(initial.html, /Cast your line into the shallows/);
+  assert.match(
+    initial.html,
+    new RegExp(`max="${DAILY_CAST_LIMIT}" value="${DAILY_CAST_LIMIT}"`),
+  );
+
+  const rolls = [0.25, 0.25, 0.25, 0.8, 0.25, 0.98];
+  t.mock.method(Math, "random", () => rolls.shift() ?? 0.9);
+
+  const catches = [
+    ["Murkfin", "murkfin"],
+    ["Glassscale", "glassscale"],
+    ["Astral Koi", "astral-koi"],
+  ];
+
+  for (const [index, [name, image]] of catches.entries()) {
+    const { html, status } = await followAction(await post("/game/fishing"));
+    assert.equal(status, 200);
+    assert.ok(html.includes(`You reel in a ${name}.`));
+    assert.ok(
+      html.includes(
+        `src="/images/${image}.webp" alt="" width="88" height="88"`,
+      ),
+    );
+    assert.ok(
+      html.includes(
+        `max="${DAILY_CAST_LIMIT}" value="${DAILY_CAST_LIMIT - index - 1}"`,
+      ),
+    );
+  }
+
+  assert.deepEqual(ownedItems(), [
+    { item_id: 3, quantity: 1 },
+    { item_id: 103, quantity: 1 },
+    { item_id: 104, quantity: 1 },
+  ]);
+});
+
 test("only one request spends the last fishing cast and awards a catch", async (t) => {
   t.mock.timers.enable({
     apis: ["Date"],
@@ -864,6 +912,11 @@ test("only one request spends the last fishing cast and awards a catch", async (
     pages.filter(({ html }) => /You reel in a/.test(html)).length,
     1,
   );
+  for (const { html } of pages) {
+    assert.match(html, /value="0" aria-valuetext="0 of 50"/);
+    assert.match(html, /<button type="submit" disabled>Cast line<\/button>/);
+    assert.match(html, /You've used all your casts for today/);
+  }
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
   assert.equal(player().fishing_casts_used, 50);
   const refresh = await request("/game/fishing?cast=1", {
@@ -1362,7 +1415,7 @@ test("an empty cast spends the first cast of the new Central day", async (t) => 
   const cast = await followAction(await post("/game/fishing"));
   assert.equal(cast.status, 200);
   assert.match(cast.html, /Your line comes back empty/);
-  assert.match(cast.html, /Casts remaining today: 49/);
+  assert.match(cast.html, /value="49" aria-valuetext="49 of 50"/);
   assert.equal(player().fishing_casts_used, 1);
   assert.deepEqual(ownedItems(), []);
 });
@@ -1386,7 +1439,7 @@ test("a failed catch write restores the fishing cast", async (t) => {
   }
 
   const cast = await followAction(await post("/game/fishing"));
-  assert.match(cast.html, /You reel in a <strong>Murkfin<\/strong>/);
+  assert.match(cast.html, /You reel in a Murkfin\./);
   assert.equal(player().fishing_casts_used, 1);
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
 });

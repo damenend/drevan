@@ -658,6 +658,91 @@ button.ruins-recall:hover:not(:disabled) {
   color: #ff5454;
 }
 
+.driftwater-layout {
+  display: grid;
+  align-items: start;
+  gap: 1.5rem 2rem;
+  max-width: 60rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 44rem) {
+  .driftwater-layout {
+    grid-template-columns: minmax(0, 30rem) minmax(0, 28rem);
+  }
+  .driftwater-location {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+.driftwater-location {
+  max-width: 30rem;
+}
+.driftwater-location .location-image {
+  margin-block-start: 0;
+}
+
+.driftwater-fishing button {
+  width: 100%;
+}
+
+.driftwater-availability {
+  margin-bottom: 0.75rem;
+}
+.driftwater-availability p {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+}
+.driftwater-availability meter {
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: 0.5rem;
+  margin-top: 0.25rem;
+  background: #242424;
+}
+.driftwater-availability meter::-webkit-meter-bar {
+  background: #242424;
+  border: 0;
+  border-radius: 0;
+}
+.driftwater-availability meter::-webkit-meter-optimum-value {
+  background: #b58b4c;
+}
+.driftwater-availability meter::-moz-meter-bar {
+  background: #b58b4c;
+}
+
+.driftwater-casts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.driftwater-exhausted {
+  margin: 0.5rem 0 0;
+}
+
+.driftwater-result {
+  min-height: 8.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #242424;
+  border-radius: 4px;
+}
+.driftwater-result h4 {
+  margin-bottom: 0.5rem;
+}
+.driftwater-result p {
+  margin-bottom: 0;
+}
+.driftwater-result .item-icon {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
 *,
 *:before,
 *:after {
