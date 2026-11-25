@@ -97,10 +97,7 @@
         alt: "Blue crystals light a stone passage.",
       }) %>
 
-      <div class="ruins-health">
-        <label for="ruins-hp">HP <span><%= formatNumber(user.hp) %> / <%= formatNumber(user.maxHp) %></span></label>
-        <meter id="ruins-hp" min="0" max="<%= user.maxHp %>" value="<%= user.hp %>" class="<%= user.hp / user.maxHp < 0.25 ? 'ruins-health--low' : '' %>" aria-valuetext="<%= formatNumber(user.hp) %> of <%= formatNumber(user.maxHp) %> HP"></meter>
-      </div>
+      <%- include("../partials/health-meter", { id: "ruins-hp" }) %>
 
       <section aria-labelledby="ruins-character">
         <h3 id="ruins-character">Character</h3>
@@ -152,7 +149,7 @@
         <% } %>
         <form action="/game/ruins/action" method="post">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
-          <button class="ruins-recall" type="submit" name="action" value="recall"<% if (!hasBeacon || recalledToday) { %> disabled<% } %>>Activate Recall Beacon</button>
+          <button class="button-secondary" type="submit" name="action" value="recall"<% if (!hasBeacon || recalledToday) { %> disabled<% } %>>Activate Recall Beacon</button>
         </form>
       </section>
     </div>

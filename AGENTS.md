@@ -57,7 +57,7 @@ Expected locations (verify before editing):
 - `src/db/seed.ts`: item catalog, including starter gear, fish, and the Recall Beacon. Inserts new item names and updates matching rows.
 - `src/middleware/auth.ts`: load the signed-in player and protect game routes
 - `src/routes/`: public and authentication routes
-- `src/routes/game/`: signed-in gameplay routes and the expedition access guard in `index.ts`. The inventory router handles consumable use and equipment.
+- `src/routes/game/`: signed-in gameplay routes and the expedition access guard in `index.ts`. The inventory router handles consumable use and equipment. The Quarters and its inventory redirects share category parsing from `quarters-inventory.ts`, which also formats item effects for display.
 - `src/services/` holds game rules and transactions. Route handlers validate
   requests, call the appropriate service, and handle reports and redirects.
 - `src/services/battle.ts` simulates combat without opening SQLite.
@@ -121,10 +121,13 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   means the Emporium does not list or sell the item.
 - Emporium buyback uses a separate catalog sell price. Players can sell owned
   weapons, armor, and fish with a positive sell price. An equipped slot reserves
-  one copy. The Quarters shows that copy under Equipped and lists spare copies in
+  one copy. The Quarters shows that copy under Equipment and lists spare copies in
   Inventory. The Emporium buys spare copies while the equipped copy stays in use.
   Selling checks current ownership, equipped slots, and the gold limit in one
   transaction, then reduces all selected stacks and credits the combined payout.
+- The Quarters filters available inventory through the `category` query
+  parameter. Missing or unknown categories show all items. Use, Equip, and
+  Unequip preserve the selected category when redirecting back to The Quarters.
 - The arena is called **Dominion**.
 - The dashboard is **The Quarters** at `/game`.
 - **Nexaris** is the signed-in location directory at `/game/nexaris`. Add new destinations there and keep the main navigation focused on The Quarters, Nexaris, Admin, and Logout.
@@ -183,7 +186,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   1,320, and 1,620 XP per level-up. The Quarters shows XP earned toward the
   next level. Excess XP carries over, and the database stores lifetime XP.
   Each level-up grants one point, up to nine. Level 10 starts at 6,300
-  lifetime XP, which continues to accumulate and is displayed at the cap.
+  lifetime XP. The Quarters shows lifetime XP at every level, and it continues
+  to accumulate at the cap.
 - Players spend one attribute point (AP) on +1 Strength, Agility, Intellect, or Fortitude. Store allocated points separately from base attributes. Each Fortitude adds 3 max HP, and new characters start with 5 Fortitude and 25 current HP. Both The Quarters and The Ruins allow allocation without refilling current HP.
 - Use the shared effective HP expression for healing and stat validation. The cap is 10 plus 3 HP per total Fortitude. Migration `0011_fortitude` preserves spent HP points as Fortitude allocations. Migration `0012_fortitude_health` converts legacy base health and base Fortitude into the nearest nonnegative base Fortitude, then removes the stored base HP column. It preserves allocated points and clamps current HP only when the new cap is lower.
 - Migration `0013_character_class_and_speed` keeps the old Agility values and
@@ -213,6 +217,9 @@ Consult the [writing guide](docs/writing-guide.md) and [lore reference](docs/lor
   - Red (`$color-red`): `#ff5454`
   - Blue (`$color-blue`): `#54bdff`
 - Use the shared location-image partial beneath section headings. Reuse the item-figure and player-gold partials where those elements recur.
+- The Quarters and The Ruins share the `health-meter` partial for current and
+  maximum HP. The Quarters uses the `item-effect` partial for both inventory
+  and equipped gear.
 - Keep forms and buttons restrained, readable, and accessible.
 - Use the location name for links in directories or prose. Include the action
   and destination when a link is a next step, such as “Return to Dominion.”

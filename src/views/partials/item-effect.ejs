@@ -1,0 +1,3 @@
+<% if (effect) { %>
+<span class="<%= effect.modifier > 0 ? 'character-stat-bonus' : effect.modifier < 0 ? 'character-stat-penalty' : '' %>"><%= effect.text %></span>
+<% } %>

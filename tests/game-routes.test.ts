@@ -296,7 +296,10 @@ test("Admin rejects malformed or overflowing Fortitude", async () => {
 test("Changing base Fortitude in Admin refills HP without changing spent points", async () => {
   sqlite.exec("UPDATE users SET hp = 0, exp = 210, fortitude_points = 2");
   const headers = { cookie };
-  assert.match((await request("/game", { headers })).html, /<dd>0 \/ 31<\/dd>/);
+  assert.match(
+    (await request("/game", { headers })).html,
+    /id="quarters-hp" min="0" max="31" value="0"/,
+  );
 
   const saved = await post(
     "/game/admin",
@@ -305,7 +308,7 @@ test("Changing base Fortitude in Admin refills HP without changing spent points"
   assert.equal(saved.headers.get("location"), "/game/admin?message=success");
   assert.match(
     (await request("/game", { headers })).html,
-    /<dd>25 \/ 25<\/dd>/,
+    /id="quarters-hp" min="0" max="25" value="25"/,
   );
   const admin = await request("/game/admin", { headers });
   assert.match(admin.html, /Max HP: <strong>25<\/strong>/);
@@ -336,7 +339,7 @@ test("each other primary attribute still spends exactly one point", async () => 
   assert.match(home.html, /<dt>Strength<\/dt>\s*<dd>6<\/dd>/);
   assert.match(home.html, /<dt>Agility<\/dt>\s*<dd>6<\/dd>/);
   assert.match(home.html, /<dt>Intellect<\/dt>\s*<dd>1<\/dd>/);
-  assert.match(home.html, /<dt>Unspent attribute points<\/dt>\s*<dd>0<\/dd>/);
+  assert.match(home.html, /0 unspent attribute points/);
 });
 
 test("equal offensive totals yield equal Attack Power regardless of Fortitude", () => {
@@ -381,7 +384,7 @@ test("class identifiers are constrained and Admin leaves the class read-only", a
   });
   const headers = { cookie };
   const home = await request("/game", { headers });
-  assert.match(home.html, /Class: Unaligned/);
+  assert.match(home.html, /Level 1 · Unaligned/);
   const admin = await request("/game/admin", { headers });
   assert.match(admin.html, /Class: <strong>Unaligned<\/strong>/);
   assert.match(admin.html, /Attack Power: <strong>12<\/strong>/);
@@ -544,10 +547,15 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
   const home = await request("/game", { headers: { cookie } });
   const [, equipmentAndInventory] = home.html.split('<section id="equipped"');
   const [equipment, bag] = equipmentAndInventory.split(
-    'aria-labelledby="inventory-heading"',
+    '<section aria-labelledby="inventory-heading"',
   );
   assert.match(equipment, /Unequip Rusted Sword/);
-  assert.match(bag, /Rusted Sword<\/figcaption>[\s\S]*?<td>1<\/td>/);
+  const swordRow = bag
+    .split('<tr role="row">')
+    .find((row) => row.includes("Rusted Sword"));
+  assert.ok(swordRow);
+  assert.match(swordRow, /Quantity<\/span>\s*1\s*<\/td>/);
+  assert.doesNotMatch(swordRow, /Equip Rusted Sword/);
   assert.doesNotMatch(bag, /Unequip Rusted Sword/);
 
   const initial = player();
@@ -647,6 +655,66 @@ test("an inventory write failure rolls back the Emporium gold deduction", async 
   } finally {
     sqlite.exec("DROP TRIGGER fail_purchase;");
   }
+});
+
+test("The Quarters filters available items and retains the category after actions", async () => {
+  const view = (query = "") =>
+    request(`/game${query}`, { headers: { cookie } });
+  const empty = await view();
+  assert.match(empty.html, /Your inventory is empty/);
+  assert.match(empty.html, /No weapon equipped/);
+  assert.match(empty.html, /No armor equipped/);
+  assert.match(empty.html, /id="quarters-hp" min="0" max="25" value="25"/);
+
+  sqlite.exec(`
+    UPDATE users SET hp = 3, exp = 60;
+    INSERT INTO inventory (user_id, item_id, quantity)
+    SELECT users.id, items.id, CASE items.id WHEN 3 THEN 9007199254740991 ELSE 1 END
+    FROM users CROSS JOIN items WHERE items.id BETWEEN 1 AND 4;
+  `);
+  const all = await view("?category=unknown");
+  assert.match(all.html, /aria-current="page">All items/);
+  assert.match(all.html, /value="3" class="health-meter--low"/);
+  assert.match(all.html, /<dt>Lifetime XP<\/dt>\s*<dd>60<\/dd>/);
+
+  const fish = await view("?category=fish");
+  assert.match(fish.html, /aria-current="page">Fish/);
+  assert.match(fish.html, /Murkfin/);
+  assert.match(fish.html, /9,007,199,254,740,991/);
+  assert.doesNotMatch(fish.html, /Rusted Sword|Lesser Potion|Recall Beacon/);
+  assert.match((await view("?category=other")).html, /Recall Beacon/);
+
+  const consumables = await view("?category=consumables");
+  assert.match(consumables.html, /Restores 10 HP/);
+  assert.match(
+    consumables.html,
+    /action="\/game\/inventory\/use\?category=consumables"/,
+  );
+
+  const use = await post("/game/inventory/use?category=consumables", {
+    itemId: 1,
+  });
+  const useLocation = use.headers.get("location") ?? "";
+  assert.match(useLocation, /category=consumables/);
+  const healed = await request(useLocation, { headers: { cookie } });
+  assert.match(healed.html, /value="13" class=""/);
+  assert.match(healed.html, /No items in this category/);
+
+  const equip = await post("/game/inventory/equip?category=equipment", {
+    itemId: 2,
+  });
+  const equipLocation = equip.headers.get("location") ?? "";
+  assert.match(equipLocation, /category=equipment/);
+  const equipped = await request(equipLocation, { headers: { cookie } });
+  assert.match(equipped.html, /\+1 Attack Power/);
+  assert.match(equipped.html, /No items in this category/);
+  const unequip = await post("/game/inventory/unequip?category=equipment", {
+    itemId: 2,
+  });
+  const unequipLocation = unequip.headers.get("location") ?? "";
+  assert.match(unequipLocation, /category=equipment/);
+  const unequipped = await request(unequipLocation, { headers: { cookie } });
+  assert.match(unequipped.html, /aria-label="Equip Rusted Sword"/);
 });
 
 test("consumption, gear and Sanctum use current player state", async () => {
@@ -784,7 +852,7 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
     home.html,
     /<dt>XP toward next level<\/dt>\s*<dd>0 \/ 150<\/dd>/,
   );
-  assert.match(home.html, /Unspent attribute points<\/dt>\s*<dd>1<\/dd>/);
+  assert.match(home.html, /1 unspent attribute point<\/p>/);
   const registry = await request("/game/users", { headers });
   assert.match(registry.html, /<td>2<\/td>/);
   const profilePath = registry.html.match(/href="(\/game\/users\/\d+)"/)?.[1];
@@ -813,7 +881,7 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
   assert.equal(player().hp, 28);
   assert.match(
     (await request("/game", { headers })).html,
-    /Unspent attribute points<\/dt>\s*<dd>0<\/dd>/,
+    /0 unspent attribute points/,
   );
   const nextFight = await followAction(
     await post("/game/training", { level: 1 }),

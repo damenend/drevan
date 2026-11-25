@@ -2,7 +2,10 @@
   <% if (item.image) { %>
     <img src="<%= item.image %>" alt="" width="48" height="48" class="item-icon">
   <% } %>
-  <figcaption><%= item.name %><% if (locals.itemQuantity !== undefined) { %>
+  <figcaption><% if (locals.showDescription) { %>
+    <strong><%= item.name %></strong>
+    <% if (item.description) { %><span class="item-description"><%= item.description %></span><% } %>
+  <% } else { %><%= item.name %><% } %><% if (locals.itemQuantity !== undefined) { %>
     <span class="ruins-item-quantity">Quantity: <%= formatNumber(itemQuantity) %></span>
   <% } %></figcaption>
 </figure>

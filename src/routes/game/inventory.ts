@@ -1,5 +1,5 @@
 import { getAuthenticatedPlayer } from "../../middleware/auth";
-import { Router, type Response } from "express";
+import { Router, type Request, type Response } from "express";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { effectiveMaxHp, users, items, inventory } from "../../db/schema";
@@ -7,6 +7,8 @@ import { equipmentSlots, getEquipmentColumn } from "../../services/equipment";
 import { applyItemEffect } from "../../services/items";
 
 import { parseFormInteger } from "../../utils/parse-form-integer";
+
+import { getInventoryCategory } from "./quarters-inventory";
 
 const router = Router();
 
@@ -36,11 +38,21 @@ function findOwnedItem(
     .get();
 }
 
-/** Returns to The Ruins during an expedition or The Quarters otherwise. */
-function redirectHome(res: Response, message: string) {
-  const path =
-    getAuthenticatedPlayer(res).ruinsTile === null ? "/game" : "/game/ruins";
-  return res.redirect(`${path}?message=${encodeURIComponent(message)}`);
+/**
+ * Returns to The Ruins during an expedition. The Quarters redirect preserves
+ * the selected inventory category. Both paths carry feedback when supplied.
+ */
+function redirectHome(req: Request, res: Response, message?: string) {
+  const inRuins = getAuthenticatedPlayer(res).ruinsTile !== null;
+  const path = inRuins ? "/game/ruins" : "/game";
+  const category = getInventoryCategory(req.query.category);
+  const query = [
+    message && `message=${encodeURIComponent(message)}`,
+    !inRuins && category !== "all" && `category=${category}`,
+  ]
+    .filter(Boolean)
+    .join("&");
+  return res.redirect(query ? `${path}?${query}` : path);
 }
 
 // Use an inventory item
@@ -49,7 +61,7 @@ router.post("/use", (req, res) => {
   const itemId = parseFormInteger(req.body?.itemId);
 
   if (itemId === null || itemId <= 0) {
-    return res.redirect(player.ruinsTile === null ? "/game" : "/game/ruins");
+    return redirectHome(req, res);
   }
 
   const result = db.transaction(
@@ -133,7 +145,7 @@ router.post("/use", (req, res) => {
     { behavior: "immediate" },
   );
 
-  return redirectHome(res, result?.message ?? "This item had no effect.");
+  return redirectHome(req, res, result?.message ?? "This item had no effect.");
 });
 
 router.post("/equip", (req, res) => {
@@ -141,7 +153,7 @@ router.post("/equip", (req, res) => {
   const itemId = parseFormInteger(req.body?.itemId);
 
   if (itemId === null || itemId <= 0) {
-    return redirectHome(res, "Invalid item.");
+    return redirectHome(req, res, "Invalid item.");
   }
 
   const message = db.transaction(
@@ -169,7 +181,7 @@ router.post("/equip", (req, res) => {
     { behavior: "immediate" },
   );
 
-  return redirectHome(res, message);
+  return redirectHome(req, res, message);
 });
 
 router.post("/unequip", (req, res) => {
@@ -177,13 +189,13 @@ router.post("/unequip", (req, res) => {
   const itemId = parseFormInteger(req.body?.itemId);
 
   if (itemId === null || itemId <= 0) {
-    return redirectHome(res, "Invalid item.");
+    return redirectHome(req, res, "Invalid item.");
   }
 
   const slot = Object.values(equipmentSlots).find(
     (key) => player[key] === itemId,
   );
-  if (!slot) return redirectHome(res, "Item is not equipped.");
+  if (!slot) return redirectHome(req, res, "Item is not equipped.");
 
   const unequipped = db
     .update(users)
@@ -198,6 +210,7 @@ router.post("/unequip", (req, res) => {
     .run();
 
   return redirectHome(
+    req,
     res,
     unequipped.changes
       ? "Item unequipped."

@@ -10,6 +10,8 @@ import { db } from "../../db";
 import { items, inventory } from "../../db/schema";
 import {
   applyEquipmentBonuses,
+  equipmentSlots,
+  getEquipmentColumn,
   getEquippedSlot,
   getAvailableQuantity,
 } from "../../services/equipment";
@@ -25,6 +27,13 @@ import fishingRouter from "./fishing";
 import progressionRouter from "./progression";
 import ruinsRouter from "./ruins";
 import { getProgression, statAllocations } from "../../services/progression";
+
+import {
+  describeItemEffect,
+  getInventoryCategory,
+  getItemCategory,
+  inventoryCategories,
+} from "./quarters-inventory";
 
 const router = Router();
 
@@ -81,10 +90,33 @@ router.get("/", (req, res) => {
   const attributes = getPrimaryAttributes(player);
   const equipped = playerInventory.filter((item) => item.equippedSlot);
 
+  const category = getInventoryCategory(req.query.category);
+  const available = playerInventory.filter((item) => item.quantity > 0);
+
   return res.render("game/index", {
     title: "The Quarters",
-    equipped,
-    inventory: playerInventory.filter((item) => item.quantity > 0),
+    equipment: Object.keys(equipmentSlots).map((slot) => ({
+      slot,
+      item: equipped.find((item) => item.equippedSlot === slot),
+    })),
+    inventory: available
+      .filter(
+        (item) => category === "all" || getItemCategory(item.type) === category,
+      )
+      .map((item) => ({
+        ...item,
+        action:
+          item.type === "consumable"
+            ? "Use"
+            : !item.equippedSlot && getEquipmentColumn(item.type)
+              ? "Equip"
+              : null,
+      })),
+    inventoryEmpty: available.length === 0,
+    inventoryCategories,
+    category,
+    actionQuery: category === "all" ? "" : `?category=${category}`,
+    describeItemEffect,
     effectiveStats: applyEquipmentBonuses(player, equipped),
     attributes,
     baseAttackPower: getBaseAttackPower(attributes),

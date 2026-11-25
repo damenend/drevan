@@ -1,189 +1,177 @@
-<section class="page">
+<section class="page quarters">
   <h2>The Quarters</h2>
 
-  <%- include("../partials/location-image", {
-    src: "/images/home.webp",
-    alt: "A stone-and-timber cottage with lit windows and machinery outside.",
-    caption: "A place of your own in Nexaris.",
-  }) %>
-
-  <p>Welcome back, <%= formatPlayerName(user.name) %>. There’s room here to stow your gear and prepare for the next outing.</p>
-
-  <section class="character" aria-labelledby="character-heading">
-    <h3 id="character-heading">Character overview</h3>
-
-    <%- include("../partials/player-avatar", { player: user }) %>
-    <p>Class: <%= formatPlayerName(user.characterClass) %></p>
-
-    <h4>Combat stats</h4>
-    <p>Speed affects who attacks first and how often they attack. Defense reduces damage taken.</p>
-
-    <dl class="character-stats">
-      <div class="character-stat">
-        <dt>HP</dt>
-        <dd><%= formatNumber(user.hp) %> / <%= formatNumber(user.maxHp) %></dd>
-      </div>
-
-      <div class="character-stat">
-        <dt>Gold</dt>
-        <dd><%= formatNumber(user.gold) %></dd>
-      </div>
-
-      <div class="character-stat">
-        <dt>Attack Power</dt>
-        <dd><%- include("../partials/stat-total", { total: effectiveStats.attackPower, base: baseAttackPower }) %></dd>
-      </div>
-
-      <div class="character-stat">
-        <dt>Speed</dt>
-        <dd><%= formatNumber(effectiveStats.speed) %></dd>
-      </div>
-
-      <div class="character-stat">
-        <dt>Defense</dt>
-        <dd><%- include("../partials/stat-total", { total: effectiveStats.defense, base: user.defense }) %></dd>
-      </div>
-
-      <div class="character-stat">
-        <dt>Level</dt>
-        <dd><%= formatNumber(progression.level) %></dd>
-      </div>
-
-      <div class="character-stat">
-        <% if (progression.nextLevelXp === null) { %>
-        <dt>Lifetime XP</dt>
-        <dd><%= formatNumber(user.exp) %></dd>
-        <% } else { %>
-        <dt>XP toward next level</dt>
-        <dd><%= formatNumber(progression.currentLevelXp) %> / <%= formatNumber(progression.nextLevelXp) %></dd>
-        <% } %>
-      </div>
-
-      <div class="character-stat">
-        <dt>Unspent attribute points</dt>
-        <dd><%= formatNumber(progression.unspentPoints) %></dd>
-      </div>
-    </dl>
-
-    <h4>Primary attributes</h4>
-    <p>Strength, Agility, and Intellect each add 1 Attack Power per point. Fortitude adds 3 max HP per point.</p>
-    <dl class="character-stats">
-      <div class="character-stat">
-        <dt>Strength</dt>
-        <dd><%= formatNumber(attributes.strength) %></dd>
-      </div>
-      <div class="character-stat">
-        <dt>Agility</dt>
-        <dd><%= formatNumber(attributes.agility) %></dd>
-      </div>
-      <div class="character-stat">
-        <dt>Intellect</dt>
-        <dd><%= formatNumber(attributes.intellect) %></dd>
-      </div>
-      <div class="character-stat">
-        <dt>Fortitude</dt>
-        <dd><%= formatNumber(attributes.fortitude) %></dd>
-      </div>
-    </dl>
-
-    <%- include("../partials/stat-allocation") %>
-  </section>
+  <div class="quarters-intro">
+    <%- include("../partials/location-image", {
+      src: "/images/home.webp",
+      alt: "A stone-and-timber cottage with lit windows and machinery outside.",
+      caption: "A place of your own in Nexaris.",
+    }) %>
+    <div>
+      <p class="quarters-welcome">Welcome back, <%= formatPlayerName(user.name) %>.</p>
+      <p>There’s room here to stow your gear and prepare for the next outing.</p>
+    </div>
+  </div>
 
   <% if (message) { %>
   <p role="status"><%= message %></p>
   <% } %>
 
-  <section id="equipped" aria-labelledby="equipped-heading">
-    <h3 id="equipped-heading">Equipped</h3>
+  <section aria-labelledby="character-heading">
+    <h3 id="character-heading">Character overview</h3>
+    <div class="quarters-overview">
+      <div class="quarters-identity">
+        <%- include("../partials/player-avatar", { player: user }) %>
+        <div>
+          <p class="quarters-name"><%= formatPlayerName(user.name) %></p>
+          <p class="text-muted">Level <%= formatNumber(progression.level) %> · <%= formatPlayerName(user.characterClass) %></p>
+        </div>
+      </div>
 
-    <% if (equipped.length === 0) { %>
-    <p>You have nothing equipped.</p>
-    <% } else { %>
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Slot</th>
-            <th scope="col">Item</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (const slot of ["weapon", "armor"]) {
-            const item = equipped.find(item => item.equippedSlot === slot);
-          %>
-          <tr>
-            <th scope="row"><%= slot === "weapon" ? "Weapon" : "Armor" %></th>
-            <% if (item) { %>
-            <td><%- include("../partials/item-figure", { item }) %></td>
-            <td>
-              <form action="/game/inventory/unequip" method="POST">
-                <input type="hidden" name="itemId" value="<%= item.id %>">
-                <button type="submit" aria-label="Unequip <%= item.name %>">Unequip</button>
-              </form>
-            </td>
-            <% } else { %>
-            <td>Empty</td>
-            <td>—</td>
-            <% } %>
-          </tr>
+      <div class="quarters-details">
+        <%- include("../partials/health-meter", { id: "quarters-hp" }) %>
+
+        <dl class="character-stats">
+          <div class="character-stat quarters-gold">
+            <dt>Gold</dt>
+            <dd><%= formatNumber(user.gold) %></dd>
+          </div>
+          <div class="character-stat">
+            <dt>Lifetime XP</dt>
+            <dd><%= formatNumber(user.exp) %></dd>
+          </div>
+          <% if (progression.nextLevelXp !== null) { %>
+          <div class="character-stat">
+            <dt>XP toward next level</dt>
+            <dd><%= formatNumber(progression.currentLevelXp) %> / <%= formatNumber(progression.nextLevelXp) %></dd>
+          </div>
           <% } %>
-        </tbody>
-      </table>
+        </dl>
+
+        <section aria-labelledby="combat-stats-heading">
+          <h4 id="combat-stats-heading">Combat stats</h4>
+          <dl class="character-stats">
+            <div class="character-stat">
+              <dt>Attack Power</dt>
+              <dd><%- include("../partials/stat-total", { total: effectiveStats.attackPower, base: baseAttackPower }) %></dd>
+            </div>
+
+            <div class="character-stat">
+              <dt>Speed</dt>
+              <dd><%= formatNumber(effectiveStats.speed) %></dd>
+            </div>
+
+            <div class="character-stat">
+              <dt>Defense</dt>
+              <dd><%- include("../partials/stat-total", { total: effectiveStats.defense, base: user.defense }) %></dd>
+            </div>
+          </dl>
+          <p class="quarters-support">Speed affects who attacks first and how often they attack. Defense reduces damage taken.</p>
+        </section>
+
+        <section aria-labelledby="primary-attributes-heading">
+          <div class="quarters-attributes-heading">
+            <h4 id="primary-attributes-heading">Primary attributes</h4>
+            <p class="quarters-support"><%= formatNumber(progression.unspentPoints) %> unspent attribute <%= progression.unspentPoints === 1 ? "point" : "points" %></p>
+          </div>
+          <dl class="character-stats">
+            <div class="character-stat">
+              <dt>Strength</dt>
+              <dd><%= formatNumber(attributes.strength) %></dd>
+            </div>
+            <div class="character-stat">
+              <dt>Agility</dt>
+              <dd><%= formatNumber(attributes.agility) %></dd>
+            </div>
+            <div class="character-stat">
+              <dt>Intellect</dt>
+              <dd><%= formatNumber(attributes.intellect) %></dd>
+            </div>
+            <div class="character-stat">
+              <dt>Fortitude</dt>
+              <dd><%= formatNumber(attributes.fortitude) %></dd>
+            </div>
+          </dl>
+          <p class="quarters-support">Strength, Agility, and Intellect each add 1 Attack Power per point. Fortitude adds 3 max HP per point.</p>
+          <%- include("../partials/stat-allocation") %>
+        </section>
+      </div>
     </div>
-    <% } %>
   </section>
 
-  <section class="inventory" aria-labelledby="inventory-heading">
-    <h3 id="inventory-heading">Inventory</h3>
+  <section id="equipped" aria-labelledby="equipped-heading">
+    <h3 id="equipped-heading">Equipment</h3>
+    <div class="quarters-equipment">
+      <% for (const { slot, item } of equipment) { %>
+      <section class="quarters-slot" aria-labelledby="slot-<%= slot %>">
+        <h4 id="slot-<%= slot %>"><%= formatPlayerName(slot) %></h4>
+        <% if (item) { %>
+        <%- include("../partials/item-figure", { item }) %>
+        <%- include("../partials/item-effect", { effect: describeItemEffect(item.effect, item.effectValue) }) %>
+        <form action="/game/inventory/unequip<%= actionQuery %>" method="POST">
+          <input type="hidden" name="itemId" value="<%= item.id %>">
+          <button type="submit" class="button-secondary" aria-label="Unequip <%= item.name %>">Unequip</button>
+        </form>
+        <% } else { %>
+        <p class="quarters-support">No <%= slot %> equipped.</p>
+        <% } %>
+      </section>
+      <% } %>
+    </div>
+  </section>
 
-    <% if (inventory.length === 0) { %>
+  <section aria-labelledby="inventory-heading">
+    <h3 id="inventory-heading">Inventory</h3>
+    <nav class="quarters-filters" aria-label="Inventory categories">
+      <% for (const [key, label] of Object.entries(inventoryCategories)) { %>
+      <a href="/game<%= key === "all" ? "" : "?category=" + key %>#inventory-heading"<% if (category === key) { %> aria-current="page"<% } %>><%= label %></a>
+      <% } %>
+    </nav>
+
+    <% if (inventoryEmpty) { %>
     <p>Your inventory is empty.</p>
+    <% } else if (inventory.length === 0) { %>
+    <p>No items in this category.</p>
     <% } else { %>
     <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Item</th>
-            <th scope="col">Description</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Effect</th>
-            <th scope="col">Value</th>
-            <th scope="col">Action</th>
+      <table class="table quarters-inventory" role="table" aria-labelledby="inventory-heading">
+        <thead role="rowgroup">
+          <tr role="row">
+            <th scope="col" role="columnheader">Item</th>
+            <th scope="col" role="columnheader">Quantity</th>
+            <th scope="col" role="columnheader">Effect</th>
+            <th scope="col" role="columnheader">Action</th>
           </tr>
         </thead>
-        <tbody>
-          <% inventory.forEach(item => { %>
-          <tr>
-            <td>
-              <%- include("../partials/item-figure", { item }) %>
+        <tbody role="rowgroup">
+          <% for (const item of inventory) { %>
+          <tr role="row">
+            <th scope="row" role="rowheader"><%- include("../partials/item-figure", { item, showDescription: true }) %></th>
+            <td class="quarters-quantity" role="cell">
+              <span class="quarters-cell-label" aria-hidden="true">Quantity</span>
+              <%= formatNumber(item.quantity) %>
             </td>
-            <td><%= item.description %></td>
-            <td><%= formatNumber(item.quantity) %></td>
-            <td><%= ({ attack_power: "Attack Power", defense: "Defense", heal: "Restore HP" })[item.effect] ?? item.effect ?? "—" %></td>
-            <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
-            <td>
-              <%
-                let action;
-                if (item.type === "consumable") {
-                  action = "Use";
-                } else if (!item.equippedSlot && (item.type === "weapon" || item.type === "armor")) {
-                  action = "Equip";
-                }
-              %>
-              <% if (action) { %>
-              <form action="/game/inventory/<%= action.toLowerCase() %>" method="POST">
+            <td role="cell">
+              <span class="quarters-cell-label" aria-hidden="true">Effect</span>
+              <% const effect = describeItemEffect(item.effect, item.effectValue); %>
+              <% if (effect) { %>
+              <%- include("../partials/item-effect", { effect }) %>
+              <% } else { %>
+              <span class="text-muted">—</span>
+              <% } %>
+            </td>
+            <td role="cell">
+              <% if (item.action) { %>
+              <form action="/game/inventory/<%= item.action.toLowerCase() %><%= actionQuery %>" method="POST">
                 <input type="hidden" name="itemId" value="<%= item.id %>">
-                <button type="submit" aria-label="<%= action %> <%= item.name %>">
-                  <%= action %>
-                </button>
+                <button type="submit" aria-label="<%= item.action %> <%= item.name %>"><%= item.action %></button>
               </form>
               <% } else { %>
               <span class="text-muted">—</span>
               <% } %>
             </td>
           </tr>
-          <% }); %>
+          <% } %>
         </tbody>
       </table>
     </div>

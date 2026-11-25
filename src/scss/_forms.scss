@@ -107,3 +107,12 @@ button.button-link {
 .item-quantity {
   max-width: 5rem;
 }
+
+button.button-secondary {
+  background: transparent;
+  color: vars.$color-primary;
+
+  &:hover:not(:disabled) {
+    background: vars.$color-surface;
+  }
+}
