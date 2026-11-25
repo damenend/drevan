@@ -195,6 +195,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 
 ## Visual and UX conventions
 
+Use the [design system](docs/design-system.md) for shared UI foundations,
+components, interaction patterns, and accessibility review.
+
 Consult the [writing guide](docs/writing-guide.md) and [lore reference](docs/lore.md) whenever adding or revising player-facing copy. The [roadmap](docs/roadmap.md) remains the source of truth for development planning.
 
 - Early-2000s web aesthetic with high-fantasy / sci-fi artwork; avoid glossy or chrome-like UI.
