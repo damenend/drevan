@@ -9,6 +9,7 @@ These trials record the builds, rules, and results used for earlier balance deci
 - [Ruins comparison](#class-neutral-attack-power-comparison)
 - [Full Floor 1 expeditions](#full-floor-1-expeditions)
 - [Floor 1 repeat-cache comparison](#floor-1-repeat-cache-comparison)
+- [Floor 1 live cache trial](#floor-1-live-cache-trial)
 
 ## Historical combat playtests
 
@@ -613,3 +614,24 @@ Net gold subtracts Sanctum costs. Warden clears use all trips as the denominator
 - Advance **one gold-cache claim per Central day and one potion-cache claim per expedition** to a live trial before expanding loot. Verify that walking out, Recall, and defeat start a new potion claim on re-entry, that logging out preserves the current claim, and that gold can be claimed again after Central midnight. Recheck discovery and exit visibility with reduced markers as planned.
 
 These results use fixed routes and healing decisions. The candidate rules were simulated and have no live persistence or UI measurements. Players may buy potions, skip empty caches, farm supplies, or retreat instead of continuing to the Warden. The simulation measures payouts and clears under identical route choices and leaves those adaptations for live testing.
+
+## Floor 1 live cache trial
+
+The November 24, 2026 trial used a disposable copy of `27024ce` with the real Express routes, migrated and seeded SQLite, and two temporary claim fields. The gold claim stored the Central game date. The potion claim reset on entry and persisted in the expedition. A successful award saved the claim alongside the movement revision in the existing transaction. The copy also hid gold, item, and enemy map markers and showed the Floor 2 marker only on its square.
+
+The trial ran 64 full expeditions through the normal routes. Each of four accounts ran 16 trips at four per modeled Central day. Each build had an every-arrival account and a split-rule account. The builds, route, starting supplies, and HP threshold matched the earlier trials. Each fight used the seed-1 stream from the cache simulation for its trip and tile. Sanctum restored HP between trips, and gear was supplied as a fixture. Both rules produced identical per-fight HP, combat rewards and XP, potion use and drops, and exit outcomes in every matched pair.
+
+| Build and cache rule        | Warden clears | Potions used | Scavenger drops | Mean Sanctum cost | Mean net gold per trip |
+| --------------------------- | ------------: | -----------: | --------------: | ----------------: | ---------------------: |
+| Unequipped, each arrival    |          0/16 |           13 |               1 |             25.00 |                  47.44 |
+| Unequipped, split           |          0/16 |           13 |               1 |             25.00 |                  41.44 |
+| Sword + armor, each arrival |         13/16 |           15 |               2 |             21.25 |                 105.50 |
+| Sword + armor, split        |         13/16 |           15 |               2 |             21.25 |                  93.00 |
+
+Both split-rule accounts received four gold-cache payouts and 16 cache potions. A separate route check capped the same-day five-arrival gold loop at 8 gold. Moving off a claimed potion cache and back left the stock unchanged. A stale form could not repeat a move, and logging out and back in preserved both position and the claimed potion. Walking out, recalling, and recovering after a staged Warden defeat each allowed a fresh potion claim on re-entry. Gold stayed claimed through walkout and Recall, paid again after crossing Central midnight while still inside, and stayed claimed after defeat and re-entry on the new day. The staged defeat used a one-HP fixture. The potion could still be collected again by repeatedly starting an expedition and walking to the cache without fighting.
+
+### Reduced markers at 320 CSS pixels
+
+The Chromium walkthrough confirmed that the map and direction labels revealed no undiscovered caches or enemies. The Floor 2 marker and disabled descent action appeared only at the stairs. The map still restored focus to the current tile after movement. The tile referenced the current feedback in its accessible description, but both the first gold discovery and the empty-cache message were visually below the viewport. At the Scavenger, HP was in view while **Fight**, **Pass by**, and Recall required scrolling. The Battle summary received focus on victory, the log opened with Space, and Recall focused its Nexaris confirmation. The normal exit left focus on the document body. Targeted axe scans found no violations or horizontal overflow on discovery, empty-cache, encounter, and Recall pages at this width.
+
+The paired route trial supports adopting the split cache rule. Before shipping the reduced markers, bring discovery feedback and encounter choices into view on narrow screens, and verify announcements with a screen reader. Keyboard checks followed a known route and cannot establish how a first-time player will navigate without markers. The combat sample used one session's seed stream per build and rule and is a persistence and payout check. The larger simulation remains the better estimate of clear rates. The prototype and its temporary schema changes were confined to the disposable copy.

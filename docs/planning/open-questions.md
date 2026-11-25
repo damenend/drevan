@@ -33,7 +33,7 @@ Use this reference for unresolved gameplay decisions and candidate values. The [
 ## Exploration
 
 - How should deeper floors change difficulty, and how far will players push before returning to the entrance or using the Recall Beacon?
-- What rewards make expeditions worth choosing over another training fight? Will daily gold and a potion per expedition curb repeat gold income while keeping supplies accessible in live play? The [cache comparison](../audits/balance-playtests.md#floor-1-repeat-cache-comparison) supports testing the split rule. Check whether players restart trips solely to stock potions.
+- What rewards make expeditions worth choosing over another training fight? The [live cache trial](../audits/balance-playtests.md#floor-1-live-cache-trial) supports daily gold and a potion per expedition. Will players restart trips solely to stock potions, and would that change the value of Scavenger drops?
 
 - After temporary markers are removed, how will players orient themselves and recognize discoveries? Compare narrow-screen and keyboard flows.
 - At an enemy tile, how should current HP, enemy details, choices, and map compete for space? Can players find the result, remaining HP, and full log before resuming?

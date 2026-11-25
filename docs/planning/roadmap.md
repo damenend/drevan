@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-**Active milestone.** Validate the candidate cache rule in live Floor 1 expeditions before expanding victory loot and adding materials (7). The [repeat-cache comparison](../audits/balance-playtests.md#floor-1-repeat-cache-comparison) favors daily gold and a potion per expedition. Material selling follows (13).
+**Active milestone.** Adopt daily gold and one potion-cache claim per expedition before expanding Floor 1 victory loot and adding materials (7). The [live cache trial](../audits/balance-playtests.md#floor-1-live-cache-trial) verified the candidate in a disposable game. Material selling follows (13).
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse shared systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
@@ -50,12 +50,12 @@ Statuses are **Complete**, **Active**, **Planned**, and **Exploratory**. Depende
 
 - **Status.** Complete.
 - **Delivered.** [Floor 1](../gameplay/ruins.md) has persistent exploration, discoveries, optional fights, and two exits. Route tests cover expedition state and outcomes.
-- **Follow-up.** Validate expedition pacing in milestone 7. After manual playtesting, remove gold, item, and enemy markers and reveal the sealed stairs only while standing there. Additional floors, random encounters, and per-player encounter completion remain deferred.
+- **Follow-up.** Validate expedition pacing in milestone 7. The reduced-marker trial confirmed that the map can hide gold, item, and enemy markers and reveal the sealed stairs only while standing there. Improve narrow-screen discovery feedback and encounter visibility before removing the playtest markers. Additional floors, random encounters, and per-player encounter completion remain deferred.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
 - **Status.** Active.
-- **Progress.** The first victory drop is live. [Full expedition results](../audits/balance-playtests.md#full-floor-1-expeditions) support retaining the provisional Scavenger rate and show that repeat caches dominate potion supply. A [paired cache comparison](../audits/balance-playtests.md#floor-1-repeat-cache-comparison) found that daily gold removes the repeat income from re-entry while a potion per expedition preserves completion rates. Validate the candidate in live play before expanding the tables.
+- **Progress.** The first victory drop is live. [Full expedition results](../audits/balance-playtests.md#full-floor-1-expeditions) support retaining the provisional Scavenger rate and show that repeat caches dominate potion supply. A [paired cache comparison](../audits/balance-playtests.md#floor-1-repeat-cache-comparison) found that daily gold removes the repeat income from re-entry while a potion per expedition preserves completion rates. The [live prototype](../audits/balance-playtests.md#floor-1-live-cache-trial) verified daily gold and potion claims across re-entry and Central midnight. Implement the split rule before expanding the tables.
 - **Dependencies.** Playtested Ruins expeditions (6), the item catalog, and stackable inventory.
 - **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies continue to award gold and XP on a win.
 - **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest until selling is available. Materials can support future crafting, salvaging, and services at The Forge.
