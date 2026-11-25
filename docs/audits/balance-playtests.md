@@ -7,6 +7,7 @@ These trials record the builds, rules, and results used for earlier balance deci
 - [Early XP pacing trial](#early-xp-pacing-trial)
 - [Level 10 progression playtest](#level-10-progression-playtest)
 - [Ruins comparison](#class-neutral-attack-power-comparison)
+- [Full Floor 1 expeditions](#full-floor-1-expeditions)
 
 ## Historical combat playtests
 
@@ -555,3 +556,34 @@ against the Warden rose from −24.48 to +21.22 per fight.
 ## Historical economy comparison
 
 At the starter fish prices, 50 casts returned an expected 78 gold before any stack limits. In the Strength-based training comparison over 1,000 seeded fights per matchup with a full Sanctum heal after every fight, an unequipped starter averaged 8.43 net gold at level 1 and 17.77 at level 3. A starter with both gear pieces averaged 23.17 at level 4. Session duration remained unmeasured in this comparison.
+
+## Full Floor 1 expeditions
+
+The November 24, 2026 playtest covered revision `82d4285`. The live route runs used a migrated, seeded disposable SQLite database, fresh accounts, and the game's normal random rolls. Each of three groups made 16 expeditions on the same account, restoring to 25 HP at Sanctum between trips and saving earned attribute points. All accounts began with 125 gold and three Lesser Potions. The geared account received the Rusted Sword and Worn Leather Armor as test fixtures, then equipped them through The Quarters. The Quarters showed 11 Attack Power and 3 Defense, compared with 10 and 0 for the unequipped build. A separate geared smoke fight beat a level 3 Dominion dummy with 22 HP remaining. The payout comparison excludes equipment acquisition costs.
+
+Each trip collected the potion cache at (0, 2) and the 8-gold cache at (1, 0), passed the sealed stairs, and fought the Scavenger, Sentinel, and Warden in that order. Survivors walked home, crossing the gold cache again on the way out. The healing groups used one Lesser Potion before each fight if HP was 15 or lower. The push group used no potions. Every failed expedition ended in defeat at zero HP.
+
+| Build and policy    | Scavenger wins | Sentinel wins | Warden wins | Potions used | Mean gross gold | Mean Sanctum cost | Mean net gold |
+| ------------------- | -------------: | ------------: | ----------: | -----------: | --------------: | ----------------: | ------------: |
+| Unequipped, push    |          16/16 |         15/16 |        0/15 |            0 |           75.62 |             25.00 |         50.62 |
+| Unequipped, heal    |          16/16 |         14/16 |        0/14 |           14 |           73.44 |             25.00 |         48.44 |
+| Sword + armor, heal |          16/16 |         16/16 |       15/16 |           16 |          133.25 |             18.25 |        115.00 |
+
+The unequipped groups reached the Warden with 7.2 HP on average without a potion and 15.1 HP after using one. The sword and armor group arrived with 20.6 HP after healing and finished the fight with 6.8 HP on average across all attempts. One unequipped run went from 25 to 19 HP against the Scavenger, then to 8 against the Sentinel. The next decision was whether to retreat or spend a potion to fight at 18 HP. That run spent the potion, lost to the Warden, kept the earlier rewards, and paid 25 gold at Sanctum. The existing full-health simulation gave the unequipped build an 83.6% Warden win rate over 1,000 fights. The expedition results show how strongly that matchup depends on carried HP. The groups used independent rolls, so their small differences at the Sentinel cannot isolate the effects of a potion.
+
+The Scavenger granted a Lesser Potion on **8 of 48 wins (16.7%)** against the configured 20% chance. Each drop added one to the existing stack and appeared in the battle report. The sample gives a route-level check of the live drop and is too small to justify changing the rate. The potion cache added 16 potions per group on its own. The two healing groups ended with six potions each, and identical potions share a stack, so individual uses have no source attribution. The cache delivered six times as many potions as all the victory rolls in this trial.
+
+### Repeat income and activity comparison
+
+- Five consecutive arrivals at the entrance cache paid 40 gold across 10 movement actions with no combat, healing, or supplies spent. Two arrivals at the potion cache raised the starter stack from three to five. Both caches also paid on successive expeditions. A Scavenger victory paid 25–35 gold and 30 XP, with the potion roll on top.
+- The unequipped Dominion comparison used eight fights per dummy level and healed to full after each. Levels 3, 4, and 5 won 8, 8, and 6 times and averaged 24.38, 28.38, and 15.50 net gold per fight. The level 5 mean includes recovery from both defeats. The combined mean was 68.25 gold for a set of three fights, with full HP at the start of each.
+- One allowance of 50 Driftwater casts produced 29 Murkfin, 12 Glassscale, and two Astral Koi. Selling them at Curious Emporium yielded 85 gold with zero healing cost.
+- The comparisons use action counts and route payouts. They do not establish gold per minute or measure how people choose routes. Expeditions require travel, and the geared group's result includes one potion per trip and the return-path gold cache on successful runs.
+
+### Keyboard and narrow-screen observations
+
+A separate Chromium walkthrough at 320 CSS pixels exercised entry, both cache discoveries, the sealed stairs, Pass by, fighting after returning to the enemy tile, battle-log expansion with Space, stale fight-form rejection in the disposable game, walking out, and using Recall. Entry and movement focused the current tile. Victory focused **Battle summary**. Recall focused its confirmation in Nexaris and was disabled on re-entry that day. The normal exit landed in Nexaris with focus on the document body. In a separate browser run, a potion raised HP from 7 to 17 before the Warden fight. Defeat returned the player to Nexaris, focused **Battle summary**, and offered a Sanctum link.
+
+After arrival at the Scavenger, the HP value was in view above the map. The **Fight** and **Pass by** choices required scrolling below the map, and Recall sat farther down after the consumables. After a cache arrival, the discovery message was below the viewport even though focus had returned to the tile. At the entrance, the normal exit and Recall also started below the viewport. The keyboard walkthrough used the current playtest markers and did not measure unaided discovery or screen-reader announcements. The Chromium and axe regression suite passed separately.
+
+Keep the Warden as the tougher encounter for the next pass and retain the 20% Scavenger rate for now. Before expanding the tables, settle how freely caches should pay on repeat arrivals. The gold cache supplies income without risk, and the potion cache largely determines supply in this route. Compare a less generous cache rule on the same route before using these payouts to price future materials. Check encounter, discovery, and exit visibility again on a narrow screen when testing reduced map markers.

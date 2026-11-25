@@ -33,7 +33,7 @@ Use this reference for unresolved gameplay decisions and candidate values. The [
 ## Exploration
 
 - How should deeper floors change difficulty, and how far will players push before returning to the entrance or using the Recall Beacon?
-- What rewards make expeditions worth choosing over another training fight?
+- What rewards make expeditions worth choosing over another training fight? Should caches pay on every arrival, once per expedition, or on a longer reset? The [full Floor 1 results](../audits/balance-playtests.md#full-floor-1-expeditions) measure repeat cache income and supply.
 
 - After temporary markers are removed, how will players orient themselves and recognize discoveries? Compare narrow-screen and keyboard flows.
 - At an enemy tile, how should current HP, enemy details, choices, and map compete for space? Can players find the result, remaining HP, and full log before resuming?
