@@ -13,6 +13,7 @@ type RuinsEncounter =
       reward: number;
       trainingLevel: number;
       description: string;
+      drop?: { item: string; chance: number };
     };
 
 function tile(x: number, y: number) {
@@ -48,6 +49,10 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
         attackPower: 4,
         speed: 4,
         defense: 0,
+      },
+      drop: {
+        item: "Lesser Potion",
+        chance: 0.2,
       },
       reward: 30,
       trainingLevel: 3,

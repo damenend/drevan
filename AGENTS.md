@@ -143,6 +143,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - The Ruins opens from Nexaris at `/game/ruins`. Entering and fighting require positive HP. Floor 1 is a fixed 7×7 grid with cardinal movement and the entrance and exit at (0, 0). The map shows the player and exit. Gold, item, and enemy squares are marked during manual playtesting. Remove those event markers afterward. During manual playtesting, the sealed Floor 2 entrance is marked at (2, 0). After playtesting, hide the marker until the player stands on that square. Fixed discoveries and optional enemy offers repeat on arrival.
 - The player row stores the current tile (null outside), whether an enemy is available on that visit, and the form revision. Each successful expedition action increments the revision. Movement, discovery rewards, combat results, and exits commit with their corresponding state in one transaction.
 - The shared simulator uses equipped bonuses and allocated stats. A win awards gold and XP and preserves exploration. Defeat and draw save remaining HP, grant no fight reward, and return the player to Nexaris.
+- A Vault Scavenger win has a provisional 20% chance to add one Lesser
+  Potion in the same transaction as the combat rewards. The battle report
+  lists the potion when it was added to inventory.
 - The session carries the battle report to the next page. Show it once in The
   Ruins after victory or in Nexaris after defeat or a draw.
 - The first entry grants a seeded Recall Beacon through normal inventory. It stays owned and returns the player to Nexaris once per Central calendar day from any square. Use the same date helper as fishing.

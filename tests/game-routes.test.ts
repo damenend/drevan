@@ -1138,6 +1138,55 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   assert.doesNotMatch((await viewRuins()).html, /wins\./);
 });
 
+test("a Scavenger victory stacks and reports one potion even if the fight is replayed", async (t) => {
+  sqlite.exec(`
+    UPDATE users SET strength = 100, speed = 100;
+    INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 2 FROM users;
+  `);
+  t.mock.method(Math, "random", () => 0.1);
+  await reachScavenger();
+  const revision = ruinsState().ruins_revision;
+
+  await explore("engage", undefined, revision);
+  await explore("engage", undefined, revision);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 3 },
+    { item_id: 4, quantity: 1 },
+  ]);
+  assert.match((await viewRuins()).html, /Loot: Lesser Potion/);
+  assert.doesNotMatch((await viewRuins()).html, /Loot: Lesser Potion/);
+});
+
+test("a Scavenger loot roll at the cutoff grants no potion", async (t) => {
+  sqlite.exec("UPDATE users SET strength = 100, speed = 100;");
+  t.mock.method(Math, "random", () => 0.2);
+  await reachScavenger();
+
+  await explore("engage");
+  assert.equal(ruinsState().exp, 30);
+  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
+  assert.doesNotMatch((await viewRuins()).html, /Loot: Lesser Potion/);
+});
+
+test("a full potion stack leaves the Scavenger victory intact without reporting loot", async (t) => {
+  sqlite.exec("UPDATE users SET strength = 100, speed = 100;");
+  sqlite
+    .prepare(
+      "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, ? FROM users",
+    )
+    .run(Number.MAX_SAFE_INTEGER);
+  t.mock.method(Math, "random", () => 0.1);
+  await reachScavenger();
+
+  await explore("engage");
+  assert.equal(ruinsState().exp, 30);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: Number.MAX_SAFE_INTEGER },
+    { item_id: 4, quantity: 1 },
+  ]);
+  assert.doesNotMatch((await viewRuins()).html, /Loot: Lesser Potion/);
+});
+
 test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires healing", async (t) => {
   sqlite.exec("UPDATE users SET hp = 1, speed = 1");
   t.mock.method(Math, "random", () => 0.5);

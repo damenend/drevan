@@ -76,7 +76,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
-- **Status.** Next implementation milestone. Use the current Floor 1 benchmarks for initial drop tables. Validate payout and drop frequency in full expeditions before expanding the tables.
+- **Status.** In progress. The Vault Scavenger can drop one Lesser Potion at a provisional 20% rate, and the Ruins battle report shows awarded loot. Use the current Floor 1 benchmarks for the remaining drops. Validate payout and drop frequency in full expeditions before expanding the tables.
 - **Dependencies.** Playtested Ruins expeditions (6), the item catalog, and stackable inventory.
 - **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies continue to award gold and XP on a win.
 - **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest until selling is available. Materials can support future crafting, salvaging, and services at The Forge.

@@ -18,6 +18,7 @@ type RuinsAction =
 
 export type RuinsBattle = PlayerBattleReport & {
   enemyName: string;
+  loot?: string;
 };
 
 type ActionResult = {
@@ -201,10 +202,24 @@ export function actInRuins(
               { gold: encounter.reward, xp: encounter.reward },
               tx,
             );
+            const won = battle.outcome === "win";
+            const { drop } = encounter;
+            let loot: string | undefined;
+            if (won && drop && Math.random() < drop.chance) {
+              const item = tx
+                .select({ id: items.id, name: items.name })
+                .from(items)
+                .where(eq(items.name, drop.item))
+                .get();
+              if (item && grantInventoryItem(tx, userId, item.id)) {
+                loot = item.name;
+              }
+            }
+
             Object.assign(changes, rewards);
             result = {
-              left: battle.outcome !== "win",
-              battle: { ...battle, enemyName: encounter.enemy.name },
+              left: !won,
+              battle: { ...battle, enemyName: encounter.enemy.name, loot },
             };
             break;
           }
