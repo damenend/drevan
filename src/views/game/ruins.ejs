@@ -1,5 +1,5 @@
 <section aria-labelledby="ruins-heading">
-  <h2 id="ruins-heading">The Ruins</h2>
+  <h1 id="ruins-heading">The Ruins</h1>
   <% if (position === null) { %>
   <%- include("../partials/location-image", {
     src: "/images/drevan-ruins-banner.webp",
@@ -12,7 +12,7 @@
   }) %>
 
   <% if (message) { %>
-  <p<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %> role="status"><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
+  <p tabindex="-1" data-result-focus<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
   <% } %>
   <p>Old stone and buried machinery lie beyond the entrance. Set your equipment before you enter.</p>
   <% if (user.hp > 0) { %>
@@ -27,47 +27,67 @@
   <div class="activity-layout activity-layout--ruins">
     <div class="ruins-exploration">
       <div class="ruins-floor">
-        <h3 id="ruins-floor">Floor 1</h3>
+        <h2 id="ruins-floor">Floor 1</h2>
         <p>Position (<%= position % size %>, <%= Math.floor(position / size) %>)</p>
       </div>
 
       <div class="ruins-navigation">
         <% const eventMarkers = { gold: ["G", "gold discovery"], item: ["I", "item discovery"], enemy: ["X", "enemy encounter"] }; %>
+        <% const visibleMarkers = []; %>
+        <% const directions = new Map([[position - size, "north"], [position + size, "south"], [position - 1, "west"], [position + 1, "east"]]); %>
+        <% /** Shares the visible marker metadata between map tiles and the marker list. */
+        function tileDetails(tile) {
+          const coordinates = `(${tile % size}, ${Math.floor(tile / size)})`;
+          const eventKind = getEventMarker(tile);
+          const [symbol, description] = tile === entrance ? ["E", "entrance and exit"] : tile === nextFloorMarker ? ["2", "Floor 2 entrance"] : eventMarkers[eventKind] ?? ["", ""];
+          const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : eventKind ? " ruins-tile--" + eventKind : "");
+          return { coordinates, symbol, description, style };
+        } %>
+        <% const current = tileDetails(position); %>
         <form class="ruins-map" data-ruins-map data-position="<%= position %>" data-size="<%= size %>"<% if (restoreMapFocus) { %> data-restore-focus<% } %> action="/game/ruins/action" method="post" aria-label="Move to an adjacent square">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
           <input type="hidden" name="action" value="move">
+          <span class="<%= current.style %> ruins-tile--player" data-player-tile role="img" aria-label="Your position <%= current.coordinates %><%= current.description ? ', ' + current.description : '' %>" tabindex="0" style="grid-area: <%= Math.floor(position / size) + 1 %> / <%= position % size + 1 %>" aria-describedby="ruins-map-keys ruins-tile-feedback">P<%= current.symbol %></span>
           <% for (let tile = 0; tile < size ** 2; tile++) { %>
-          <% const label = `(${tile % size}, ${Math.floor(tile / size)})`; %>
-          <% const eventKind = getEventMarker(tile); %>
-          <% const [symbol, description] = tile === entrance ? ["E", "entrance and exit"] : tile === nextFloorMarker ? ["2", "Floor 2 entrance"] : eventMarkers[eventKind] ?? ["", ""]; %>
-          <% const marker = (tile === position ? "P" : "") + symbol; %>
-          <% const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : eventKind ? " ruins-tile--" + eventKind : "") + (tile === position ? " ruins-tile--player" : ""); %>
+          <% if (tile === position) continue;
+          const { coordinates, symbol, description, style } = tileDetails(tile);
+          if (description) visibleMarkers.push(`${coordinates}, ${description}`); %>
           <% if (canMove(position, tile)) { %>
-          <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move to <%= label %><%= description ? ', ' + description : '' %>"><%= marker || "·" %></button>
-          <% } else if (tile === position) { %>
-          <span class="<%= style %>" data-player-tile role="img" aria-label="Your position <%= label %><%= description ? ', ' + description : '' %>"><%= marker %></span>
+          <button class="<%= style %>" type="submit" name="destination" value="<%= tile %>" aria-label="Move <%= directions.get(tile) %> to <%= coordinates %><%= description ? ', ' + description : '' %>"><%= symbol || "·" %></button>
           <% } else { %>
-          <span class="<%= style %>" aria-hidden="true"><%= marker %></span>
+          <span class="<%= style %>" aria-hidden="true"><%= symbol %></span>
           <% } %>
           <% } %>
         </form>
         <script src="/js/ruins-map.js" defer></script>
         <p class="ruins-map-legend">P: Player · E: Exit<% if (nextFloorMarker !== null) { %> · 2: Floor 2<% } %> · G: Gold · I: Item · X: Enemy</p>
-        <p id="ruins-map-keys" class="ruins-map-legend" hidden>Tab to the map, then use the arrow keys to choose a direction. Press Enter or Space to move.</p>
+        <p id="ruins-map-keys" class="ruins-map-legend">Use Tab to choose a move. Press Enter or Space to move.</p>
+        <% if (visibleMarkers.length) { %>
+        <details class="ruins-map-legend">
+          <summary>Map markers</summary>
+          <ul>
+            <% for (const marker of visibleMarkers) { %>
+            <li><%= marker %></li>
+            <% } %>
+          </ul>
+        </details>
+        <% } %>
       </div>
 
       <section class="ruins-surroundings" aria-labelledby="ruins-surroundings">
-        <h3 id="ruins-surroundings">Surroundings</h3>
-        <% if (message) { %>
-        <p<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %> role="status"><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
-        <% } %>
-        <% if (encounter) { %>
-        <p class="ruins-notice ruins-notice--encounter" role="status"><strong>Enemy sighted.</strong> Fight it or pass by.</p>
-        <% } else if (atNextFloor) { %>
-        <p class="ruins-notice ruins-notice--discovery" role="status"><strong>Floor 2 entrance discovered.</strong> The way down is sealed.</p>
-        <% } else if (emptySquare && !message) { %>
-        <p class="ruins-empty" role="status">There’s nothing to do here.</p>
-        <% } %>
+        <h2 id="ruins-surroundings">Surroundings</h2>
+        <div id="ruins-tile-feedback"<% if (!restoreMapFocus && message && !battle) { %> tabindex="-1" data-result-focus<% } %>>
+          <% if (message) { %>
+          <p<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
+          <% } %>
+          <% if (encounter) { %>
+          <p class="ruins-notice ruins-notice--encounter"><strong>Enemy sighted.</strong> Fight it or pass by.</p>
+          <% } else if (atNextFloor) { %>
+          <p class="ruins-notice ruins-notice--discovery"><strong>Floor 2 entrance discovered.</strong> The way down is sealed.</p>
+          <% } else if (emptySquare && !message) { %>
+          <p class="ruins-empty">There’s nothing to do here.</p>
+          <% } %>
+        </div>
         <% if (position === entrance || atNextFloor || encounter) { %>
         <form class="ruins-actions" action="/game/ruins/action" method="post">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
@@ -77,7 +97,7 @@
           <button type="button" disabled>Descend to Floor 2</button>
           <% } %>
           <% if (encounter) { %>
-          <h4 class="section-heading"><%= encounter.enemy.name %></h4>
+          <h3 class="section-heading"><%= encounter.enemy.name %></h3>
           <p><%= encounter.description %></p>
           <button type="submit" name="action" value="engage">Fight</button>
           <button type="submit" name="action" value="ignore">Pass by</button>
@@ -86,7 +106,7 @@
         <% } %>
 
         <% if (battle) { %>
-        <%- include("../partials/battle-log", { ...battle, compactBattleReport: true }) %>
+        <%- include("../partials/battle-log", { ...battle, focusBattleSummary: true }) %>
         <% } %>
       </section>
     </div>
@@ -94,6 +114,8 @@
     <div class="ruins-controls">
       <%- include("../partials/location-image", {
         src: "/images/drevan-ruins-interior.webp",
+        width: 959,
+        height: 540,
         flush: true,
         alt: "Blue crystals light a stone passage.",
       }) %>
@@ -101,7 +123,7 @@
       <%- include("../partials/health-meter", { id: "ruins-hp" }) %>
 
       <section aria-labelledby="ruins-character">
-        <h3 id="ruins-character">Character</h3>
+        <h2 id="ruins-character">Character</h2>
         <dl class="ruins-stats">
           <dt>Level</dt>
           <dd><%= formatNumber(progression.level) %></dd>
@@ -122,7 +144,7 @@
       </section>
 
       <section aria-labelledby="ruins-items">
-        <h3 id="ruins-items">Consumables</h3>
+        <h2 id="ruins-items">Consumables</h2>
         <% if (!potions.length) { %>
         <p>You have no healing potions.</p>
         <% } else { %>
@@ -140,7 +162,7 @@
       </section>
 
       <section aria-labelledby="ruins-beacon">
-        <h3 id="ruins-beacon">Recall Beacon</h3>
+        <h2 id="ruins-beacon">Recall Beacon</h2>
         <% if (hasBeacon && !recalledToday) { %>
         <p>Recall Beacon available.</p>
         <% } else if (hasBeacon) { %>

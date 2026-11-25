@@ -1,16 +1,24 @@
 <section>
-  <h2><%= title %></h2>
+  <h1><%= title %></h1>
   <%- include("../partials/location-image", {
     src: "/images/curious-emporium.webp",
+    width: 1672,
+    height: 941,
     alt: "Supply stalls and glowing crystals beneath a bronze dome.",
     caption: "The stalls at Curious Emporium.",
   }) %>
 
   <p>Curious Emporium buys spare gear and fish and sells provisions for the road. Ask where a relic came from and the proprietor may suddenly remember an errand.</p>
   <%- include("../partials/player-gold", { gold: user.gold }) %>
-  <h3>Buy items</h3>
+  <h2>Buy items</h2>
+  <% if (purchased) { %>
+  <p tabindex="-1" data-result-focus>Purchase complete.</p>
+  <% } %>
+  <% if (err) { %>
+  <p class="text-error" tabindex="-1" data-result-focus><%= err %></p>
+  <% } %>
   <form id="purchase-form" action="/game/store" method="POST">
-    <div class="table-responsive">
+    <div class="table-responsive" data-scroll-label="Items for purchase">
       <table class="table">
         <thead>
           <tr>
@@ -43,25 +51,23 @@
         </tbody>
       </table>
     </div>
-    <p>
-      Total:
-      <output id="total-gold">0</output> gold
+    <p hidden>
+      <label for="total-gold">Purchase total</label>:
+      <output id="total-gold" aria-live="off">0</output> gold
     </p>
-    <p id="purchase-message" class="text-error" aria-live="polite">
-      <%= err || "" %>
-    </p>
+    <p id="purchase-message" class="text-error" role="status"></p>
     <button type="submit" class="button--spaced">Purchase</button>
   </form>
   <section id="sell" aria-labelledby="sell-heading">
-    <h3 id="sell-heading">Sell items</h3>
+    <h2 id="sell-heading">Sell items</h2>
     <% if (sold) { %>
-    <p role="status">Sale complete.</p>
+    <p id="sale-result" tabindex="-1" data-result-focus>Sale complete.</p>
     <% } %>
     <% if (sellableItems.length === 0) { %>
     <p>You have nothing available to sell here.</p>
     <% } else { %>
     <form id="sell-form" action="/game/store/sell" method="POST">
-      <div class="table-responsive">
+      <div class="table-responsive" data-scroll-label="Items for sale">
         <table class="table">
           <thead>
             <tr>
@@ -93,11 +99,11 @@
         </table>
       </div>
       <% if (sellableItems.some(item => item.available > 0)) { %>
-      <p>
-        Sell for
-        <output id="sell-total">0</output> gold
+      <p hidden>
+        <label for="sell-total">Sale total</label>:
+        <output id="sell-total" aria-live="off">0</output> gold
       </p>
-      <p id="sell-message" class="text-error" aria-live="polite"></p>
+      <p id="sell-message" class="text-error" role="status"></p>
       <button type="submit" class="button--spaced">Sell</button>
       <% } %>
     </form>

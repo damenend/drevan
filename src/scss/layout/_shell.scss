@@ -25,19 +25,20 @@ main {
   z-index: 1;
   inset-block-start: vars.$space-2;
   inset-inline-start: vars.$space-4;
+  max-inline-size: calc(100% - 2rem);
   background: vars.$color-surface;
   padding: vars.$space-2 vars.$space-3;
   text-decoration: underline;
 
   &:not(:focus) {
-    transform: translateY(calc(-100% - 0.5rem));
+    clip-path: inset(50%);
   }
 }
 
 .site-header {
   background: vars.$color-surface;
 
-  h1 {
+  .site-wordmark {
     margin: 0;
   }
 }
@@ -57,5 +58,12 @@ main {
     display: block;
     font-size: vars.$type-support;
     line-height: vars.$line-body;
+  }
+}
+
+@media (forced-colors: active) {
+  body {
+    background: Canvas;
+    color: CanvasText;
   }
 }

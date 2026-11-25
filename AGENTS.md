@@ -85,6 +85,8 @@ Expected locations (verify before editing):
 - `src/utils/game-date.ts`: Central calendar date used by fishing and the Recall Beacon
 - `src/utils/format-number.ts`: shared display-number formatter
 - `src/views/`: EJS layouts, partials, and pages
+- `public/js/page-accessibility.js`: shared focus for server-rendered results
+  and keyboard access to overflowing tables. The main layout loads it on every page.
 - `src/scss/main.scss`: Sass entry point. Shared tokens live in `src/scss/abstracts/_vars.scss`. Modules are grouped by base, layout, component, page, and utility responsibilities.
 - `public/`: static assets, including images and compiled CSS
 - `drizzle/`: database migration history
@@ -119,6 +121,8 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - The Emporium reads catalog prices and owned quantities inside the purchase
   transaction. It rejects carts whose total cost or resulting inventory counts
   exceed JavaScript's safe integer range. A blank quantity means zero.
+  Purchase submissions redirect back to the Emporium with confirmation or
+  an error message.
 - The item catalog includes items obtained outside the store. A null price
   means the Emporium does not list or sell the item.
 - Emporium buyback uses a separate catalog sell price. Players can sell owned
@@ -148,7 +152,10 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 - The Ruins opens from Nexaris at `/game/ruins`. Entering and fighting require positive HP. Floor 1 is a fixed 7×7 grid with cardinal movement and the entrance and exit at (0, 0). The map shows the player and exit. Gold, item, and enemy squares are marked during manual playtesting. Remove those event markers afterward. During manual playtesting, the sealed Floor 2 entrance is marked at (2, 0). After playtesting, hide the marker until the player stands on that square. Fixed discoveries and optional enemy offers repeat on arrival.
 - On the map, arrow keys focus the available square in that direction from the
   player's position. Enter or Space submits the focused move. The player
-  square is the map's initial Tab stop and receives focus after each move.
+  square is the map's initial Tab stop and receives focus on entry and after
+  each move. All
+  legal moves remain in the Tab order. The player square describes its tile
+  feedback, and the Map markers disclosure lists the other visible markers.
 - The player row stores the current tile (null outside), whether an enemy is available on that visit, and the form revision. Each successful expedition action increments the revision. Movement, discovery rewards, combat results, and exits commit with their corresponding state in one transaction.
 - The shared simulator uses equipped bonuses and allocated stats. A win awards gold and XP and preserves exploration. Defeat and draw save remaining HP, grant no fight reward, and return the player to Nexaris.
 - A Vault Scavenger win has a provisional 20% chance to add one Lesser
@@ -203,6 +210,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
 
 Use the [design system](docs/design-system.md) for shared UI foundations,
 components, interaction patterns, and accessibility review.
+Run `yarn test:a11y` for user-facing UI changes alongside `yarn check`. Use
+[the accessibility verification guide](docs/accessibility.md) for browser setup,
+rendered HTML checks, and manual workflow verification.
 
 Consult the [writing guide](docs/writing-guide.md) and [lore reference](docs/lore.md) whenever adding or revising player-facing copy. The [roadmap](docs/roadmap.md) remains the source of truth for development planning.
 
@@ -227,7 +237,14 @@ Consult the [writing guide](docs/writing-guide.md) and [lore reference](docs/lor
 - Use the location name for links in directories or prose. Include the action
   and destination when a link is a next step, such as “Return to Dominion.”
   Underline links in paragraphs so players can identify them without color.
-- Use `.table` inside `.table-responsive` for UI tables. Use scoped column headers and row headers where a cell identifies the row.
+- Use `.table` inside `.table-responsive` for UI tables. Preserve native table
+  layout at narrow widths and set `data-scroll-label` on the wrapper so it
+  becomes a named keyboard stop when the table overflows. Use scoped column
+  headers and row headers where a cell identifies the row.
+- Use one page `h1` and the shared layout's focusable main landmark as the skip
+  target. For a server-rendered form result, mark one concise result with
+  `tabindex="-1"` and `data-result-focus`. The Ruins movement script handles
+  focus restoration on the player square.
 - Keep dynamic text escaped in EJS with `<%=`. Use unescaped output for trusted rendered markup such as partials and the layout body.
 - Reuse existing SCSS classes and import shared tokens with `@use "../abstracts/vars"` and the `vars.` namespace.
 - Use stable IDs or data attributes for browser behavior. The Ruins map script
@@ -367,6 +384,9 @@ with `git diff -- AGENTS.md` before staging.
   The tests start their own loopback listener. Running `src/app.ts` directly
   starts the normal listener.
 - Run `yarn check` for the Prettier check, Oxlint, TypeScript checking, and the test suite.
+- `yarn test:a11y` runs separately in Chromium with axe and keyboard checks.
+  It starts a loopback server and uses a disposable, seeded database. Follow
+  the accessibility verification guide for browser installation and manual checks.
 - Run `yarn build` to compile TypeScript and rebuild the Sass stylesheet.
 - For Sass changes, run `yarn sass:build` to rebuild the tracked stylesheet
   and source map. Keep both generated files together in the change.

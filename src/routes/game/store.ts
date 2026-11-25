@@ -17,15 +17,26 @@ router.get("/", (req, res) => {
     getAuthenticatedPlayer(res),
   );
 
-  const errorMessage =
-    req.query.err === "gold" ? "You do not have enough gold." : undefined;
+  const errorMessage = {
+    gold: "You do not have enough gold.",
+    quantity:
+      "Enter a whole quantity of at least 1 for an item you want to buy.",
+    invalid:
+      "This purchase could not be completed. Check the items and quantities and try again.",
+  };
+  const error = req.query.err;
+  const err =
+    typeof error === "string" && Object.hasOwn(errorMessage, error)
+      ? errorMessage[error as keyof typeof errorMessage]
+      : undefined;
 
   return res.render("game/store", {
     title: "Curious Emporium",
     items: storeItems,
     sellableItems,
     sold: req.query.sold === "1",
-    err: errorMessage,
+    purchased: req.query.purchased === "1",
+    err,
   });
 });
 
@@ -65,7 +76,7 @@ router.post("/", (req, res) => {
   const selectedItems = parseItemSelection(req.body?.items);
 
   if (!selectedItems?.length) {
-    return res.redirect("/game/store");
+    return res.redirect(303, "/game/store?err=quantity");
   }
 
   const result = buyEmporiumItems(
@@ -75,10 +86,15 @@ router.post("/", (req, res) => {
 
   // Redirect with an error if the player lacks gold
   if (result === "gold") {
-    return res.redirect("/game/store?err=gold");
+    return res.redirect(303, "/game/store?err=gold");
   }
 
-  return res.redirect("/game/store");
+  return res.redirect(
+    303,
+    result === "success"
+      ? "/game/store?purchased=1"
+      : "/game/store?err=invalid",
+  );
 });
 
 // Sell the selected items together.
@@ -113,7 +129,7 @@ router.post("/sell", (req, res) => {
         message: "This sale would exceed the supported gold limit.",
       });
     case "sold":
-      return res.redirect(303, "/game/store?sold=1#sell");
+      return res.redirect(303, "/game/store?sold=1#sale-result");
   }
 });
 

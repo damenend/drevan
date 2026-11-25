@@ -9,7 +9,7 @@ const router = Router();
 router.get("/", (req, res) => {
   const registering = req.query.view === "register";
   return res.render("index", {
-    title: registering ? "Create an account" : null,
+    title: registering ? "Create an account" : "Log in",
     authView: registering ? "register" : "login",
   });
 });

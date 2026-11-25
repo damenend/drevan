@@ -53,3 +53,14 @@
     color: vars.$color-text;
   }
 }
+
+.link-nav--site :is(a, button) {
+  display: inline-block;
+  min-block-size: 24px;
+}
+
+@media (forced-colors: active) {
+  .link-nav [aria-current="page"] {
+    text-decoration: underline;
+  }
+}

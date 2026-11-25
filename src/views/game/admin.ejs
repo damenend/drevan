@@ -1,10 +1,10 @@
 <section>
-  <h2>Admin</h2>
+  <h1>Admin</h1>
 
   <% if (message === 'err') { %>
-  <p class="text-error" role="status">Changes could not be saved. Check the values and try again.</p>
+  <p class="text-error" tabindex="-1" data-result-focus>Changes could not be saved. Check the values and try again.</p>
   <% } else if (message === 'success') { %>
-  <p role="status">Changes saved.</p>
+  <p tabindex="-1" data-result-focus>Changes saved.</p>
   <% } %>
 
   <p>Class: <strong><%= formatPlayerName(user.characterClass) %></strong></p>
@@ -15,7 +15,7 @@
   <p>Total Fortitude: <%= formatNumber(fortitude) %>. Each point adds <%= formatNumber(hpPerFortitude) %> max HP. Changing base Fortitude refills current HP to the new cap.</p>
 
   <form action="/game/admin" method="POST">
-    <div class="table-responsive">
+    <div class="table-responsive" data-scroll-label="Editable stats">
       <table class="table">
         <thead>
           <tr>

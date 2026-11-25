@@ -6,13 +6,13 @@ const avatars = [
   { value: "female", label: "Female", width: 765, height: 1024 },
 ];
 %>
-<h2 id="auth-heading">Begin your journey</h2>
+<h1 id="auth-heading">Begin your journey</h1>
 <p>Create your character and find your place in Nexaris.</p>
 
 <% if (error) { %>
-<p class="text-error" role="alert">
+<p class="text-error" tabindex="-1" data-result-focus>
   <% if (error.field) { %>
-  <a href="#signup-<%= error.field %>">Review the highlighted field below.</a>
+  <a href="#signup-<%= error.field %>"><%= error.message %></a>
   <% } else { %>
   <%= error.message %>
   <% } %>
@@ -78,7 +78,7 @@ const avatars = [
       const feedback = document.getElementById(`signup-${field.name}-error`);
       const { valid, patternMismatch } = field.validity;
       feedback.textContent = message || (patternMismatch
-        ? "Enter a player name that follows the rules above."
+        ? "Enter a player name that follows the rules below."
         : field.validationMessage);
       feedback.hidden = valid && !message;
 

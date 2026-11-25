@@ -37,6 +37,8 @@
     const message = document.getElementById(messageId);
     if (!output) return;
 
+    output.parentElement.hidden = false;
+
     function update() {
       const error = updateCart(form, output, limits);
       if (message.textContent.trim() !== error) message.textContent = error;

@@ -311,10 +311,7 @@ test("Nexaris links to each location using its display name", async () => {
     assert.equal(location.status, 200, route);
     assert.ok(location.html.includes(`<title>${name} | Drevan</title>`));
     assert.match(location.html, /href="\/game"[^>]*>The Quarters<\/a>/);
-    assert.match(
-      location.html,
-      new RegExp(`<h([23])[^>]*>(?:Welcome to )?${name}!?</h\\1>`),
-    );
+    assert.match(location.html, new RegExp(`<h1[^>]*>${name}</h1>`));
   }
 });
 
@@ -587,10 +584,10 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
   );
   assert.match(equipment, /Unequip Rusted Sword/);
   const swordRow = bag
-    .split('<tr role="row">')
+    .split("<tr>")
     .find((row) => row.includes("Rusted Sword"));
   assert.ok(swordRow);
-  assert.match(swordRow, /Quantity<\/span>\s*1\s*<\/td>/);
+  assert.match(swordRow, /<td class="quarters-quantity">\s*1\s*<\/td>/);
   assert.doesNotMatch(swordRow, /Equip Rusted Sword/);
   assert.doesNotMatch(bag, /Unequip Rusted Sword/);
 
@@ -619,7 +616,7 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
     }),
   );
   assert.equal(sale.status, 303);
-  assert.equal(sale.headers.get("location"), "/game/store?sold=1#sell");
+  assert.equal(sale.headers.get("location"), "/game/store?sold=1#sale-result");
   assert.equal(player().gold, 152);
   assert.equal(player().equipped_weapon_id, 2);
   assert.deepEqual(ownedItems(), [
@@ -925,7 +922,7 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
   const nextFight = await followAction(
     await post("/game/training", { level: 1 }),
   );
-  assert.match(nextFight.html, /HP: 28 → 27/);
+  assert.match(nextFight.html, /HP changed from 28 to 27/);
   assert.equal(player().hp, 27);
 });
 
@@ -1022,7 +1019,7 @@ test("only one request spends the last fishing cast and awards a catch", async (
   for (const { html } of pages) {
     assert.match(
       html,
-      /value="0" class="resource-meter__track" aria-valuetext="0 of 50"/,
+      /value="0" class="resource-meter__track" aria-describedby="driftwater-cast-meter-value driftwater-reset"/,
     );
     assert.match(
       html,
@@ -1098,7 +1095,10 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
     /data-player-tile role="img" aria-label="Your position \(0, 0\), entrance and exit"/,
   );
   assert.match(start.html, /src="\/js\/ruins-map\.js" defer/);
-  assert.match(start.html, /aria-label="Move to \(1, 0\), gold discovery">G</);
+  assert.match(
+    start.html,
+    /aria-label="Move east to \(1, 0\), gold discovery">G</,
+  );
   assert.equal(
     (start.html.match(/ruins-tile--item" aria-hidden="true">I</g) ?? []).length,
     1,
@@ -1486,7 +1486,7 @@ test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stai
   assert.match(discovered, /Floor 2 entrance discovered/);
   assert.match(
     discovered,
-    /ruins-tile--stairs ruins-tile--player" data-player-tile role="img" aria-label="Your position \(2, 0\), Floor 2 entrance">P2</,
+    /ruins-tile--stairs ruins-tile--player" data-player-tile role="img" aria-label="Your position \(2, 0\), Floor 2 entrance"[^>]*>P2</,
   );
   assert.match(discovered, /id="ruins-floor">Floor 1</);
   assert.match(
@@ -1496,7 +1496,10 @@ test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stai
 
   await explore("move", 1);
   const nearby = (await viewRuins()).html;
-  assert.match(nearby, /aria-label="Move to \(2, 0\), Floor 2 entrance">2</);
+  assert.match(
+    nearby,
+    /aria-label="Move east to \(2, 0\), Floor 2 entrance">2</,
+  );
   assert.doesNotMatch(nearby, /Descend to Floor 2/);
 });
 
@@ -1530,7 +1533,7 @@ test("an empty cast spends the first cast of the new Central day", async (t) => 
   assert.match(cast.html, /Your line comes back empty/);
   assert.match(
     cast.html,
-    /value="49" class="resource-meter__track" aria-valuetext="49 of 50"/,
+    /value="49" class="resource-meter__track" aria-describedby="driftwater-cast-meter-value driftwater-reset"/,
   );
   assert.equal(player().fishing_casts_used, 1);
   assert.deepEqual(ownedItems(), []);
@@ -1576,4 +1579,52 @@ test("a catch at the stack limit still spends one fishing cast", async (t) => {
     { item_id: 3, quantity: Number.MAX_SAFE_INTEGER },
   ]);
   assert.equal(player().fishing_casts_used, 1);
+});
+
+test("rendered pages expose a primary heading, main landmark, and skip target", async () => {
+  for (const [route, session] of [
+    ["/", ""],
+    ["/?view=register", ""],
+    ...[
+      "/game",
+      "/game/nexaris",
+      "/game/arena",
+      "/game/hospital",
+      "/game/store",
+      "/game/reliquary",
+      "/game/users",
+      "/game/users/1",
+      "/game/fishing",
+      "/game/ruins",
+      "/game/admin",
+      "/game/users/9999999",
+    ].map((route) => [route, cookie]),
+  ]) {
+    const { html } = await request(route, { headers: { cookie: session } });
+    assert.equal(html.match(/<h1\b/g)?.length, 1, route);
+    assert.match(html, /<html lang="en">/, route);
+    assert.match(html, /href="#main-content"/, route);
+    assert.match(html, /<main id="main-content" tabindex="-1">/, route);
+
+    const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
+    assert.equal(ids.length, new Set(ids).size, route);
+    for (const [, references] of html.matchAll(
+      /\s(?:for|aria-labelledby|aria-describedby)="([^"]+)"/g,
+    )) {
+      for (const id of references.split(/\s+/)) {
+        assert.ok(ids.includes(id), `${route} references missing ID ${id}`);
+      }
+    }
+  }
+});
+
+test("Emporium gives explicit result feedback for purchase and empty selection", async () => {
+  const empty = await followAction(await post("/game/store", { items: {} }));
+  assert.match(empty.html, /data-result-focus>Enter a whole quantity/);
+
+  const purchased = await followAction(
+    await post("/game/store", { items: { "item-1": 1 } }),
+  );
+  assert.match(purchased.html, /data-result-focus>Purchase complete\./);
+  assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 1 }]);
 });

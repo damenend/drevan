@@ -17,6 +17,7 @@ input[type="number"],
 select,
 textarea {
   width: 100%;
+  min-block-size: 24px;
   padding: vars.$space-2 vars.$space-3;
   background: vars.$color-surface;
   border: vars.$border-width solid vars.$color-muted;
@@ -37,6 +38,7 @@ input[type="submit"] {
   border: vars.$border-width solid vars.$color-action;
   border-radius: vars.$radius-small;
   cursor: pointer;
+  min-block-size: 24px;
 
   font-family: vars.$font-display;
   font-size: vars.$type-button;

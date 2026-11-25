@@ -30,11 +30,11 @@ Shared design tokens are Sass variables in [`src/scss/abstracts/_vars.scss`](../
 
 The page shell uses a centered `1320px` container with `1rem` inline padding. The activity grid caps at `60rem` with location and map columns up to `30rem` and `28rem`. Wide tables scroll in their own wrappers, which also contain positioned accessibility labels. The default stat grid fits as many columns as it can at a `140px` minimum. Compact grids opt into explicit column variants.
 
-| Breakpoint                         | Layout transition                                                                            |
-| ---------------------------------- | -------------------------------------------------------------------------------------------- |
-| `$breakpoint-equipment` at `36rem` | Equipment slots sit side by side                                                             |
-| `$breakpoint-columns` at `44rem`   | Activities and character overview gain columns, and inventory uses its standard table layout |
-| `$breakpoint-wide` at `60rem`      | Homepage uses a two-column layout, and the attributes grid fits four columns                 |
+| Breakpoint                         | Layout transition                                                            |
+| ---------------------------------- | ---------------------------------------------------------------------------- |
+| `$breakpoint-equipment` at `36rem` | Equipment slots sit side by side                                             |
+| `$breakpoint-columns` at `44rem`   | Activities and character overview gain columns                               |
+| `$breakpoint-wide` at `60rem`      | Homepage uses a two-column layout, and the attributes grid fits four columns |
 
 Use range syntax such as `@media (width >= vars.$breakpoint-columns)`. Keep component geometry, such as the map tile aspect ratio and meter track height, separate from ordinary spacing.
 
@@ -79,11 +79,11 @@ Use a labeled fieldset for illustrated radio choices. The portrait and visible l
 
 The Quarters uses a compact location figure alongside its introduction on wide screens. The character overview pairs a portrait, name, level, and class with grouped stat tiles. Put HP first, group gold and XP separately from combat stats, and place available attribute points by the allocation controls. The Quarters and The Ruins share a labeled HP meter with a red fill below 25% and a readable current and maximum value. [The Quarters](../src/views/game/index.ejs) · [Health meter](../src/views/partials/health-meter.ejs)
 
-Equipment shows supported slots with an item, its signed modifier, and a secondary outlined Unequip button, or a short empty-state message. Inventory groups each thumbnail, name, and description in the row header and summarizes numerical effects in a single column. Category links use URL parameters and mark the current category with `aria-current`. At narrow widths, the inventory keeps its table roles and headers while each item spans a row above its labeled details and action. [Quarters styles](../src/scss/pages/_quarters.scss)
+Equipment shows supported slots with an item, its signed modifier, and a secondary outlined Unequip button, or a short empty-state message. Inventory groups each thumbnail, name, and description in the row header and summarizes numerical effects in a single column. Category links use URL parameters and mark the current category with `aria-current`. At narrow widths, the inventory retains native table layout and scrolls inside its labeled wrapper when needed. [Quarters styles](../src/scss/pages/_quarters.scss)
 
 ### Forms and results
 
-- **Before submission.** Put the current balance, limits, and expected units beside the decision. The Emporium uses an `output` element for live gold totals and a polite live region for feedback.
+- **Before submission.** Put the current balance, limits, and expected units beside the decision. The Emporium uses labeled `output` elements for current gold totals and a polite status region for changes to validation feedback.
 - **On submission.** The server validates eligibility, prices, and rewards. Browser validation and live calculation help the player make a choice.
 - **After submission.** Show what changed. Training, fishing, and Ruins actions redirect to a page after saving so a refresh does not submit the action again. Render outcome and reward text from the saved result.
 - **Unavailable actions.** Give the reason and a way forward when one exists. At zero HP, Dominion and The Ruins link to Sanctum. The Emporium directs players to unequip gear when the equipped copy is all they have available.
@@ -91,11 +91,16 @@ Equipment shows supported slots with an item, its signed modifier, and a seconda
 
 ### Ruins map
 
-The map is a 7×7 grid. Only adjacent destinations are buttons, and arrows change focus relative to the player’s square. Enter or Space activates the focused destination. Tab initially enters on the player square, and focus returns to the player’s new position after a move. Without JavaScript, Tab can reach the adjacent move buttons directly. Markers use text and a legend as well as color. Event and stair visibility rules, encounter states, and expedition UX questions are documented in the [Ruins design brief](ruins-design-brief.md).
+The map is a 7×7 grid. Only adjacent destinations are buttons, and arrows change focus relative to the player’s square. Enter or Space activates the focused destination. Tab initially enters on the player square, and focus goes to the player square on entry and after a move. Without JavaScript, Tab can reach the adjacent move buttons directly. All legal move buttons remain in the native Tab order. The player tile describes the current square and its feedback. The Map markers disclosure lists the markers shown on the map. Event and stair visibility rules, encounter states, and expedition UX questions are documented in the [Ruins design brief](ruins-design-brief.md).
 
 ## Accessibility and review
 
-Use these checks when reviewing a new screen or an altered component.
+Use WCAG 2.2 Level AA for new screens and component changes. Run the browser regression suite with `yarn test:a11y` after UI changes and use the [accessibility audit and verification procedure](accessibility.md) for manual checks.
+
+- **Native semantics.** Make the page title the main `h1` and style the wordmark as branding. Use a single main landmark with a focusable skip target. Name navigation landmarks by purpose when they share a page. Prefer native elements and state. ARIA adds context, for example a specific item name to a repeated action label, while preserving its visible words.
+- **Table relationships.** Preserve native row and cell layout at every breakpoint. Place wide tables in a local scroll wrapper with `data-scroll-label`. The page script gives overflowing wrappers a named region and a keyboard stop.
+- **Result focus.** Mark one concise result with `tabindex="-1"` and `data-result-focus` when a submission renders or redirects to a document response. Keep field errors near the control and associate instructions and errors using `aria-describedby`. Reserve polite status regions for relevant in-page updates. The Ruins movement script restores position separately.
+- **User preferences.** Keep text and controls usable at 200% resizing, 400% zoom, and custom text spacing. Check forced colors and reduced motion. Use system colors for important boundaries and focus when the user overrides the palette.
 
 - **Structure and names.** Verify landmark and heading order, the skip link, form labels, scoped table headers, and purposeful image alternatives.
 - **Keyboard and focus.** Complete the flow with Tab, Shift+Tab, Enter, and Space. Check both focus visibility and where focus goes after navigation. In The Ruins, verify arrow direction, edge behavior, and focus restoration.

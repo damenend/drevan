@@ -27,7 +27,7 @@ router.post("/login", async (req, res) => {
   /** Restores the submitted email so the player can correct their credentials. */
   const renderLoginError = (status: number, message: string) =>
     res.status(status).render("index", {
-      title: null,
+      title: "Log in",
       authView: "login",
       authError: { message },
       formValues: { email: typeof email === "string" ? email : "" },

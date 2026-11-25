@@ -1,8 +1,8 @@
 <section>
-  <h2><%= title %></h2>
+  <h1><%= title %></h1>
   <div class="activity-layout activity-layout--driftwater">
     <section class="driftwater-fishing" aria-labelledby="driftwater-fishing-heading">
-      <h3 id="driftwater-fishing-heading">Fishing</h3>
+      <h2 id="driftwater-fishing-heading">Fishing</h2>
       <form action="/game/fishing" method="POST">
         <div class="driftwater-availability">
           <%- include("../partials/resource-meter", {
@@ -21,32 +21,36 @@
       </form>
 
       <section class="driftwater-result" aria-labelledby="driftwater-last-cast">
-        <h4 class="section-heading" id="driftwater-last-cast">Last cast</h4>
-        <% if (report?.kind === "caught") { %>
-        <div class="item-group">
-          <% if (report.image) { %>
-          <img src="<%= report.image %>" alt="" width="88" height="88" class="item-icon item-icon--feature">
-          <% } %>
-          <div>
-            <strong><%= report.name %></strong>
-            <p>You reel in a <%= report.name %>.</p>
+        <h3 class="section-heading" id="driftwater-last-cast"<% if (report) { %> tabindex="-1" data-result-focus aria-describedby="driftwater-cast-result"<% } %>>Last cast</h3>
+        <div id="driftwater-cast-result">
+          <% if (report?.kind === "caught") { %>
+          <div class="item-group">
+            <% if (report.image) { %>
+            <img src="<%= report.image %>" alt="" width="88" height="88" class="item-icon item-icon--feature">
+            <% } %>
+            <div>
+              <strong><%= report.name %></strong>
+              <p>You reel in a <%= report.name %>.</p>
+            </div>
           </div>
+          <% } else if (report?.kind === "released") { %>
+          <strong>Fish released</strong>
+          <p>You released the <strong><%= report.name %></strong> because you can’t carry any more of that fish.</p>
+          <% } else if (report?.kind === "empty") { %>
+          <strong>No catch</strong>
+          <p>Your line comes back empty.</p>
+          <% } else { %>
+          <p class="text-muted">Cast your line into the shallows to see what bites.</p>
+          <% } %>
         </div>
-        <% } else if (report?.kind === "released") { %>
-        <strong>Fish released</strong>
-        <p>You released the <strong><%= report.name %></strong> because you can’t carry any more of that fish.</p>
-        <% } else if (report?.kind === "empty") { %>
-        <strong>No catch</strong>
-        <p>Your line comes back empty.</p>
-        <% } else { %>
-        <p class="text-muted">Cast your line into the shallows to see what bites.</p>
-        <% } %>
       </section>
     </section>
 
     <div class="driftwater-location">
       <%- include("../partials/location-image", {
         src: "/images/the-driftwater.webp",
+        width: 1672,
+        height: 941,
         flush: true,
         alt: "Glowing water laps against old stonework beneath a sky filled with distant worlds.",
         caption: "The shallows at The Driftwater.",

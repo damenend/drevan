@@ -1,12 +1,16 @@
 @use "../abstracts/vars";
 
+:root {
+  color-scheme: dark;
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-:where(a, button, input, select, textarea, summary):focus-visible {
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: vars.$focus-width solid vars.$color-focus;
   outline-offset: vars.$focus-offset;
 }

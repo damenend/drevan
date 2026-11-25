@@ -1,9 +1,9 @@
 <section>
-  <h2>Dominion training</h2>
+  <h1<% if (dead) { %> tabindex="-1" data-result-focus<% } %>>Dominion training</h1>
   <% if (dead) { %>
   <%- include("../partials/arena-heal-notice") %>
   <% } else { %>
-  <%- include("../partials/battle-log", { battleHeadingLevel: 3, enemyName: `Level ${formatNumber(level)} Training Dummy` }) %>
+  <%- include("../partials/battle-log", { battleHeadingLevel: 2, focusBattleSummary: true, enemyName: `Level ${formatNumber(level)} Training Dummy` }) %>
   <% if (gainedLevel !== null) { %>
   <p>You reached level <%= formatNumber(gainedLevel) %>. <a href="/game#character-heading">Spend attribute points in The Quarters</a>.</p>
   <% } %>

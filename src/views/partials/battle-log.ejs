@@ -1,41 +1,25 @@
-  <% const headingLevel = typeof battleHeadingLevel === "undefined" ? 4 : battleHeadingLevel; %>
-  <% const compactReport = locals.compactBattleReport; %>
-  <% if (compactReport) { %>
-  <% const outcome = battleLog.find(entry => entry.type === "outcome"); %>
-  <% if (outcome) { %>
-  <%- include("battle-summary", { entry: outcome, headingLevel }) %>
-  <% } %>
-  <details class="battle-details">
-    <summary>Battle log</summary>
-  <% } %>
-  <div>
-    <% battleLog.forEach(entry => { %>
-    <% if (entry.type === "encounter") { %>
-    <p>
-      <span class="battle-actor--player"><%= entry.player %></span> encounters <span class="battle-actor--enemy"><%= entry.target %></span>.
-    </p>
-    <% if (!compactReport) { %>
-    <h<%= headingLevel %><% if (headingLevel === 4) { %> class="section-heading"<% } %>>Battle log</h<%= headingLevel %>>
-    <% } %>
-    <% } else if (entry.type === "attack") { %>
-    <p class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
+<% const headingLevel = locals.battleHeadingLevel ?? 3; %>
+<% const outcome = battleLog.find(entry => entry.type === "outcome"); %>
+<% const encounter = battleLog.find(entry => entry.type === "encounter"); %>
+<% if (encounter) { %>
+<p><span class="battle-actor--player"><%= encounter.player %></span> encounters <span class="battle-actor--enemy"><%= encounter.target %></span>.</p>
+<% } %>
+<% if (outcome) { %>
+<%- include("battle-summary", { entry: outcome, headingLevel }) %>
+<% } %>
+<details class="battle-details">
+  <summary>Battle log</summary>
+  <ol class="battle-log">
+    <% for (const entry of battleLog) { %>
+    <% if (entry.type === "attack") { %>
+    <li class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
       <span class="battle-actor--<%= entry.actor %>"><%= entry.player %></span>
       attacks
       <span class="battle-actor--<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
-      for
-      <strong><%= formatNumber(entry.damage) %></strong>
-      damage.
-      <% if (entry.critical) { %>
-      <strong class="critical-hit">Critical hit.</strong>
-      <% } %>
-    </p>
-    <% } else if (entry.type === "outcome") { %>
-    <% if (!compactReport) { %>
-    <%- include("battle-summary", { entry, headingLevel }) %>
+      for <strong><%= formatNumber(entry.damage) %></strong> damage.
+      <% if (entry.critical) { %><strong class="critical-hit">Critical hit.</strong><% } %>
+    </li>
     <% } %>
     <% } %>
-    <% }) %>
-  </div>
-  <% if (compactReport) { %>
-  </details>
-  <% } %>
+  </ol>
+</details>

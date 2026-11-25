@@ -8,19 +8,7 @@
   const playerTile = map.querySelector("[data-player-tile]");
   if (!playerTile || !buttons.length) return;
 
-  // Keep one Tab stop inside the map. Without JavaScript the move buttons
-  // stay in their native tab order.
   const focusableTiles = [playerTile, ...buttons];
-  let tabStop = playerTile;
-  playerTile.tabIndex = 0;
-  for (const button of buttons) button.tabIndex = -1;
-
-  map.addEventListener("focusin", (event) => {
-    if (!focusableTiles.includes(event.target)) return;
-    tabStop.tabIndex = -1;
-    tabStop = event.target;
-    tabStop.tabIndex = 0;
-  });
 
   const position = Number(map.dataset.position);
   const size = Number(map.dataset.size);
@@ -34,8 +22,8 @@
   ]);
 
   const instructions = document.getElementById("ruins-map-keys");
-  instructions.hidden = false;
-  map.setAttribute("aria-describedby", instructions.id);
+  instructions.textContent =
+    "Use Tab or the arrow keys to choose a move. Press Enter or Space to move.";
 
   map.addEventListener("keydown", (event) => {
     if (
@@ -49,9 +37,13 @@
       return;
     }
 
-    event.preventDefault();
     const destination = destinations.get(event.key);
-    buttons.find((button) => Number(button.value) === destination)?.focus();
+    const button = buttons.find(
+      (button) => Number(button.value) === destination,
+    );
+    if (!button) return;
+    event.preventDefault();
+    button.focus();
   });
 
   if (map.hasAttribute("data-restore-focus")) playerTile.focus();

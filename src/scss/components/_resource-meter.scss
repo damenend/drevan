@@ -34,3 +34,9 @@
 .resource-meter__track--critical {
   --resource-fill: #{vars.$color-resource-critical};
 }
+
+@media (forced-colors: active) {
+  .resource-meter__track {
+    appearance: auto;
+  }
+}

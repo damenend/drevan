@@ -2,7 +2,7 @@
   <% if (locals.banner) { %>
   <img src="<%= src %>" alt="<%= banner.alt %>" width="<%= banner.width %>" height="<%= banner.height %>" decoding="async">
   <% } else { %>
-  <img src="<%= src %>" alt="<%= locals.alt ?? '' %>">
+  <img src="<%= src %>" alt="<%= locals.alt ?? '' %>" width="<%= width %>" height="<%= height %>" decoding="async">
   <% } %>
   <% if (locals.caption) { %>
   <figcaption><%= caption %></figcaption>

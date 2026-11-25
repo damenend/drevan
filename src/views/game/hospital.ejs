@@ -1,8 +1,10 @@
 <section>
-  <h2><%= title %></h2>
+  <h1><%= title %></h1>
 
   <%- include("../partials/location-image", {
     src: "/images/sanctum.webp",
+    width: 1672,
+    height: 941,
     alt: "Blue-lit windows flank a domed stone entrance.",
     caption: "The entrance to Sanctum.",
   }) %>
@@ -12,7 +14,7 @@
   <%- include("../partials/player-gold", { gold: user.gold }) %>
 
   <% if (message) { %>
-  <p><%= message %></p>
+  <p tabindex="-1" data-result-focus><%= message %></p>
   <% } %>
 
   <% if (user.hp >= user.maxHp) { %>

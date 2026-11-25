@@ -47,7 +47,7 @@ $exit-color: #719270;
   gap: vars.$space-1 vars.$space-4;
   max-width: $map-width;
 
-  h3,
+  h2,
   p {
     margin: 0;
   }
@@ -188,5 +188,19 @@ $exit-color: #719270;
 
   &--encounter {
     color: vars.$color-combat-enemy;
+  }
+}
+
+@media (forced-colors: active) {
+  .ruins-map button.ruins-tile {
+    border-color: ButtonText;
+  }
+
+  .ruins-map .ruins-tile--player {
+    border-color: Highlight;
+  }
+
+  .ruins-map :is(button.ruins-tile, .ruins-tile--player):focus-visible {
+    outline-color: Highlight;
   }
 }

@@ -1,8 +1,10 @@
 <section aria-labelledby="nexaris-heading">
-  <h2 id="nexaris-heading">Nexaris</h2>
+  <h1 id="nexaris-heading">Nexaris</h1>
 
   <%- include("../partials/location-image", {
     src: "/images/nexaris-v2.webp",
+    width: 1672,
+    height: 941,
     alt: "",
     caption: "Nexaris, a refuge among the remnants of the old world.",
   }) %>
@@ -10,17 +12,17 @@
   <p>Nexaris grew around the remains of the old world. Machinery of uncertain purpose stands beside homes and market stalls, and there is room here for anyone trying to make a living.</p>
 
   <% if (message) { %>
-  <p role="status"><%= message %></p>
+  <p tabindex="-1" data-result-focus><%= message %></p>
   <% } %>
   <% if (battle) { %>
-  <h3>Expedition ended</h3>
-  <%- include("../partials/battle-log", { ...battle, compactBattleReport: true }) %>
+  <h2>Expedition ended</h2>
+  <%- include("../partials/battle-log", { ...battle, focusBattleSummary: !message }) %>
   <% if (battle.playerHp === 0) { %>
   <p><a href="/game/hospital">Heal at Sanctum</a> before starting another expedition.</p>
   <% } %>
   <% } %>
 
-  <div class="table-responsive">
+  <div class="table-responsive" data-scroll-label="Nexaris destinations">
     <table class="table">
       <thead>
         <tr>

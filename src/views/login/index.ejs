@@ -1,7 +1,7 @@
-<h2 id="auth-heading">Welcome back</h2>
+<h1 id="auth-heading">Welcome back</h1>
 <p>Return to your adventures in Drevan.</p>
 <% if (locals.authError) { %>
-<p class="text-error" role="alert"><%= authError.message %></p>
+<p class="text-error" tabindex="-1" data-result-focus><%= authError.message %></p>
 <% } %>
 <form action="/login" method="POST">
   <div class="form-group">

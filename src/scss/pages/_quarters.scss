@@ -55,7 +55,7 @@
   justify-content: space-between;
   margin-bottom: vars.$space-3;
 
-  h4,
+  h3,
   .quarters-support {
     margin: 0;
   }
@@ -72,6 +72,10 @@
 }
 
 .quarters-inventory {
+  td {
+    white-space: nowrap;
+  }
+
   button {
     min-width: 5rem;
   }
@@ -79,10 +83,6 @@
 
 .quarters-quantity {
   font-variant-numeric: tabular-nums;
-}
-
-.quarters-cell-label {
-  display: none;
 }
 
 @media (width >= vars.$breakpoint-equipment) {
@@ -112,52 +112,5 @@
     display: grid;
     align-content: start;
     gap: vars.$space-3;
-  }
-}
-
-@media (width < vars.$breakpoint-columns) {
-  .quarters-inventory {
-    thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-    }
-
-    &,
-    tbody {
-      display: block;
-    }
-
-    tbody tr {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      padding: vars.$space-2;
-      border-bottom: vars.$border-width solid vars.$color-surface-border;
-    }
-
-    tbody th {
-      grid-column: 1 / -1;
-    }
-
-    tbody :is(th, td) {
-      padding: vars.$space-2;
-      border: 0;
-    }
-
-    td:last-child {
-      grid-column: 1 / -1;
-
-      > .text-muted {
-        display: none;
-      }
-    }
-  }
-
-  .quarters-cell-label {
-    display: block;
-    color: vars.$color-muted;
-    font-size: vars.$type-support;
   }
 }

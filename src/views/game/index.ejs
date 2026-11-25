@@ -1,9 +1,11 @@
 <section class="quarters">
-  <h2>The Quarters</h2>
+  <h1>The Quarters</h1>
 
   <div class="quarters-intro">
     <%- include("../partials/location-image", {
       src: "/images/home.webp",
+      width: 1672,
+      height: 941,
       flush: true,
       compact: true,
       alt: "A stone-and-timber cottage with lit windows and machinery outside.",
@@ -16,11 +18,11 @@
   </div>
 
   <% if (message) { %>
-  <p role="status"><%= message %></p>
+  <p tabindex="-1" data-result-focus><%= message %></p>
   <% } %>
 
   <section aria-labelledby="character-heading">
-    <h3 id="character-heading">Character overview</h3>
+    <h2 id="character-heading" tabindex="-1">Character overview</h2>
     <div class="quarters-overview">
       <div class="quarters-identity">
         <%- include("../partials/player-avatar", { player: user, inline: true }) %>
@@ -51,7 +53,7 @@
         </dl>
 
         <section aria-labelledby="combat-stats-heading">
-          <h4 class="section-heading" id="combat-stats-heading">Combat stats</h4>
+          <h3 class="section-heading" id="combat-stats-heading">Combat stats</h3>
           <dl class="character-stats character-stats--compact character-stats--three">
             <div class="character-stat">
               <dt>Attack Power</dt>
@@ -73,7 +75,7 @@
 
         <section aria-labelledby="primary-attributes-heading">
           <div class="quarters-attributes-heading">
-            <h4 class="section-heading" id="primary-attributes-heading">Primary attributes</h4>
+            <h3 class="section-heading" id="primary-attributes-heading">Primary attributes</h3>
             <p class="quarters-support"><%= formatNumber(progression.unspentPoints) %> unspent attribute <%= progression.unspentPoints === 1 ? "point" : "points" %></p>
           </div>
           <dl class="character-stats character-stats--compact character-stats--attributes">
@@ -101,12 +103,12 @@
     </div>
   </section>
 
-  <section id="equipped" aria-labelledby="equipped-heading">
-    <h3 id="equipped-heading">Equipment</h3>
+  <section id="equipped" tabindex="-1" aria-labelledby="equipped-heading">
+    <h2 id="equipped-heading">Equipment</h2>
     <div class="quarters-equipment">
       <% for (const { slot, item } of equipment) { %>
       <section class="equipment-slot" aria-labelledby="slot-<%= slot %>">
-        <h4 class="section-heading" id="slot-<%= slot %>"><%= formatPlayerName(slot) %></h4>
+        <h3 class="section-heading" id="slot-<%= slot %>"><%= formatPlayerName(slot) %></h3>
         <% if (item) { %>
         <%- include("../partials/item-figure", { item }) %>
         <%- include("../partials/item-effect", { effect: describeItemEffect(item.effect, item.effectValue) }) %>
@@ -123,7 +125,7 @@
   </section>
 
   <section aria-labelledby="inventory-heading">
-    <h3 id="inventory-heading">Inventory</h3>
+    <h2 id="inventory-heading" tabindex="-1">Inventory</h2>
     <nav class="link-nav link-nav--filters" aria-label="Inventory categories">
       <% for (const [key, label] of Object.entries(inventoryCategories)) { %>
       <a href="/game<%= key === "all" ? "" : "?category=" + key %>#inventory-heading"<% if (category === key) { %> aria-current="page"<% } %>><%= label %></a>
@@ -135,26 +137,24 @@
     <% } else if (inventory.length === 0) { %>
     <p>No items in this category.</p>
     <% } else { %>
-    <div class="table-responsive">
-      <table class="table quarters-inventory" role="table" aria-labelledby="inventory-heading">
-        <thead role="rowgroup">
-          <tr role="row">
-            <th scope="col" role="columnheader">Item</th>
-            <th scope="col" role="columnheader">Quantity</th>
-            <th scope="col" role="columnheader">Effect</th>
-            <th scope="col" role="columnheader">Action</th>
+    <div class="table-responsive" data-scroll-label="Inventory items">
+      <table class="table quarters-inventory" aria-labelledby="inventory-heading">
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Effect</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
-        <tbody role="rowgroup">
+        <tbody>
           <% for (const item of inventory) { %>
-          <tr role="row">
-            <th scope="row" role="rowheader"><%- include("../partials/item-figure", { item, showDescription: true }) %></th>
-            <td class="quarters-quantity" role="cell">
-              <span class="quarters-cell-label" aria-hidden="true">Quantity</span>
+          <tr>
+            <th scope="row"><%- include("../partials/item-figure", { item, showDescription: true }) %></th>
+            <td class="quarters-quantity">
               <%= formatNumber(item.quantity) %>
             </td>
-            <td role="cell">
-              <span class="quarters-cell-label" aria-hidden="true">Effect</span>
+            <td>
               <% const effect = describeItemEffect(item.effect, item.effectValue); %>
               <% if (effect) { %>
               <%- include("../partials/item-effect", { effect }) %>
@@ -162,7 +162,7 @@
               <span class="text-muted">—</span>
               <% } %>
             </td>
-            <td role="cell">
+            <td>
               <% if (item.action) { %>
               <form action="/game/inventory/<%= item.action.toLowerCase() %><%= actionQuery %>" method="POST">
                 <input type="hidden" name="itemId" value="<%= item.id %>">

@@ -22,10 +22,12 @@
     "@types/express-ejs-layouts": "^2.5.4",
     "@types/express-session": "^1.19.0",
     "@types/node": "^26.6.6",
+    "axe-core": "^4.14.1",
     "concurrently": "^10.0.7",
     "drizzle-kit": "^0.31.11",
     "husky": "^9.1.7",
     "oxlint": "^1.95.0",
+    "playwright-core": "^1.65.1",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
     "tsx": "^4.23.15",
@@ -51,6 +53,7 @@
     "node:update": "bash scripts/update-node.sh",
     "hooks:install": "node scripts/install-hooks.mjs",
     "test": "node --import tsx --test tests/*.test.ts",
+    "test:a11y": "node --import tsx scripts/test-accessibility.mjs",
     "test:watch": "node --import tsx --test --watch tests/*.test.ts",
     "docs:agents": "codex exec --sandbox workspace-write \"Review AGENTS.md against the current tracked repository, including staged and unstaged changes, and any relevant new source or config files. Skip ignored files and local secrets. In the summary, flag missing or stale function and method comments in changed code where TSDoc would clarify behavior, following AGENTS.md. Update only AGENTS.md where gameplay rules, architecture, or contributor workflows have changed. Leave it untouched if it is current. Summarize findings without staging or committing anything.\""
   }

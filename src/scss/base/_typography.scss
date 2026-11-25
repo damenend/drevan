@@ -6,12 +6,13 @@ body {
   font-weight: vars.$weight-regular;
   line-height: vars.$line-body;
   color: vars.$color-text;
+  overflow-wrap: anywhere;
 }
 
 h1,
 h2,
 h3,
-h4 {
+.site-wordmark {
   font-family: vars.$font-display;
   font-weight: vars.$weight-semibold;
   line-height: vars.$line-compact;
@@ -19,21 +20,21 @@ h4 {
   margin: 0 0 vars.$space-3;
 }
 
-h1 {
+.site-wordmark {
   font-size: vars.$type-site;
   font-weight: vars.$weight-bold;
   color: vars.$color-primary;
 }
 
-h2 {
+h1 {
   font-size: vars.$type-page;
 }
 
-h3 {
+h2 {
   font-size: vars.$type-section;
 }
 
-h4 {
+h3 {
   font-size: vars.$type-subsection;
   font-weight: vars.$weight-bold;
 }

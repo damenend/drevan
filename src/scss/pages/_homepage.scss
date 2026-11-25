@@ -3,8 +3,8 @@
 .homepage {
   display: grid;
   grid-template-areas:
-    "intro"
     "auth"
+    "intro"
     "art";
   align-items: start;
   gap: vars.$space-6;

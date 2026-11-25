@@ -1,7 +1,7 @@
     <% if (progression.unspentPoints > 0) { %>
     <form class="stat-allocation" action="/game/progression" method="POST" aria-label="Spend one attribute point">
       <% for (const [stat, option] of Object.entries(statAllocations)) { %>
-      <button type="submit" name="stat" value="<%= stat %>"><%= option.label %></button>
+      <button type="submit" name="stat" value="<%= stat %>" aria-label="<%= option.label %> (spend one attribute point)"><%= option.label %></button>
       <% } %>
     </form>
     <% } %>
