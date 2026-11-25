@@ -1,7 +1,7 @@
 <h2 id="auth-heading">Welcome back</h2>
 <p>Return to your adventures in Drevan.</p>
 <% if (locals.authError) { %>
-<p class="err" role="alert"><%= authError.message %></p>
+<p class="text-error" role="alert"><%= authError.message %></p>
 <% } %>
 <form action="/login" method="POST">
   <div class="form-group">
@@ -13,7 +13,7 @@
     <input id="login-password" type="password" name="password" autocomplete="current-password" required />
   </div>
   <div class="form-group">
-    <button type="submit">Log in</button>
+    <button class="button--full" type="submit">Log in</button>
   </div>
 </form>
 <p>New to Drevan? <a href="/?view=register">Create an account</a>.</p>

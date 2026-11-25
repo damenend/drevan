@@ -1,4 +1,4 @@
-@use "vars";
+@use "../abstracts/vars";
 
 // Table reset
 table {
@@ -24,14 +24,14 @@ th {
 // Tables
 .table {
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: vars.$space-4;
   vertical-align: middle;
 
   th,
   td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid vars.$color-surface;
+    padding: vars.$space-3 vars.$space-4;
+    text-align: start;
+    border-bottom: vars.$border-width solid vars.$color-surface;
   }
 
   thead {
@@ -39,7 +39,7 @@ th {
 
     th {
       color: vars.$color-primary;
-      font-weight: 600;
+      font-weight: vars.$weight-semibold;
       white-space: nowrap;
     }
   }
@@ -51,7 +51,7 @@ th {
       }
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: vars.$color-row-hover;
       }
 
       &:last-child > :is(th, td) {
@@ -73,6 +73,8 @@ th {
 
 // Responsive tables
 .table-responsive {
+  // Keep visually hidden cell labels inside the local scroll area.
+  position: relative;
   width: 100%;
   overflow-x: auto;
 }

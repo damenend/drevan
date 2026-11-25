@@ -1,0 +1,59 @@
+@use "../abstracts/vars";
+
+.battle-actor--player {
+  font-weight: vars.$weight-medium;
+  color: vars.$color-combat-player;
+}
+
+.battle-actor--enemy {
+  font-weight: vars.$weight-medium;
+  color: vars.$color-combat-enemy;
+}
+
+.battle-log-entry {
+  padding-inline-start: vars.$space-2;
+  margin-bottom: vars.$space-4;
+  border-inline-start: vars.$accent-width solid transparent;
+
+  &--player {
+    border-inline-start-color: vars.$color-combat-player;
+  }
+
+  &--enemy {
+    border-inline-start-color: vars.$color-combat-enemy;
+  }
+
+  &--critical {
+    .critical-hit {
+      color: vars.$color-primary;
+      font-weight: vars.$weight-bold;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.battle-stats {
+  background: vars.$color-surface;
+  padding: vars.$space-4;
+  border: vars.$border-width solid vars.$color-surface-border;
+  border-radius: vars.$radius-small;
+  margin-bottom: vars.$space-4;
+  margin-top: vars.$space-4;
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+.battle-details {
+  margin-bottom: vars.$space-4;
+
+  summary {
+    cursor: pointer;
+    color: vars.$color-primary;
+  }
+
+  &[open] summary {
+    margin-bottom: vars.$space-3;
+  }
+}

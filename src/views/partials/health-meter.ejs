@@ -1,4 +1,8 @@
-<div class="health-meter">
-  <label for="<%= id %>">HP <span aria-hidden="true"><%= formatNumber(user.hp) %> / <%= formatNumber(user.maxHp) %></span></label>
-  <meter id="<%= id %>" min="0" max="<%= user.maxHp %>" value="<%= user.hp %>" class="<%= user.hp / user.maxHp < 0.25 ? 'health-meter--low' : '' %>" aria-valuetext="<%= formatNumber(user.hp) %> of <%= formatNumber(user.maxHp) %> HP"></meter>
-</div>
+<%- include("resource-meter", {
+  id,
+  label: "HP",
+  value: user.hp,
+  max: user.maxHp,
+  unit: "HP",
+  critical: user.hp / user.maxHp < 0.25,
+}) %>

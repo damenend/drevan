@@ -1,4 +1,4 @@
-<section class="page" aria-labelledby="ruins-heading">
+<section aria-labelledby="ruins-heading">
   <h2 id="ruins-heading">The Ruins</h2>
   <% if (position === null) { %>
   <%- include("../partials/location-image", {
@@ -24,7 +24,7 @@
   <p><a href="/game/hospital">Heal at Sanctum</a> before entering.</p>
   <% } %>
   <% } else { %>
-  <div class="ruins-sections">
+  <div class="activity-layout activity-layout--ruins">
     <div class="ruins-exploration">
       <div class="ruins-floor">
         <h3 id="ruins-floor">Floor 1</h3>
@@ -33,7 +33,7 @@
 
       <div class="ruins-navigation">
         <% const eventMarkers = { gold: ["G", "gold discovery"], item: ["I", "item discovery"], enemy: ["X", "enemy encounter"] }; %>
-        <form class="ruins-map" data-position="<%= position %>" data-size="<%= size %>"<% if (restoreMapFocus) { %> data-restore-focus<% } %> action="/game/ruins/action" method="post" aria-label="Move to an adjacent square">
+        <form class="ruins-map" data-ruins-map data-position="<%= position %>" data-size="<%= size %>"<% if (restoreMapFocus) { %> data-restore-focus<% } %> action="/game/ruins/action" method="post" aria-label="Move to an adjacent square">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
           <input type="hidden" name="action" value="move">
           <% for (let tile = 0; tile < size ** 2; tile++) { %>
@@ -53,7 +53,7 @@
         </form>
         <script src="/js/ruins-map.js" defer></script>
         <p class="ruins-map-legend">P: Player · E: Exit<% if (nextFloorMarker !== null) { %> · 2: Floor 2<% } %> · G: Gold · I: Item · X: Enemy</p>
-        <p id="ruins-map-keys" class="text-muted" hidden>Tab to the map, then use the arrow keys to choose a direction. Press Enter or Space to move.</p>
+        <p id="ruins-map-keys" class="ruins-map-legend" hidden>Tab to the map, then use the arrow keys to choose a direction. Press Enter or Space to move.</p>
       </div>
 
       <section class="ruins-surroundings" aria-labelledby="ruins-surroundings">
@@ -77,7 +77,7 @@
           <button type="button" disabled>Descend to Floor 2</button>
           <% } %>
           <% if (encounter) { %>
-          <h4><%= encounter.enemy.name %></h4>
+          <h4 class="section-heading"><%= encounter.enemy.name %></h4>
           <p><%= encounter.description %></p>
           <button type="submit" name="action" value="engage">Fight</button>
           <button type="submit" name="action" value="ignore">Pass by</button>
@@ -94,6 +94,7 @@
     <div class="ruins-controls">
       <%- include("../partials/location-image", {
         src: "/images/drevan-ruins-interior.webp",
+        flush: true,
         alt: "Blue crystals light a stone passage.",
       }) %>
 
@@ -129,7 +130,7 @@
           <ul class="ruins-consumables">
             <% for (const potion of potions) { %>
             <li>
-              <%- include("../partials/item-figure", { item: potion, itemQuantity: potion.quantity }) %>
+              <%- include("../partials/item-figure", { item: potion, compact: true, itemQuantity: potion.quantity }) %>
               <button type="submit" name="itemId" value="<%= potion.id %>" aria-label="Use <%= potion.name %>">Use</button>
             </li>
             <% } %>
@@ -149,7 +150,7 @@
         <% } %>
         <form action="/game/ruins/action" method="post">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
-          <button class="button-secondary" type="submit" name="action" value="recall"<% if (!hasBeacon || recalledToday) { %> disabled<% } %>>Activate Recall Beacon</button>
+          <button class="button--secondary" type="submit" name="action" value="recall"<% if (!hasBeacon || recalledToday) { %> disabled<% } %>>Activate Recall Beacon</button>
         </form>
       </section>
     </div>

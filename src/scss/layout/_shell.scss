@@ -1,0 +1,61 @@
+@use "../abstracts/vars";
+
+body {
+  margin: 0;
+  background: vars.$color-background;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  padding: vars.$space-4 0;
+  flex: 1;
+}
+
+.container {
+  width: 100%;
+  max-inline-size: vars.$container-max;
+  margin: 0 auto;
+  padding: 0 vars.$space-4;
+}
+
+.skip-link {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: vars.$space-2;
+  inset-inline-start: vars.$space-4;
+  background: vars.$color-surface;
+  padding: vars.$space-2 vars.$space-3;
+  text-decoration: underline;
+
+  &:not(:focus) {
+    transform: translateY(calc(-100% - 0.5rem));
+  }
+}
+
+.site-header {
+  background: vars.$color-surface;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.site-tagline {
+  margin: 0 0 vars.$space-3;
+  color: vars.$color-muted;
+}
+
+.site-footer {
+  padding: vars.$space-4 0;
+  background: vars.$color-surface;
+  color: vars.$color-muted;
+  text-align: center;
+
+  small {
+    display: block;
+    font-size: vars.$type-support;
+    line-height: vars.$line-body;
+  }
+}

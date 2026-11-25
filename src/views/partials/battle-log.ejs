@@ -8,20 +8,20 @@
   <details class="battle-details">
     <summary>Battle log</summary>
   <% } %>
-  <div class="battle-log">
+  <div>
     <% battleLog.forEach(entry => { %>
     <% if (entry.type === "encounter") { %>
     <p>
-      <span class="player"><%= entry.player %></span> encounters <span class="enemy"><%= entry.target %></span>.
+      <span class="battle-actor--player"><%= entry.player %></span> encounters <span class="battle-actor--enemy"><%= entry.target %></span>.
     </p>
     <% if (!compactReport) { %>
-    <h<%= headingLevel %>>Battle log</h<%= headingLevel %>>
+    <h<%= headingLevel %><% if (headingLevel === 4) { %> class="section-heading"<% } %>>Battle log</h<%= headingLevel %>>
     <% } %>
     <% } else if (entry.type === "attack") { %>
     <p class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
-      <span class="<%= entry.actor %>"><%= entry.player %></span>
+      <span class="battle-actor--<%= entry.actor %>"><%= entry.player %></span>
       attacks
-      <span class="<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
+      <span class="battle-actor--<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
       for
       <strong><%= formatNumber(entry.damage) %></strong>
       damage.

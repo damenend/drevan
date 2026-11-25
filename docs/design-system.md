@@ -15,72 +15,48 @@ Use this reference when designing a new screen, extending a component, or briefi
 
 ### Color tokens
 
-Shared design tokens are Sass variables in [`src/scss/_vars.scss`](../src/scss/_vars.scss). Use the role of the token to choose it.
+Shared design tokens are Sass variables in [`src/scss/abstracts/_vars.scss`](../src/scss/abstracts/_vars.scss). Use the role of the token to choose it.
 
-| Token                   | Value                                | Role and current use                                               |
-| ----------------------- | ------------------------------------ | ------------------------------------------------------------------ |
-| `$color-background`     | `#171717`                            | Page canvas and dark text on gold buttons and the player tile.     |
-| `$color-surface`        | `#242424`                            | Header, footer, inputs, table headers, and game panels.            |
-| `$color-primary`        | `#b58b4c`                            | Links, primary actions, current navigation, and discovery accents. |
-| `$color-text`           | `#e5e5e5`                            | Primary text and standard button focus outline.                    |
-| `$color-muted`          | `#999999`                            | Secondary text, captions, placeholders, and input borders.         |
-| `$color-red`            | `#ff5454`                            | Errors, enemies, and stat penalties.                               |
-| `$color-blue`           | `#54bdff`                            | Player combat cues, stat bonuses, and the Ruins stairs marker.     |
-| `$color-surface-border` | Surface lightness increased by `12%` | Dividers and panel or tile boundaries.                             |
-| `$color-row-stripe`     | White at `2.5%` opacity              | Alternating table rows.                                            |
+| Token | Token | Value | Common application |
+| --- | --- | --- |
+| `$space-1` | `0.25rem` | Field labels, notes, and stat breakdowns |
+| `$space-2` | `0.5rem` | Control padding and grouped actions |
+| `$space-3` | `0.75rem` | Heading margins and item figure gaps |
+| `$space-4` | `1rem` | Container gutters and form groups |
+| `$space-5` | `1.25rem` | Authentication navigation spacing |
+| `$space-6` | `1.5rem` | Section spacing and stacked activity regions |
+| `$space-8` | `2rem` | Activity and character column gutters |
+| `$space-10` | `2.5rem` | Wide homepage column gutter |
 
-Component-specific colors include the Ruins exit border (`#719270`), a gold tint on available move tiles, and a white overlay at 5% opacity for hovered table rows. Gold has several roles. The label, placement, and element type tell the player whether they are looking at an action, a discovery, or the current page.
+The page shell uses a centered `1320px` container with `1rem` inline padding. The activity grid caps at `60rem` with location and map columns up to `30rem` and `28rem`. Wide tables scroll in their own wrappers, which also contain positioned accessibility labels. The default stat grid fits as many columns as it can at a `140px` minimum. Compact grids opt into explicit column variants.
 
-### Typography
+| Breakpoint                         | Layout transition                                                                            |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| `$breakpoint-equipment` at `36rem` | Equipment slots sit side by side                                                             |
+| `$breakpoint-columns` at `44rem`   | Activities and character overview gain columns, and inventory uses its standard table layout |
+| `$breakpoint-wide` at `60rem`      | Homepage uses a two-column layout, and the attributes grid fits four columns                 |
 
-Roboto is the body face. Rajdhani is the display face for headings and standard buttons. Both use a sans-serif fallback. Use semantic heading levels to express the page outline. [Typography styles](../src/scss/_typography.scss) · [Form styles](../src/scss/_forms.scss)
+Use range syntax such as `@media (width >= vars.$breakpoint-columns)`. Keep component geometry, such as the map tile aspect ratio and meter track height, separate from ordinary spacing.
 
-| Role                     | Typeface | Size       | Weight   | Line height |
-| ------------------------ | -------- | ---------- | -------- | ----------- |
-| Site title, `h1`         | Rajdhani | `2.75rem`  | 700      | 1.2         |
-| Page heading, `h2`       | Rajdhani | `2.125rem` | 600      | 1.2         |
-| Section heading, `h3`    | Rajdhani | `1.625rem` | 600      | 1.2         |
-| Subsection heading, `h4` | Rajdhani | `1.25rem`  | 700      | 1.2         |
-| Body                     | Roboto   | `1rem`     | 400      | 1.5         |
-| Standard button          | Rajdhani | `1.125rem` | 600      | 1.2         |
-| Supporting text          | Roboto   | `0.875rem` | Inherits | Contextual  |
-| Character stat value     | Roboto   | `1.5rem`   | 500      | 1.2         |
-
-Headings use `0.01em` letter spacing and `0.75rem` bottom margin by default. The site title is gold and subsection headings have a gold leading rule. Captions are muted and italic. Use the shared number formatter for displayed gameplay values and keep submitted quantities or calculation data ungrouped.
-
-### Spacing, layout, and shape
-
-Spacing is defined in component styles. These recurring values describe the current rhythm.
-
-| Value     | Common application                                                                       |
-| --------- | ---------------------------------------------------------------------------------------- |
-| `0.25rem` | Ruins map tile gap and stat breakdown offset.                                            |
-| `0.5rem`  | Vertical control padding and small text or label separation.                             |
-| `0.75rem` | Heading margin, horizontal input padding, and item icon gap.                             |
-| `1rem`    | Container gutters, paragraph and form-group spacing, panel padding, and navigation gaps. |
-| `2rem`    | Horizontal gap between the Ruins map and controls on wide screens.                       |
-
-The page shell has a header, main landmark, and footer. The shared container is centered with a `1320px` maximum width and `1rem` inline padding. Most gameplay pages follow the document flow. The character stat grid fits as many columns as it can at a `140px` minimum. The Ruins stacks its expedition content below `44rem`. At wider widths the exploration and resources sit side by side, with a map column up to `28rem`. Wide tables scroll within their own wrapper. These are component-specific breakpoints and dimensions. [Page shell](../src/scss/main.scss) · [Character stats](../src/scss/_home.scss) · [Ruins layout](../src/scss/_ruins.scss)
-
-Use `$radius-small` (`3px`) for controls, portraits, battle summaries, and map tiles. Use `$radius-panel` (`4px`) for location images and the character stat group. Thin borders and changes in surface color give the interface its flat, compact appearance.
+Use `$radius-small` (`3px`) for controls, portraits, battle summaries, and map tiles. Use `$radius-panel` (`4px`) for location images and stat groups. The standard border is 1px, and selection and heading rules use 2px. Notices use a 3px leading rule. Standard keyboard focus uses a light 2px outline at a 2px offset. The Ruins uses inset outlines with different colors for available moves and the player tile. Available moves have a brighter border for contrast against the tinted tile, with dedicated borders for map markers.
 
 ### Imagery
 
-Location images are generally WebP, displayed in a figure with a caption. The standard illustration is capped at `480px` and a banner can span its container. Location artwork normally follows the page heading. Inside The Ruins, the interior art follows the gameplay controls and report. Item icons are `48 × 48px` and sit beside the item name. Player portraits display at `10rem` wide with a `2:3` crop. Provide meaningful alt text when the image conveys information. Use empty alt text when the image is decorative or the adjacent text supplies its identity. [Image styles](../src/scss/_images.scss)
+Location images are generally WebP, displayed in a figure with a caption. The standard illustration is capped at `30rem` and a banner can span its container. Location artwork normally follows the page heading. Inside The Ruins, the interior art follows the gameplay controls and report. Item icons are `3 × 3rem` and sit beside the item name. Player portraits display at `10rem` wide with a `2:3` crop. Provide meaningful alt text when the image conveys information. Use empty alt text when the image is decorative or the adjacent text supplies its identity. [Image styles](../src/scss/components/_images.scss)
 
 ## Components
 
 | Component                       | Structure and states                                                                                                                                                                                                                                                | Implementation                                                                                                                                            |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Site navigation                 | A wrapping row of links with current-page, hover, and keyboard-focus states. The current page uses gold, heavier type, and `aria-current="page"`. Log out is a form button styled as a link.                                                                        | [Navigation partial](../src/views/partials/navigation.ejs) and [navigation styles](../src/scss/_nav.scss)                                                 |
-| Link                            | Navigates to a location or next step. Inline links are underlined. Use the location name in directories and an action plus destination when guiding recovery, such as **Heal at Sanctum**.                                                                          | [Typography styles](../src/scss/_typography.scss)                                                                                                         |
-| Button                          | Submits a form or performs an action. Default treatment is gold with dark text. Hover lightens the background, keyboard focus adds an outline, and disabled controls use reduced opacity. Name the action in sentence case.                                         | [Form styles](../src/scss/_forms.scss)                                                                                                                    |
+| Site navigation                 | A wrapping row of links with current-page, hover, and keyboard-focus states. The current page uses gold, heavier type, and `aria-current="page"`. Log out is a form button styled as a link.                                                                        | [Navigation partial](../src/views/partials/navigation.ejs) and [navigation styles](../src/scss/components/_navigation.scss)                               |
+| Link                            | Navigates to a location or next step. Inline links are underlined. Use the location name in directories and an action plus destination when guiding recovery, such as **Heal at Sanctum**.                                                                          | [Typography styles](../src/scss/base/_typography.scss)                                                                                                    |
+| Button                          | Submits a form or performs an action. Default treatment is gold with dark text. Hover lightens the background, keyboard focus adds an outline, and disabled controls use reduced opacity. Name the action in sentence case.                                         | [Form styles](../src/scss/components/_forms.scss)                                                                                                         |
 | Form field                      | Use a visible label where practical and an accessible label for compact contexts such as a quantity cell. Inputs are full width by default. Quantity controls use `.item-quantity` with a `5rem` maximum. Keep instructions and validation feedback near the field. | [Signup example](../src/views/login/register.ejs) and [Emporium example](../src/views/game/store.ejs)                                                     |
-| Data table                      | Put `.table` inside `.table-responsive`. Use column headers with `scope="col"` and row headers with `scope="row"` when a cell names the row. The table uses gold headers, striped rows, and a hover treatment.                                                      | [Table styles](../src/scss/_table.scss)                                                                                                                   |
+| Data table                      | Put `.table` inside `.table-responsive`. Use column headers with `scope="col"` and row headers with `scope="row"` when a cell names the row. The table uses gold headers, striped rows, and a hover treatment.                                                      | [Table styles](../src/scss/components/_table.scss)                                                                                                        |
 | Location figure                 | Renders an image and caption, with a banner variant for wide location artwork.                                                                                                                                                                                      | [Location image partial](../src/views/partials/location-image.ejs)                                                                                        |
 | Item figure and player portrait | Item figures keep the item name visible even when an image is absent. Player portraits use the selected avatar model and an accessible description.                                                                                                                 | [Item figure](../src/views/partials/item-figure.ejs) and [player avatar](../src/views/partials/player-avatar.ejs)                                         |
 | Character stats and gold        | Use a description list for label and value pairs. Show the effective stat first and add the base value and signed modifier when it differs. Reuse the shared gold display.                                                                                          | [The Quarters](../src/views/game/index.ejs), [stat total](../src/views/partials/stat-total.ejs), and [player gold](../src/views/partials/player-gold.ejs) |
-| Battle report                   | Shows an encounter, attack log, and summary. Blue and red identify actors alongside their names. Critical hits have an explicit label. The summary shows the outcome, HP change, and any awarded gold, XP, or loot.                                                 | [Battle log partial](../src/views/partials/battle-log.ejs) and [battle styles](../src/scss/_battle.scss)                                                  |
+| Battle report                   | Shows an encounter, attack log, and summary. Blue and red identify actors alongside their names. Critical hits have an explicit label. The summary shows the outcome, HP change, and any awarded gold, XP, or loot.                                                 | [Battle log partial](../src/views/partials/battle-log.ejs) and [battle styles](../src/scss/components/_battle.scss)                                       |
 | Status message and error page   | Place contextual feedback near the action or at the top of the relevant view. Use `role="status"` for nonurgent updates where appropriate. Use the shared error page for HTTP errors and include a safe recovery link.                                              | [Ruins notices](../src/views/game/ruins.ejs) and [error page](../src/views/error.ejs)                                                                     |
 
 ## Interaction patterns
@@ -91,11 +67,11 @@ Nexaris is the directory for signed-in gameplay destinations. The main navigatio
 
 A typical location page uses a heading, an illustration and caption, brief setting text, and the location’s primary controls. A repeatable activity can prioritize the map, form, or result over the artwork. Keep the most likely next action near any status or recovery message.
 
-The Driftwater places the location figure and description beside the fishing controls at widths of `44rem` and above. On narrower screens the controls and result come first, matching the reading order. A native meter pairs the available count and maximum with a visible reset time. The result panel sits below the action, uses a minimum height, and can grow with its content. Caught fish use the shared item icon styling at `5.5rem` with the result text beside the image. [Driftwater template](../src/views/game/fishing.ejs) · [Driftwater styles](../src/scss/_driftwater.scss)
+The Driftwater places the location figure and description beside the fishing controls at widths of `44rem` and above. On narrower screens the controls and result come first, matching the reading order. A native meter pairs the available count and maximum with a visible reset time. The result panel sits below the action, uses a minimum height, and can grow with its content. Caught fish use the shared item icon styling at `5.5rem` with the result text beside the image. [Driftwater template](../src/views/game/fishing.ejs) · [Driftwater styles](../src/scss/pages/_driftwater.scss)
 
 ### Public homepage and authentication
 
-The homepage pairs the world illustration and introduction with a form capped at `28rem`. Below `60rem`, the introduction comes first, followed by the form and artwork. Use ordinary links with `aria-current="page"` for the authentication choices. The URL selects the form, so registration can be linked directly and browser history can switch between views. [Homepage template](../src/views/index.ejs) · [Homepage styles](../src/scss/_homepage.scss)
+The homepage pairs the world illustration and introduction with a form capped at `28rem`. Below `60rem`, the introduction comes first, followed by the form and artwork. Use ordinary links with `aria-current="page"` for the authentication choices. The URL selects the form, so registration can be linked directly and browser history can switch between views. [Homepage template](../src/views/index.ejs) · [Homepage styles](../src/scss/pages/_homepage.scss)
 
 Use a labeled fieldset for illustrated radio choices. The portrait and visible label share a click target, and the radio indicator shows the selection alongside the gold border. Keep muted instructions next to the input and associate them and any field error with `aria-describedby`. Signup links from its error notice to the relevant input and restores the player name, email, and valid avatar selection. [Signup form](../src/views/login/register.ejs)
 
@@ -103,7 +79,7 @@ Use a labeled fieldset for illustrated radio choices. The portrait and visible l
 
 The Quarters uses a compact location figure alongside its introduction on wide screens. The character overview pairs a portrait, name, level, and class with grouped stat tiles. Put HP first, group gold and XP separately from combat stats, and place available attribute points by the allocation controls. The Quarters and The Ruins share a labeled HP meter with a red fill below 25% and a readable current and maximum value. [The Quarters](../src/views/game/index.ejs) · [Health meter](../src/views/partials/health-meter.ejs)
 
-Equipment shows supported slots with an item, its signed modifier, and a secondary outlined Unequip button, or a short empty-state message. Inventory groups each thumbnail, name, and description in the row header and summarizes numerical effects in a single column. Category links use URL parameters and mark the current category with `aria-current`. At narrow widths, the inventory keeps its table roles and headers while each item spans a row above its labeled details and action. [Quarters styles](../src/scss/_home.scss)
+Equipment shows supported slots with an item, its signed modifier, and a secondary outlined Unequip button, or a short empty-state message. Inventory groups each thumbnail, name, and description in the row header and summarizes numerical effects in a single column. Category links use URL parameters and mark the current category with `aria-current`. At narrow widths, the inventory keeps its table roles and headers while each item spans a row above its labeled details and action. [Quarters styles](../src/scss/pages/_quarters.scss)
 
 ### Forms and results
 
@@ -127,12 +103,26 @@ Use these checks when reviewing a new screen or an altered component.
 - **Reflow and targets.** Check a narrow viewport and zoomed layout. Ensure tables scroll locally, labels remain readable, and tightly spaced controls can be selected reliably. Check WCAG’s 24 × 24 CSS pixel minimum target size or applicable spacing and other exceptions. [Target size](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)
 - **Feedback.** Check the default, empty, disabled, error, and success states relevant to the flow. Confirm that status text conveys the outcome without relying on color and that recovery links name their destination.
 
+## Sass architecture and naming
+
+`main.scss` loads base, layout, components, pages, and utilities in that order. All modules access shared tokens directly through `@use "../abstracts/vars"`. Base defines box sizing, focus, and typography. Layout owns the shell and shared activity grid. Components own reusable controls and their variants. Pages own location-specific composition and sizing. Utilities apply small, explicit treatments such as `.text-muted` and `.visually-hidden`.
+
+Use descriptive kebab-case for new classes, `__element` for a named component part, and `--modifier` for a variant. Keep established names when they remain clear. Use page prefixes such as `.quarters-` for local composition. Prefer native states such as `:disabled`, `:checked`, `[open]`, and `[aria-current="page"]`. Use a stable ID or data attribute for behavior, such as `data-ruins-map`, and keep styling independent of accessible names. Group declarations by layout, dimensions, spacing, typography, appearance, and interaction when that order preserves the cascade.
+
+### Shared variants
+
+- Apply `.button--secondary` for an outlined action, `.button--link` for a form action shown as a link, and `.button--full` for a full-width action. Use `.form-group` for ordinary label and field spacing and `.form-note` for nearby instructions or validation.
+- Use `.link-nav` with its site, auth, or filter modifier. Selection remains tied to the current URL with `aria-current="page"`.
+- Pass an ID, visible label, value, and maximum to the resource meter partial. Optional arguments cover critical fill, value units, and associated instructions. The HP partial supplies the existing critical threshold. The meter uses one CSS custom property to change the fill in both native browser treatments. [Resource meter](../src/views/partials/resource-meter.ejs)
+- Use the location figure’s banner, flush, and compact options for wide artwork, parent-owned spacing, and the compact introduction. Item icons support compact and featured variants. Use `.equipment-slot` to group an equipment heading, item, modifier, and action or empty state.
+- Use `.text-error` for validation and errors and `.text-muted` for secondary guidance. Keep result and availability text close to the relevant controls. Use the battle partials for reports and their actor and critical-hit treatments.
+
 ## Implementation and handoff
 
-1. Identify the nearest existing page or component pattern and adapt it. Use Sass tokens through `@use "vars"` and the `vars.` namespace.
-2. Use EJS partials for repeated markup. Escape dynamic text with `<%=` and use `<%-` for trusted rendered partials or the layout body. Keep gameplay rules and state changes on the server.
-3. Describe any design proposal in terms of the affected screen, component, state, responsive behavior, and keyboard interaction. Identify rule changes explicitly so they can be reviewed alongside the UI.
-4. Verify behavior with `yarn check` and rebuild the tracked stylesheet with `yarn sass:build` when Sass changes. Review the rendered screen at narrow and wide widths.
+1. Identify the nearest existing page or component pattern and adapt it. Reuse the nearest component and token first. Add a variant for a recurring difference with the same semantic structure. Keep one-off geometry local and explain it if its purpose is unclear.
+2. Extract an EJS partial when the same logical component occurs in multiple views and has a clear input contract. Escape dynamic text with `<%=` and use `<%-` for trusted rendered partials or the layout body. Keep gameplay rules and state changes on the server.
+3. Keep local composition in the page module. Check heading order, existing type and spacing roles, color meaning, keyboard focus, disabled and empty states, and narrow reflow before adding CSS.
+4. Verify behavior with `yarn check` and rebuild the tracked stylesheet with `yarn sass:build` when Sass changes. Commit the generated CSS and source map together. Review the rendered screen at narrow and wide widths.
 5. Update this reference when shared tokens or component conventions change. Use the roadmap for proposed gameplay and the Ruins brief for expedition-specific behavior.
 
 The [Sass entry point](../src/scss/main.scss) imports the style modules. The [shared EJS layout](../src/views/layouts/main.ejs) provides the page shell, and [EJS partials](../src/views/partials/) provide the reusable markup.

@@ -1,0 +1,15 @@
+@use "../abstracts/vars";
+
+.equipment-slot {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: vars.$space-2;
+  padding: vars.$space-3 vars.$space-4;
+  border: vars.$border-width solid vars.$color-surface-border;
+  border-radius: vars.$radius-panel;
+
+  h4 {
+    margin: 0;
+  }
+}

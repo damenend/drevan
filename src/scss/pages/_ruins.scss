@@ -1,30 +1,26 @@
-@use "vars";
+@use "../abstracts/vars";
 
-$map-width: 28rem;
-
-.ruins-sections {
-  display: grid;
-  gap: 1rem 2rem;
-  align-items: start;
-  max-width: 60rem;
-  grid-template-columns: minmax(0, 1fr);
-}
+$map-width: vars.$activity-narrow-column;
+$exit-color: #719270;
 
 .ruins-exploration,
 .ruins-controls {
   display: grid;
   min-width: 0;
-  gap: 1rem;
+  gap: vars.$space-4;
   align-content: start;
 }
 
-@media (min-width: 44rem) {
-  .ruins-sections {
-    grid-template-columns: minmax(0, $map-width) minmax(0, 30rem);
+@media (width >= vars.$breakpoint-columns) {
+  .activity-layout--ruins {
+    grid-template-columns: minmax(0, $map-width) minmax(
+        0,
+        vars.$location-image-max
+      );
   }
 }
 
-@media (width < 44rem) {
+@media (width < vars.$breakpoint-columns) {
   .ruins-exploration,
   .ruins-controls {
     display: contents;
@@ -34,11 +30,11 @@ $map-width: 28rem;
     order: -2;
   }
 
-  .ruins-controls .health-meter {
+  .ruins-controls .resource-meter {
     order: -1;
   }
 
-  .ruins-controls .location-image {
+  .ruins-controls .location-image--flush {
     order: 1;
   }
 }
@@ -48,7 +44,7 @@ $map-width: 28rem;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.25rem 1rem;
+  gap: vars.$space-1 vars.$space-4;
   max-width: $map-width;
 
   h3,
@@ -66,21 +62,16 @@ $map-width: 28rem;
   max-width: $map-width;
 }
 
-.ruins-map-legend,
-#ruins-map-keys {
-  margin: 0.5rem 0 0;
+.ruins-map-legend {
+  margin: vars.$space-2 0 0;
   color: vars.$color-muted;
-  font-size: 0.875rem;
-}
-
-.ruins-controls .location-image {
-  margin: 0;
+  font-size: vars.$type-support;
 }
 
 .ruins-stats {
   display: grid;
   grid-template-columns: minmax(0, 1fr) fit-content(60%);
-  gap: 0.25rem 0.75rem;
+  gap: vars.$space-1 vars.$space-3;
   margin: 0;
   font-variant-numeric: tabular-nums;
 
@@ -95,10 +86,6 @@ $map-width: 28rem;
   }
 }
 
-.ruins-stats + form {
-  margin-top: 0.75rem;
-}
-
 .ruins-controls section > :last-child,
 .ruins-surroundings > :last-child {
   margin-bottom: 0;
@@ -110,7 +97,7 @@ $map-width: 28rem;
 
 .ruins-consumables {
   display: grid;
-  gap: 0.5rem;
+  gap: vars.$space-2;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -119,31 +106,15 @@ $map-width: 28rem;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 0.75rem;
+    gap: vars.$space-3;
   }
-
-  .item-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  figcaption {
-    overflow-wrap: anywhere;
-  }
-}
-
-.ruins-item-quantity {
-  display: block;
-  color: vars.$color-muted;
-  font-size: 0.875rem;
-  font-variant-numeric: tabular-nums;
 }
 
 .ruins-map {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   width: min(100%, $map-width);
-  gap: 0.25rem;
+  gap: vars.$space-1;
 }
 
 .ruins-map .ruins-tile {
@@ -151,54 +122,55 @@ $map-width: 28rem;
   place-items: center;
   aspect-ratio: 1;
   padding: 0;
-  border: 1px solid vars.$color-surface-border;
+  border: vars.$border-width solid
+    var(--tile-border, #{vars.$color-surface-border});
   border-radius: vars.$radius-small;
   background: vars.$color-surface;
   color: vars.$color-text;
-  font-size: 0.875rem;
+  font-size: vars.$type-support;
 
   &--exit {
-    border-color: #719270;
+    --tile-border: #{$exit-color};
   }
 
   &--stairs {
-    border-color: vars.$color-blue;
+    --tile-border: #{vars.$color-blue};
   }
 
   &--gold,
   &--item {
-    border-color: vars.$color-primary;
+    --tile-border: #{vars.$color-primary};
   }
 
   &--enemy {
-    border-color: vars.$color-red;
+    --tile-border: #{vars.$color-red};
   }
 
   &--player {
     background: vars.$color-primary;
     color: vars.$color-background;
-    font-weight: bold;
+    font-weight: vars.$weight-bold;
   }
 }
 
 .ruins-map button.ruins-tile {
+  border-color: var(--tile-border, #{vars.$color-muted});
   background: color-mix(in srgb, vars.$color-surface, vars.$color-primary 20%);
 }
 
 .ruins-map button.ruins-tile:hover,
 .ruins-map button.ruins-tile:focus-visible {
-  outline: 2px solid vars.$color-primary;
+  outline: vars.$focus-width solid vars.$color-primary;
   outline-offset: -2px;
 }
 
 .ruins-map .ruins-tile--player:focus-visible {
-  outline: 2px solid vars.$color-background;
+  outline: vars.$focus-width solid vars.$color-background;
   outline-offset: -4px;
 }
 
-.ruins-actions button,
-.ruins-controls [aria-label="Spend one attribute point"] button {
-  margin-block-end: 0.25rem;
+.ruins-actions button {
+  margin-block-end: vars.$space-1;
 }
 
 .ruins-empty {
@@ -207,14 +179,14 @@ $map-width: 28rem;
 
 .ruins-notice {
   background: vars.$color-surface;
-  border-inline-start: 3px solid currentColor;
-  padding: 0.5rem 0.75rem;
+  border-inline-start: vars.$notice-width solid currentColor;
+  padding: vars.$space-2 vars.$space-3;
 
   &--discovery {
-    color: vars.$color-primary;
+    color: vars.$color-discovery;
   }
 
   &--encounter {
-    color: vars.$color-red;
+    color: vars.$color-combat-enemy;
   }
 }

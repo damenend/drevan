@@ -435,7 +435,7 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
   `);
   t.mock.method(Math, "random", () => 0.1);
   const playerHit =
-    /battle-log-entry--player">\s*<span class="player">[^<]+<\/span>\s*attacks\s*<span class="enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
+    /battle-log-entry--player">\s*<span class="battle-actor--player">[^<]+<\/span>\s*attacks\s*<span class="battle-actor--enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
   assert.match(
     (await followAction(await post("/game/training", { level: 1 }))).html,
     playerHit,
@@ -710,7 +710,10 @@ test("The Quarters filters available items and retains the category after action
   `);
   const all = await view("?category=unknown");
   assert.match(all.html, /aria-current="page">All items/);
-  assert.match(all.html, /value="3" class="health-meter--low"/);
+  assert.match(
+    all.html,
+    /value="3" class="resource-meter__track resource-meter__track--critical"/,
+  );
   assert.match(all.html, /<dt>Lifetime XP<\/dt>\s*<dd>60<\/dd>/);
 
   const fish = await view("?category=fish");
@@ -733,7 +736,7 @@ test("The Quarters filters available items and retains the category after action
   const useLocation = use.headers.get("location") ?? "";
   assert.match(useLocation, /category=consumables/);
   const healed = await request(useLocation, { headers: { cookie } });
-  assert.match(healed.html, /value="13" class=""/);
+  assert.match(healed.html, /value="13" class="resource-meter__track"/);
   assert.match(healed.html, /No items in this category/);
 
   const equip = await post("/game/inventory/equip?category=equipment", {
@@ -1017,8 +1020,14 @@ test("only one request spends the last fishing cast and awards a catch", async (
     1,
   );
   for (const { html } of pages) {
-    assert.match(html, /value="0" aria-valuetext="0 of 50"/);
-    assert.match(html, /<button type="submit" disabled>Cast line<\/button>/);
+    assert.match(
+      html,
+      /value="0" class="resource-meter__track" aria-valuetext="0 of 50"/,
+    );
+    assert.match(
+      html,
+      /<button class="button--full" type="submit" disabled>Cast line<\/button>/,
+    );
     assert.match(html, /You've used all your casts for today/);
   }
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
@@ -1082,7 +1091,7 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   assert.match(start.html, /Position \(0, 0\)/);
   assert.match(
     start.html,
-    /class="ruins-map" data-position="0" data-size="7" action=/,
+    /class="ruins-map" data-ruins-map data-position="0" data-size="7" action=/,
   );
   assert.match(
     start.html,
@@ -1519,7 +1528,10 @@ test("an empty cast spends the first cast of the new Central day", async (t) => 
   const cast = await followAction(await post("/game/fishing"));
   assert.equal(cast.status, 200);
   assert.match(cast.html, /Your line comes back empty/);
-  assert.match(cast.html, /value="49" aria-valuetext="49 of 50"/);
+  assert.match(
+    cast.html,
+    /value="49" class="resource-meter__track" aria-valuetext="49 of 50"/,
+  );
   assert.equal(player().fishing_casts_used, 1);
   assert.deepEqual(ownedItems(), []);
 });

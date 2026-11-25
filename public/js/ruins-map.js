@@ -1,5 +1,5 @@
 (() => {
-  const map = document.querySelector(".ruins-map");
+  const map = document.querySelector("[data-ruins-map]");
   if (!map) return;
 
   const buttons = Array.from(

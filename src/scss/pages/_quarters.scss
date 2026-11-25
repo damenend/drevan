@@ -1,0 +1,163 @@
+@use "../abstracts/vars";
+
+.quarters {
+  overflow-wrap: anywhere;
+
+  > section {
+    margin-block: vars.$space-6;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  .quarters-gold dd {
+    color: vars.$color-primary;
+  }
+}
+
+.quarters-intro,
+.quarters-overview,
+.quarters-details,
+.quarters-equipment {
+  display: grid;
+  gap: vars.$space-4;
+}
+
+.quarters-intro {
+  align-items: center;
+}
+
+.quarters-identity {
+  display: flex;
+  align-items: center;
+  gap: vars.$space-4;
+}
+
+.quarters-name,
+.quarters-welcome {
+  margin: 0 0 vars.$space-1;
+  font-family: vars.$font-display;
+  font-size: vars.$type-identity;
+  font-weight: vars.$weight-bold;
+  line-height: vars.$line-compact;
+}
+
+.quarters-details {
+  min-width: 0;
+}
+
+.quarters-attributes-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: vars.$space-2 vars.$space-4;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: vars.$space-3;
+
+  h4,
+  .quarters-support {
+    margin: 0;
+  }
+}
+
+.quarters-support {
+  color: vars.$color-muted;
+  font-size: vars.$type-support;
+  font-weight: vars.$weight-regular;
+}
+
+.quarters-support {
+  margin: vars.$space-2 0 0;
+}
+
+.quarters-inventory {
+  button {
+    min-width: 5rem;
+  }
+}
+
+.quarters-quantity {
+  font-variant-numeric: tabular-nums;
+}
+
+.quarters-cell-label {
+  display: none;
+}
+
+@media (width >= vars.$breakpoint-equipment) {
+  .quarters-equipment {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= vars.$breakpoint-columns) {
+  .quarters-intro,
+  .quarters-overview {
+    gap: vars.$space-8;
+  }
+
+  .quarters-intro {
+    grid-template-columns: minmax(0, vars.$location-image-compact) minmax(
+        0,
+        vars.$location-image-max
+      );
+  }
+
+  .quarters-overview {
+    grid-template-columns: 10rem minmax(0, 1fr);
+  }
+
+  .quarters-identity {
+    display: grid;
+    align-content: start;
+    gap: vars.$space-3;
+  }
+}
+
+@media (width < vars.$breakpoint-columns) {
+  .quarters-inventory {
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    &,
+    tbody {
+      display: block;
+    }
+
+    tbody tr {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: vars.$space-2;
+      border-bottom: vars.$border-width solid vars.$color-surface-border;
+    }
+
+    tbody th {
+      grid-column: 1 / -1;
+    }
+
+    tbody :is(th, td) {
+      padding: vars.$space-2;
+      border: 0;
+    }
+
+    td:last-child {
+      grid-column: 1 / -1;
+
+      > .text-muted {
+        display: none;
+      }
+    }
+  }
+
+  .quarters-cell-label {
+    display: block;
+    color: vars.$color-muted;
+    font-size: vars.$type-support;
+  }
+}

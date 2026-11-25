@@ -1,64 +1,21 @@
-@use "vars";
-@use "typography";
-@use "forms";
-@use "battle";
-@use "table";
-@use "images";
-@use "home";
-@use "homepage";
-@use "health-meter";
-@use "nav";
-@use "ruins";
-@use "driftwater";
+@use "base/base";
+@use "base/typography";
 
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-}
+@use "layout/shell";
+@use "layout/activity-layout";
 
-body {
-  margin: 0;
-  background: vars.$color-background;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+@use "components/forms";
+@use "components/navigation";
+@use "components/battle";
+@use "components/table";
+@use "components/images";
+@use "components/resource-meter";
+@use "components/stats";
+@use "components/equipment";
 
-main {
-  padding: 1rem 0;
-  flex: 1;
-}
+@use "pages/homepage";
+@use "pages/quarters";
+@use "pages/ruins";
+@use "pages/driftwater";
 
-.container {
-  width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.skip-link {
-  position: absolute;
-  z-index: 1;
-  inset-block-start: 0.5rem;
-  inset-inline-start: 1rem;
-  background: vars.$color-surface;
-  padding: 0.5rem 0.75rem;
-  text-decoration: underline;
-
-  &:not(:focus) {
-    transform: translateY(calc(-100% - 0.5rem));
-  }
-}
+@use "utilities/utilities";

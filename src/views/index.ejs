@@ -6,7 +6,7 @@
   </section>
 
   <section class="homepage-auth" aria-labelledby="auth-heading">
-    <nav class="auth-navigation" aria-label="Account access">
+    <nav class="link-nav link-nav--auth" aria-label="Account access">
       <a href="/" <% if (!registering) { %>aria-current="page"<% } %>>Log in</a>
       <a href="/?view=register" <% if (registering) { %>aria-current="page"<% } %>>Create an account</a>
     </nav>
@@ -20,6 +20,7 @@
   <div class="homepage-art">
     <%- include("partials/location-image", {
       src: "/images/drevan-homepage.webp",
+      flush: true,
       banner: {
         alt: "Ruined stone arches overlook waterfalls and a city of illuminated towers.",
         width: 1600,

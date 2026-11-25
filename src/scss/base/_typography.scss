@@ -1,0 +1,61 @@
+@use "../abstracts/vars";
+
+body {
+  font-family: vars.$font-body;
+  font-size: vars.$type-body;
+  font-weight: vars.$weight-regular;
+  line-height: vars.$line-body;
+  color: vars.$color-text;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: vars.$font-display;
+  font-weight: vars.$weight-semibold;
+  line-height: vars.$line-compact;
+  letter-spacing: vars.$tracking-display;
+  margin: 0 0 vars.$space-3;
+}
+
+h1 {
+  font-size: vars.$type-site;
+  font-weight: vars.$weight-bold;
+  color: vars.$color-primary;
+}
+
+h2 {
+  font-size: vars.$type-page;
+}
+
+h3 {
+  font-size: vars.$type-section;
+}
+
+h4 {
+  font-size: vars.$type-subsection;
+  font-weight: vars.$weight-bold;
+}
+
+.section-heading {
+  border-inline-start: vars.$accent-width solid vars.$color-primary;
+  padding-inline-start: vars.$space-2;
+}
+
+p {
+  margin: 0 0 vars.$space-4 0;
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+a {
+  color: vars.$color-link;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

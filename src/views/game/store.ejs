@@ -1,4 +1,4 @@
-<section class="page">
+<section>
   <h2><%= title %></h2>
   <%- include("../partials/location-image", {
     src: "/images/curious-emporium.webp",
@@ -25,9 +25,9 @@
         <tbody>
           <% items.forEach(item => { %>
           <tr>
-            <td>
+            <th scope="row">
               <%- include("../partials/item-figure", { item }) %>
-            </td>
+            </th>
             <td><%= item.description %></td>
             <td><%= ({ attack_power: "Attack Power", defense: "Defense", heal: "Restore HP" })[item.effect] ?? item.effect ?? "—" %></td>
             <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
@@ -47,10 +47,10 @@
       Total:
       <output id="total-gold">0</output> gold
     </p>
-    <p id="purchase-message" class="err" aria-live="polite">
+    <p id="purchase-message" class="text-error" aria-live="polite">
       <%= err || "" %>
     </p>
-    <button type="submit" class="button">Purchase</button>
+    <button type="submit" class="button--spaced">Purchase</button>
   </form>
   <section id="sell" aria-labelledby="sell-heading">
     <h3 id="sell-heading">Sell items</h3>
@@ -97,8 +97,8 @@
         Sell for
         <output id="sell-total">0</output> gold
       </p>
-      <p id="sell-message" class="err" aria-live="polite"></p>
-      <button type="submit" class="button">Sell</button>
+      <p id="sell-message" class="text-error" aria-live="polite"></p>
+      <button type="submit" class="button--spaced">Sell</button>
       <% } %>
     </form>
     <% } %>

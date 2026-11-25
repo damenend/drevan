@@ -1,4 +1,4 @@
-<nav class="main-navigation">
+<nav class="link-nav link-nav--site">
   <% if (user) { %>
   <% if (user.ruinsTile !== null) { %>
   <a href="/game/ruins" <%- currentPath === '/game/ruins' ? 'aria-current="page"' : '' %>>The Ruins</a>
@@ -10,7 +10,7 @@
   <% } %>
 
   <form action="/logout" method="POST">
-    <button class="button-link" type="submit">Log out</button>
+    <button class="button--link" type="submit">Log out</button>
   </form>
   <% } else { %>
   <a href="/" <%- currentPath === '/' ? 'aria-current="page"' : '' %>>Home</a>

@@ -1,8 +1,8 @@
-<section class="page">
+<section>
   <h2>Admin</h2>
 
   <% if (message === 'err') { %>
-  <p role="status">Changes could not be saved. Check the values and try again.</p>
+  <p class="text-error" role="status">Changes could not be saved. Check the values and try again.</p>
   <% } else if (message === 'success') { %>
   <p role="status">Changes saved.</p>
   <% } %>

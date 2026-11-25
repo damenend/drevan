@@ -1,0 +1,70 @@
+@use "../abstracts/vars";
+
+.character-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  margin: 0 0 vars.$space-4 0;
+  padding: 1px;
+  background-color: vars.$color-background;
+  border: vars.$border-width solid vars.$color-background;
+  border-radius: vars.$radius-panel;
+  overflow: hidden;
+}
+
+.character-stat-breakdown {
+  display: block;
+  margin-top: vars.$space-1;
+  color: vars.$color-muted;
+  font-size: vars.$type-support;
+}
+
+.character-stat-bonus {
+  color: vars.$color-stat-positive;
+}
+
+.character-stat-penalty {
+  color: vars.$color-stat-negative;
+}
+
+.character-stat {
+  padding: vars.$space-4;
+  background-color: vars.$color-surface;
+
+  dt {
+    margin-bottom: vars.$space-2;
+    color: vars.$color-muted;
+    font-size: vars.$type-support;
+  }
+
+  dd {
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+    margin: 0;
+    color: vars.$color-text;
+    font-size: vars.$type-stat;
+    font-weight: vars.$weight-medium;
+    line-height: vars.$line-compact;
+  }
+}
+
+.character-stats--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+
+  .character-stat {
+    padding: vars.$space-3;
+  }
+}
+
+@media (width >= vars.$breakpoint-columns) {
+  .character-stats--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (width >= vars.$breakpoint-wide) {
+  .character-stats--attributes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

@@ -85,7 +85,7 @@ Expected locations (verify before editing):
 - `src/utils/game-date.ts`: Central calendar date used by fishing and the Recall Beacon
 - `src/utils/format-number.ts`: shared display-number formatter
 - `src/views/`: EJS layouts, partials, and pages
-- `src/scss/main.scss`: Sass entry point. Shared variables live in `src/scss/_vars.scss`.
+- `src/scss/main.scss`: Sass entry point. Shared tokens live in `src/scss/abstracts/_vars.scss`. Modules are grouped by base, layout, component, page, and utility responsibilities.
 - `public/`: static assets, including images and compiled CSS
 - `drizzle/`: database migration history
 - `drizzle.config.ts`: migration configuration
@@ -219,16 +219,19 @@ Consult the [writing guide](docs/writing-guide.md) and [lore reference](docs/lor
   - Red (`$color-red`): `#ff5454`
   - Blue (`$color-blue`): `#54bdff`
 - Use the shared location-image partial beneath section headings. Reuse the item-figure and player-gold partials where those elements recur.
-- The Quarters and The Ruins share the `health-meter` partial for current and
-  maximum HP. The Quarters uses the `item-effect` partial for both inventory
-  and equipped gear.
+- Use the `resource-meter` partial for bounded values such as daily casts
+  remaining at The Driftwater. The Quarters and The Ruins use the `health-meter`
+  wrapper, which supplies HP values and marks health below 25% as critical.
+  The Quarters uses the `item-effect` partial for both inventory and equipped gear.
 - Keep forms and buttons restrained, readable, and accessible.
 - Use the location name for links in directories or prose. Include the action
   and destination when a link is a next step, such as “Return to Dominion.”
   Underline links in paragraphs so players can identify them without color.
 - Use `.table` inside `.table-responsive` for UI tables. Use scoped column headers and row headers where a cell identifies the row.
 - Keep dynamic text escaped in EJS with `<%=`. Use unescaped output for trusted rendered markup such as partials and the layout body.
-- Reuse existing SCSS classes and import shared styles with `@use "vars"` and the `vars.` namespace.
+- Reuse existing SCSS classes and import shared tokens with `@use "../abstracts/vars"` and the `vars.` namespace.
+- Use stable IDs or data attributes for browser behavior. The Ruins map script
+  uses `data-ruins-map` to find the movement form.
 - Existing images are generally stored as WebP under `public/images/`.
 
 ## Coding and collaboration preferences
@@ -365,6 +368,8 @@ with `git diff -- AGENTS.md` before staging.
   starts the normal listener.
 - Run `yarn check` for the Prettier check, Oxlint, TypeScript checking, and the test suite.
 - Run `yarn build` to compile TypeScript and rebuild the Sass stylesheet.
+- For Sass changes, run `yarn sass:build` to rebuild the tracked stylesheet
+  and source map. Keep both generated files together in the change.
 - Run `yarn clean` to delete `node_modules/` and reinstall dependencies.
   If Yarn reports a missing `node_modules` state file before the script can
   start, run `yarn` directly to restore the installation.

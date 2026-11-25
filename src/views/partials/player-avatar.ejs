@@ -1,6 +1,6 @@
 <% const female = player.avatarModel === "female"; %>
 <img
-  class="player-avatar"
+  class="player-avatar<%= locals.inline ? ' player-avatar--inline' : '' %>"
   src="<%= female ? '/images/drevan-avatar-female.webp' : '/images/drevan-avatar-male.webp' %>"
   width="<%= female ? 765 : 1024 %>"
   height="<%= female ? 1024 : 1536 %>"

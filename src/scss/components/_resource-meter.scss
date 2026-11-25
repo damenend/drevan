@@ -1,0 +1,36 @@
+@use "../abstracts/vars";
+
+.resource-meter__label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: vars.$space-1 vars.$space-2;
+  font-variant-numeric: tabular-nums;
+}
+
+.resource-meter__track {
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: vars.$resource-track-size;
+  margin-block-start: vars.$space-1;
+  background: vars.$color-resource-track;
+
+  &::-webkit-meter-bar {
+    background: vars.$color-resource-track;
+    border: 0;
+    border-radius: 0;
+  }
+
+  &::-webkit-meter-optimum-value {
+    background: var(--resource-fill, #{vars.$color-resource-fill});
+  }
+
+  &::-moz-meter-bar {
+    background: var(--resource-fill, #{vars.$color-resource-fill});
+  }
+}
+
+.resource-meter__track--critical {
+  --resource-fill: #{vars.$color-resource-critical};
+}

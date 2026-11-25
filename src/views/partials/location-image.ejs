@@ -1,4 +1,4 @@
-<figure class="location-image<%= locals.banner ? ' location-image--banner' : '' %>">
+<figure class="location-image<%= locals.banner ? ' location-image--banner' : '' %><%= locals.flush ? ' location-image--flush' : '' %><%= locals.compact ? ' location-image--compact' : '' %>">
   <% if (locals.banner) { %>
   <img src="<%= src %>" alt="<%= banner.alt %>" width="<%= banner.width %>" height="<%= banner.height %>" decoding="async">
   <% } else { %>

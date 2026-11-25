@@ -1,0 +1,55 @@
+@use "../abstracts/vars";
+
+.link-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: vars.$space-2 vars.$space-4;
+}
+
+.link-nav--site {
+  padding-block: vars.$space-4;
+  border-block-start: vars.$border-width solid vars.$color-surface-border;
+
+  a {
+    color: vars.$color-muted;
+
+    &:hover {
+      color: vars.$color-text;
+    }
+
+    &[aria-current="page"] {
+      color: vars.$color-nav-active;
+      font-weight: vars.$weight-semibold;
+    }
+  }
+}
+
+.link-nav--auth {
+  gap: vars.$space-2 vars.$space-5;
+  margin-block-end: vars.$space-5;
+  border-block-end: vars.$border-width solid vars.$color-surface-border;
+}
+
+.link-nav--filters {
+  margin-block-end: vars.$space-3;
+
+  a {
+    padding-inline: vars.$space-2;
+  }
+
+  a[aria-current="page"] {
+    background: vars.$color-surface;
+  }
+}
+
+:is(.link-nav--auth, .link-nav--filters) a {
+  min-block-size: 1.5rem;
+  padding-block: vars.$space-1;
+  border-block-end: vars.$accent-width solid transparent;
+
+  &[aria-current="page"] {
+    border-color: vars.$color-nav-active;
+    color: vars.$color-text;
+  }
+}

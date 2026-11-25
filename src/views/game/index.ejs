@@ -1,9 +1,11 @@
-<section class="page quarters">
+<section class="quarters">
   <h2>The Quarters</h2>
 
   <div class="quarters-intro">
     <%- include("../partials/location-image", {
       src: "/images/home.webp",
+      flush: true,
+      compact: true,
       alt: "A stone-and-timber cottage with lit windows and machinery outside.",
       caption: "A place of your own in Nexaris.",
     }) %>
@@ -21,7 +23,7 @@
     <h3 id="character-heading">Character overview</h3>
     <div class="quarters-overview">
       <div class="quarters-identity">
-        <%- include("../partials/player-avatar", { player: user }) %>
+        <%- include("../partials/player-avatar", { player: user, inline: true }) %>
         <div>
           <p class="quarters-name"><%= formatPlayerName(user.name) %></p>
           <p class="text-muted">Level <%= formatNumber(progression.level) %> · <%= formatPlayerName(user.characterClass) %></p>
@@ -31,7 +33,7 @@
       <div class="quarters-details">
         <%- include("../partials/health-meter", { id: "quarters-hp" }) %>
 
-        <dl class="character-stats">
+        <dl class="character-stats character-stats--compact<%= progression.nextLevelXp !== null ? ' character-stats--three' : '' %>">
           <div class="character-stat quarters-gold">
             <dt>Gold</dt>
             <dd><%= formatNumber(user.gold) %></dd>
@@ -49,8 +51,8 @@
         </dl>
 
         <section aria-labelledby="combat-stats-heading">
-          <h4 id="combat-stats-heading">Combat stats</h4>
-          <dl class="character-stats">
+          <h4 class="section-heading" id="combat-stats-heading">Combat stats</h4>
+          <dl class="character-stats character-stats--compact character-stats--three">
             <div class="character-stat">
               <dt>Attack Power</dt>
               <dd><%- include("../partials/stat-total", { total: effectiveStats.attackPower, base: baseAttackPower }) %></dd>
@@ -71,10 +73,10 @@
 
         <section aria-labelledby="primary-attributes-heading">
           <div class="quarters-attributes-heading">
-            <h4 id="primary-attributes-heading">Primary attributes</h4>
+            <h4 class="section-heading" id="primary-attributes-heading">Primary attributes</h4>
             <p class="quarters-support"><%= formatNumber(progression.unspentPoints) %> unspent attribute <%= progression.unspentPoints === 1 ? "point" : "points" %></p>
           </div>
-          <dl class="character-stats">
+          <dl class="character-stats character-stats--compact character-stats--attributes">
             <div class="character-stat">
               <dt>Strength</dt>
               <dd><%= formatNumber(attributes.strength) %></dd>
@@ -103,14 +105,14 @@
     <h3 id="equipped-heading">Equipment</h3>
     <div class="quarters-equipment">
       <% for (const { slot, item } of equipment) { %>
-      <section class="quarters-slot" aria-labelledby="slot-<%= slot %>">
-        <h4 id="slot-<%= slot %>"><%= formatPlayerName(slot) %></h4>
+      <section class="equipment-slot" aria-labelledby="slot-<%= slot %>">
+        <h4 class="section-heading" id="slot-<%= slot %>"><%= formatPlayerName(slot) %></h4>
         <% if (item) { %>
         <%- include("../partials/item-figure", { item }) %>
         <%- include("../partials/item-effect", { effect: describeItemEffect(item.effect, item.effectValue) }) %>
         <form action="/game/inventory/unequip<%= actionQuery %>" method="POST">
           <input type="hidden" name="itemId" value="<%= item.id %>">
-          <button type="submit" class="button-secondary" aria-label="Unequip <%= item.name %>">Unequip</button>
+          <button type="submit" class="button--secondary" aria-label="Unequip <%= item.name %>">Unequip</button>
         </form>
         <% } else { %>
         <p class="quarters-support">No <%= slot %> equipped.</p>
@@ -122,7 +124,7 @@
 
   <section aria-labelledby="inventory-heading">
     <h3 id="inventory-heading">Inventory</h3>
-    <nav class="quarters-filters" aria-label="Inventory categories">
+    <nav class="link-nav link-nav--filters" aria-label="Inventory categories">
       <% for (const [key, label] of Object.entries(inventoryCategories)) { %>
       <a href="/game<%= key === "all" ? "" : "?category=" + key %>#inventory-heading"<% if (category === key) { %> aria-current="page"<% } %>><%= label %></a>
       <% } %>

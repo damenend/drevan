@@ -1,29 +1,31 @@
-<section class="page">
+<section>
   <h2><%= title %></h2>
-  <div class="driftwater-layout">
+  <div class="activity-layout activity-layout--driftwater">
     <section class="driftwater-fishing" aria-labelledby="driftwater-fishing-heading">
       <h3 id="driftwater-fishing-heading">Fishing</h3>
       <form action="/game/fishing" method="POST">
         <div class="driftwater-availability">
-          <div class="driftwater-casts">
-            <label for="driftwater-cast-meter">Daily casts remaining</label>
-            <span aria-hidden="true"><%= formatNumber(castsRemaining) %> / <%= formatNumber(dailyCastLimit) %></span>
-          </div>
-          <meter id="driftwater-cast-meter" min="0" max="<%= dailyCastLimit %>" value="<%= castsRemaining %>" aria-valuetext="<%= formatNumber(castsRemaining) %> of <%= formatNumber(dailyCastLimit) %>" aria-describedby="driftwater-reset"></meter>
-          <p id="driftwater-reset" class="text-muted">Resets daily at midnight Central Time.</p>
+          <%- include("../partials/resource-meter", {
+            id: "driftwater-cast-meter",
+            label: "Daily casts remaining",
+            value: castsRemaining,
+            max: dailyCastLimit,
+            descriptionId: "driftwater-reset",
+          }) %>
+          <p id="driftwater-reset" class="text-muted form-note">Resets daily at midnight Central Time.</p>
         </div>
-        <button type="submit"<% if (castsRemaining === 0) { %> disabled<% } %>>Cast line</button>
+        <button class="button--full" type="submit"<% if (castsRemaining === 0) { %> disabled<% } %>>Cast line</button>
         <% if (castsRemaining === 0) { %>
         <p class="driftwater-exhausted text-muted">You've used all your casts for today.</p>
         <% } %>
       </form>
 
       <section class="driftwater-result" aria-labelledby="driftwater-last-cast">
-        <h4 id="driftwater-last-cast">Last cast</h4>
+        <h4 class="section-heading" id="driftwater-last-cast">Last cast</h4>
         <% if (report?.kind === "caught") { %>
         <div class="item-group">
           <% if (report.image) { %>
-          <img src="<%= report.image %>" alt="" width="88" height="88" class="item-icon">
+          <img src="<%= report.image %>" alt="" width="88" height="88" class="item-icon item-icon--feature">
           <% } %>
           <div>
             <strong><%= report.name %></strong>
@@ -45,6 +47,7 @@
     <div class="driftwater-location">
       <%- include("../partials/location-image", {
         src: "/images/the-driftwater.webp",
+        flush: true,
         alt: "Glowing water laps against old stonework beneath a sky filled with distant worlds.",
         caption: "The shallows at The Driftwater.",
       }) %>
