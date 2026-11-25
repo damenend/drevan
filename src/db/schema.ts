@@ -1,3 +1,4 @@
+import type { RuinsDiscovery } from "../services/ruins-discoveries";
 import { sql } from "drizzle-orm";
 import {
   sqliteTable,
@@ -51,6 +52,10 @@ export const users = sqliteTable(
       .notNull()
       .default(false),
     recallDate: text("recall_date"),
+    ruinsDiscoveries: text("ruins_discoveries", { mode: "json" }).$type<
+      RuinsDiscovery[]
+    >(),
+    ruinsGoldClaimDate: text("ruins_gold_claim_date"),
   },
   (table) => [
     check(

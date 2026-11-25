@@ -254,9 +254,25 @@ try {
   assert.ok((await page.locator("details[open] .battle-log li").count()) > 0);
 
   await page.goto(base + "/game/ruins");
-  await page.getByRole("button", { name: "Enter The Ruins" }).click();
+  const originalRandom = Math.random;
   const playerTile = page.locator("[data-player-tile]");
-  await playerTile.waitFor();
+  try {
+    Math.random = () => 0;
+    await page.getByRole("button", { name: "Enter The Ruins" }).click();
+    await playerTile.waitFor();
+  } finally {
+    Math.random = originalRandom;
+  }
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Move east to (1, 0)", exact: true })
+      .count(),
+    1,
+  );
+  assert.doesNotMatch(
+    await page.locator("[data-ruins-map]").innerHTML(),
+    /gold-cache|potion-cache|gold discovery|item discovery/,
+  );
   await scan("expedition");
   for (
     let step = 0;
@@ -273,6 +289,7 @@ try {
   await page.keyboard.press("Enter");
   await page.locator('[data-position="1"]').waitFor();
   await scan("discovery");
+  await page.getByText(/You collect 8 gold/).waitFor();
   assert.equal(await page.locator("[data-player-tile]:focus").count(), 1);
   await page.keyboard.press("Tab");
   assert.equal(
@@ -307,11 +324,42 @@ try {
       "* {line-height:1.5 !important; letter-spacing:.12em !important; word-spacing:.16em !important} p {margin-block-end:2em !important}",
   });
   await scan("expedition-text-spacing");
+  applicationDatabase.exec("UPDATE users SET strength = 100, speed = 100");
+  for (const tile of [2, 9]) {
+    await page.locator(`button[name="destination"][value="${tile}"]`).click();
+    await page.locator(`[data-position="${tile}"]`).waitFor();
+  }
+  try {
+    Math.random = () => 0;
+    await page.getByRole("button", { name: "Fight", exact: true }).click();
+    await page.getByText(/Loot: Lesser Potion ×1, Metal Scraps ×1/).waitFor();
+  } finally {
+    Math.random = originalRandom;
+  }
+  await scan("victory-loot");
+  assert.equal(await page.locator(":focus").innerText(), "Battle summary");
+
   await page.setViewportSize({ width: 1280, height: 800 });
   await scan("expedition-wide");
   await page.getByRole("button", { name: "Activate Recall Beacon" }).click();
   await page.waitForURL("**/game/nexaris?**");
   await scan("recall-result");
+
+  await page.setViewportSize({ width: 320, height: 768 });
+  await page.goto(base + "/game");
+  const materialsLink = page.getByRole("link", {
+    name: "Materials",
+    exact: true,
+  });
+  await materialsLink.click();
+  assert.equal(await materialsLink.getAttribute("aria-current"), "page");
+  await page.getByRole("rowheader", { name: /Metal Scraps/ }).waitFor();
+  await scan("materials-inventory");
+  await scan("material-buyback", "/game/store");
+  await page.getByLabel("Quantity of Metal Scraps to sell").fill("1");
+  await page.getByRole("button", { name: "Sell", exact: true }).click();
+  await page.waitForURL("**/game/store?sold=1#sale-result");
+  assert.equal(await page.locator(":focus").innerText(), "Sale complete.");
 
   const nativeContext = await browser.newContext({
     storageState: await context.storageState(),

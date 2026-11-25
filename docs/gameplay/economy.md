@@ -6,13 +6,32 @@ Prepare in The Quarters, trade at Curious Emporium, and restore missing HP at Sa
 
 Inventory keeps one stack per player and item. Actions require positive owned quantity. Equipping reserves one copy in the matching weapon or armor slot. The Quarters shows that copy under Equipment and counts spares in Inventory. Effective stats include the bonuses of owned gear in the correct slots. Equipment changes preserve base stats. Rusted Sword grants +1 Attack Power and Worn Leather Armor grants +3 Defense.
 
-The Quarters filters available items by Equipment, Consumables, Fish, or Other. Missing or unknown `category` values show all. Use, Equip, and Unequip retain the selected category on redirect.
+The Quarters filters available items by Equipment, Consumables, Fish, Materials, or Other. Missing or unknown `category` values show all. Use, Equip, and Unequip retain the selected category on redirect.
 
 ## Buy and sell
 
 The Emporium uses server-side catalog prices. A null purchase price keeps the item off the purchase list. A blank quantity counts as zero. Purchases read current prices, balance, and owned counts, then deduct gold and add inventory in one transaction. Reject totals or stacks outside JavaScript's safe integer range and show the result after redirect.
 
-Buyback has its own catalog sell price. The Emporium accepts owned weapons, armor, and fish with positive sell prices. An equipped copy stays reserved. Selling checks current quantities, equipped slots, and available gold balance capacity before reducing stacks and crediting the payout together.
+Buyback has its own catalog sell price. The Emporium accepts owned weapons, armor, fish, and materials with positive sell prices. An equipped copy stays reserved. Selling checks current quantities, equipped slots, and available gold balance capacity before reducing stacks and crediting the payout together.
+
+## Ruins materials
+
+[Floor 1 victories](ruins.md#victory-loot) can award stackable materials. In The Quarters, use the **Materials** filter to see each stack, its description, and its sale price. Materials have no equipment or use actions. The Emporium buys them at the listed price per unit and keeps them out of purchase stock. For example, three Metal Scraps sell for six gold.
+
+Rarities are provisional design labels. The game uses the same inventory rules and shared placeholder icon for all ten materials. Individual icons can be assigned in the [material catalog](../../src/db/ruins-loot-catalog.ts). Fractured Energy Core currently serves as a sellable material. Relic identification and economic balancing remain future work.
+
+| Material              | Design rarity | Gold per unit | Description                                                                                                                                             |
+| --------------------- | ------------- | ------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metal Scraps          | Common        |             2 | Twisted remnants of machinery from an age long forgotten. Still worth something to the right merchant.                                                  |
+| Frayed Circuitry      | Common        |             3 | A tangled collection of conductive filaments. Whatever they once powered is unlikely to power anything again.                                           |
+| Shattered Alloy       | Common        |             4 | Fragments of an exceptionally durable alloy. Apparently, not durable enough.                                                                            |
+| Dormant Microchip     | Common        |             5 | A small component bearing microscopic inscriptions. Its original function remains a subject of considerable debate.                                     |
+| Enchantment Powder    | Uncommon      |             8 | Fine particles that retain traces of arcane energy. Handle with care and refrain from inhaling.                                                         |
+| Power Cell            | Uncommon      |            10 | A compact energy vessel recovered from old-world machinery. A faint hum suggests it has not entirely exhausted its charge.                              |
+| Arcane Residue        | Uncommon      |            12 | A viscous substance left behind by unstable magical reactions. It occasionally moves against gravity.                                                   |
+| Crystallized Aether   | Rare          |            25 | Arcane energy condensed into a remarkably stable crystalline form. Its light persists even in absolute darkness.                                        |
+| Fractured Energy Core | Rare          |            35 | The damaged heart of an ancient machine. Despite its fractured casing, something within continues to pulse.                                             |
+| Voidstone Fragment    | Rare          |            50 | A fragment of matter whose origin defies conventional explanation. Prolonged observation produces the unsettling sensation of being observed in return. |
 
 ## Heal
 

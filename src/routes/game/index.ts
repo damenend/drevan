@@ -68,6 +68,7 @@ router.get("/", (req, res) => {
       name: items.name,
       description: items.description,
       image: items.image,
+      sellPrice: items.sellPrice,
       type: items.type,
       quantity: inventory.quantity,
       effect: items.effect,

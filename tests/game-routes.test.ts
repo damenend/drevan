@@ -22,6 +22,8 @@ import {
 } from "../src/services/character-stats";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { materials } from "../src/db/ruins-loot-catalog";
+import type { RuinsDiscovery } from "../src/services/ruins-discoveries";
 import { getRuinsEncounter } from "../src/services/ruins-map";
 import { DAILY_CAST_LIMIT, getFishingDate } from "../src/services/fishing";
 
@@ -31,6 +33,7 @@ let sqlite: Database.Database;
 let server: Server;
 let baseUrl: string;
 let cookie: string;
+const firstMaterialId = 20;
 const account = {
   name: "test-adventurer",
   email: "test@example.test",
@@ -60,6 +63,19 @@ before(async () => {
     UPDATE items SET sell_price = 50 WHERE id = 2;
     UPDATE items SET sell_price = 1 WHERE id = 3;
   `);
+
+  const insertMaterial = sqlite.prepare(`
+    INSERT INTO items (id, name, description, type, sell_price, image)
+    VALUES (?, ?, ?, 'material', ?, '/images/material-placeholder.webp')
+  `);
+  for (const [index, item] of materials.entries()) {
+    insertMaterial.run(
+      firstMaterialId + index,
+      item.name,
+      item.description,
+      item.sellPrice,
+    );
+  }
 
   const { app } = await import("../src/app.js");
   server = app.listen(0, "127.0.0.1");
@@ -101,7 +117,8 @@ beforeEach(() => {
       intellect = 0, fortitude = 5, intellect_points = 0,
       exp = 0, strength_points = 0, agility_points = 0, fortitude_points = 0,
       fishing_casts_used = 0, fishing_cast_date = NULL,
-      ruins_tile = NULL, ruins_revision = 0, ruins_enemy_pending = 0, recall_date = NULL;
+      ruins_tile = NULL, ruins_revision = 0, ruins_enemy_pending = 0, recall_date = NULL,
+      ruins_discoveries = NULL, ruins_gold_claim_date = NULL;
   `);
 });
 
@@ -170,7 +187,9 @@ function player() {
 
 function ownedItems() {
   return sqlite
-    .prepare("SELECT item_id, quantity FROM inventory ORDER BY item_id")
+    .prepare<[], { item_id: number; quantity: number }>(
+      "SELECT item_id, quantity FROM inventory ORDER BY item_id",
+    )
     .all();
 }
 
@@ -442,20 +461,20 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
   assert.match((await viewRuins()).html, playerHit);
 });
 
-test("Fortitude migration preserves spent HP points and current health", () => {
+function copyLegacyMigrations(firstPendingTag: string) {
   const migrationsFolder = path.resolve(__dirname, "../drizzle");
-  const legacyFolder = path.join(testDirectory, "legacy-migrations");
+  const legacyFolder = path.join(testDirectory, firstPendingTag);
   mkdirSync(path.join(legacyFolder, "meta"), { recursive: true });
   const journal = JSON.parse(
     readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8"),
   ) as {
     entries: { tag: string }[];
   };
-  const fortitudeMigration = journal.entries.findIndex(
-    ({ tag }) => tag === "0011_fortitude",
+  const firstPending = journal.entries.findIndex(
+    ({ tag }) => tag === firstPendingTag,
   );
-  assert.ok(fortitudeMigration > 0);
-  journal.entries = journal.entries.slice(0, fortitudeMigration);
+  assert.ok(firstPending > 0);
+  journal.entries = journal.entries.slice(0, firstPending);
   for (const entry of journal.entries) {
     const migration = entry.tag + ".sql";
     copyFileSync(
@@ -468,6 +487,12 @@ test("Fortitude migration preserves spent HP points and current health", () => {
     JSON.stringify(journal),
   );
 
+  return { migrationsFolder, legacyFolder };
+}
+
+test("Fortitude migration preserves spent HP points and current health", () => {
+  const { migrationsFolder, legacyFolder } =
+    copyLegacyMigrations("0011_fortitude");
   const legacy = new Database(":memory:");
   try {
     const database = drizzle(legacy);
@@ -642,6 +667,91 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
   );
   assert.equal(player().gold, 202);
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
+});
+
+test("The Quarters filters materials and Emporium sells them at the direct catalog price", async (t) => {
+  const field = `item-${firstMaterialId}`;
+  const sale = (quantity: number) =>
+    post("/game/store/sell", { items: { [field]: quantity }, sellPrice: 999 });
+  assert.equal((await sale(1)).status, 409);
+  assert.equal(player().gold, 100);
+  assert.deepEqual(ownedItems(), []);
+
+  sqlite.exec(`
+    INSERT INTO inventory (user_id, item_id, quantity)
+    SELECT id, ${firstMaterialId}, 3 FROM users
+    UNION ALL SELECT id, 1, 1 FROM users;
+  `);
+  const bag = await request("/game?category=materials", {
+    headers: { cookie },
+  });
+  assert.match(
+    bag.html,
+    /category=materials#inventory-heading" aria-current="page"/,
+  );
+  assert.match(bag.html, /material-placeholder\.webp/);
+  assert.match(bag.html, /Metal Scraps/);
+  assert.match(bag.html, /Twisted remnants of machinery/);
+  assert.match(bag.html, /Sells for 2 gold each/);
+  assert.match(bag.html, /quarters-quantity">\s*3\s*</);
+  assert.doesNotMatch(bag.html, /Lesser Potion|action="\/game\/inventory\//);
+
+  const store = await request("/game/store", { headers: { cookie } });
+  const [buy, sell] = store.html.split('<section id="sell"');
+  assert.doesNotMatch(buy, /Metal Scraps/);
+  assert.match(
+    sell,
+    new RegExp(`id="sell-${firstMaterialId}"[^>]*max="3"[^>]*data-price="2"`),
+  );
+
+  assert.equal(
+    (await post("/game/store", { items: { [field]: 1 } })).headers.get(
+      "location",
+    ),
+    "/game/store?err=invalid",
+  );
+  const owned = ownedItems();
+  for (const [quantity, status] of [
+    [-1, 400],
+    [0, 400],
+    [1.5, 400],
+    [4, 409],
+  ]) {
+    assert.equal((await sale(quantity)).status, status);
+    assert.deepEqual(ownedItems(), owned);
+    assert.equal(player().gold, 100);
+  }
+
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    CREATE TRIGGER fail_material_sale BEFORE UPDATE OF gold ON users
+    BEGIN
+      SELECT RAISE(ABORT, 'Test material sale failure');
+    END;
+  `);
+  try {
+    assert.equal((await sale(2)).status, 500);
+    assert.deepEqual(ownedItems(), owned);
+    assert.equal(player().gold, 100);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_material_sale");
+  }
+
+  assert.equal(
+    (await sale(2)).headers.get("location"),
+    "/game/store?sold=1#sale-result",
+  );
+  assert.equal(player().gold, 104);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: firstMaterialId, quantity: 1 },
+  ]);
+  assert.equal((await sale(1)).status, 303);
+  assert.equal(player().gold, 106);
+  const empty = await request("/game?category=materials", {
+    headers: { cookie },
+  });
+  assert.match(empty.html, /No items in this category/);
 });
 
 test("Emporium preserves stock when crediting sale gold fails", async (t) => {
@@ -854,6 +964,8 @@ test("training rejects malformed levels and saves the fight result", async (t) =
   );
   assert.equal(fight.status, 200);
   assert.match(fight.html, /Training Dummy/);
+  assert.doesNotMatch(fight.html, /Loot:/);
+  assert.deepEqual(ownedItems(), []);
   const refresh = await request("/game/training", { headers: { cookie } });
   assert.equal(refresh.headers.get("location"), "/game/arena");
   assert.deepEqual(player(), {
@@ -1036,6 +1148,43 @@ test("only one request spends the last fishing cast and awards a catch", async (
   assert.equal(player().fishing_casts_used, 50);
 });
 
+test("discovery migration preserves an active expedition and its earned rewards", () => {
+  const { migrationsFolder, legacyFolder } = copyLegacyMigrations(
+    "0014_randomized_ruins_discoveries",
+  );
+  const legacy = new Database(":memory:");
+  try {
+    const database = drizzle(legacy);
+    migrate(database, { migrationsFolder: legacyFolder });
+    legacy.exec(`
+      INSERT INTO users (id, name, email, password_hash, gold, hp, exp, ruins_tile, ruins_revision, ruins_enemy_pending, recall_date)
+      VALUES (1, 'Legacy', 'legacy@example.test', 'unused', 168, 21, 30, 9, 12, 1, '2026-07-02');
+      INSERT INTO items (id, name, description) VALUES (1, 'Lesser Potion', 'Test potion');
+      INSERT INTO inventory (user_id, item_id, quantity) VALUES (1, 1, 4);
+    `);
+    const readState = () =>
+      legacy
+        .prepare(
+          "SELECT gold, hp, exp, ruins_tile, ruins_revision, ruins_enemy_pending, recall_date FROM users",
+        )
+        .get();
+    const before = readState();
+    migrate(database, { migrationsFolder });
+    assert.deepEqual(readState(), before);
+    assert.deepEqual(legacy.prepare("SELECT quantity FROM inventory").get(), {
+      quantity: 4,
+    });
+    assert.deepEqual(
+      legacy
+        .prepare("SELECT ruins_discoveries, ruins_gold_claim_date FROM users")
+        .get(),
+      { ruins_discoveries: null, ruins_gold_claim_date: null },
+    );
+  } finally {
+    legacy.close();
+  }
+});
+
 const ruinsPage = "/game/ruins";
 
 function ruinsState() {
@@ -1047,11 +1196,13 @@ function ruinsState() {
         ruins_revision: number;
         ruins_enemy_pending: number;
         recall_date: string | null;
+        ruins_discoveries: string | null;
+        ruins_gold_claim_date: string | null;
         exp: number;
         fortitude_points: number;
       }
     >(
-      "SELECT ruins_tile, ruins_revision, ruins_enemy_pending, recall_date, exp, fortitude_points FROM users WHERE email = 'test@example.test'",
+      "SELECT ruins_tile, ruins_revision, ruins_enemy_pending, recall_date, ruins_discoveries, ruins_gold_claim_date, exp, fortitude_points FROM users WHERE email = 'test@example.test'",
     )
     .get()!;
 }
@@ -1069,13 +1220,31 @@ function viewRuins(session = cookie) {
   return request(ruinsPage, { headers: { cookie: session } });
 }
 
-async function reachScavenger() {
+function placedCaches(): RuinsDiscovery[] | null {
+  const { ruins_discoveries: json } = ruinsState();
+  return json ? JSON.parse(json) : null;
+}
+
+async function enterWithFixtureCaches() {
   await explore("enter");
+  assert.equal(ruinsState().ruins_tile, 0);
+  sqlite.prepare("UPDATE users SET ruins_discoveries = ?").run(
+    JSON.stringify([
+      { id: "gold-cache", tile: 1, claimed: false },
+      { id: "potion-cache", tile: 14, claimed: false },
+    ]),
+  );
+}
+
+async function reachScavenger() {
+  await enterWithFixtureCaches();
   for (const tile of [1, 2, 9]) await explore("move", tile);
   assert.equal(ruinsState().ruins_tile, 9);
 }
 
-test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit", async () => {
+test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit", async (t) => {
+  const rolls = [0, 0.24];
+  const random = t.mock.method(Math, "random", () => rolls.shift() ?? 0.99);
   assert.equal((await request(ruinsPage)).headers.get("location"), "/");
   assert.match(
     (await request("/game/nexaris", { headers: { cookie } })).html,
@@ -1095,14 +1264,19 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
     /data-player-tile role="img" aria-label="Your position \(0, 0\), entrance and exit"/,
   );
   assert.match(start.html, /src="\/js\/ruins-map\.js" defer/);
-  assert.match(
+  assert.match(start.html, /aria-label="Move east to \(1, 0\)">·</);
+  assert.doesNotMatch(
     start.html,
-    /aria-label="Move east to \(1, 0\), gold discovery">G</,
+    /gold discovery|item discovery|gold-cache|potion-cache|ruins-tile--gold|ruins-tile--item|loose slab|cracked supply case/i,
   );
-  assert.equal(
-    (start.html.match(/ruins-tile--item" aria-hidden="true">I</g) ?? []).length,
-    1,
-  );
+  const originalCaches = placedCaches();
+  assert.deepEqual(originalCaches, [
+    { id: "gold-cache", tile: 1, claimed: false },
+    { id: "potion-cache", tile: 14, claimed: false },
+  ]);
+  await explore("enter", undefined, 0);
+  assert.deepEqual(placedCaches(), originalCaches);
+  assert.equal(random.mock.callCount(), 2);
   assert.equal(
     (start.html.match(/ruins-tile--enemy" aria-hidden="true">X</g) ?? [])
       .length,
@@ -1140,7 +1314,12 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
     /ruins-notice--discovery[\s\S]*You collect 8 gold/,
   );
   assert.equal(player().gold, 108);
-  assert.match((await viewRuins()).html, /Position \(1, 0\)/);
+  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
+  assert.doesNotMatch(goldPage.html, /cracked supply case|potion-cache/);
+  const refreshed = (await viewRuins()).html;
+  assert.match(refreshed, /Position \(1, 0\)/);
+  assert.match(refreshed, /You already collected this cache/);
+  assert.equal(placedCaches()?.[0].claimed, true);
   await explore("exit");
   assert.equal(ruinsState().ruins_tile, 1);
 
@@ -1156,7 +1335,7 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   const itemPage = await request(itemLocation, { headers: { cookie } });
   assert.match(
     itemPage.html,
-    /ruins-notice--discovery[\s\S]*You collect a Lesser Potion/,
+    /ruins-notice--discovery[\s\S]*You collect 1 × Lesser Potion/,
   );
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: 1 },
@@ -1168,7 +1347,9 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
     "/game/nexaris",
   );
   assert.equal(ruinsState().ruins_tile, null);
+  assert.equal(placedCaches(), null);
   await explore("enter");
+  assert.notDeepEqual(placedCaches(), originalCaches);
   assert.equal(ruinsState().ruins_tile, 0);
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: 1 },
@@ -1181,14 +1362,16 @@ test("Ruins location survives logout and login, and other gameplay is blocked", 
     "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 2, 1 FROM users",
   );
   await post("/game/inventory/equip", { itemId: 2 });
-  await explore("enter");
+  await enterWithFixtureCaches();
   await explore("move", 7);
+  const beforeLogout = placedCaches();
   const logout = await post("/logout");
   assert.equal(logout.headers.get("location"), "/");
   assert.equal((await viewRuins()).headers.get("location"), "/");
   const login = await post("/login", account, "");
   assert.equal(login.headers.get("location"), ruinsPage);
   cookie = sessionCookie(login);
+  assert.deepEqual(placedCaches(), beforeLogout);
   assert.match((await viewRuins()).html, /Position \(0, 1\)/);
 
   for (const path of [
@@ -1232,7 +1415,7 @@ test("Ruins Recall Beacon is permanent and resets at midnight Central time", asy
     apis: ["Date"],
     now: new Date("2026-07-03T04:59:59Z"),
   });
-  await explore("enter");
+  await enterWithFixtureCaches();
   await explore("move", 1);
   assert.match(
     (await explore("recall")).headers.get("location") ?? "",
@@ -1243,7 +1426,7 @@ test("Ruins Recall Beacon is permanent and resets at midnight Central time", asy
   assert.equal(player().gold, 108);
   assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
 
-  await explore("enter");
+  await enterWithFixtureCaches();
   assert.match((await viewRuins()).html, /on cooldown/);
   await explore("recall");
   assert.equal(ruinsState().ruins_tile, 0);
@@ -1256,7 +1439,7 @@ test("Ruins Recall Beacon is permanent and resets at midnight Central time", asy
 });
 
 test("a failed Ruins move rolls back the discovery and allows a retry", async (t) => {
-  await explore("enter");
+  await enterWithFixtureCaches();
   await explore("move", 7);
   assert.equal(ruinsState().ruins_tile, 7);
   const initial = ruinsState();
@@ -1285,9 +1468,89 @@ test("a failed Ruins move rolls back the discovery and allows a retry", async (t
   ]);
 });
 
+test("cache claims survive revisits and gold is available again at Central midnight", async (t) => {
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-07-03T04:59:59Z"),
+  });
+  await enterWithFixtureCaches();
+  for (const tile of [1, 0, 1, 0, 7, 14, 7, 14, 7, 0])
+    await explore("move", tile);
+  assert.equal(player().gold, 108);
+  assert.equal(ownedItems()[0].quantity, 1);
+  assert.ok(placedCaches()?.every(({ claimed }) => claimed));
+  await explore("exit");
+
+  await enterWithFixtureCaches();
+  const blocked = await followAction(await explore("move", 1));
+  assert.match(blocked.html, /after midnight Central time/);
+  assert.equal(player().gold, 108);
+  assert.equal(placedCaches()?.[0].claimed, false);
+
+  t.mock.timers.tick(1000);
+  for (const tile of [0, 1, 0, 7, 14]) await explore("move", tile);
+  assert.equal(player().gold, 116);
+  assert.equal(ruinsState().ruins_gold_claim_date, "2026-07-03");
+  assert.equal(ownedItems()[0].quantity, 2);
+  await explore("recall");
+  assert.equal(placedCaches(), null);
+  assert.equal(ruinsState().ruins_gold_claim_date, "2026-07-03");
+
+  await enterWithFixtureCaches();
+  await explore("move", 1);
+  assert.equal(player().gold, 116);
+});
+
+test("capped gold and full inventory leave caches available for retry", async () => {
+  await enterWithFixtureCaches();
+  sqlite.prepare("UPDATE users SET gold = ?").run(Number.MAX_SAFE_INTEGER);
+  sqlite
+    .prepare(
+      "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, ? FROM users",
+    )
+    .run(Number.MAX_SAFE_INTEGER);
+  assert.match(
+    (await followAction(await explore("move", 1))).html,
+    /cannot carry any more gold/,
+  );
+  assert.equal(ruinsState().ruins_gold_claim_date, null);
+  for (const tile of [0, 7]) await explore("move", tile);
+  assert.match(
+    (await followAction(await explore("move", 14))).html,
+    /cannot carry any more of this item/,
+  );
+  assert.ok(placedCaches()?.every(({ claimed }) => !claimed));
+
+  sqlite.prepare("UPDATE users SET gold = ?").run(Number.MAX_SAFE_INTEGER - 3);
+  sqlite
+    .prepare("UPDATE inventory SET quantity = ? WHERE item_id = 1")
+    .run(Number.MAX_SAFE_INTEGER - 1);
+  for (const tile of [7, 14, 7, 0]) await explore("move", tile);
+  assert.match(
+    (await followAction(await explore("move", 1))).html,
+    /You collect 3 gold/,
+  );
+  assert.equal(player().gold, Number.MAX_SAFE_INTEGER);
+  assert.equal(ownedItems()[0].quantity, Number.MAX_SAFE_INTEGER);
+  assert.ok(placedCaches()?.every(({ claimed }) => claimed));
+});
+
+test("an expedition already underway before migration receives no caches until re-entry", async () => {
+  sqlite.exec(
+    "UPDATE users SET ruins_tile = 0, ruins_revision = 5, gold = 116",
+  );
+  for (const tile of [1, 0, 7, 14, 7, 0]) await explore("move", tile);
+  assert.equal(player().gold, 116);
+  assert.deepEqual(ownedItems(), []);
+  assert.equal(placedCaches(), null);
+  await explore("exit");
+  await explore("enter");
+  assert.equal(placedCaches()?.length, 2);
+});
+
 test("Ruins fights are optional and a victory applies HP, XP and gold once", async (t) => {
   sqlite.exec("UPDATE users SET strength = 100, speed = 100, exp = 30");
-  t.mock.method(Math, "random", () => 0.99);
+  const random = t.mock.method(Math, "random", () => 0);
   await reachScavenger();
   assert.equal(player().hp, 25);
   assert.equal(ruinsState().exp, 30);
@@ -1298,24 +1561,29 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   );
 
   await explore("ignore");
+  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
   assert.doesNotMatch((await viewRuins()).html, /Vault Scavenger/);
   await explore("engage");
   assert.equal(ruinsState().exp, 30);
   await explore("move", 2);
   await explore("move", 9);
 
+  random.mock.mockImplementation(() => 0.99);
+  const beforeFight = placedCaches();
   const revision = ruinsState().ruins_revision;
   await Promise.all([
     explore("engage", undefined, revision),
     explore("engage", undefined, revision),
   ]);
   assert.equal(ruinsState().ruins_tile, 9);
+  assert.deepEqual(placedCaches(), beforeFight);
   assert.equal(ruinsState().exp, 60);
   // The route to the Scavenger collects 8 gold before the maximum 35-gold win.
   assert.equal(player().gold, 100 + 8 + 35);
   assert.equal(player().hp, 21);
   const report = (await viewRuins()).html;
   assert.match(report, /wins\./);
+  assert.doesNotMatch(report, /Loot:/);
   assert.match(
     report,
     /Surroundings[\s\S]*Reward: 35 gold, 30 XP[\s\S]*<details class="battle-details">/,
@@ -1324,10 +1592,11 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   assert.doesNotMatch((await viewRuins()).html, /wins\./);
 });
 
-test("a minimum-gold Scavenger victory stacks and reports one potion even if replayed", async (t) => {
+test("a Scavenger victory stacks and reports multiple drops once even if replayed", async (t) => {
   sqlite.exec(`
     UPDATE users SET strength = 100, speed = 100;
-    INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 2 FROM users;
+    INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 2 FROM users
+    UNION ALL SELECT id, ${firstMaterialId}, 2 FROM users;
   `);
   t.mock.method(Math, "random", () => 0);
   await reachScavenger();
@@ -1338,13 +1607,20 @@ test("a minimum-gold Scavenger victory stacks and reports one potion even if rep
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: 3 },
     { item_id: 4, quantity: 1 },
+    ...materials.slice(0, 8).map((_, index) => ({
+      item_id: firstMaterialId + index,
+      quantity: index === 0 ? 3 : 1,
+    })),
   ]);
   assert.equal(player().gold, 100 + 8 + 25);
   assert.equal(ruinsState().exp, 30);
   const report = (await viewRuins()).html;
   assert.match(report, /Reward: 25 gold, 30 XP/);
-  assert.match(report, /Loot: Lesser Potion/);
-  assert.doesNotMatch((await viewRuins()).html, /Loot: Lesser Potion/);
+  assert.match(
+    report,
+    /Loot: Lesser Potion ×1, Metal Scraps ×1, Frayed Circuitry ×1/,
+  );
+  assert.doesNotMatch((await viewRuins()).html, /Lesser Potion ×/);
 });
 
 test("a Scavenger loot roll at the cutoff grants no potion", async (t) => {
@@ -1354,11 +1630,15 @@ test("a Scavenger loot roll at the cutoff grants no potion", async (t) => {
 
   await explore("engage");
   assert.equal(ruinsState().exp, 30);
-  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
-  assert.doesNotMatch((await viewRuins()).html, /Loot: Lesser Potion/);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 4, quantity: 1 },
+    { item_id: firstMaterialId, quantity: 1 },
+    { item_id: firstMaterialId + 1, quantity: 1 },
+  ]);
+  assert.doesNotMatch((await viewRuins()).html, /Lesser Potion ×/);
 });
 
-test("a full potion stack leaves the Scavenger victory intact without reporting loot", async (t) => {
+test("a full potion stack leaves the Scavenger victory and other loot intact", async (t) => {
   sqlite.exec("UPDATE users SET strength = 100, speed = 100;");
   sqlite
     .prepare(
@@ -1373,17 +1653,50 @@ test("a full potion stack leaves the Scavenger victory intact without reporting 
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: Number.MAX_SAFE_INTEGER },
     { item_id: 4, quantity: 1 },
+    { item_id: firstMaterialId, quantity: 1 },
+    { item_id: firstMaterialId + 1, quantity: 1 },
+    { item_id: firstMaterialId + 2, quantity: 1 },
   ]);
-  assert.doesNotMatch((await viewRuins()).html, /Loot: Lesser Potion/);
+  assert.doesNotMatch((await viewRuins()).html, /Lesser Potion ×/);
+});
+
+test("a failed Ruins reward write rolls back loot and leaves the encounter pending", async (t) => {
+  sqlite.exec("UPDATE users SET strength = 100, speed = 100");
+  t.mock.method(Math, "random", () => 0);
+  t.mock.method(console, "error", () => {});
+  await reachScavenger();
+  const initial = player();
+  const expedition = ruinsState();
+  const owned = ownedItems();
+  sqlite.exec(`
+    CREATE TRIGGER fail_ruins_reward BEFORE UPDATE OF exp ON users
+    BEGIN
+      SELECT RAISE(ABORT, 'Test Ruins reward write failure');
+    END;
+  `);
+  try {
+    assert.equal((await explore("engage")).status, 500);
+    assert.deepEqual(player(), initial);
+    assert.deepEqual(ruinsState(), expedition);
+    assert.deepEqual(ownedItems(), owned);
+    assert.doesNotMatch((await viewRuins()).html, /Loot:/);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_ruins_reward");
+  }
+  assert.equal((await explore("engage")).status, 303);
+  assert.equal(ruinsState().exp, 30);
+  assert.match((await viewRuins()).html, /Metal Scraps ×1/);
 });
 
 test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires healing", async (t) => {
   sqlite.exec("UPDATE users SET hp = 1, speed = 1");
-  t.mock.method(Math, "random", () => 0.5);
+  t.mock.method(Math, "random", () => 0.25);
   await reachScavenger();
   const fight = await explore("engage");
   assert.equal(fight.headers.get("location"), "/game/nexaris");
   assert.equal(ruinsState().ruins_tile, null);
+  assert.equal(placedCaches(), null);
+  assert.ok(ruinsState().ruins_gold_claim_date);
   assert.equal(ruinsState().exp, 0);
   assert.equal(player().hp, 0);
   assert.equal(player().gold, 108);
@@ -1405,14 +1718,14 @@ test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires h
 
 test("Ruins draw applies damage but ends the expedition without combat rewards", async (t) => {
   const encounter = getRuinsEncounter(9);
-  assert.ok(encounter?.kind === "enemy");
+  assert.ok(encounter);
   const originalHp = encounter.enemy.hp;
   encounter.enemy.hp = 100000;
   t.after(() => {
     encounter.enemy.hp = originalHp;
   });
   sqlite.exec("UPDATE users SET hp = 100000, fortitude = 33330, strength = 1");
-  t.mock.method(Math, "random", () => 0.5);
+  t.mock.method(Math, "random", () => 0.25);
 
   await reachScavenger();
   assert.equal(
@@ -1421,8 +1734,11 @@ test("Ruins draw applies damage but ends the expedition without combat rewards",
   );
   assert.equal(ruinsState().ruins_tile, null);
   assert.equal(player().gold, 108);
+  assert.equal(placedCaches(), null);
+  assert.ok(ruinsState().ruins_gold_claim_date);
   assert.equal(ruinsState().exp, 0);
   assert.ok(player().hp > 0 && player().hp < 100000);
+  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
   assert.match(
     (await request("/game/nexaris", { headers: { cookie } })).html,
     /ended in a draw/,
@@ -1434,7 +1750,7 @@ test("Ruins use normal healing and attribute allocation without moving", async (
   sqlite.exec(
     "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 1, 2 FROM users",
   );
-  await explore("enter");
+  await enterWithFixtureCaches();
   await explore("move", 7);
   const before = await viewRuins();
   assert.match(

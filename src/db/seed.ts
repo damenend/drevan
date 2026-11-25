@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { db } from "./index";
 import { RECALL_BEACON } from "../services/ruins-map";
+import { LESSER_POTION, materials } from "./ruins-loot-catalog";
 import { items } from "./schema";
 
 type Item = typeof items.$inferInsert;
@@ -12,7 +13,7 @@ type Item = typeof items.$inferInsert;
 async function seed() {
   const potions: Item[] = [
     {
-      name: "Lesser Potion",
+      name: LESSER_POTION,
       description: "A mild restorative in a travel-sized vial.",
       price: 5,
       type: "consumable",
@@ -112,6 +113,14 @@ async function seed() {
       ...weapons,
       ...armor,
       ...fish,
+      ...materials.map((material) => ({
+        type: "material",
+        price: null,
+        effect: null,
+        effectValue: null,
+        image: "/images/material-placeholder.webp",
+        ...material,
+      })),
       {
         name: RECALL_BEACON,
         description:

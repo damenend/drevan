@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-**Next milestone.** Ship one gold-cache claim per Central day and one potion-cache claim per expedition (6a). Then expand Floor 1 victory loot (7) and connect the first material drops to inventory and buyback (13). The reduced-marker map (6b) can progress in parallel once its discovery and encounter flow is ready to test.
+**Next milestone.** Finish the reduced-marker map (6b) or continue fixed-stat equipment drops (7). Floor 1 now has hidden, randomized caches with split claim limits (6a), plus material drops and buyback (7 and 13). Economy tuning and longer playtests can follow in a later milestone.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse shared systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
@@ -61,28 +61,23 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 
 ### 6a. Adopt split Floor 1 cache claims (P1 · Medium)
 
-- **Status.** Active.
-- **Evidence.** Caches currently pay on every arrival. The [paired comparison](../audits/balance-playtests.md#floor-1-repeat-cache-comparison) found that the split rule reduced repeat gold income while preserving clear rates under the tested route and healing policy. The [live route trial](../audits/balance-playtests.md#floor-1-live-cache-trial) verified persistence and payouts in a disposable copy.
-- **Dependencies.** Persistent expeditions (6) and the existing Central game date.
-- **Scope.** Adopt daily gold and a potion per expedition. Define how an in-progress expedition starts tracking claims after migration and how full stacks or capped balances affect claims. Save each successful payout and claim together with the movement revision, and explain claimed or unavailable caches to the player.
-- **Done when.** Route coverage verifies old saves, repeat arrivals, stale submissions, logout and login, and Central midnight while inside. Walking out, Recall, defeat, and draw allow a fresh potion claim on re-entry while the daily gold claim persists. Track whether players re-enter solely for potions and how often Scavenger drops provide usable healing before adjusting supply.
+- **Status.** Complete.
+- **Delivered.** Floor 1 places a hidden gold cache and potion cache when an expedition starts. Claims follow [the discovery rules](../gameplay/ruins.md#exploration-discoveries) and save with movement. Existing expeditions retain earned rewards and receive randomized caches on their next entry.
+- **Deferred.** Measure route efficiency, potion supply, and realized income in a dedicated playtest.
 
 ### 6b. Playtest Floor 1 with reduced map markers (P1 · Medium)
 
 - **Status.** Planned.
-- **Dependencies.** Floor 1 exploration (6). Can proceed independently of the payout change (6a).
-- **Scope.** Hide cache and enemy spoilers in the map, marker list, and movement labels. Reveal the sealed stairs on arrival. At narrow widths, bring discovery and empty-cache feedback, current HP, and **Fight** and **Pass by** into view when relevant. Make walkout and Recall easy to locate and verify focus after both exits.
+- **Dependencies.** Floor 1 exploration (6). Cache locations are already hidden (6a).
+- **Scope.** Hide enemy spoilers in the map, marker list, and movement labels. Reveal the sealed stairs on arrival. At narrow widths, bring discovery and empty-cache feedback, current HP, and **Fight** and **Pass by** into view when relevant. Make walkout and Recall easy to locate and verify focus after both exits.
 - **Done when.** First-time players can orient themselves without a known route, notice discoveries, make a fight or retreat decision, and return to Nexaris. Check keyboard and screen-reader discovery and encounter feedback, battle summary and log, and return focus. Repeat the 320 CSS pixel walkthrough and browser regression checks. The [reduced-marker trial](../audits/balance-playtests.md#reduced-markers-at-320-css-pixels) records the baseline.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
-- **Status.** Planned. The first victory drop is implemented.
-- **Progress.** Ruins victories have enemy-specific gold ranges. The Vault Scavenger rolls a 20% chance of one Lesser Potion, saved with the fight and shown in the battle report when awarded. Keep that provisional rate and the Alloy Warden's tougher role for the next pass. See the [full expedition results](../audits/balance-playtests.md#full-floor-1-expeditions).
-- **Dependencies.** Playtested expeditions (6), split cache claims (6a), the item catalog, and stackable inventory.
-- **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies continue to award gold and XP on a win.
-- **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest. Release material drops alongside buyback (13) or give the materials a usable purpose at release. Materials can support future crafting, salvaging, and services at The Forge.
-- **Scope limits.** Use fixed item stats and keep procedural gear, elaborate rarity systems, and crafting for later design. Players can use eligible healing potions inside The Ruins. Equipment changes and selling require returning to Nexaris. Material selling follows in milestone 13.
-- **Done when.** Each qualifying victory rolls loot once and saves the drops together with HP, gold, XP, and expedition state. Repeated submissions cannot grant extra rewards. The battle report shows what dropped, and repeat drops add to existing inventory stacks.
+- **Status.** Active.
+- **Progress.** The Scavenger and Warden award stackable materials through [Floor 1 victory loot tables](../gameplay/ruins.md#victory-loot). The Scavenger keeps its Lesser Potion roll. The battle report lists awarded quantities, and the drops save with the fight. Materials can be sold through milestone 13.
+- **Dependencies.** Playtested expeditions (6), the item catalog, and stackable inventory. Randomized caches (6a) have their own discovery rules. Victory loot rolls separately and uses the same inventory stacks.
+- **Remaining.** Add and verify fixed-stat equipment drops. Reinforced Bracers and Ancient Blade are candidates. Defer payout and drop-rate tuning to a dedicated playtest.
 
 ## P2 — Medium: Character depth and supporting gameplay
 
@@ -124,10 +119,8 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 
 ### 13. Add material selling and a Materials inventory filter (P2 · Medium)
 
-- **Status.** Planned.
-- **Dependencies.** Emporium buyback (3) and the first material definitions and drop sources (7). Buyback and the filter can be built against those definitions and released with the drops.
-- **Scope.** Extend Emporium buyback to materials and add a Materials filter using the existing inventory stacks. Collectibles remain a future category.
-- **Done when.** Players can find their materials and sell a valid quantity at the listed price. Gold and inventory update together, and failed sales leave both intact.
+- **Status.** Complete.
+- Players can view Materials in The Quarters and sell owned quantities at Curious Emporium. The sale updates gold and inventory together at the [catalog prices](../gameplay/economy.md#ruins-materials). Collectibles remain a future category.
 
 ### 13a. Pilot a boss bounty (P2 · Medium)
 
@@ -201,7 +194,7 @@ These entries are candidates for design and playtesting. Their completion criter
 ### 20. Advanced exploration and relic identification (P4 · Large)
 
 - **Status.** Exploratory.
-- **Dependencies.** Basic Ruins expeditions (6) and The Reliquary.
+- **Dependencies.** Basic Ruins expeditions (6), the [discovery foundation](../gameplay/ruins.md#exploration-discoveries) (6a), and The Reliquary.
 - **Scope.** Consider deeper encounters, discoveries, and exploration-specific rewards. The Fractured Energy Core could begin as a collectible or valuable artifact, then gain identification and lore at The Reliquary.
 - **Done when.** A first expanded encounter or relic gives players a reason to return and a clear way to discover its outcome or lore.
 

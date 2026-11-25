@@ -99,6 +99,13 @@
       "when": 1795473550744,
       "tag": "0013_character_class_and_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1795643772312,
+      "tag": "0014_randomized_ruins_discoveries",
+      "breakpoints": true
     }
   ]
 }

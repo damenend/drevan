@@ -6,6 +6,7 @@ export const inventoryCategories = {
   equipment: "Equipment",
   consumables: "Consumables",
   fish: "Fish",
+  materials: "Materials",
   other: "Other",
 } as const;
 
@@ -21,6 +22,7 @@ export function getItemCategory(type: string) {
   if (getEquipmentColumn(type)) return "equipment";
   if (type === "consumable") return "consumables";
   if (type === "fish") return "fish";
+  if (type === "material") return "materials";
   return "other";
 }
 

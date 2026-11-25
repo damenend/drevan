@@ -50,6 +50,7 @@ function findPlayer(userId: number) {
       ruinsTile: users.ruinsTile,
       ruinsRevision: users.ruinsRevision,
       ruinsEnemyPending: users.ruinsEnemyPending,
+      ruinsDiscoveries: users.ruinsDiscoveries,
       recallDate: users.recallDate,
     })
     .from(users)

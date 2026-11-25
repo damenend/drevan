@@ -1,8 +1,14 @@
-import { and, eq, gt, or } from "drizzle-orm";
+import { and, eq, gt, inArray, or } from "drizzle-orm";
 import { db } from "../db";
 import { inventory, items, users } from "../db/schema";
 import { formatNumber } from "../utils/format-number";
 import { getGameDate } from "../utils/game-date";
+import {
+  discoveryDefinitions,
+  generateRuinsDiscoveries,
+  getRuinsDiscovery,
+} from "./ruins-discoveries";
+import { rollRuinsLoot } from "./ruins-loot";
 import { grantInventoryItem } from "./inventory";
 import { resolvePlayerBattle, type PlayerBattleReport } from "./player-battle";
 import {
@@ -18,12 +24,11 @@ type RuinsAction =
 
 export type RuinsBattle = PlayerBattleReport & {
   enemyName: string;
-  loot?: string;
+  loot: { name: string; quantity: number }[];
 };
 
 type ActionResult = {
   message?: string;
-  discovery?: "gold" | "item";
   left?: boolean;
   battle?: RuinsBattle;
 };
@@ -110,6 +115,7 @@ export function actInRuins(
           .onConflictDoNothing({ target: [inventory.userId, inventory.itemId] })
           .run();
         changes.ruinsTile = RUINS_ENTRANCE;
+        changes.ruinsDiscoveries = generateRuinsDiscoveries();
         changes.ruinsEnemyPending = false;
         if (grant.changes) result.message = "You receive a Recall Beacon.";
       } else {
@@ -122,34 +128,59 @@ export function actInRuins(
             if (!canMoveInRuins(position, destination)) {
               return { message: "Choose a square directly beside you." };
             }
-            const encounter = getRuinsEncounter(destination);
             changes.ruinsTile = destination;
-            changes.ruinsEnemyPending = encounter?.kind === "enemy";
-            if (encounter?.kind === "gold") {
+            changes.ruinsEnemyPending = Boolean(getRuinsEncounter(destination));
+            const discovery = getRuinsDiscovery(
+              player.ruinsDiscoveries,
+              destination,
+            );
+            if (!discovery) break;
+
+            const definition = discoveryDefinitions[discovery.id];
+            const { description } = definition;
+            if (discovery.claimed) {
+              result.message = `${description} You already collected this cache.`;
+              break;
+            }
+
+            if (definition.kind === "gold") {
+              const today = getGameDate();
+              if (player.ruinsGoldClaimDate === today) {
+                result.message = `${description} You can claim another gold cache after midnight Central time.`;
+                break;
+              }
               const awarded = Math.min(
-                encounter.amount,
+                definition.amount,
                 Number.MAX_SAFE_INTEGER - player.gold,
               );
+              if (awarded <= 0) {
+                result.message = `${description} You cannot carry any more gold.`;
+                break;
+              }
               changes.gold = player.gold + awarded;
-              if (awarded > 0) result.discovery = "gold";
-              result.message =
-                awarded > 0
-                  ? `${encounter.description} You collect ${formatNumber(awarded)} gold.`
-                  : `${encounter.description} You cannot carry any more gold.`;
-            } else if (encounter?.kind === "item") {
+              changes.ruinsGoldClaimDate = today;
+              result.message = `${description} You collect ${formatNumber(awarded)} gold.`;
+            } else {
               const item = tx
                 .select({ id: items.id })
                 .from(items)
-                .where(eq(items.name, encounter.item))
+                .where(eq(items.name, definition.item))
                 .get();
-              if (!item)
-                return { message: "This discovery is currently unavailable." };
-              const granted = grantInventoryItem(tx, userId, item.id);
-              if (granted) result.discovery = "item";
-              result.message = granted
-                ? `${encounter.description} You collect a ${encounter.item}.`
-                : "You cannot carry any more of this item.";
+              if (!item) {
+                result.message = `${description} This discovery is currently unavailable.`;
+                break;
+              }
+              if (
+                !grantInventoryItem(tx, userId, item.id, definition.quantity)
+              ) {
+                result.message = `${description} You cannot carry any more of this item.`;
+                break;
+              }
+              result.message = `${description} You collect ${formatNumber(definition.quantity)} × ${definition.item}.`;
             }
+            changes.ruinsDiscoveries = player.ruinsDiscoveries?.map((entry) =>
+              entry === discovery ? { ...entry, claimed: true } : entry,
+            );
             break;
           }
           case "exit":
@@ -188,7 +219,7 @@ export function actInRuins(
           case "engage":
           case "ignore": {
             const encounter = getRuinsEncounter(position);
-            if (!player.ruinsEnemyPending || encounter?.kind !== "enemy") {
+            if (!player.ruinsEnemyPending || !encounter) {
               return {
                 message: "There is no enemy to fight here.",
               };
@@ -209,16 +240,30 @@ export function actInRuins(
               tx,
             );
             const won = battle.outcome === "win";
-            const { drop } = encounter;
-            let loot: string | undefined;
-            if (won && drop && Math.random() < drop.chance) {
-              const item = tx
+            const drops = won ? rollRuinsLoot(encounter.enemyId) : [];
+            const loot: RuinsBattle["loot"] = [];
+            if (drops.length) {
+              const catalog = tx
                 .select({ id: items.id, name: items.name })
                 .from(items)
-                .where(eq(items.name, drop.item))
-                .get();
-              if (item && grantInventoryItem(tx, userId, item.id)) {
-                loot = item.name;
+                .where(
+                  inArray(
+                    items.name,
+                    drops.map(({ item }) => item),
+                  ),
+                )
+                .all();
+              const idsByName = new Map(
+                catalog.map(({ id, name }) => [name, id]),
+              );
+              for (const { item, quantity } of drops) {
+                const id = idsByName.get(item);
+                if (
+                  id !== undefined &&
+                  grantInventoryItem(tx, userId, id, quantity)
+                ) {
+                  loot.push({ name: item, quantity });
+                }
               }
             }
 
@@ -234,6 +279,7 @@ export function actInRuins(
 
       if (result.left) {
         changes.ruinsTile = null;
+        changes.ruinsDiscoveries = null;
         changes.ruinsEnemyPending = false;
       }
       tx.update(users).set(changes).where(eq(users.id, userId)).run();

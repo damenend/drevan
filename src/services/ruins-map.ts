@@ -1,24 +1,18 @@
+import type { RuinsEnemyId } from "./ruins-loot";
 import type { Combatant } from "./battle";
 
 export const RUINS_SIZE = 7;
 export const RUINS_ENTRANCE = 0;
 export const RECALL_BEACON = "Recall Beacon";
 
-type RuinsEncounter =
-  | { kind: "gold"; amount: number; description: string }
-  | { kind: "item"; item: string; description: string }
-  | {
-      kind: "enemy";
-      enemy: Combatant;
-      goldReward: {
-        min: number;
-        max: number;
-      };
-      xpReward: number;
-      trainingLevel: number;
-      description: string;
-      drop?: { item: string; chance: number };
-    };
+type RuinsEncounter = {
+  enemyId: RuinsEnemyId;
+  enemy: Combatant;
+  goldReward: { min: number; max: number };
+  xpReward: number;
+  trainingLevel: number;
+  description: string;
+};
 
 function tile(x: number, y: number) {
   return y * RUINS_SIZE + x;
@@ -28,35 +22,15 @@ export const RUINS_NEXT_FLOOR = tile(2, 0);
 
 const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
   [
-    tile(1, 0),
-    {
-      kind: "gold",
-      amount: 8,
-      description: "Old coins lie wedged beneath a loose slab.",
-    },
-  ],
-  [
-    tile(0, 2),
-    {
-      kind: "item",
-      item: "Lesser Potion",
-      description: "A sealed bottle survived inside a cracked supply case.",
-    },
-  ],
-  [
     tile(2, 1),
     {
-      kind: "enemy",
+      enemyId: "vault-scavenger",
       enemy: {
         name: "Vault Scavenger",
         hp: 18,
         attackPower: 4,
         speed: 4,
         defense: 0,
-      },
-      drop: {
-        item: "Lesser Potion",
-        chance: 0.2,
       },
       xpReward: 30,
       goldReward: {
@@ -71,7 +45,7 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
   [
     tile(4, 3),
     {
-      kind: "enemy",
+      enemyId: "fractured-sentinel",
       enemy: {
         name: "Fractured Sentinel",
         hp: 24,
@@ -92,7 +66,7 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
   [
     tile(6, 6),
     {
-      kind: "enemy",
+      enemyId: "alloy-warden",
       enemy: {
         name: "Alloy Warden",
         hp: 28,
@@ -112,9 +86,7 @@ const encounters: ReadonlyMap<number, RuinsEncounter> = new Map([
   ],
 ]);
 
-export const ruinsEnemies = Array.from(encounters.values()).filter(
-  (encounter) => encounter.kind === "enemy",
-);
+export const ruinsEnemies = Array.from(encounters.values());
 
 /** Returns the fixed encounter for a tile, or undefined for an empty tile. */
 export function getRuinsEncounter(

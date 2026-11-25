@@ -16,6 +16,10 @@ Route handlers parse input, call shared rules or persistence services, and rende
 
 The [battle simulator](../../src/services/battle.ts) runs without SQLite and returns a structured log. Use [`resolvePlayerBattle`](../../src/services/player-battle.ts) inside the encounter's transaction when saving combat. It loads effective stats and computes changes. The encounter supplies rewards and saves HP, rewards, and any encounter-specific state. Playtests with explicit combatants can call `simulateBattle` directly. [Fishing rules](../../src/services/fishing.ts) and [Ruins encounter data](../../src/services/ruins-map.ts) also support use independently of SQLite.
 
+The [Ruins loot service](../../src/services/ruins-loot.ts) rolls item names and quantities independently of combat and SQLite. The expedition resolves those names to seeded item IDs and adds stacks within the fight transaction. A catalog row missing from an older seed is skipped. Run the [catalog refresh](database.md#review-existing-player-data) to enable the new drops.
+
+The [Ruins discovery definitions and placement](../../src/services/ruins-discoveries.ts) are independent of the fixed map encounters. The expedition stores discovery IDs, tiles, and claims on the player record, alongside a gold claim date that survives expedition exits. Movement resolves only the destination's discovery and uses the shared inventory grant for item rewards. The view receives feedback for the current tile.
+
 For training, fishing, and Ruins fights, a submission saves the action and redirects. The next eligible page reads and clears the session report. Refreshing that page does not repeat the action. Other routes can redirect with simple feedback in the URL, such as Emporium checkout.
 
 ## Rendering and browser behavior

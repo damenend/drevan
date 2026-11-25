@@ -150,7 +150,12 @@
         <tbody>
           <% for (const item of inventory) { %>
           <tr>
-            <th scope="row"><%- include("../partials/item-figure", { item, showDescription: true }) %></th>
+            <th scope="row">
+              <%- include("../partials/item-figure", { item, showDescription: true }) %>
+              <% if (item.type === "material" && item.sellPrice > 0) { %>
+              <span class="item-description">Sells for <%= formatNumber(item.sellPrice) %> gold each</span>
+              <% } %>
+            </th>
             <td class="quarters-quantity">
               <%= formatNumber(item.quantity) %>
             </td>

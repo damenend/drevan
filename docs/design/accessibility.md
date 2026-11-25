@@ -19,7 +19,7 @@ Use the [native resource meter](../../src/views/partials/resource-meter.ejs) for
 
 ## Maps and combat reports
 
-In The Ruins, focus the player square on entry and after successful movement. It describes the current tile and feedback. Arrow keys focus destinations relative to that square. Enter or Space submits the focused move. All legal moves stay in the native Tab order, and without JavaScript the adjacent buttons remain usable directly. The Map markers disclosure exposes the visible markers and coordinates. [Ruins view](../../src/views/game/ruins.ejs) · [Map script](../../public/js/ruins-map.js)
+In The Ruins, focus the player square on entry and after successful movement. It describes the current tile and feedback. Arrow keys focus destinations relative to that square. Enter or Space submits the focused move. All legal moves stay in the native Tab order, and without JavaScript the adjacent buttons remain usable directly. The Map markers disclosure exposes the visible markers and coordinates. Cache locations stay hidden, and arriving at a cache adds its result to the feedback referenced by the focused player square. [Ruins view](../../src/views/game/ruins.ejs) · [Map script](../../public/js/ruins-map.js)
 
 Show outcome, current HP, and earned rewards before the expandable battle log. Identify actors and critical hits in text. Keep the full attack sequence available in order. [Battle log](../../src/views/partials/battle-log.ejs)
 

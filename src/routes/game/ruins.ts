@@ -5,6 +5,10 @@ import {
 } from "../../services/character-stats";
 import { Router } from "express";
 import { getProgression, statAllocations } from "../../services/progression";
+import {
+  discoveryDefinitions,
+  getRuinsDiscovery,
+} from "../../services/ruins-discoveries";
 import { actInRuins, getRuinsSupplies } from "../../services/ruins";
 import {
   canMoveInRuins,
@@ -23,8 +27,10 @@ router.get("/", (req, res) => {
   const position = player.ruinsTile;
   const encounter = position === null ? undefined : getRuinsEncounter(position);
   const atNextFloor = position === RUINS_NEXT_FLOOR;
-  const enemy =
-    player.ruinsEnemyPending && encounter?.kind === "enemy" ? encounter : null;
+  const enemy = player.ruinsEnemyPending ? encounter : undefined;
+  const discovery = getRuinsDiscovery(player.ruinsDiscoveries, position);
+  const message =
+    typeof req.query.message === "string" ? req.query.message : undefined;
   const battle =
     position !== null && req.session.ruinsBattle?.outcome === "win"
       ? req.session.ruinsBattle
@@ -43,22 +49,24 @@ router.get("/", (req, res) => {
     // After manual playtesting, reveal the marker only while standing on it.
     nextFloorMarker: RUINS_NEXT_FLOOR,
     // Remove event markers after manual playtesting.
-    getEventMarker: (tile: number) => getRuinsEncounter(tile)?.kind,
+    hasEnemy: (tile: number) => Boolean(getRuinsEncounter(tile)),
     emptySquare:
       position !== null &&
       position !== RUINS_ENTRANCE &&
       !atNextFloor &&
-      !encounter,
-    discovery:
-      (encounter?.kind === "gold" || encounter?.kind === "item") &&
-      req.query.discovery === encounter.kind,
+      !encounter &&
+      !discovery,
+    discovery: Boolean(discovery),
     attributes: getPrimaryAttributes(player),
     progression: getProgression(player.exp, getSpentPoints(player)),
     statAllocations,
     ...(position === null ? {} : getRuinsSupplies(player.id)),
     recalledToday: player.recallDate === getGameDate(),
     message:
-      typeof req.query.message === "string" ? req.query.message : undefined,
+      message ??
+      (discovery
+        ? `${discoveryDefinitions[discovery.id].description} ${discovery.claimed ? "You already collected this cache." : "Return to this square to try again."}`
+        : undefined),
     battle,
   });
 });
@@ -91,7 +99,6 @@ router.post("/action", (req, res) => {
   const path = result.left ? "/game/nexaris" : "/game/ruins";
   const query = new URLSearchParams();
   if (result.message) query.set("message", result.message);
-  if (result.discovery) query.set("discovery", result.discovery);
   if (kind === "enter" || kind === "move") query.set("focus", "map");
   return res.redirect(303, query.size ? `${path}?${query}` : path);
 });

@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, gte, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, gt, gte, inArray, ne, sql } from "drizzle-orm";
 import { db } from "../db";
 import { inventory, items, users } from "../db/schema";
 import { getAvailableQuantity } from "./equipment";
@@ -8,7 +8,7 @@ export type ItemSelection = { itemId: number; quantity: number };
 // A catalog item needs a positive payout and an eligible type.
 const buybackEligible = and(
   gt(items.sellPrice, 0),
-  inArray(items.type, ["weapon", "armor", "fish"]),
+  inArray(items.type, ["weapon", "armor", "fish", "material"]),
 );
 
 /** Loads the shop catalog and counts spare copies the player can sell. */
@@ -21,7 +21,7 @@ export function getEmporiumItems(
   const storeItems = db
     .select()
     .from(items)
-    .where(gte(items.price, 0))
+    .where(and(gte(items.price, 0), ne(items.type, "material")))
     .orderBy(asc(items.price))
     .all();
 
@@ -66,7 +66,12 @@ export function buyEmporiumItems(
       let totalCost = 0;
 
       const catalog = tx
-        .select({ id: items.id, price: items.price, owned: inventory.quantity })
+        .select({
+          id: items.id,
+          price: items.price,
+          type: items.type,
+          owned: inventory.quantity,
+        })
         .from(items)
         .leftJoin(
           inventory,
@@ -86,6 +91,7 @@ export function buyEmporiumItems(
 
         if (
           !item ||
+          item.type === "material" ||
           item.price === null ||
           item.price < 0 ||
           !Number.isSafeInteger((item.owned ?? 0) + purchase.quantity)
@@ -195,6 +201,7 @@ export function sellEmporiumItems(
         if (
           !stack ||
           stack.sellPrice === null ||
+          !Number.isSafeInteger(stack.sellPrice) ||
           !Number.isSafeInteger(stack.quantity) ||
           stack.quantity < quantity
         ) {
