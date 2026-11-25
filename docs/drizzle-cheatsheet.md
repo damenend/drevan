@@ -1,12 +1,12 @@
 # Drevan Drizzle cheatsheet
 
-Drevan stores its local game data in a SQLite file at `data/game.sqlite`. Drizzle Kit manages changes to the tables, and Drevan's seed script loads the starter items.
+Drevan stores its local game data in a SQLite file at `data/game.sqlite`. Drizzle Kit manages changes to the tables, and Drevan's seed script loads the item catalog.
 
-| I want to…                      | What to run                                                |
-| ------------------------------- | ---------------------------------------------------------- |
-| Add a column or change a table  | `yarn db:generate`, review the SQL, then `yarn db:migrate` |
-| Add an item or change its price | `yarn db:seed` after editing `src/db/seed.ts`              |
-| Set up a new local database     | `mkdir -p data`, `yarn db:migrate`, then `yarn db:seed`    |
+| I want to…                      | What to run                                                             |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| Add a column or change a table  | `yarn db:generate`, review the SQL and metadata, then `yarn db:migrate` |
+| Add an item or change its price | `yarn db:seed` after editing `src/db/seed.ts`                           |
+| Set up a new local database     | `mkdir -p data`, `yarn db:migrate`, then `yarn db:seed`                 |
 
 Run commands from the project root after `nvm use`. Set `DATABASE_URL=./data/game.sqlite` in `.env` so Drizzle Kit opens the same file as the app and seed script.
 
@@ -14,7 +14,7 @@ Run commands from the project root after `nvm use`. Set `DATABASE_URL=./data/gam
 
 1. Edit [src/db/schema.ts](../src/db/schema.ts). For example, `defense: integer("defense").notNull().default(0)` makes defense required and gives existing users a starting value of zero when the column is added.
 2. Run `yarn db:generate`. It compares your schema (the table definitions in TypeScript) with the last saved snapshot. It writes a migration (a SQL file with instructions for changing the tables) in `drizzle/` and updates the metadata in `drizzle/meta/`. The snapshot describes the resulting tables, and the journal lists the migrations in order.
-3. Read the generated SQL. For a new column, look for `ALTER TABLE ... ADD` and check that the column type and default match your intent.
+3. Review the generated SQL, snapshot, and journal together. For a new column, look for `ALTER TABLE ... ADD` and check that the column type and default match your intent.
 4. Run `yarn db:migrate`. This runs the migrations your database has yet to apply and records each one in the database.
 5. Commit the schema change, the SQL migration, and the generated snapshot and journal changes together.
 
@@ -33,7 +33,7 @@ Resolve each conflict with the affected players before rerunning `yarn db:migrat
 
 ## Add an item to the catalog
 
-1. Open [src/db/seed.ts](../src/db/seed.ts) and add an entry to the appropriate list of potions, weapons, or armor. Copy a similar entry to see which fields it uses.
+1. Open [src/db/seed.ts](../src/db/seed.ts) and add an entry to the appropriate catalog list. The current seed includes potions, weapons, armor, fish, and the Recall Beacon. Copy a similar entry to see which fields it uses.
 2. Run `yarn db:seed`. It inserts new item names and updates existing items with matching names. For example, changing the price of `Rusted Sword` updates that row. Changing its name creates a new row and leaves the original in place.
 
 An item is a row in the existing table, so adding one only needs the seed script. If the item needs a new database column, apply the migration first and then run the seed.
@@ -71,7 +71,7 @@ For `SQLITE_BUSY` or `database is locked`, stop the dev server and close any dat
 
 Use `db:generate` and `db:migrate` for schema changes you want to keep in project history. `db:push` applies changes directly to the database without recording them as migrations. Mixing the two workflows on the same database can cause `db:migrate` to try adding a column that already exists.
 
-If `db:push` reports potential data loss, cancel the prompt. The project's Drizzle Kit version can treat a SQLite default of `0` as missing during this check. Review the generated SQL and apply it through `db:migrate` when your database's migration history matches its schema.
+If `db:push` reports potential data loss, cancel the prompt. Review the generated SQL and apply it through `db:migrate` when your database's migration history matches its schema.
 
 ### A new column is missing
 
@@ -97,7 +97,7 @@ Check that the SQL file, snapshot, and journal came from the same change. Restor
 
 ### A new item is missing or has the wrong values
 
-1. Check that you added the entry to the potions, weapons, or armor list in `src/db/seed.ts`. Confirm the exact item name and the fields you edited. The seed matches rows by name, so a renamed item will appear alongside the original.
+1. Check that you added the entry to the appropriate catalog list in `src/db/seed.ts`. Confirm the exact item name and the fields you edited. The seed matches rows by name, so a renamed item will appear alongside the original.
 2. Run `yarn db:seed` and check for `Database seeded!`. If the error mentions a missing table or column, run the pending migrations first, then rerun the seed. For other errors, read the first error message and check the field it names against a working item.
 3. Check what was saved. Replace `Rusted Sword` with the item you added or edited.
 
@@ -105,4 +105,4 @@ Check that the SQL file, snapshot, and journal came from the same change. Restor
    sqlite3 -readonly data/game.sqlite "SELECT name, price, type FROM items WHERE name = 'Rusted Sword';"
    ```
 
-   If no row is returned, check the spelling and confirm the seed ran from the project root. If the row is correct, reload the Curious Emporium. If the page still looks wrong after a local database rebuild, restart the dev server so it opens the current database file.
+   If no row is returned, check the spelling and confirm the seed ran from the project root. If the row is correct, check its intended source. A null purchase price keeps an item out of the Emporium purchase list. Reload the relevant game page after seeding. If the page still looks wrong after a local database rebuild, restart the dev server so it opens the current database file.

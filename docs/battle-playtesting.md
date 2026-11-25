@@ -4,7 +4,7 @@ Worn Leather Armor grants **+3 Defense** so it can save HP in fights a starter
 can win. The Rusted Sword grants **+1 Attack Power**. Each piece costs
 100 gold. The [item seed](../src/db/seed.ts) controls these values.
 
-## Rerun the starter equipment playtest
+## Rerun the historical starter equipment playtest
 
 1. From the repository root, select the pinned Node version with `nvm use`.
    Run `yarn install` if you need to set up this clone.
@@ -58,7 +58,7 @@ can win. The Rusted Sword grants **+1 Attack Power**. Each piece costs
 Dominion requires positive starting HP and accepts dummy levels 1–100.
 At level `L`, a dummy has `10 + 5 * (L - 1)` HP, `L + 1` Attack Power,
 `L + 1` Speed, and `floor(L / 4)` Defense. Training saves remaining HP and
-awards `10 * L` gold on a win. Draws retain any HP loss and award nothing.
+awards `10 * L` gold and XP on a win, capped by what fits in each balance. Losses and draws retain any HP loss and award nothing. The training result appears once after the redirect.
 Future encounter modes can use the simulator
 with their own persistence and reward rules.
 [Simulator](../src/services/battle.ts) ·
@@ -208,7 +208,7 @@ HP left on wins. That matters for the cost of repeated training.
 
 The CSV includes average training reward, Sanctum cost, and net gold per
 fight for training dummies in the enemy slot. The calculation uses the
-[training reward](../src/routes/game/training.ts) of 10 gold per dummy level
+[training reward](../src/services/training.ts) of 10 gold per dummy level
 on a win and the [Sanctum rate](../src/routes/game/hospital.ts) of one gold
 per missing HP after every fight. A loss pays zero gold and healing from
 zero HP costs the build's full max HP. Each run starts at full HP and
@@ -580,17 +580,17 @@ player's effective Speed at migration time and stores it independently.
 Their base Agility and spent points also carry forward, where both contribute
 to Attack Power.
 
-## Ruins Floor 1 baseline
+## Live Ruins Floor 1 encounters and historical baseline
 
 Coordinates use (0, 0) at the upper-left entrance. These encounters appear on arrival. Move away and return to repeat a discovery or receive another enemy offer.
 
-| Square | Encounter          |  HP | Attack Power | Speed | Defense | Reward                       |
-| ------ | ------------------ | --: | -----------: | ----: | ------: | ---------------------------- |
-| (1, 0) | Coin cache         |   — |            — |     — |       — | 8 gold                       |
-| (0, 2) | Supply case        |   — |            — |     — |       — | 1 Lesser Potion              |
-| (2, 1) | Vault Scavenger    |  18 |            4 |     4 |       0 | 30 gold and 30 XP on victory |
-| (4, 3) | Fractured Sentinel |  24 |            5 |     5 |       2 | 40 gold and 40 XP on victory |
-| (6, 6) | Alloy Warden       |  28 |            6 |     6 |       2 | 50 gold and 50 XP on victory |
+| Square | Encounter          |  HP | Attack Power | Speed | Defense | Reward                                                              |
+| ------ | ------------------ | --: | -----------: | ----: | ------: | ------------------------------------------------------------------- |
+| (1, 0) | Coin cache         |   — |            — |     — |       — | 8 gold                                                              |
+| (0, 2) | Supply case        |   — |            — |     — |       — | 1 Lesser Potion                                                     |
+| (2, 1) | Vault Scavenger    |  18 |            4 |     4 |       0 | 25–35 gold, 30 XP, and a 20% chance of one Lesser Potion on victory |
+| (4, 3) | Fractured Sentinel |  24 |            5 |     5 |       2 | 35–45 gold and 40 XP on victory                                     |
+| (6, 6) | Alloy Warden       |  28 |            6 |     6 |       2 | 45–55 gold and 50 XP on victory                                     |
 
 After `nvm use` from the repository root, run the seeded comparison:
 
@@ -601,7 +601,11 @@ node --import tsx scripts/playtest-ruins.ts --historical > /tmp/drevan-ruins-his
 The historical run prints 18 data rows, with 1,000 full-health fights per row. The three
 builds are a fresh player, a player with both starter items, and a level 4 player
 with both items and one point in each of Strength, Speed, and max HP. Every
-Ruins enemy is paired with its Dominion baseline on the same seeds. Net gold
+Ruins enemy is paired with its Dominion baseline on the same seeds. Both
+script modes use the midpoint of each Ruins gold range, which matches the
+original fixed payout. Dominion uses its fixed reward of 10 gold per dummy
+level. This keeps the expected payout comparable without adding a reward roll
+to the seeded combat sequence. Net gold
 subtracts one gold per missing HP for a full Sanctum heal, including after a
 loss. Mean remaining HP includes defeats as zero. All survivors won in this
 run. This isolates the fights and excludes travel, discoveries, equipment
@@ -638,7 +642,7 @@ Each matchup uses the same 1,000 seeds and starts both sides at full HP.
 The fresh and geared builds go from 5 to 10 and from 6 to 11 offensive power,
 respectively. The level 4 build uses 13 Attack Power, 5 Speed, and 28 HP after
 two offensive points and one Fortitude point. Opponent stats, rewards, and
-damage rules are identical across the runs.
+damage rules are identical across the two script modes. The live expedition rolls gold across the full range.
 
 | Matchup                       | Historical win rate | Class-neutral win rate |
 | ----------------------------- | ------------------: | ---------------------: |
@@ -651,3 +655,5 @@ The fresh build's base damage range rises from 3–5 to 5–10 before critical
 hits and Defense. In these full-health simulations, the easier wins and higher
 remaining HP also improve gold after healing. The fresh build's mean net gold
 against the Warden rose from −24.48 to +21.22 per fight.
+
+For the [next roadmap milestone](roadmap.md#7-add-basic-ruins-loot-and-material-drops-p1--medium), play full expeditions with the live rewards. Record starting gear and supplies, route, fights, remaining HP, potions found and used, retreats, and gold after healing. Include repeat visits to compare cache and encounter income with Dominion and fishing.

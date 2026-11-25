@@ -2,17 +2,17 @@
 
 Drevan has a playable level 10 progression loop and a playable first floor of The Ruins. Fortitude determines maximum HP, the three offensive attributes contribute equally to Attack Power, and Speed is independent of allocation. Characters remain Unaligned while class specializations are in design.
 
-**Next implementation milestone.** Add victory loot and material drops to Floor 1. Use the current Attack Power benchmarks to guide drop values, and play through full expeditions to measure healing costs and repeatable payouts before finalizing them. Material selling follows once players have a source of materials.
+**Next implementation milestone.** Play through full Floor 1 expeditions with the live gold ranges and Vault Scavenger potion drop. Use carried HP, healing costs, and repeatable payouts to guide the first material drops and any additional victory loot. Material selling follows once players have a source of materials.
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse the existing combat simulator, equipment, inventory, and gold systems. Start with independently playable features and use repeatable simulations and actual play to guide expansion. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
-| Priority | Focus                                    | Readiness                                            |
-| -------- | ---------------------------------------- | ---------------------------------------------------- |
-| P0       | Combat foundations and basic progression | Level 10 and class-neutral stats playable            |
-| P1       | Ruins exploration and starter loot       | Floor 1 playable, loot next and balance under review |
-| P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met      |
-| P3       | Equipment economy and advanced systems   | Build on established systems and balance results     |
-| P4       | Future concepts                          | Needs further design before scheduling               |
+| Priority | Focus                                    | Readiness                                                     |
+| -------- | ---------------------------------------- | ------------------------------------------------------------- |
+| P0       | Combat foundations and basic progression | Level 10 and class-neutral stats playable                     |
+| P1       | Ruins exploration and starter loot       | Floor 1 and first victory drop playable, balance under review |
+| P2       | Character depth and supporting gameplay  | Start when each feature's prerequisites are met               |
+| P3       | Equipment economy and advanced systems   | Build on established systems and balance results              |
+| P4       | Future concepts                          | Needs further design before scheduling                        |
 
 Milestone numbers show the recommended order. Dependencies list the systems or design decisions each feature needs. The recommended order reflects playtest and development priorities. Independent work can move ahead when those prerequisites are met. Each heading gives the priority and relative complexity. **Small** means a limited change to an existing system, **Medium** spans a few systems, and **Large** includes substantial data changes, multiple systems, or unresolved design.
 
@@ -66,9 +66,9 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 6. Open The Ruins for basic exploration and PvE (P1 · Large)
 
-- **Status.** Floor 1 MVP complete. Automated route checks cover movement, discoveries, all three combat outcomes, saved position across login, both escapes, and expedition restrictions. Manual playtesting is underway.
-- **Exploration and interface.** Enter from Nexaris at (0, 0) and move one square at a time in the four cardinal directions on a fixed 7×7 floor. Position persists across sessions. The map and gameplay controls appear above the interior artwork. Discoveries and enemy sightings are highlighted above the map, and enemy details and fight choices appear below it.
-- **Encounters and rewards.** Floor 1 has an 8-gold cache, one Lesser Potion cache, and three optional fights: Vault Scavenger, Fractured Sentinel, and Alloy Warden. Wins award gold and XP and save remaining HP. Defeats and draws save HP and earlier rewards and return the player to Nexaris. Revisiting a square offers its event again. Replayed forms cannot award the same action twice.
+- **Status.** Floor 1 MVP complete. Automated route checks cover movement, discoveries, all three combat outcomes, saved position across login, both escapes, and expedition restrictions. Full-expedition balance validation is pending. See the [Ruins design brief](ruins-design-brief.md) for the current expedition flow and the [accessibility guide](accessibility.md) for keyboard and browser checks.
+- **Exploration and interface.** Enter from Nexaris at (0, 0) and move one square at a time in the four cardinal directions on a fixed 7×7 floor. Position persists across sessions. The map has a keyboard entry point on the player square. Arrow keys focus adjacent destinations, and Enter or Space submits the move. The Map markers disclosure lists visible markers and their coordinates. The expedition view groups encounter choices, supplies, and escape controls around the map.
+- **Encounters and rewards.** Floor 1 has an 8-gold cache, one Lesser Potion cache, and three optional fights: Vault Scavenger, Fractured Sentinel, and Alloy Warden. Wins save remaining HP and award an inclusive gold roll plus fixed XP. The Scavenger awards 25–35 gold and 30 XP, the Sentinel 35–45 gold and 40 XP, and the Warden 45–55 gold and 50 XP. Defeats and draws save HP and earlier rewards and return the player to Nexaris. Revisiting a square offers its event again. Replayed forms cannot award the same action twice.
 - **Expedition controls.** Players can use healing potions and spend attribute points. Equipment changes and other gameplay locations require leaving the expedition. Walk back to the entrance for a free exit or use the permanent Recall Beacon once per Central calendar day from any square.
 - **Temporary playtest markers.** The map shows gold, items, enemies, and the sealed Floor 2 entrance two squares east of the exit at (2, 0). Standing on the stairs shows `P2` and a disabled **Descend to Floor 2** button. After manual playtesting, remove the gold, item, and enemy markers and reveal the Floor 2 marker only while the player stands on that square.
 - **Current balance baseline.** Across 1,000 seeded full-health fights per matchup, fresh characters win 99.8% against the Sentinel and 83.6% against the Warden, up from 1.0% under the old rules. With both starter items, the Warden win rate is 99.1%. Fresh characters win 86.6% against the level 5 dummy. Opponent stats and rewards stayed the same when fresh Attack Power increased from 5 to 10. [Historical and current comparison](battle-playtesting.md#class-neutral-attack-power-comparison)
@@ -76,7 +76,7 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
-- **Status.** In progress. The Vault Scavenger can drop one Lesser Potion at a provisional 20% rate, and the Ruins battle report shows awarded loot. Use the current Floor 1 benchmarks for the remaining drops. Validate payout and drop frequency in full expeditions before expanding the tables.
+- **Status.** In progress. The first victory drop is live. The Vault Scavenger rolls a provisional 20% chance to award one Lesser Potion. The potion is saved with the fight when the inventory stack has room, and the battle report shows it when awarded. Additional victory loot and material drops are pending. Validate payout and drop frequency in full expeditions before expanding the tables.
 - **Dependencies.** Playtested Ruins expeditions (6), the item catalog, and stackable inventory.
 - **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies continue to award gold and XP on a win.
 - **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest until selling is available. Materials can support future crafting, salvaging, and services at The Forge.
@@ -116,10 +116,11 @@ Balance PvE first so progression feels rewarding, upgrades matter, and stronger 
 - **Scope.** Offer three repeatable paid services under the working name **The Artificer**. Players can reset spent points, change class, or do both. Preview gold cost, stat changes, and gear that will be unequipped. Check eligibility against the resulting character.
 - **Done when.** A reset restores spent points to the unspent pool and removes only the increases they bought. XP, level, and other permanent gains are preserved. Ineligible gear returns to inventory as unequipped gear. Current HP is capped at the new maximum without healing. Charges and character updates succeed together.
 
-### 13. Add material selling and inventory grouping (P2 · Medium)
+### 13. Add material selling and a Materials inventory filter (P2 · Medium)
 
 - **Dependencies.** Emporium buyback (3) and a meaningful source of materials, planned for basic Ruins material drops (7). Revisit the timing if an earlier feature provides such a source.
-- **Scope.** Extend merchant selling to materials. Group inventory into Equipment, Consumables, and Materials as needed, with Collectibles available as a future category. Keep the existing stacks.
+- **Status.** The Quarters already filters inventory by Equipment, Consumables, Fish, and Other, and preserves the selected category after item actions. Material selling and a dedicated Materials filter are pending.
+- **Scope.** Extend Emporium buyback to materials and add a Materials filter using the existing inventory stacks. Collectibles remain a future category.
 - **Done when.** Players can find their materials and sell a valid quantity at the listed price. Gold and inventory update together, and failed sales leave both intact.
 
 ### 13a. Pilot a boss bounty (P2 · Medium)
@@ -233,7 +234,7 @@ These entries are candidates for design and playtesting. Their completion criter
 ## Recurring playtest checks
 
 - **Early progression.** Repeat the starter-supplies playtest with the current Attack Power formula. Measure time and wins to the first few levels and to level 10, when players move up in dummy difficulty, how often they spend or save points, and how much they spend on healing.
-- **Ruins expeditions.** Track enemy difficulty, survival, retreat and defeat rates, and net gold after Sanctum healing. Once loot lands, measure item acquisition and material accumulation before expanding tables or adding sources.
+- **Ruins expeditions.** Track enemy difficulty, survival, retreat and defeat rates, and net gold after Sanctum healing. Record how often the Scavenger drop supplies usable healing. Once materials are available, measure how quickly they accumulate before expanding tables or adding sources.
 - **Economy.** Compare short, realistic sessions across training, fishing, contracts, exploration, equipment and material sales, and salvage. Account for Sanctum healing, gear purchases, and future Forge and Artificer fees. Compare recipe costs with reagent sale values and gathering time. Keep rare ingredients tied primarily to gameplay if shops eventually stock basics.
 - **Starter economy playtest.** Run separate 10-minute fishing and training sessions with fresh characters and the same starting gear. Record actions completed, gold earned, Sanctum costs, starter potions used, and gold kept after healing. Note how long it takes to earn 100 additional gold, the price of one starter gear piece. Characters start with 125 gold and three Lesser Potions, so track earned gold separately. If a session ends before the player earns 100 gold, record their progress and ask whether either activity felt required to afford upgrades. Repeat once Ruins drops add another source of items to sell.
 - **Activity roles.** Training builds combat progression, fishing offers steadier income, contracts reward bonus objectives, salvage supplies materials, exploration offers uncertain payouts, and The Forge gives players a place to invest in gear. Check that each activity has a reason to play. Keep average salvage resale at or below equipment buyback value even when a rare result can exceed it.

@@ -30,8 +30,13 @@ console.log(
 );
 for (const build of builds) {
   for (const encounter of ruinsEnemies) {
-    const { trainingLevel, reward } = encounter;
-    for (const enemy of [encounter.enemy, createTrainingDummy(trainingLevel)]) {
+    const { trainingLevel, goldReward } = encounter;
+    // Use the expected gold value to compare combat on identical seeds.
+    const ruinsReward = (goldReward.min + goldReward.max) / 2;
+    for (const [enemy, reward] of [
+      [encounter.enemy, ruinsReward],
+      [createTrainingDummy(trainingLevel), trainingLevel * 10],
+    ] as const) {
       let wins = 0;
       let survived = 0;
       let hp = 0;

@@ -157,7 +157,7 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   legal moves remain in the Tab order. The player square describes its tile
   feedback, and the Map markers disclosure lists the other visible markers.
 - The player row stores the current tile (null outside), whether an enemy is available on that visit, and the form revision. Each successful expedition action increments the revision. Movement, discovery rewards, combat results, and exits commit with their corresponding state in one transaction.
-- The shared simulator uses equipped bonuses and allocated stats. A win awards gold and XP and preserves exploration. Defeat and draw save remaining HP, grant no fight reward, and return the player to Nexaris.
+- The shared simulator uses equipped bonuses and allocated stats. A win awards a random amount of gold within the enemy’s inclusive range and fixed XP, and preserves exploration. The [Ruins design brief](docs/ruins-design-brief.md#floor-1-reference) lists each payout. Defeat and draw save remaining HP, grant no fight reward, and return the player to Nexaris.
 - A Vault Scavenger win has a provisional 20% chance to add one Lesser
   Potion in the same transaction as the combat rewards. The battle report
   lists the potion when it was added to inventory.
@@ -337,13 +337,16 @@ When changing behavior, review nearby comments for accuracy.
 ## Current development direction
 
 The [gameplay roadmap](docs/roadmap.md) records the completed starter systems,
-level 10 progression prototype, and playable Ruins MVP. The next Ruins milestone
-adds victory loot and material drops. Follow the
+level 10 progression prototype, playable Ruins MVP, and first victory drop.
+The next Ruins milestone continues with full-expedition playtesting before
+expanding victory loot and adding material drops. Follow the
 [battle playtest guide](docs/battle-playtesting.md) to run seeded matchups and
 record balance decisions. The Ruins playtest uses the live enemy definitions
 and runs without opening the local database. By default it uses player builds
-with the current Attack Power and Speed rules. Pass `--historical` to reproduce
-the original Floor 1 comparison with the earlier player builds.
+with the current Attack Power and Speed rules. Both modes use each Ruins
+enemy’s average gold payout to compare combat on identical seeds. Pass
+`--historical` to reproduce the original Floor 1 comparison with the earlier
+player builds.
 
 When adding an encounter that saves a player's combat result, use
 `resolvePlayerBattle` inside the encounter's transaction. The encounter

@@ -13,20 +13,20 @@ Use this reference when designing a new screen, extending a component, or briefi
 
 ## Foundations
 
-### Color tokens
+### Color and spacing tokens
 
-Shared design tokens are Sass variables in [`src/scss/abstracts/_vars.scss`](../src/scss/abstracts/_vars.scss). Use the role of the token to choose it.
+Shared design tokens are Sass variables in [`src/scss/abstracts/_vars.scss`](../src/scss/abstracts/_vars.scss). Use the semantic token for the element’s role. Actions and links use muted gold, player and positive combat values use blue, and errors and critical health use red. The spacing scale below uses quarter-rem steps.
 
-| Token | Token | Value | Common application |
-| --- | --- | --- |
-| `$space-1` | `0.25rem` | Field labels, notes, and stat breakdowns |
-| `$space-2` | `0.5rem` | Control padding and grouped actions |
-| `$space-3` | `0.75rem` | Heading margins and item figure gaps |
-| `$space-4` | `1rem` | Container gutters and form groups |
-| `$space-5` | `1.25rem` | Authentication navigation spacing |
-| `$space-6` | `1.5rem` | Section spacing and stacked activity regions |
-| `$space-8` | `2rem` | Activity and character column gutters |
-| `$space-10` | `2.5rem` | Wide homepage column gutter |
+| Token       | Value     | Common application                           |
+| ----------- | --------- | -------------------------------------------- |
+| `$space-1`  | `0.25rem` | Field labels, notes, and stat breakdowns     |
+| `$space-2`  | `0.5rem`  | Control padding and grouped actions          |
+| `$space-3`  | `0.75rem` | Heading margins and item figure gaps         |
+| `$space-4`  | `1rem`    | Container gutters and form groups            |
+| `$space-5`  | `1.25rem` | Authentication navigation spacing            |
+| `$space-6`  | `1.5rem`  | Section spacing and stacked activity regions |
+| `$space-8`  | `2rem`    | Activity and character column gutters        |
+| `$space-10` | `2.5rem`  | Wide homepage column gutter                  |
 
 The page shell uses a centered `1320px` container with `1rem` inline padding. The activity grid caps at `60rem` with location and map columns up to `30rem` and `28rem`. Wide tables scroll in their own wrappers, which also contain positioned accessibility labels. The default stat grid fits as many columns as it can at a `140px` minimum. Compact grids opt into explicit column variants.
 
@@ -56,7 +56,7 @@ Location images are generally WebP, displayed in a figure with a caption. The st
 | Location figure                 | Renders an image and caption, with a banner variant for wide location artwork.                                                                                                                                                                                      | [Location image partial](../src/views/partials/location-image.ejs)                                                                                        |
 | Item figure and player portrait | Item figures keep the item name visible even when an image is absent. Player portraits use the selected avatar model and an accessible description.                                                                                                                 | [Item figure](../src/views/partials/item-figure.ejs) and [player avatar](../src/views/partials/player-avatar.ejs)                                         |
 | Character stats and gold        | Use a description list for label and value pairs. Show the effective stat first and add the base value and signed modifier when it differs. Reuse the shared gold display.                                                                                          | [The Quarters](../src/views/game/index.ejs), [stat total](../src/views/partials/stat-total.ejs), and [player gold](../src/views/partials/player-gold.ejs) |
-| Battle report                   | Shows an encounter, attack log, and summary. Blue and red identify actors alongside their names. Critical hits have an explicit label. The summary shows the outcome, HP change, and any awarded gold, XP, or loot.                                                 | [Battle log partial](../src/views/partials/battle-log.ejs) and [battle styles](../src/scss/components/_battle.scss)                                       |
+| Battle report                   | Shows the outcome summary before an expandable attack log. Blue and red identify actors alongside their names. Critical hits have an explicit label. The summary shows the outcome, HP change, and any awarded gold, XP, or loot.                                   | [Battle log partial](../src/views/partials/battle-log.ejs) and [battle styles](../src/scss/components/_battle.scss)                                       |
 | Status message and error page   | Place contextual feedback near the action or at the top of the relevant view. Use `role="status"` for nonurgent updates where appropriate. Use the shared error page for HTTP errors and include a safe recovery link.                                              | [Ruins notices](../src/views/game/ruins.ejs) and [error page](../src/views/error.ejs)                                                                     |
 
 ## Interaction patterns
@@ -77,7 +77,7 @@ Use a labeled fieldset for illustrated radio choices. The portrait and visible l
 
 ### Character management
 
-The Quarters uses a compact location figure alongside its introduction on wide screens. The character overview pairs a portrait, name, level, and class with grouped stat tiles. Put HP first, group gold and XP separately from combat stats, and place available attribute points by the allocation controls. The Quarters and The Ruins share a labeled HP meter with a red fill below 25% and a readable current and maximum value. [The Quarters](../src/views/game/index.ejs) · [Health meter](../src/views/partials/health-meter.ejs)
+The Quarters uses a compact location figure alongside its introduction on wide screens. The character overview pairs a portrait, name, level, and class with grouped stat tiles. Put HP first, group gold and XP separately from combat stats, and place available attribute points by the allocation controls. The Quarters and The Ruins share a labeled HP meter with a red fill and a Critical label below 25%, alongside current and maximum HP. [The Quarters](../src/views/game/index.ejs) · [Health meter](../src/views/partials/health-meter.ejs)
 
 Equipment shows supported slots with an item, its signed modifier, and a secondary outlined Unequip button, or a short empty-state message. Inventory groups each thumbnail, name, and description in the row header and summarizes numerical effects in a single column. Category links use URL parameters and mark the current category with `aria-current`. At narrow widths, the inventory retains native table layout and scrolls inside its labeled wrapper when needed. [Quarters styles](../src/scss/pages/_quarters.scss)
 
@@ -85,7 +85,7 @@ Equipment shows supported slots with an item, its signed modifier, and a seconda
 
 - **Before submission.** Put the current balance, limits, and expected units beside the decision. The Emporium uses labeled `output` elements for current gold totals and a polite status region for changes to validation feedback.
 - **On submission.** The server validates eligibility, prices, and rewards. Browser validation and live calculation help the player make a choice.
-- **After submission.** Show what changed. Training, fishing, and Ruins actions redirect to a page after saving so a refresh does not submit the action again. Render outcome and reward text from the saved result.
+- **After submission.** Show what changed. Training, fishing, Emporium, and Ruins actions redirect to a page after saving so a refresh does not submit the action again. Render outcome and reward text from the saved result.
 - **Unavailable actions.** Give the reason and a way forward when one exists. At zero HP, Dominion and The Ruins link to Sanctum. The Emporium directs players to unequip gear when the equipped copy is all they have available.
 - **Empty states.** State what is absent in context, such as “You have no healing potions.” Give the next action when the player can take one.
 
