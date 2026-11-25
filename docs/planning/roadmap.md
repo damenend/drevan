@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-**Active milestone.** Review repeat cache payouts before expanding Floor 1 victory loot and adding materials (7). The first [full expedition playtest](../audits/balance-playtests.md#full-floor-1-expeditions) measured carried HP, the live Scavenger drop, and repeat income. Material selling follows (13).
+**Active milestone.** Validate the candidate cache rule in live Floor 1 expeditions before expanding victory loot and adding materials (7). The [repeat-cache comparison](../audits/balance-playtests.md#floor-1-repeat-cache-comparison) favors daily gold and a potion per expedition. Material selling follows (13).
 
 Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse shared systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
 
@@ -55,7 +55,7 @@ Statuses are **Complete**, **Active**, **Planned**, and **Exploratory**. Depende
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 
 - **Status.** Active.
-- **Progress.** The first victory drop is live. [Full expedition results](../audits/balance-playtests.md#full-floor-1-expeditions) support retaining the provisional Scavenger rate and show that repeat caches dominate potion supply. Resolve repeat cache payouts before expanding the tables.
+- **Progress.** The first victory drop is live. [Full expedition results](../audits/balance-playtests.md#full-floor-1-expeditions) support retaining the provisional Scavenger rate and show that repeat caches dominate potion supply. A [paired cache comparison](../audits/balance-playtests.md#floor-1-repeat-cache-comparison) found that daily gold removes the repeat income from re-entry while a potion per expedition preserves completion rates. Validate the candidate in live play before expanding the tables.
 - **Dependencies.** Playtested Ruins expeditions (6), the item catalog, and stackable inventory.
 - **Basic item drops.** Use fixed server-side loot tables for eligible Ruins victories. Start with existing consumables such as Lesser Potion and a few fixed-stat items. Reinforced Bracers and Ancient Blade are candidate gear. Review drop probabilities and rarity tiers during Ruins playtesting. Reserve better drops for tougher enemies and compare payouts after healing costs. Training dummies continue to award gold and XP on a win.
 - **Material drops.** Start with stackable Metal Scraps, Enchantment Powder, and Power Cells. Give each a description, a planned sell value, and a near-term source or use. Keep early quantities modest until selling is available. Materials can support future crafting, salvaging, and services at The Forge.

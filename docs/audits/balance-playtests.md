@@ -8,6 +8,7 @@ These trials record the builds, rules, and results used for earlier balance deci
 - [Level 10 progression playtest](#level-10-progression-playtest)
 - [Ruins comparison](#class-neutral-attack-power-comparison)
 - [Full Floor 1 expeditions](#full-floor-1-expeditions)
+- [Floor 1 repeat-cache comparison](#floor-1-repeat-cache-comparison)
 
 ## Historical combat playtests
 
@@ -587,3 +588,28 @@ A separate Chromium walkthrough at 320 CSS pixels exercised entry, both cache di
 After arrival at the Scavenger, the HP value was in view above the map. The **Fight** and **Pass by** choices required scrolling below the map, and Recall sat farther down after the consumables. After a cache arrival, the discovery message was below the viewport even though focus had returned to the tile. At the entrance, the normal exit and Recall also started below the viewport. The keyboard walkthrough used the current playtest markers and did not measure unaided discovery or screen-reader announcements. The Chromium and axe regression suite passed separately.
 
 Keep the Warden as the tougher encounter for the next pass and retain the 20% Scavenger rate for now. Before expanding the tables, settle how freely caches should pay on repeat arrivals. The gold cache supplies income without risk, and the potion cache largely determines supply in this route. Compare a less generous cache rule on the same route before using these payouts to price future materials. Check encounter, discovery, and exit visibility again on a narrow screen when testing reduced map markers.
+
+## Floor 1 repeat-cache comparison
+
+The November 24, 2026 follow-up used the rules at `ab85a8e` and varied only the cache claim rules in a simulation. For each build, rule, and trip schedule, 1,000 paired sessions ran 16 trips each. Each session began with three Lesser Potions. Each trip began at 25 HP, with Sanctum charging for any missing HP after every trip. The sessions omitted attribute spending, equipment purchases, potion purchases, and Recall. Survivors returned on foot. The builds, healing threshold, and route matched the full expedition playtest. The outward route visited the potion and gold caches once each, then fought the Scavenger, Sentinel, and Warden. The return route crossed the gold cache a second time.
+
+The simulation used the live map, combat simulator, and Scavenger drop chance. For each fight, the existing seeded generator used `(sessionSeed * 16 + tripIndex) * 49 + tile` with session seeds 1–1,000, trip indices 0–15, and tile indices 9, 25, and 48 for the fights. Each fight drew gold first, then combat, then the drop on eligible victories, matching the live order. Resetting the stream for each fight kept later rolls paired when potion availability changed a fight's length. Daily claims reset between modeled Central days. A per-expedition claim reset at each entry, including after defeat.
+
+### Four trips per Central day
+
+| Cache rule                  | Unequipped net gold per trip | Unequipped Warden clears | Geared net gold per trip | Geared Warden clears | Cache potions per session |
+| --------------------------- | ---------------------------: | -----------------------: | -----------------------: | -------------------: | ------------------------: |
+| Every arrival (live rule)   |                        56.51 |                    13.2% |                   103.00 |                78.9% |                        16 |
+| Both once per expedition    |                        55.45 |                    13.2% |                    96.69 |                78.9% |                        16 |
+| Both once per day           |                        47.09 |                     9.1% |                    77.56 |                55.4% |                         4 |
+| Daily gold, potion per trip |                        49.45 |                    13.2% |                    90.69 |                78.9% |                        16 |
+
+Net gold subtracts Sanctum costs. Warden clears use all trips as the denominator, including trips ended by earlier defeats. With both caches daily, the geared build reached the Warden at 15 HP or less without a potion on 31.1% of all trips. Daily gold with a potion per trip produced the same fight outcomes as the live-rule simulation and reduced geared net gold by 12.31 per trip. When all 16 trips were compressed into one modeled day, the daily rule for both caches dropped Warden clears to 6.6% unequipped and 41.4% geared. The split rule held clears at 13.2% and 78.9% while yielding 47.95 and 89.19 net gold per trip, respectively.
+
+### Short cache routes and candidate rule
+
+- On the five-arrival gold-cache loop from the live trial, the current rule yields 40 gold over 10 moves. Both a per-expedition claim and a daily claim yield 8 gold on that loop. Leaving and re-entering between each visit restores the per-expedition payout to 40 gold, at a cost of five entries and five exits in addition to the same 10 moves. Daily gold stays at 8 across those re-entries.
+- The split rule still allows a player to leave and re-enter to collect another potion without fighting. The cache contributes one potion per full trip, while the Scavenger contributes about 0.19. The split rule preserves that supply while controlling repeat gold. Making both caches daily would increase the importance of the drop, but it sharply reduces completion under the tested healing policy.
+- Advance **one gold-cache claim per Central day and one potion-cache claim per expedition** to a live trial before expanding loot. Verify that walking out, Recall, and defeat start a new potion claim on re-entry, that logging out preserves the current claim, and that gold can be claimed again after Central midnight. Recheck discovery and exit visibility with reduced markers as planned.
+
+These results use fixed routes and healing decisions. The candidate rules were simulated and have no live persistence or UI measurements. Players may buy potions, skip empty caches, farm supplies, or retreat instead of continuing to the Warden. The simulation measures payouts and clears under identical route choices and leaves those adaptations for live testing.
