@@ -1,21 +1,29 @@
-import { Request, Response, NextFunction } from "express";
+import { eq } from "drizzle-orm";
+import type { NextFunction, Request, Response } from "express";
 import { db } from "../db";
 import { effectiveMaxHp, users } from "../db/schema";
-import { eq } from "drizzle-orm";
+
+type AuthenticatedPlayer = NonNullable<ReturnType<typeof findPlayer>>;
+type PlayerLocals = { user?: AuthenticatedPlayer | null };
+type PlayerResponse = Response<unknown, PlayerLocals>;
 
 /**
  * Loads the user identified by the session into `res.locals.user`.
  * Sets it to null when there is no session user or the account no longer exists.
  */
-export function loadUser(req: Request, res: Response, next: NextFunction) {
+export function loadUser(
+  req: Request,
+  res: PlayerResponse,
+  next: NextFunction,
+) {
   const userId = req.session.userId;
+  res.locals.user = userId ? (findPlayer(userId) ?? null) : null;
+  next();
+}
 
-  if (!userId) {
-    res.locals.user = null;
-    return next();
-  }
-
-  const user = db
+/** Selects gameplay fields for the request and its views. */
+function findPlayer(userId: number) {
+  return db
     .select({
       id: users.id,
       name: users.name,
@@ -47,13 +55,26 @@ export function loadUser(req: Request, res: Response, next: NextFunction) {
     .from(users)
     .where(eq(users.id, userId))
     .get();
-
-  res.locals.user = user ?? null;
-
-  next();
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+/**
+ * Reads the player after requireAuth. A missing player here indicates a route
+ * was mounted without the authentication guard.
+ */
+export function getAuthenticatedPlayer(
+  res: PlayerResponse,
+): AuthenticatedPlayer {
+  const { user } = res.locals;
+  if (!user) throw new Error("Authenticated route is missing its player");
+  return user;
+}
+
+/** Sends guests to the sign-in page before any game handler runs. */
+export function requireAuth(
+  _req: Request,
+  res: PlayerResponse,
+  next: NextFunction,
+) {
   if (!res.locals.user) {
     return res.redirect("/");
   }

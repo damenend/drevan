@@ -31,11 +31,6 @@ textarea {
     outline: 2px solid vars.$color-primary;
     outline-offset: 2px;
   }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
 
 // Buttons
@@ -62,11 +57,20 @@ input[type="submit"] {
     outline: 2px solid vars.$color-text;
     outline-offset: 2px;
   }
+}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+// Disabled controls
+input[type="text"]:disabled,
+input[type="email"]:disabled,
+input[type="password"]:disabled,
+input[type="number"]:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+select:disabled,
+textarea:disabled,
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 // Form layout

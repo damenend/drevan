@@ -1,3 +1,4 @@
+import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { Router } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
@@ -33,7 +34,7 @@ const editableStats = Object.keys(statLabels) as EditableStat[];
 // Admin page
 router.get("/", (req, res) => {
   const message = req.query.message;
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
   const castsUsed = getDailyCastsUsed(
     player.fishingCastsUsed,
     player.fishingCastDate,
@@ -89,7 +90,7 @@ router.post("/", (req, res) => {
     return res.redirect("/game/admin?message=err");
   }
 
-  const { id } = res.locals.user;
+  const { id } = getAuthenticatedPlayer(res);
   const saved = db.transaction(
     (tx) => {
       const player = tx

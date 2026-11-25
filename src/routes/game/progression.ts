@@ -1,3 +1,4 @@
+import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { Router } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
@@ -12,14 +13,14 @@ import {
 const router = Router();
 
 router.post("/", (req, res) => {
-  const path = res.locals.user.ruinsTile === null ? "/game" : "/game/ruins";
+  const { id, ruinsTile } = getAuthenticatedPlayer(res);
+  const path = ruinsTile === null ? "/game" : "/game/ruins";
   const stat = req.body?.stat;
   if (!isAllocationStat(stat)) {
     return res.redirect(303, `${path}?message=Choose+a+stat+to+increase.`);
   }
 
   const pointColumn = `${stat}Points` as const;
-  const { id } = res.locals.user;
   const message = db.transaction(
     (tx) => {
       const player = tx

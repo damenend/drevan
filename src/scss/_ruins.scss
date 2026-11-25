@@ -1,5 +1,7 @@
 @use "vars";
 
+$map-width: 21rem;
+
 .ruins-sections {
   display: grid;
   gap: 1rem 2rem;
@@ -8,7 +10,7 @@
     "controls";
 
   @media (min-width: 44rem) {
-    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, $map-width) minmax(0, 1fr);
     grid-template-areas: "map controls";
   }
 }
@@ -20,7 +22,7 @@
 .ruins-exploration {
   grid-area: map;
   justify-self: center;
-  width: min(100%, 21rem);
+  width: min(100%, $map-width);
 }
 
 .ruins-controls {
@@ -35,7 +37,7 @@
 .ruins-map {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  width: min(100%, 21rem);
+  width: min(100%, $map-width);
   gap: 0.25rem;
 }
 

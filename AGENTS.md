@@ -58,7 +58,12 @@ Expected locations (verify before editing):
 - `src/middleware/auth.ts`: load the signed-in player and protect game routes
 - `src/routes/`: public and authentication routes
 - `src/routes/game/`: signed-in gameplay routes and the expedition access guard in `index.ts`. The inventory router handles consumable use and equipment.
-- `src/services/`: battle simulation and item effects shared by route handlers
+- `src/services/` holds game rules and transactions. Route handlers validate
+  requests, call the appropriate service, and handle reports and redirects.
+- `src/services/battle.ts` simulates combat without opening SQLite.
+  `src/services/player-battle.ts` loads owned equipment through the caller's
+  transaction, runs the simulator, and calculates the changes to save.
+  `src/services/training.ts` applies those changes for Dominion training.
 - `src/services/character-stats.ts`: primary attribute totals, base Attack Power,
   spent attribute points, and the shared SQL expression for maximum HP. The
   schema exposes the calculated cap, and Admin and progression use the
@@ -67,7 +72,11 @@ Expected locations (verify before editing):
   owned gear in the matching slots. Its combat stats include the player's
   stored Speed, effective Attack Power, and effective Defense.
 - `src/services/fishing.ts`: catch rolls and the daily cast limit shared by The
-  Driftwater and Admin
+  Driftwater and Admin. `src/services/fishing-cast.ts` spends casts and saves
+  catches in one transaction. The roll tests can import the fishing rules
+  without opening SQLite.
+- `src/services/emporium.ts` reads the catalog and handles purchases and
+  sales. The store route parses the quantity fields and renders the result.
 - `src/services/ruins.ts`: expedition actions and supplies. The fixed map and
   enemy definitions live in `src/services/ruins-map.ts`, which the playtest can
   import without opening SQLite.
@@ -94,6 +103,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   is stored independently, starts at 5 for new characters, and controls
   initiative and attack frequency. Base Defense defaults to 0. The Quarters
   shows effective Defense, which reduces incoming combat damage.
+  Base and effective Attack Power cap at half of JavaScript’s maximum safe
+  integer, rounded down, so critical-hit damage stays in the exact integer
+  range. The cap also applies to existing characters with extreme attributes.
 - The player class identifier defaults to `unaligned`. SQLite also accepts the reserved values `melee`, `ranged`, and `caster`. The Quarters and Admin display the class. Class selection and bonuses are future work.
 - New accounts start with 125 gold and three Lesser Potions. Signup requires
   the seeded Lesser Potion and saves the account and its potions together.
@@ -154,6 +166,9 @@ The SQLite database is local runtime data, not a source-controlled artifact.
   - Attack Power = `2 + (level - 1)`
   - Speed = `2 + (level - 1)`
   - Defense = `Math.floor(level / 4)`
+- Training and fishing redirect after saving an action. The next result page
+  reads and clears the report from the session, so refreshing the result does
+  not repeat the action.
 - Training saves remaining HP and awards `dummy level * 10` gold and XP on a
   win in one transaction. Each reward is capped by how much fits in its
   balance, up to JavaScript’s maximum safe integer. Losses and draws grant
@@ -284,10 +299,11 @@ and runs without opening the local database. By default it uses player builds
 with the current Attack Power and Speed rules. Pass `--historical` to reproduce
 the original Floor 1 comparison with the earlier player builds.
 
-When adding combat modes, reuse the effective-stat calculation in
-`src/services/equipment.ts` and resolve fights automatically with the shared
-simulator in `src/services/battle.ts`. Each encounter mode decides which
-results to save and which rewards to grant.
+When adding an encounter that saves a player's combat result, use
+`resolvePlayerBattle` inside the encounter's transaction. The encounter
+supplies its reward amounts and saves the returned HP, gold, and XP changes
+alongside its own state. Playtests that supply their own combatants can call
+`simulateBattle` directly.
 
 Balance player-versus-environment (PvE) encounters first. Use repeatable
 matchups with controlled random rolls to measure the effect of one rule change

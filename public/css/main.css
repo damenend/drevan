@@ -98,15 +98,6 @@ textarea:focus-visible {
   outline: 2px solid #b58b4c;
   outline-offset: 2px;
 }
-input[type=text]:disabled,
-input[type=email]:disabled,
-input[type=password]:disabled,
-input[type=number]:disabled,
-select:disabled,
-textarea:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 button,
 input[type=button],
@@ -133,9 +124,16 @@ input[type=submit]:focus-visible {
   outline: 2px solid #e5e5e5;
   outline-offset: 2px;
 }
-button:disabled,
+
+input[type=text]:disabled,
+input[type=email]:disabled,
+input[type=password]:disabled,
+input[type=number]:disabled,
 input[type=button]:disabled,
-input[type=submit]:disabled {
+input[type=submit]:disabled,
+select:disabled,
+textarea:disabled,
+button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -384,7 +382,7 @@ img {
   flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem 0;
-  border-top: 1px solid #3a3a3a;
+  border-top: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
 }
 .main-navigation a {
   color: #999999;

@@ -4,13 +4,14 @@ import {
   getSpentPoints,
 } from "../../services/character-stats";
 import { Router } from "express";
-import { requireAuth } from "../../middleware/auth";
+import { getAuthenticatedPlayer, requireAuth } from "../../middleware/auth";
 import { and, eq, gt, asc } from "drizzle-orm";
 import { db } from "../../db";
 import { items, inventory } from "../../db/schema";
 import {
   applyEquipmentBonuses,
   getEquippedSlot,
+  getAvailableQuantity,
 } from "../../services/equipment";
 
 import arenaRouter from "./arena";
@@ -34,7 +35,7 @@ router.use("/ruins", ruinsRouter);
 // An expedition permits only potion use and point allocation outside its router.
 router.use((req, res, next) => {
   if (
-    res.locals.user.ruinsTile !== null &&
+    getAuthenticatedPlayer(res).ruinsTile !== null &&
     !(
       req.method === "POST" &&
       /^\/(inventory\/use|progression)\/?$/i.test(req.path)
@@ -50,7 +51,7 @@ router.use((req, res, next) => {
 
 // Game homepage
 router.get("/", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
 
   const playerInventory = db
     .select({
@@ -73,7 +74,7 @@ router.get("/", (req, res) => {
       return {
         ...item,
         equippedSlot,
-        quantity: item.quantity - Number(equippedSlot !== null),
+        quantity: getAvailableQuantity(player, item),
       };
     });
 
@@ -98,7 +99,7 @@ router.get("/", (req, res) => {
 router.get("/nexaris", (req, res) => {
   const latestBattle = req.session.ruinsBattle;
   const battle =
-    latestBattle && latestBattle.enemyHp > 0 ? latestBattle : undefined;
+    latestBattle && latestBattle.outcome !== "win" ? latestBattle : undefined;
   if (battle) delete req.session.ruinsBattle;
   return res.render("game/nexaris", {
     title: "Nexaris",

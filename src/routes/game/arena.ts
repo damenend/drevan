@@ -1,3 +1,4 @@
+import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { Router } from "express";
 import { MAX_TRAINING_LEVEL } from "../../services/battle";
 
@@ -7,7 +8,7 @@ const router = Router();
 
 // Arena page
 router.get("/", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
   const requestedLevel = parseFormInteger(req.query.level);
   const level =
     requestedLevel !== null &&

@@ -1,3 +1,4 @@
+import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { Router, type Response } from "express";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
@@ -37,19 +38,18 @@ function findOwnedItem(
 
 /** Returns to The Ruins during an expedition or The Quarters otherwise. */
 function redirectHome(res: Response, message: string) {
-  const path = res.locals.user.ruinsTile === null ? "/game" : "/game/ruins";
+  const path =
+    getAuthenticatedPlayer(res).ruinsTile === null ? "/game" : "/game/ruins";
   return res.redirect(`${path}?message=${encodeURIComponent(message)}`);
 }
 
 // Use an inventory item
 router.post("/use", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
   const itemId = parseFormInteger(req.body?.itemId);
 
   if (itemId === null || itemId <= 0) {
-    return res.redirect(
-      res.locals.user.ruinsTile === null ? "/game" : "/game/ruins",
-    );
+    return res.redirect(player.ruinsTile === null ? "/game" : "/game/ruins");
   }
 
   const result = db.transaction(
@@ -137,7 +137,7 @@ router.post("/use", (req, res) => {
 });
 
 router.post("/equip", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
   const itemId = parseFormInteger(req.body?.itemId);
 
   if (itemId === null || itemId <= 0) {
@@ -173,7 +173,7 @@ router.post("/equip", (req, res) => {
 });
 
 router.post("/unequip", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
   const itemId = parseFormInteger(req.body?.itemId);
 
   if (itemId === null || itemId <= 0) {

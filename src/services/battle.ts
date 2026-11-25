@@ -31,6 +31,7 @@ export type Combatant = {
 };
 
 export type BattleResult = {
+  outcome: "win" | "loss" | "draw";
   battleLog: BattleLogEntry[];
   startingPlayerHp: number;
   startingEnemyHp: number;
@@ -222,6 +223,7 @@ export function simulateBattle(
   });
 
   return {
+    outcome,
     battleLog,
     startingPlayerHp: player.hp,
     startingEnemyHp: enemy.hp,

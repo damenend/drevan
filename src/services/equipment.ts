@@ -1,7 +1,11 @@
 import { and, eq, gt, or } from "drizzle-orm";
 import { db } from "../db";
 import { inventory, items, users } from "../db/schema";
-import { getBaseAttackPower, getPrimaryAttributes } from "./character-stats";
+import {
+  getBaseAttackPower,
+  getPrimaryAttributes,
+  MAX_ATTACK_POWER,
+} from "./character-stats";
 
 type EquippedPlayer = Pick<
   typeof users.$inferSelect,
@@ -42,6 +46,14 @@ export function getEquippedSlot(
     if (item.id === player[equipmentSlots[item.type]]) return item.type;
   }
   return null;
+}
+
+/** Counts copies available after reserving one for the equipped slot. */
+export function getAvailableQuantity(
+  player: Parameters<typeof getEquippedSlot>[0],
+  item: Parameters<typeof getEquippedSlot>[1] & { quantity: number },
+) {
+  return item.quantity - Number(getEquippedSlot(player, item) !== null);
 }
 
 /**
@@ -106,5 +118,8 @@ export function applyEquipmentBonuses(
     }
   }
 
-  return stats;
+  return {
+    ...stats,
+    attackPower: Math.min(MAX_ATTACK_POWER, stats.attackPower),
+  };
 }

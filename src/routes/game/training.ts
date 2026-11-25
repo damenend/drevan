@@ -1,115 +1,35 @@
 import { Router } from "express";
-import { eq } from "drizzle-orm";
-import { db } from "../../db";
-import { users } from "../../db/schema";
-import { getEffectiveStats } from "../../services/equipment";
-import { getProgression } from "../../services/progression";
-import { formatPlayerName } from "../../utils/format-player-name";
-
-import {
-  createTrainingDummy,
-  simulateBattle,
-  MAX_TRAINING_LEVEL,
-} from "../../services/battle";
-
+import { getAuthenticatedPlayer } from "../../middleware/auth";
+import { MAX_TRAINING_LEVEL } from "../../services/battle";
+import { trainAgainstDummy } from "../../services/training";
 import { parseFormInteger } from "../../utils/parse-form-integer";
 
 const router = Router();
 
+router.get("/", (req, res) => {
+  const report = req.session.trainingReport;
+  if (!report) return res.redirect("/game/arena");
+
+  delete req.session.trainingReport;
+  return res.render("game/battle", {
+    title: "Dominion training",
+    dead: report.battle === null,
+    level: report.level,
+    ...report.battle,
+  });
+});
+
 // Training battle
 router.post("/", (req, res) => {
-  if (res.locals.user.hp <= 0) {
-    return res.render("game/battle", {
-      title: "Dominion training",
-      dead: true,
-    });
-  }
-
-  // Validate training level
   const level = parseFormInteger(req.body?.level);
 
   if (level === null || level < 1 || level > MAX_TRAINING_LEVEL) {
     return res.redirect("/game/arena");
   }
 
-  // Generate training dummy and reward
-  const enemy = createTrainingDummy(level);
-  const goldReward = level * 10;
-
-  const { id } = res.locals.user;
-  const savedBattle = db.transaction(
-    (tx) => {
-      const player = tx
-        .select({
-          id: users.id,
-          name: users.name,
-          hp: users.hp,
-          exp: users.exp,
-          gold: users.gold,
-          strength: users.strength,
-          strengthPoints: users.strengthPoints,
-          agility: users.agility,
-          agilityPoints: users.agilityPoints,
-          intellect: users.intellect,
-          intellectPoints: users.intellectPoints,
-          fortitude: users.fortitude,
-          fortitudePoints: users.fortitudePoints,
-          speed: users.speed,
-          defense: users.defense,
-          equippedWeaponId: users.equippedWeaponId,
-          equippedArmorId: users.equippedArmorId,
-        })
-        .from(users)
-        .where(eq(users.id, id))
-        .get();
-      if (!player || player.hp <= 0) return null;
-
-      const result = simulateBattle(
-        {
-          name: formatPlayerName(player.name),
-          hp: player.hp,
-          ...getEffectiveStats(player, tx),
-        },
-        enemy,
-        Math.min(
-          goldReward,
-          Math.max(0, Number.MAX_SAFE_INTEGER - player.gold),
-        ),
-      );
-
-      // Commit HP loss and any victory rewards together.
-      const xpEarned =
-        result.enemyHp === 0
-          ? Math.min(level * 10, Number.MAX_SAFE_INTEGER - player.exp)
-          : 0;
-      const exp = player.exp + xpEarned;
-      tx.update(users)
-        .set({
-          hp: result.playerHp,
-          gold:
-            result.goldEarned > 0 ? player.gold + result.goldEarned : undefined,
-          exp,
-        })
-        .where(eq(users.id, player.id))
-        .run();
-
-      const newLevel = getProgression(exp).level;
-      return {
-        ...result,
-        xpEarned,
-        gainedLevel:
-          newLevel > getProgression(player.exp).level ? newLevel : null,
-      };
-    },
-    { behavior: "immediate" },
-  );
-
-  return res.render("game/battle", {
-    title: "Dominion training",
-    dead: savedBattle === null,
-    level,
-    ...savedBattle,
-  });
+  const battle = trainAgainstDummy(getAuthenticatedPlayer(res).id, level);
+  req.session.trainingReport = { level, battle };
+  return res.redirect(303, "/game/training");
 });
 
 export default router;

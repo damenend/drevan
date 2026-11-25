@@ -1,5 +1,8 @@
 import { sql, type SQLWrapper } from "drizzle-orm";
 
+// Leave room for the 1.5× critical multiplier in integer damage calculations.
+export const MAX_ATTACK_POWER = Math.floor(Number.MAX_SAFE_INTEGER / 2);
+
 export const HP_PER_FORTITUDE = 3;
 export const STARTING_FORTITUDE = 5;
 const MINIMUM_MAX_HP = 10;
@@ -37,7 +40,10 @@ export function getPrimaryAttributes(player: AttributeBases & AttributePoints) {
 export function getBaseAttackPower(
   attributes: Pick<AttributeBases, "strength" | "agility" | "intellect">,
 ) {
-  return attributes.strength + attributes.agility + attributes.intellect;
+  return Math.min(
+    MAX_ATTACK_POWER,
+    attributes.strength + attributes.agility + attributes.intellect,
+  );
 }
 
 /** Counts spent AP across all attributes. Each Fortitude purchase costs one AP. */

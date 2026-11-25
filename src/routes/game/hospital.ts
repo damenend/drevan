@@ -1,3 +1,4 @@
+import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { Router } from "express";
 import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
@@ -10,7 +11,7 @@ const router = Router();
 
 // Hospital page
 router.get("/", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
 
   const healed = parseFormInteger(req.query.healed) ?? 0;
   let message;
@@ -30,7 +31,7 @@ router.get("/", (req, res) => {
 
 // Heal player
 router.post("/", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
   const healed = Math.max(0, player.maxHp - player.hp);
 
   // No healing necessary

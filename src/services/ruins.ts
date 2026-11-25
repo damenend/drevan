@@ -1,12 +1,10 @@
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, or } from "drizzle-orm";
 import { db } from "../db";
 import { inventory, items, users } from "../db/schema";
 import { formatNumber } from "../utils/format-number";
-import { formatPlayerName } from "../utils/format-player-name";
 import { getGameDate } from "../utils/game-date";
-import { simulateBattle, type BattleResult } from "./battle";
-import { getEffectiveStats } from "./equipment";
 import { grantInventoryItem } from "./inventory";
+import { resolvePlayerBattle, type PlayerBattleReport } from "./player-battle";
 import {
   canMoveInRuins,
   getRuinsEncounter,
@@ -18,9 +16,8 @@ type RuinsAction =
   | { kind: "move"; destination: number }
   | { kind: "enter" | "exit" | "recall" | "engage" | "ignore" };
 
-export type RuinsBattle = BattleResult & {
+export type RuinsBattle = PlayerBattleReport & {
   enemyName: string;
-  xpEarned: number;
 };
 
 type ActionResult = {
@@ -42,7 +39,16 @@ export function getRuinsSupplies(userId: number) {
     })
     .from(inventory)
     .innerJoin(items, eq(items.id, inventory.itemId))
-    .where(and(eq(inventory.userId, userId), gt(inventory.quantity, 0)))
+    .where(
+      and(
+        eq(inventory.userId, userId),
+        gt(inventory.quantity, 0),
+        or(
+          and(eq(items.name, RECALL_BEACON), eq(items.type, "utility")),
+          and(eq(items.type, "consumable"), eq(items.effect, "heal")),
+        ),
+      ),
+    )
     .orderBy(items.name)
     .all();
   return {
@@ -189,25 +195,16 @@ export function actInRuins(
             }
             if (player.hp <= 0)
               return { message: "You need to heal before fighting." };
-            const battle = simulateBattle(
-              {
-                name: formatPlayerName(player.name),
-                hp: player.hp,
-                ...getEffectiveStats(player, tx),
-              },
+            const { battle, changes: rewards } = resolvePlayerBattle(
+              player,
               encounter.enemy,
-              Math.min(encounter.reward, Number.MAX_SAFE_INTEGER - player.gold),
+              { gold: encounter.reward, xp: encounter.reward },
+              tx,
             );
-            const won = battle.enemyHp === 0;
-            const xpEarned = won
-              ? Math.min(encounter.reward, Number.MAX_SAFE_INTEGER - player.exp)
-              : 0;
-            changes.hp = battle.playerHp;
-            changes.gold = player.gold + battle.goldEarned;
-            changes.exp = player.exp + xpEarned;
+            Object.assign(changes, rewards);
             result = {
-              left: !won,
-              battle: { ...battle, enemyName: encounter.enemy.name, xpEarned },
+              left: battle.outcome !== "win",
+              battle: { ...battle, enemyName: encounter.enemy.name },
             };
             break;
           }

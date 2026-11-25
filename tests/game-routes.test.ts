@@ -15,7 +15,11 @@ import path from "node:path";
 import { after, before, beforeEach, test } from "node:test";
 import Database from "better-sqlite3";
 import { sql } from "drizzle-orm";
-import { getBaseAttackPower, maximumHp } from "../src/services/character-stats";
+import {
+  getBaseAttackPower,
+  maximumHp,
+  MAX_ATTACK_POWER,
+} from "../src/services/character-stats";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { getRuinsEncounter } from "../src/services/ruins-map";
@@ -136,6 +140,15 @@ function post(
   });
 }
 
+/** Follows a gameplay action's result page as the signed-in player. */
+async function followAction(response: Awaited<ReturnType<typeof post>>) {
+  assert.equal(response.status, 303);
+  const location = response.headers.get("location");
+  assert.ok(location);
+  assert.ok(location.startsWith("/game/"));
+  return request(location, { headers: { cookie } });
+}
+
 function player() {
   const row = sqlite
     .prepare<
@@ -204,6 +217,43 @@ test("game routes require sign-in and sign-in replaces the session", async () =>
       '<a href="/game/users">Back to The Registry</a>',
     ),
   );
+});
+
+test("an incorrect password does not create an authenticated session", async () => {
+  const login = await post(
+    "/login",
+    { ...account, password: "wrong password" },
+    "",
+  );
+  assert.equal(login.status, 401);
+  assert.equal(login.headers.get("set-cookie"), null);
+});
+
+test("signup rolls back the account when starter potions cannot be saved", async (t) => {
+  const email = "failed-signup@example.test";
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    CREATE TRIGGER fail_starter_potions BEFORE INSERT ON inventory
+    BEGIN
+      SELECT RAISE(ABORT, 'Test starter potion write failure');
+    END;
+  `);
+
+  try {
+    const signup = await post(
+      "/signup",
+      { ...account, name: "New Adventurer", email },
+      "",
+    );
+    assert.equal(signup.status, 500);
+    assert.equal(signup.headers.get("set-cookie"), null);
+    assert.equal(
+      sqlite.prepare("SELECT id FROM users WHERE email = ?").get(email),
+      undefined,
+    );
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_starter_potions;");
+  }
 });
 
 test("Nexaris links to each location using its display name", async () => {
@@ -300,6 +350,24 @@ test("equal offensive totals yield equal Attack Power regardless of Fortitude", 
   }
 });
 
+test("extreme attributes and equipped bonuses respect the Attack Power cap", async () => {
+  sqlite
+    .prepare(
+      "UPDATE users SET strength = ?, agility = 2, equipped_weapon_id = 2",
+    )
+    .run(Number.MAX_SAFE_INTEGER);
+  sqlite.exec(
+    "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 2, 1 FROM users",
+  );
+  const admin = await request("/game/admin", { headers: { cookie } });
+  assert.match(
+    admin.html,
+    new RegExp(
+      `Attack Power: <strong>${MAX_ATTACK_POWER.toLocaleString("en-US")}</strong>`,
+    ),
+  );
+});
+
 test("class identifiers are constrained and Admin leaves the class read-only", async () => {
   for (const characterClass of ["melee", "ranged", "caster", "unaligned"]) {
     sqlite.prepare("UPDATE users SET character_class = ?").run(characterClass);
@@ -329,7 +397,10 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
   t.mock.method(Math, "random", () => 0.1);
   const playerHit =
     /battle-log-entry--player">\s*<span class="player">[^<]+<\/span>\s*attacks\s*<span class="enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
-  assert.match((await post("/game/training", { level: 1 })).html, playerHit);
+  assert.match(
+    (await followAction(await post("/game/training", { level: 1 }))).html,
+    playerHit,
+  );
   await reachScavenger();
   await explore("engage");
   assert.match((await viewRuins()).html, playerHit);
@@ -616,6 +687,57 @@ test("consumption, gear and Sanctum use current player state", async () => {
   assert.equal(player().equipped_weapon_id, null);
 });
 
+test("at zero HP, potions and training are blocked and Sanctum requires enough gold", async () => {
+  await post("/game/store", { items: { "item-1": 1 } });
+  sqlite.exec("UPDATE users SET hp = 0, gold = 24;");
+  const initial = player();
+
+  await post("/game/inventory/use", { itemId: 1 });
+  const training = await followAction(
+    await post("/game/training", { level: 1 }),
+  );
+  assert.equal(training.status, 200);
+  assert.match(training.html, /Heal at Sanctum/);
+  assert.equal(
+    (await post("/game/hospital")).headers.get("location"),
+    "/game/hospital?err=gold",
+  );
+  assert.deepEqual(player(), initial);
+  assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 1 }]);
+
+  sqlite.exec("UPDATE users SET gold = 25;");
+  assert.equal(
+    (await post("/game/hospital")).headers.get("location"),
+    "/game/hospital?healed=25",
+  );
+  assert.equal(player().hp, 25);
+  assert.equal(player().gold, 0);
+});
+
+test("a failed healing write leaves the potion in inventory", async (t) => {
+  await post("/game/store", { items: { "item-1": 1 } });
+  sqlite.exec("UPDATE users SET hp = 5;");
+  const initial = player();
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    CREATE TRIGGER fail_heal BEFORE UPDATE OF hp ON users
+    BEGIN
+      SELECT RAISE(ABORT, 'Test healing write failure');
+    END;
+  `);
+
+  try {
+    assert.equal(
+      (await post("/game/inventory/use", { itemId: 1 })).status,
+      500,
+    );
+    assert.deepEqual(player(), initial);
+    assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 1 }]);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_heal;");
+  }
+});
+
 test("training rejects malformed levels and saves the fight result", async (t) => {
   const initial = player();
   const invalid = await post("/game/training", { level: true });
@@ -623,12 +745,13 @@ test("training rejects malformed levels and saves the fight result", async (t) =
   assert.deepEqual(player(), initial);
 
   t.mock.method(Math, "random", () => 0.25);
-  const fight = await post(
-    "/game/training",
-    new URLSearchParams({ level: "1" }),
+  const fight = await followAction(
+    await post("/game/training", new URLSearchParams({ level: "1" })),
   );
   assert.equal(fight.status, 200);
   assert.match(fight.html, /Training Dummy/);
+  const refresh = await request("/game/training", { headers: { cookie } });
+  assert.equal(refresh.headers.get("location"), "/game/arena");
   assert.deepEqual(player(), {
     gold: 110,
     hp: 24,
@@ -641,7 +764,9 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
   t.mock.method(Math, "random", () => 0.25);
   const headers = { cookie };
   for (let win = 0; win < 2; win++) {
-    const fight = await post("/game/training", { level: 3 });
+    const fight = await followAction(
+      await post("/game/training", { level: 3 }),
+    );
     assert.equal(fight.status, 200);
     assert.match(fight.html, /30 XP/);
     if (win === 1) {
@@ -690,7 +815,9 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
     (await request("/game", { headers })).html,
     /Unspent attribute points<\/dt>\s*<dd>0<\/dd>/,
   );
-  const nextFight = await post("/game/training", { level: 1 });
+  const nextFight = await followAction(
+    await post("/game/training", { level: 1 }),
+  );
   assert.match(nextFight.html, /HP: 28 → 27/);
   assert.equal(player().hp, 27);
 });
@@ -701,7 +828,9 @@ test("a capped training draw saves HP loss and awards no gold", async (t) => {
   );
   t.mock.method(Math, "random", () => 0.5);
 
-  const fight = await post("/game/training", { level: 100 });
+  const fight = await followAction(
+    await post("/game/training", { level: 100 }),
+  );
 
   assert.equal(fight.status, 200);
   assert.match(fight.html, /The battle ended in a draw/);
@@ -730,12 +859,17 @@ test("only one request spends the last fishing cast and awards a catch", async (
     post("/game/fishing"),
     post("/game/fishing"),
   ]);
-  assert.ok(results.every(({ status }) => status === 200));
+  const pages = await Promise.all(results.map(followAction));
   assert.equal(
-    results.filter(({ html }) => /You reel in a/.test(html)).length,
+    pages.filter(({ html }) => /You reel in a/.test(html)).length,
     1,
   );
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
+  assert.equal(player().fishing_casts_used, 50);
+  const refresh = await request("/game/fishing?cast=1", {
+    headers: { cookie },
+  });
+  assert.doesNotMatch(refresh.html, /You reel in a/);
   assert.equal(player().fishing_casts_used, 50);
 });
 
@@ -942,6 +1076,36 @@ test("Ruins Recall Beacon is permanent and resets at midnight Central time", asy
   assert.equal(ruinsState().recall_date, "2026-07-03");
 });
 
+test("a failed Ruins move rolls back the discovery and allows a retry", async (t) => {
+  await explore("enter");
+  await explore("move", 7);
+  assert.equal(ruinsState().ruins_tile, 7);
+  const initial = ruinsState();
+  const supplies = ownedItems();
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    CREATE TRIGGER fail_discovery BEFORE UPDATE OF ruins_tile ON users
+    BEGIN
+      SELECT RAISE(ABORT, 'Test movement write failure');
+    END;
+  `);
+
+  try {
+    assert.equal((await explore("move", 14)).status, 500);
+    assert.deepEqual(ruinsState(), initial);
+    assert.deepEqual(ownedItems(), supplies);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_discovery;");
+  }
+
+  assert.equal((await explore("move", 14, initial.ruins_revision)).status, 303);
+  assert.equal(ruinsState().ruins_tile, 14);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 4, quantity: 1 },
+  ]);
+});
+
 test("Ruins fights are optional and a victory applies HP, XP and gold once", async (t) => {
   sqlite.exec("UPDATE users SET strength = 100, speed = 100, exp = 30");
   t.mock.method(Math, "random", () => 0.99);
@@ -1092,15 +1256,61 @@ test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stai
   assert.doesNotMatch(nearby, /Descend to Floor 2/);
 });
 
-test("a Dominion win credits only the gold that fits in the balance", async (t) => {
-  sqlite.prepare("UPDATE users SET gold = ?").run(Number.MAX_SAFE_INTEGER - 2);
+test("a Dominion win credits only the gold and XP that fit in their balances", async (t) => {
+  sqlite
+    .prepare("UPDATE users SET gold = ?, exp = ?")
+    .run(Number.MAX_SAFE_INTEGER - 2, Number.MAX_SAFE_INTEGER - 3);
   t.mock.method(Math, "random", () => 0.25);
 
-  const fight = await post("/game/training", { level: 1 });
+  const fight = await followAction(await post("/game/training", { level: 1 }));
 
   assert.equal(fight.status, 200);
-  assert.match(fight.html, /Reward: 2 gold, 10 XP/);
+  assert.match(fight.html, /Reward: 2 gold, 3 XP/);
+  assert.equal(ruinsState().exp, Number.MAX_SAFE_INTEGER);
   assert.equal(player().gold, Number.MAX_SAFE_INTEGER);
+});
+
+test("an empty cast spends the first cast of the new Central day", async (t) => {
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-07-02T04:59:59Z"),
+  });
+  sqlite
+    .prepare("UPDATE users SET fishing_casts_used = 50, fishing_cast_date = ?")
+    .run(getFishingDate());
+  t.mock.timers.tick(1000);
+  t.mock.method(Math, "random", () => 0.9);
+
+  const cast = await followAction(await post("/game/fishing"));
+  assert.equal(cast.status, 200);
+  assert.match(cast.html, /Your line comes back empty/);
+  assert.match(cast.html, /Casts remaining today: 49/);
+  assert.equal(player().fishing_casts_used, 1);
+  assert.deepEqual(ownedItems(), []);
+});
+
+test("a failed catch write restores the fishing cast", async (t) => {
+  t.mock.method(Math, "random", () => 0.25);
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    CREATE TRIGGER fail_catch BEFORE INSERT ON inventory
+    BEGIN
+      SELECT RAISE(ABORT, 'Test catch write failure');
+    END;
+  `);
+
+  try {
+    assert.equal((await post("/game/fishing")).status, 500);
+    assert.equal(player().fishing_casts_used, 0);
+    assert.deepEqual(ownedItems(), []);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_catch;");
+  }
+
+  const cast = await followAction(await post("/game/fishing"));
+  assert.match(cast.html, /You reel in a <strong>Murkfin<\/strong>/);
+  assert.equal(player().fishing_casts_used, 1);
+  assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
 });
 
 test("a catch at the stack limit still spends one fishing cast", async (t) => {
@@ -1111,7 +1321,7 @@ test("a catch at the stack limit still spends one fishing cast", async (t) => {
     .run(Number.MAX_SAFE_INTEGER, account.email);
   t.mock.method(Math, "random", () => 0.25);
 
-  const cast = await post("/game/fishing");
+  const cast = await followAction(await post("/game/fishing"));
 
   assert.equal(cast.status, 200);
   assert.match(cast.html, /You released the <strong>Murkfin<\/strong>/);

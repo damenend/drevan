@@ -15,12 +15,14 @@
   <% } else { %>
   <p>You've used all your casts for today. Casts reset at midnight Central time.</p>
   <% } %>
-  <% if (caughtFish) { %>
-  <img src="/images/<%= caughtFish.toLowerCase().replace(" ", "-") %>.webp" alt="" class="fish-image" />
-  <p>You reel in a <strong><%= caughtFish %></strong>.</p>
-  <% } else if (releasedFish) { %>
-  <p>You released the <strong><%= releasedFish %></strong> because you can’t carry any more of that fish.</p>
-  <% } else if (caughtFish === null) { %>
+  <% if (report?.kind === "caught") { %>
+  <% if (report.image) { %>
+  <img src="<%= report.image %>" alt="" class="fish-image">
+  <% } %>
+  <p>You reel in a <strong><%= report.name %></strong>.</p>
+  <% } else if (report?.kind === "released") { %>
+  <p>You released the <strong><%= report.name %></strong> because you can’t carry any more of that fish.</p>
+  <% } else if (report?.kind === "empty") { %>
   <p>Your line comes back empty.</p>
   <% } %>
 </section>

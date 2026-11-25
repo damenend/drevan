@@ -8,7 +8,7 @@
   padding: 1px;
   background-color: vars.$color-background;
   border: 1px solid vars.$color-background;
-  border-radius: 4px;
+  border-radius: vars.$radius-panel;
   overflow: hidden;
 }
 

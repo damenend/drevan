@@ -1,3 +1,4 @@
+import { getAuthenticatedPlayer } from "../../middleware/auth";
 import {
   getPrimaryAttributes,
   getSpentPoints,
@@ -18,14 +19,14 @@ import { parseFormInteger } from "../../utils/parse-form-integer";
 const router = Router();
 
 router.get("/", (req, res) => {
-  const player = res.locals.user;
+  const player = getAuthenticatedPlayer(res);
   const position = player.ruinsTile;
   const encounter = position === null ? undefined : getRuinsEncounter(position);
   const atNextFloor = position === RUINS_NEXT_FLOOR;
   const enemy =
     player.ruinsEnemyPending && encounter?.kind === "enemy" ? encounter : null;
   const battle =
-    position !== null && req.session.ruinsBattle?.enemyHp === 0
+    position !== null && req.session.ruinsBattle?.outcome === "win"
       ? req.session.ruinsBattle
       : undefined;
   if (battle) delete req.session.ruinsBattle;
@@ -67,7 +68,7 @@ router.post("/action", (req, res) => {
 
   const kind = req.body?.action;
   const destination = parseFormInteger(req.body?.destination);
-  const id = res.locals.user.id;
+  const id = getAuthenticatedPlayer(res).id;
   let result;
   switch (kind) {
     case "enter":
