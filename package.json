@@ -21,7 +21,7 @@
     "@types/express": "^5.0.6",
     "@types/express-ejs-layouts": "^2.5.4",
     "@types/express-session": "^1.19.0",
-    "@types/node": "^26.6.6",
+    "@types/node": "^26.6.7",
     "axe-core": "^4.14.1",
     "concurrently": "^10.0.7",
     "drizzle-kit": "^0.31.11",
