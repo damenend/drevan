@@ -4,10 +4,10 @@ Nexaris at `/game/nexaris` is the signed-in location directory. Start at [The Qu
 
 ## The Driftwater
 
-Players can cast 50 times per day. The allowance resets at midnight in `America/Chicago`, the same calendar used by the Recall Beacon. Empty casts count.
+Players can cast 50 times per day. The allowance resets at midnight in `America/Chicago`, the same calendar used by the Recall Beacon. Empty casts count. **Cast line** uses one cast. **Cast net** uses every remaining cast and rolls each one independently.
 
 Each cast has an 80% chance of a bite. On a bite, a second roll picks Murkfin (70%), Glassscale (25%), or Astral Koi (5%). A catch adds one owned fish and saves the spent cast in the same transaction. A full stack releases the fish and still spends the cast. Fishing and Ruins discoveries respect the same stack limit. A full stack leaves a Ruins item cache available to retry.
 
-The result appears once after redirect. Owned fish can be sold at Curious Emporium when they have a positive catalog sell price.
+The result appears once after redirect. The net report totals catches and releases by species and counts empty casts. Owned fish can be sold at Curious Emporium when they have a positive catalog sell price.
 
 [Fishing rules](../../src/services/fishing.ts) · [Cast transaction](../../src/services/fishing-cast.ts) · [Central date helper](../../src/utils/game-date.ts) · [Roll tests](../../tests/fishing.test.ts) · [Route tests](../../tests/game-routes.test.ts)

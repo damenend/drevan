@@ -1197,6 +1197,45 @@ test("only one request spends the last fishing cast and awards a catch", async (
   assert.equal(player().fishing_casts_used, 50);
 });
 
+test("Cast net spends the remaining casts once and totals all outcomes", async (t) => {
+  sqlite
+    .prepare("UPDATE users SET fishing_casts_used = ?, fishing_cast_date = ?")
+    .run(DAILY_CAST_LIMIT - 3, getFishingDate());
+  sqlite
+    .prepare(
+      "INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 3, ? FROM users WHERE email = ?",
+    )
+    .run(Number.MAX_SAFE_INTEGER - 1, account.email);
+  const rolls = [0.25, 0.25, 0.9, 0.25, 0.25];
+  t.mock.method(Math, "random", () => rolls.shift() ?? 0.9);
+
+  const responses = await Promise.all([
+    post("/game/fishing/net", { casts: 1 }),
+    post("/game/fishing/net"),
+  ]);
+  const result = responses.find(
+    ({ headers }) => headers.get("location") === "/game/fishing?cast=1",
+  );
+  assert.ok(result);
+  assert.equal(
+    responses.filter(
+      ({ headers }) => headers.get("location") === "/game/fishing",
+    ).length,
+    1,
+  );
+  const { html } = await followAction(result);
+  assert.match(html, /Net result/);
+  assert.match(html, /Used 3 casts\./);
+  assert.match(html, /<li>Murkfin x 1<\/li>/);
+  assert.match(html, /Released 1 × Murkfin/);
+  assert.match(html, /1 empty cast/);
+  assert.match(html, /disabled>Cast net<\/button>/);
+  assert.equal(player().fishing_casts_used, DAILY_CAST_LIMIT);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 3, quantity: Number.MAX_SAFE_INTEGER },
+  ]);
+});
+
 test("discovery migration preserves an active expedition and its earned rewards", () => {
   const { migrationsFolder, legacyFolder } = copyLegacyMigrations(
     "0014_randomized_ruins_discoveries",
@@ -1448,6 +1487,7 @@ test("Ruins location survives logout and login, and other gameplay is blocked", 
     ["/game/inventory/unequip", { itemId: 2 }],
     ["/game/admin", { stats: { gold: 999 } }],
     ["/game/fishing", {}],
+    ["/game/fishing/net", {}],
   ] as const) {
     assert.match(
       (await post(path, body)).headers.get("location") ?? "",
@@ -1984,6 +2024,25 @@ test("a failed catch write restores the fishing cast", async (t) => {
   assert.match(cast.html, /You reel in a Murkfin\./);
   assert.equal(player().fishing_casts_used, 1);
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
+});
+
+test("a failed net catch rolls back earlier catches and spent casts", async (t) => {
+  t.mock.method(Math, "random", () => 0.25);
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    CREATE TRIGGER fail_net_catch BEFORE UPDATE ON inventory
+    BEGIN
+      SELECT RAISE(ABORT, 'Test net catch write failure');
+    END;
+  `);
+
+  try {
+    assert.equal((await post("/game/fishing/net")).status, 500);
+    assert.equal(player().fishing_casts_used, 0);
+    assert.deepEqual(ownedItems(), []);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_net_catch;");
+  }
 });
 
 test("a catch at the stack limit still spends one fishing cast", async (t) => {

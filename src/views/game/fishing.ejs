@@ -14,16 +14,33 @@
           }) %>
           <p id="driftwater-reset" class="text-muted form-note">Resets daily at midnight Central Time.</p>
         </div>
-        <button class="button--full" type="submit"<% if (castsRemaining === 0) { %> disabled<% } %>>Cast line</button>
+        <div class="form-group">
+          <button class="button--full" type="submit"<% if (castsRemaining === 0) { %> disabled<% } %>>Cast line</button>
+        </div>
+        <button class="button--full button--secondary" type="submit" formaction="/game/fishing/net" aria-describedby="driftwater-net-note"<% if (castsRemaining === 0) { %> disabled<% } %>>Cast net</button>
+        <p id="driftwater-net-note" class="text-muted form-note">Uses all remaining casts.</p>
         <% if (castsRemaining === 0) { %>
         <p class="driftwater-exhausted text-muted">You've used all your casts for today.</p>
         <% } %>
       </form>
 
       <section class="driftwater-result" aria-labelledby="driftwater-last-cast">
-        <h3 class="section-heading" id="driftwater-last-cast"<% if (report) { %> tabindex="-1" data-result-focus aria-describedby="driftwater-cast-result"<% } %>>Last cast</h3>
+        <h3 class="section-heading" id="driftwater-last-cast"<% if (report) { %> tabindex="-1" data-result-focus aria-describedby="driftwater-cast-result"<% } %>><%= report?.kind === "net" ? "Net result" : "Last cast" %></h3>
         <div id="driftwater-cast-result">
-          <% if (report?.kind === "caught") { %>
+          <% if (report?.kind === "net") { %>
+          <p>Used <%= formatNumber(report.casts) %> <%= report.casts === 1 ? "cast" : "casts" %>.</p>
+          <ul>
+            <% for (const [name, count] of Object.entries(report.caught)) { %>
+            <li><%= name %> x <%= formatNumber(count) %></li>
+            <% } %>
+            <% for (const [name, count] of Object.entries(report.released)) { %>
+            <li>Released <%= formatNumber(count) %> × <%= name %> (stack full)</li>
+            <% } %>
+            <% if (report.empty > 0) { %>
+            <li><%= formatNumber(report.empty) %> empty <%= report.empty === 1 ? "cast" : "casts" %></li>
+            <% } %>
+          </ul>
+          <% } else if (report?.kind === "caught") { %>
           <div class="item-group">
             <% if (report.image) { %>
             <img src="<%= report.image %>" alt="" width="88" height="88" class="item-icon item-icon--feature">

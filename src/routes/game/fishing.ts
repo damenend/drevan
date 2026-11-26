@@ -24,8 +24,11 @@ router.get("/", (req, res) => {
   });
 });
 
-router.post("/", (req, res) => {
-  const result = castFishingLine(getAuthenticatedPlayer(res).id);
+router.post(["/", "/net"], (req, res) => {
+  const result = castFishingLine(
+    getAuthenticatedPlayer(res).id,
+    req.path === "/" ? "line" : "net",
+  );
   if (!result) return res.redirect(303, "/game/fishing");
   req.session.fishingReport = result;
   return res.redirect(303, "/game/fishing?cast=1");

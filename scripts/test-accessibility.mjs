@@ -255,6 +255,14 @@ try {
     "driftwater-last-cast",
   );
 
+  await page.getByRole("button", { name: "Cast net" }).focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("heading", { name: "Net result" }).waitFor();
+  await scan("net-result");
+  assert.equal(await page.locator(":focus").innerText(), "Net result");
+  assert.ok(await page.getByRole("button", { name: "Cast net" }).isDisabled());
+  assert.ok(await page.getByRole("button", { name: "Cast line" }).isDisabled());
+
   // These stats guarantee a training win in one attack regardless of initiative.
   await context.request.post(base + "/game/admin", {
     form: { "stats[strength]": "100", "stats[fortitude]": "100" },
