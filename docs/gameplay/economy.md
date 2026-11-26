@@ -57,7 +57,7 @@ Rarities are provisional design labels. The game uses the same inventory rules a
 
 Lesser Potion, Potion, and Greater Potion restore up to 10, 50, and 100 HP respectively. Healing potions require positive HP and restore at most the missing amount. Healing and consumption save together. At full HP there is no item effect to save.
 
-Revival Potion is a provisional 25-gold Emporium consumable. A defeated character can consume one at zero HP to revive with exactly 1 HP without visiting Sanctum. Living characters cannot use it. The HP change and consumption save together, so a repeated request after revival cannot consume another potion. Revival does not restore an expedition or reverse other defeat consequences.
+Revival Potion is a provisional 25-gold Emporium consumable, and each new character starts with one. A defeated character can consume one at zero HP to revive with exactly 1 HP without visiting Sanctum. Living characters cannot use it. The HP change and consumption save together, so a repeated request after revival cannot consume another potion. Revival does not restore an expedition or reverse other defeat consequences.
 
 Sanctum healing is available only while alive. It restores all missing HP for one gold per HP. The update requires enough gold and current matching HP and max HP, so the charge and heal are applied together.
 

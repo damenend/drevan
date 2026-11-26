@@ -111,7 +111,10 @@ before(async () => {
       .get(account.email),
     { fortitude: 5, fortitude_points: 0, character_class: "unaligned" },
   );
-  assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 3 }]);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 3 },
+    { item_id: 5, quantity: 1 },
+  ]);
   cookie = sessionCookie(signup);
 });
 
@@ -301,13 +304,13 @@ test("an incorrect password does not create an authenticated session", async () 
   assert.equal(login.headers.get("set-cookie"), null);
 });
 
-test("signup rolls back the account when starter potions cannot be saved", async (t) => {
+test("signup rolls back the account when starter supplies cannot be saved", async (t) => {
   const email = "failed-signup@example.test";
   t.mock.method(console, "error", () => {});
   sqlite.exec(`
-    CREATE TRIGGER fail_starter_potions BEFORE INSERT ON inventory
+    CREATE TRIGGER fail_starter_supplies BEFORE INSERT ON inventory
     BEGIN
-      SELECT RAISE(ABORT, 'Test starter potion write failure');
+      SELECT RAISE(ABORT, 'Test starter supply write failure');
     END;
   `);
 
@@ -324,7 +327,7 @@ test("signup rolls back the account when starter potions cannot be saved", async
       undefined,
     );
   } finally {
-    sqlite.exec("DROP TRIGGER fail_starter_potions;");
+    sqlite.exec("DROP TRIGGER fail_starter_supplies;");
   }
 });
 

@@ -123,15 +123,22 @@ router.post("/signup", async (req, res) => {
   }
 
   const passwordHash = await argon2.hash(password);
-  // Save the account and its starter potions together.
+  // Save the account and its starter supplies together.
   const signup = db.transaction(
     (tx) => {
-      const potion = tx
+      const lesserPotion = tx
         .select({ id: items.id })
         .from(items)
         .where(eq(items.name, "Lesser Potion"))
         .get();
-      if (!potion) return { status: "catalog-unavailable" } as const;
+      const revivalPotion = tx
+        .select({ id: items.id })
+        .from(items)
+        .where(eq(items.name, "Revival Potion"))
+        .get();
+      if (!lesserPotion || !revivalPotion) {
+        return { status: "catalog-unavailable" } as const;
+      }
 
       const player = tx
         .insert(users)
@@ -147,7 +154,10 @@ router.post("/signup", async (req, res) => {
       if (!player) return { status: "conflict" } as const;
 
       tx.insert(inventory)
-        .values({ userId: player.id, itemId: potion.id, quantity: 3 })
+        .values([
+          { userId: player.id, itemId: lesserPotion.id, quantity: 3 },
+          { userId: player.id, itemId: revivalPotion.id, quantity: 1 },
+        ])
         .run();
       return { status: "created", id: player.id } as const;
     },

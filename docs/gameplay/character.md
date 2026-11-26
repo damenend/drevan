@@ -6,7 +6,7 @@ The Quarters shows a player's character, equipment, HP, lifetime XP, and earned 
 
 Names have 3–24 ASCII letters, digits, spaces, underscores, or hyphens. Spaces are allowed only inside the name. SQLite enforces case-insensitive uniqueness. Store the submitted spelling and use [`formatPlayerName`](../../src/utils/format-player-name.ts) to display names in title case.
 
-Signup stores the selected `male` or `female` avatar model. The default is `male`, including for existing accounts. The Quarters and profiles use the [shared avatar partial](../../src/views/partials/player-avatar.ejs). New characters start with 125 gold and three Lesser Potions. Account creation and the starter inventory grant succeed together using the seeded catalog.
+Signup stores the selected `male` or `female` avatar model. The default is `male`, including for existing accounts. The Quarters and profiles use the [shared avatar partial](../../src/views/partials/player-avatar.ejs). New characters start with 125 gold, three Lesser Potions, and one Revival Potion. Account creation and the starter inventory grant succeed together using the seeded catalog.
 
 ## Attributes and combat stats
 
