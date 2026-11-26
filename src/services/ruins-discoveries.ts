@@ -1,10 +1,5 @@
 import { LESSER_POTION } from "../db/ruins-loot-catalog";
-import {
-  getRuinsEncounter,
-  RUINS_ENTRANCE,
-  RUINS_NEXT_FLOOR,
-  RUINS_SIZE,
-} from "./ruins-map";
+import { RUINS_ENTRANCE, RUINS_NEXT_FLOOR, RUINS_SIZE } from "./ruins-map";
 
 export const discoveryDefinitions = {
   "gold-cache": {
@@ -33,6 +28,7 @@ const floorDiscoveries: readonly DiscoveryId[] = ["gold-cache", "potion-cache"];
 /** Samples distinct tiles from Floor 1's fully connected, walkable grid. */
 export function generateRuinsDiscoveries(
   random = Math.random,
+  reservedTiles: ReadonlySet<number> = new Set(),
 ): RuinsDiscovery[] {
   const available = Array.from(
     { length: RUINS_SIZE ** 2 },
@@ -41,7 +37,7 @@ export function generateRuinsDiscoveries(
     (tile) =>
       tile !== RUINS_ENTRANCE &&
       tile !== RUINS_NEXT_FLOOR &&
-      !getRuinsEncounter(tile),
+      !reservedTiles.has(tile),
   );
 
   return floorDiscoveries.map((id) => {

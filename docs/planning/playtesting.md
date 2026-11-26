@@ -41,7 +41,7 @@ The Ruins run prints 18 data rows with 1,000 seeded fights per row. It imports l
 
 ## Full expeditions
 
-Use a disposable, seeded game. Record starting gear and supplies, route, fights, carried HP, potions found and used, retreat or defeat, and net gold after healing. Record the discovered cache tiles and successful claims across expeditions. Compare exploration and encounter income with Dominion and The Driftwater using the [current discovery rules](../gameplay/ruins.md#exploration-discoveries). Check entry, a cache discovery, an optional fight, victory with loot, a low-HP decision, and return to Nexaris. Note which actions are visible, where focus goes, and whether the Warden still feels like a tougher fight.
+Use a disposable, seeded game. Record starting gear and supplies, route, fights, carried HP, potions found and used, retreat or defeat, and net gold after healing. Record the discovered cache tiles and successful claims across expeditions. Compare exploration and encounter income with Dominion and The Driftwater using the [current discovery rules](../gameplay/ruins.md#exploration-discoveries). Check entry, a cache discovery, a mandatory encounter, victory with loot, a low-HP decision, and return to Nexaris. Note which actions are visible, where focus goes, and whether the Warden still feels like a tougher fight.
 
 For a starter gear smoke check, equip both pieces on a fresh character after seeding. The Quarters should show 11 Attack Power and 3 Defense. Start a Dominion fight to confirm it uses those stats.
 

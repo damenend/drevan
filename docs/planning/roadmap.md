@@ -56,8 +56,8 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 ### 6. Open The Ruins for basic exploration and PvE (P1 · Large)
 
 - **Status.** Complete.
-- **Delivered.** [Floor 1](../gameplay/ruins.md) has persistent exploration, discoveries, optional fights, walkout, and Recall. The map supports keyboard movement, and battle results summarize rewards and remaining HP above the expandable log. [Route tests](../../tests/game-routes.test.ts) cover expedition state, outcomes, and stale submissions.
-- **Deferred.** Additional floors, random encounters, and per-player encounter completion.
+- **Delivered.** [Floor 1](../gameplay/ruins.md) has persistent fog-of-war exploration, randomized finite enemy populations, mandatory fights, discoveries, walkout, and Recall. Victories permanently clear enemy instances. The map supports keyboard movement, and battle results summarize rewards and remaining HP above the expandable log. [Route tests](../../tests/game-routes.test.ts) cover expedition state, outcomes, duplicate submissions, and stale forms; [map tests](../../tests/ruins-map.test.ts) cover deterministic placement and weights.
+- **Deferred.** Additional floors, roaming enemies, and bosses.
 
 ### 6a. Adopt split Floor 1 cache claims (P1 · Medium)
 
@@ -69,9 +69,9 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 
 - **Status.** Planned.
 - **Dependencies.** Floor 1 exploration (6) and hidden caches (6a).
-- **Current behavior.** [Floor 1](../gameplay/ruins.md#map-visibility-and-persistence) already hides enemy markers from the map, marker list, and movement labels. The sealed stairs are visible before arrival, and the discovery notice and descent control appear at the stair tile.
-- **Scope.** Hide enemy spoilers in the map, marker list, and movement labels. Reveal the sealed stairs on arrival. At narrow widths, bring discovery and empty-cache feedback, current HP, and **Fight** and **Pass by** into view when relevant. Make walkout and Recall easy to locate and verify focus after both exits.
-- **Done when.** First-time players can orient themselves without a known route, notice discoveries, make a fight or retreat decision, and return to Nexaris. Check keyboard and screen-reader discovery and encounter feedback, battle summary and log, and return focus. Repeat the 320 CSS pixel walkthrough and browser regression checks. The [reduced-marker trial](../audits/balance-playtests.md#reduced-markers-at-320-css-pixels) records the baseline.
+- **Delivered.** [Floor 1](../gameplay/ruins.md#map-visibility-and-persistence) distinguishes unexplored and cleared squares while keeping enemy identities and locations out of the map, marker list, movement labels, and accessible markup. The sealed stairs and its descent control appear after arrival.
+- **Remaining scope.** Playtest the reduced-marker map at narrow widths. Confirm discovery and empty-cache feedback, current HP, mandatory battle outcomes, walkout, and Recall remain easy to locate, and verify focus after movement and both exits.
+- **Done when.** First-time players can orient themselves without a known route, notice discoveries, judge whether to continue after a fight, and return to Nexaris. Check keyboard and screen-reader discovery and encounter feedback, battle summary and log, and return focus. Repeat the 320 CSS pixel walkthrough and browser regression checks. The [reduced-marker trial](../audits/balance-playtests.md#reduced-markers-at-320-css-pixels) records the baseline.
 
 ### 7. Add basic Ruins loot and material drops (P1 · Medium)
 

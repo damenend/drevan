@@ -1010,6 +1010,13 @@ img {
   color: #171717;
   font-weight: 700;
 }
+.ruins-map .ruins-tile--unexplored {
+  background: #151a20;
+  color: #999999;
+}
+.ruins-map .ruins-tile--explored {
+  background: color-mix(in srgb, #242424, #54bdff 8%);
+}
 
 .ruins-map button.ruins-tile {
   border-color: var(--tile-border, #999999);

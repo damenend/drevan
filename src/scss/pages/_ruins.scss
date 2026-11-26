@@ -2,6 +2,7 @@
 
 $map-width: vars.$activity-narrow-column;
 $exit-color: #719270;
+$unexplored-color: #151a20;
 
 .ruins-exploration,
 .ruins-controls {
@@ -146,6 +147,15 @@ $exit-color: #719270;
     background: vars.$color-primary;
     color: vars.$color-background;
     font-weight: vars.$weight-bold;
+  }
+
+  &--unexplored {
+    background: $unexplored-color;
+    color: vars.$color-muted;
+  }
+
+  &--explored {
+    background: color-mix(in srgb, vars.$color-surface, vars.$color-blue 8%);
   }
 }
 

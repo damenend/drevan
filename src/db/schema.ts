@@ -1,4 +1,5 @@
 import type { RuinsDiscovery } from "../services/ruins-discoveries";
+import type { RuinsEnemy } from "../services/ruins-map";
 import { sql } from "drizzle-orm";
 import {
   sqliteTable,
@@ -48,6 +49,7 @@ export const users = sqliteTable(
     fishing_cast_date: text("fishing_cast_date"),
     ruinsTile: integer("ruins_tile"),
     ruinsRevision: integer("ruins_revision").notNull().default(0),
+    // Retained for migration compatibility; randomized encounters use ruinsEnemies.
     ruinsEnemyPending: integer("ruins_enemy_pending", { mode: "boolean" })
       .notNull()
       .default(false),
@@ -56,6 +58,10 @@ export const users = sqliteTable(
       RuinsDiscovery[]
     >(),
     ruinsGoldClaimDate: text("ruins_gold_claim_date"),
+    ruinsEnemies: text("ruins_enemies", { mode: "json" }).$type<RuinsEnemy[]>(),
+    ruinsExploredTiles: text("ruins_explored_tiles", { mode: "json" }).$type<
+      number[]
+    >(),
   },
   (table) => [
     check(

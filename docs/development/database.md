@@ -58,6 +58,10 @@ These migrations illustrate adjustments that preserved character progress.
 
 The November 25 Ruins changes use migration 0014 for discovery persistence and the seed for equipment, materials, and shop prices. A database already on 0014 only needs `yarn db:seed` to pick up catalog changes.
 
+### Persistent Ruins population migration
+
+[Migration 0015](../../drizzle/0015_eager_peter_quill.sql) adds JSON columns for an expedition's enemy instances and explored tile IDs. New expeditions fill both columns on entry. An active expedition from an older version retains its position, rewards, discoveries, and revision. It resumes with its current square treated as explored and an empty legacy population; the next successful in-expedition action saves that compatibility state, while leaving clears it with the rest of the expedition. Its next expedition receives the normal randomized population. Apply the migration before starting the updated app.
+
 ### Randomized Ruins discovery migration
 
 [Migration 0014](../../drizzle/0014_randomized_ruins_discoveries.sql) adds nullable columns for the expedition's discovery records and the last Central gold claim date. Active expeditions retain their position, pending enemy, and earned rewards. The former repeatable caches had no claim history to backfill, so these expeditions receive no caches until their next entry. The first expedition started under the new rules generates fresh caches and starts tracking claims. Apply the migration before starting the updated app.

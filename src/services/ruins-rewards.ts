@@ -105,7 +105,7 @@ export function claimRuinsDiscovery(
 }
 
 /**
- * Rolls victory drops inside the caller's fight transaction. The report lists
+ * Rolls victory drops inside the caller's movement/fight transaction. The report lists
  * only catalog items that fit in inventory and were added successfully.
  */
 export function grantRuinsLoot(

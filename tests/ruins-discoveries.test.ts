@@ -3,7 +3,6 @@ import { test } from "node:test";
 import { generateRuinsDiscoveries } from "../src/services/ruins-discoveries";
 import {
   canMoveInRuins,
-  getRuinsEncounter,
   RUINS_ENTRANCE,
   RUINS_NEXT_FLOOR,
   RUINS_SIZE,
@@ -30,7 +29,6 @@ test("discovery placement samples distinct reachable non-reserved tiles", () => 
       assert.ok(reachable.has(tile));
       assert.notEqual(tile, RUINS_ENTRANCE);
       assert.notEqual(tile, RUINS_NEXT_FLOOR);
-      assert.equal(getRuinsEncounter(tile), undefined);
     }
   }
   assert.notDeepEqual(

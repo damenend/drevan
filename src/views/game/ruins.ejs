@@ -14,7 +14,7 @@
   <% if (message) { %>
   <p tabindex="-1" data-result-focus<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
   <% } %>
-  <p>Old stone and buried machinery lie beyond the entrance. Set your equipment before you enter.</p>
+  <p>The depths of the Ruins conceal dangers unseen. Tread carefully, tend to your wounds, and know when to turn back.</p>
   <% if (user.hp > 0) { %>
   <form action="/game/ruins/action" method="post">
     <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
@@ -37,8 +37,9 @@
         <% /** Shares the visible marker metadata between map tiles and the marker list. */
         function tileDetails(tile) {
           const coordinates = `(${tile % size}, ${Math.floor(tile / size)})`;
-          const [symbol, description] = tile === entrance ? ["E", "entrance and exit"] : tile === nextFloorMarker ? ["2", "Floor 2 entrance"] : ["", ""];
-          const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : "");
+          const explored = exploredTiles.includes(tile) || tile === entrance || tile === position;
+          const [symbol, description] = tile === entrance ? ["E", "entrance and exit"] : tile === nextFloorMarker && explored ? ["2", "Floor 2 entrance"] : ["", ""];
+          const style = "ruins-tile " + (explored ? "ruins-tile--explored" : "ruins-tile--unexplored") + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker && explored ? " ruins-tile--stairs" : "");
           return { coordinates, symbol, description, style };
         } %>
         <% const current = tileDetails(position); %>
@@ -78,27 +79,19 @@
           <% if (message) { %>
           <p<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
           <% } %>
-          <% if (encounter) { %>
-          <p class="ruins-notice ruins-notice--encounter"><strong>Enemy sighted.</strong> Fight it or pass by.</p>
-          <% } else if (atNextFloor) { %>
+          <% if (atNextFloor) { %>
           <p class="ruins-notice ruins-notice--discovery"><strong>Floor 2 entrance discovered.</strong> The way down is sealed.</p>
           <% } else if (emptySquare && !message) { %>
           <p class="ruins-empty">There’s nothing to do here.</p>
           <% } %>
         </div>
-        <% if (position === entrance || atNextFloor || encounter) { %>
+        <% if (position === entrance || atNextFloor) { %>
         <form class="ruins-actions" action="/game/ruins/action" method="post">
           <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
           <% if (position === entrance) { %>
           <button type="submit" name="action" value="exit">Return to Nexaris</button>
           <% } else if (atNextFloor) { %>
           <button type="button" disabled>Descend to Floor 2</button>
-          <% } %>
-          <% if (encounter) { %>
-          <h3 class="section-heading"><%= encounter.enemy.name %></h3>
-          <p><%= encounter.description %></p>
-          <button type="submit" name="action" value="engage">Fight</button>
-          <button type="submit" name="action" value="ignore">Pass by</button>
           <% } %>
         </form>
         <% } %>

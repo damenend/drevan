@@ -6,15 +6,17 @@ import { resolvePlayerBattle, type PlayerBattleReport } from "./player-battle";
 import { generateRuinsDiscoveries } from "./ruins-discoveries";
 import {
   canMoveInRuins,
+  generateRuinsEnemies,
   getRuinsEncounter,
+  getRuinsEnemy,
   RECALL_BEACON,
   RUINS_ENTRANCE,
+  type RuinsEnemy,
 } from "./ruins-map";
 import { claimRuinsDiscovery, grantRuinsLoot } from "./ruins-rewards";
 
 export type RuinsAction =
-  | { kind: "move"; destination: number }
-  | { kind: "enter" | "exit" | "recall" | "engage" | "ignore" };
+  { kind: "move"; destination: number } | { kind: "enter" | "exit" | "recall" };
 
 export type RuinsBattle = PlayerBattleReport & {
   enemyName: string;
@@ -96,12 +98,17 @@ function enterRuins(
     .values({ userId: player.id, itemId: beacon.id })
     .onConflictDoNothing({ target: [inventory.userId, inventory.itemId] })
     .run();
+  const enemies = generateRuinsEnemies();
 
   return {
     changes: {
       ruinsTile: RUINS_ENTRANCE,
-      ruinsDiscoveries: generateRuinsDiscoveries(),
-      ruinsEnemyPending: false,
+      ruinsEnemies: enemies,
+      ruinsExploredTiles: [RUINS_ENTRANCE],
+      ruinsDiscoveries: generateRuinsDiscoveries(
+        Math.random,
+        new Set(enemies.map(({ tile }) => tile)),
+      ),
     },
     message: grant.changes ? "You receive a Recall Beacon." : undefined,
   };
@@ -142,20 +149,9 @@ function recallFromRuins(
 function resolveEncounter(
   database: ExpeditionDatabase,
   player: ExpeditionPlayer,
-  position: number,
-  action: "engage" | "ignore",
+  enemyInstance: RuinsEnemy,
 ): ActionResolution {
-  const encounter = getRuinsEncounter(position);
-  if (!player.ruinsEnemyPending || !encounter) {
-    return { message: "There is no enemy to fight here." };
-  }
-
-  if (action === "ignore") {
-    return {
-      changes: { ruinsEnemyPending: false },
-      message: `You pass by the ${encounter.enemy.name}.`,
-    };
-  }
+  const encounter = getRuinsEncounter(enemyInstance.enemyId);
   if (player.hp <= 0) return { message: "You need to heal before fighting." };
 
   const { min, max } = encounter.goldReward;
@@ -171,7 +167,12 @@ function resolveEncounter(
     ? grantRuinsLoot(database, player.id, encounter.enemyId)
     : [];
   return {
-    changes: { ...changes, ruinsEnemyPending: false },
+    changes: {
+      ...changes,
+      ruinsEnemies: won
+        ? player.ruinsEnemies?.filter(({ tile }) => tile !== enemyInstance.tile)
+        : player.ruinsEnemies,
+    },
     left: !won,
     battle: { ...battle, enemyName: encounter.enemy.name, loot },
   };
@@ -196,10 +197,25 @@ function resolveAction(
         return { message: "Choose a square directly beside you." };
       }
       const discovery = claimRuinsDiscovery(database, player, destination);
+      const explored = new Set(player.ruinsExploredTiles ?? [position]);
+      explored.add(destination);
+      const enemy = getRuinsEnemy(player.ruinsEnemies, destination);
+      if (enemy) {
+        const resolution = resolveEncounter(database, player, enemy);
+        if (!("changes" in resolution)) return resolution;
+        return {
+          ...resolution,
+          changes: {
+            ruinsTile: destination,
+            ruinsExploredTiles: [...explored],
+            ...resolution.changes,
+          },
+        };
+      }
       return {
         changes: {
           ruinsTile: destination,
-          ruinsEnemyPending: Boolean(getRuinsEncounter(destination)),
+          ruinsExploredTiles: [...explored],
           ...discovery?.changes,
         },
         message: discovery?.message,
@@ -211,9 +227,6 @@ function resolveAction(
         : { message: "The exit is at the entrance square." };
     case "recall":
       return recallFromRuins(database, player);
-    case "engage":
-    case "ignore":
-      return resolveEncounter(database, player, position, action.kind);
   }
 }
 
@@ -237,14 +250,30 @@ export function actInRuins(
         };
       }
 
-      const resolution = resolveAction(tx, player, action);
+      // Expeditions created before migration resume safely without surprise
+      // encounters; their next expedition receives the randomized population.
+      const legacyEnemies =
+        player.ruinsTile !== null && player.ruinsEnemies === null ? [] : null;
+      const expeditionPlayer = legacyEnemies
+        ? {
+            ...player,
+            ruinsEnemies: legacyEnemies,
+            ruinsExploredTiles: [player.ruinsTile!],
+          }
+        : player;
+      const resolution = resolveAction(tx, expeditionPlayer, action);
       if (!("changes" in resolution)) return resolution;
 
       const { changes, ...result } = resolution;
+      if (legacyEnemies) {
+        changes.ruinsEnemies ??= legacyEnemies;
+        changes.ruinsExploredTiles ??= expeditionPlayer.ruinsExploredTiles;
+      }
       if (result.left) {
         changes.ruinsTile = null;
         changes.ruinsDiscoveries = null;
-        changes.ruinsEnemyPending = false;
+        changes.ruinsEnemies = null;
+        changes.ruinsExploredTiles = null;
       }
       tx.update(users)
         .set({ ...changes, ruinsRevision: revision + 1 })

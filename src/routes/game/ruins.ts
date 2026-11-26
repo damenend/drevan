@@ -16,7 +16,6 @@ import {
 } from "../../services/ruins";
 import {
   canMoveInRuins,
-  getRuinsEncounter,
   RUINS_ENTRANCE,
   RUINS_NEXT_FLOOR,
   RUINS_SIZE,
@@ -29,9 +28,7 @@ const router = Router();
 router.get("/", (req, res) => {
   const player = getAuthenticatedPlayer(res);
   const position = player.ruinsTile;
-  const encounter = position === null ? undefined : getRuinsEncounter(position);
   const atNextFloor = position === RUINS_NEXT_FLOOR;
-  const enemy = player.ruinsEnemyPending ? encounter : undefined;
   const discovery = getRuinsDiscovery(player.ruinsDiscoveries, position);
   const message =
     typeof req.query.message === "string" ? req.query.message : undefined;
@@ -48,14 +45,14 @@ router.get("/", (req, res) => {
     entrance: RUINS_ENTRANCE,
     canMove: canMoveInRuins,
     restoreMapFocus: req.query.focus === "map",
-    encounter: enemy,
+    exploredTiles:
+      player.ruinsExploredTiles ?? (position === null ? [] : [position]),
     atNextFloor,
     nextFloorMarker: RUINS_NEXT_FLOOR,
     emptySquare:
       position !== null &&
       position !== RUINS_ENTRANCE &&
       !atNextFloor &&
-      !encounter &&
       !discovery,
     discovery: Boolean(discovery),
     attributes: getPrimaryAttributes(player),
@@ -76,8 +73,6 @@ function parseRuinsAction(
     case "enter":
     case "exit":
     case "recall":
-    case "engage":
-    case "ignore":
       return { kind };
     case "move": {
       const destination = parseFormInteger(rawDestination);
@@ -98,7 +93,7 @@ router.post("/action", (req, res) => {
   const path = result.left ? "/game/nexaris" : "/game/ruins";
   const query = new URLSearchParams();
   if (result.message) query.set("message", result.message);
-  if (action.kind === "enter" || action.kind === "move")
+  if (!result.left && (action.kind === "enter" || action.kind === "move"))
     query.set("focus", "map");
   return res.redirect(303, query.size ? `${path}?${query}` : path);
 });

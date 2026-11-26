@@ -49,8 +49,9 @@ function findPlayer(userId: number) {
       fishingCastDate: users.fishing_cast_date,
       ruinsTile: users.ruinsTile,
       ruinsRevision: users.ruinsRevision,
-      ruinsEnemyPending: users.ruinsEnemyPending,
       ruinsDiscoveries: users.ruinsDiscoveries,
+      ruinsEnemies: users.ruinsEnemies,
+      ruinsExploredTiles: users.ruinsExploredTiles,
       recallDate: users.recallDate,
     })
     .from(users)

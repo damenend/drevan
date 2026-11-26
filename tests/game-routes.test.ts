@@ -138,7 +138,8 @@ beforeEach(() => {
       exp = 0, strength_points = 0, agility_points = 0, fortitude_points = 0,
       fishing_casts_used = 0, fishing_cast_date = NULL,
       ruins_tile = NULL, ruins_revision = 0, ruins_enemy_pending = 0, recall_date = NULL,
-      ruins_discoveries = NULL, ruins_gold_claim_date = NULL;
+      ruins_discoveries = NULL, ruins_gold_claim_date = NULL,
+      ruins_enemies = NULL, ruins_explored_tiles = NULL;
   `);
 });
 
@@ -487,7 +488,7 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
     playerHit,
   );
   await reachScavenger();
-  await explore("engage");
+  await explore("move", 9);
   assert.match((await viewRuins()).html, playerHit);
 });
 
@@ -1486,11 +1487,13 @@ function ruinsState() {
         recall_date: string | null;
         ruins_discoveries: string | null;
         ruins_gold_claim_date: string | null;
+        ruins_enemies: string | null;
+        ruins_explored_tiles: string | null;
         exp: number;
         fortitude_points: number;
       }
     >(
-      "SELECT ruins_tile, ruins_revision, ruins_enemy_pending, recall_date, ruins_discoveries, ruins_gold_claim_date, exp, fortitude_points FROM users WHERE email = 'test@example.test'",
+      "SELECT ruins_tile, ruins_revision, ruins_enemy_pending, recall_date, ruins_discoveries, ruins_gold_claim_date, ruins_enemies, ruins_explored_tiles, exp, fortitude_points FROM users WHERE email = 'test@example.test'",
     )
     .get()!;
 }
@@ -1522,12 +1525,18 @@ async function enterWithFixtureCaches() {
       { id: "potion-cache", tile: 14, claimed: false },
     ]),
   );
+  sqlite
+    .prepare("UPDATE users SET ruins_enemies = ?, ruins_explored_tiles = ?")
+    .run(
+      JSON.stringify([{ enemyId: "vault-scavenger", tile: 9 }]),
+      JSON.stringify([0]),
+    );
 }
 
 async function reachScavenger() {
   await enterWithFixtureCaches();
-  for (const tile of [1, 2, 9]) await explore("move", tile);
-  assert.equal(ruinsState().ruins_tile, 9);
+  for (const tile of [1, 2]) await explore("move", tile);
+  assert.equal(ruinsState().ruins_tile, 2);
 }
 
 test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit", async (t) => {
@@ -1557,6 +1566,15 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
     start.html,
     /gold discovery|item discovery|gold-cache|potion-cache|ruins-tile--gold|ruins-tile--item|loose slab|cracked supply case/i,
   );
+  sqlite
+    .prepare("UPDATE users SET ruins_discoveries = ?, ruins_enemies = ?")
+    .run(
+      JSON.stringify([
+        { id: "gold-cache", tile: 1, claimed: false },
+        { id: "potion-cache", tile: 14, claimed: false },
+      ]),
+      JSON.stringify([{ enemyId: "vault-scavenger", tile: 9 }]),
+    );
   const originalCaches = placedCaches();
   assert.deepEqual(originalCaches, [
     { id: "gold-cache", tile: 1, claimed: false },
@@ -1564,7 +1582,7 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   ]);
   await explore("enter", undefined, 0);
   assert.deepEqual(placedCaches(), originalCaches);
-  assert.equal(random.mock.callCount(), 2);
+  assert.equal(random.mock.callCount(), 26);
   assert.doesNotMatch(
     start.html,
     /ruins-tile--enemy|>X<|X: Enemy|enemy encounter/i,
@@ -1837,32 +1855,18 @@ test("an expedition already underway before migration receives no caches until r
   assert.equal(placedCaches()?.length, 2);
 });
 
-test("Ruins fights are optional and a victory applies HP, XP and gold once", async (t) => {
+test("entering an occupied Ruins tile fights and clears the enemy once", async (t) => {
   sqlite.exec("UPDATE users SET strength = 100, speed = 100, exp = 30");
   const random = t.mock.method(Math, "random", () => 0);
   await reachScavenger();
   assert.equal(player().hp, 25);
   assert.equal(ruinsState().exp, 30);
-  const sighting = (await viewRuins()).html;
-  assert.match(
-    sighting,
-    /ruins-map[\s\S]*Surroundings[\s\S]*ruins-notice--encounter[\s\S]*Enemy sighted[\s\S]*Vault Scavenger/,
-  );
-
-  await explore("ignore");
-  assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
-  assert.doesNotMatch((await viewRuins()).html, /Vault Scavenger/);
-  await explore("engage");
-  assert.equal(ruinsState().exp, 30);
-  await explore("move", 2);
-  await explore("move", 9);
-
   random.mock.mockImplementation(() => 0.99);
   const beforeFight = placedCaches();
   const revision = ruinsState().ruins_revision;
   await Promise.all([
-    explore("engage", undefined, revision),
-    explore("engage", undefined, revision),
+    explore("move", 9, revision),
+    explore("move", 9, revision),
   ]);
   assert.equal(ruinsState().ruins_tile, 9);
   assert.deepEqual(placedCaches(), beforeFight);
@@ -1879,6 +1883,9 @@ test("Ruins fights are optional and a victory applies HP, XP and gold once", asy
   );
   assert.match(report, /max="25" value="21"/);
   assert.doesNotMatch((await viewRuins()).html, /wins\./);
+  await explore("move", 2);
+  await explore("move", 9);
+  assert.equal(ruinsState().exp, 60);
 });
 
 function equipmentId(name: (typeof ruinsEquipment)[number]["name"]) {
@@ -1900,8 +1907,8 @@ test("a Scavenger victory stacks and reports multiple drops once even if replaye
   await reachScavenger();
   const revision = ruinsState().ruins_revision;
 
-  await explore("engage", undefined, revision);
-  await explore("engage", undefined, revision);
+  await explore("move", 9, revision);
+  await explore("move", 9, revision);
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: 3 },
     { item_id: 4, quantity: 1 },
@@ -1974,7 +1981,7 @@ test("a Scavenger loot roll at the cutoff grants no potion", async (t) => {
   t.mock.method(Math, "random", () => 0.2);
   await reachScavenger();
 
-  await explore("engage");
+  await explore("move", 9);
   assert.equal(ruinsState().exp, 30);
   assert.deepEqual(ownedItems(), [
     { item_id: 4, quantity: 1 },
@@ -1994,7 +2001,7 @@ test("a full potion stack leaves the Scavenger victory and other loot intact", a
   t.mock.method(Math, "random", () => 0.1);
   await reachScavenger();
 
-  await explore("engage");
+  await explore("move", 9);
   assert.equal(ruinsState().exp, 30);
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: Number.MAX_SAFE_INTEGER },
@@ -2021,7 +2028,7 @@ test("a failed Ruins reward write rolls back loot and leaves the encounter pendi
     END;
   `);
   try {
-    assert.equal((await explore("engage")).status, 500);
+    assert.equal((await explore("move", 9)).status, 500);
     assert.deepEqual(player(), initial);
     assert.deepEqual(ruinsState(), expedition);
     assert.deepEqual(ownedItems(), owned);
@@ -2029,7 +2036,7 @@ test("a failed Ruins reward write rolls back loot and leaves the encounter pendi
   } finally {
     sqlite.exec("DROP TRIGGER fail_ruins_reward");
   }
-  assert.equal((await explore("engage")).status, 303);
+  assert.equal((await explore("move", 9)).status, 303);
   assert.equal(ruinsState().exp, 30);
   assert.match((await viewRuins()).html, /Metal Scraps ×1/);
 });
@@ -2038,7 +2045,7 @@ test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires h
   sqlite.exec("UPDATE users SET hp = 1, speed = 1");
   t.mock.method(Math, "random", () => 0);
   await reachScavenger();
-  const fight = await explore("engage");
+  const fight = await explore("move", 9);
   assert.equal(fight.headers.get("location"), "/game/nexaris");
   assert.equal(ruinsState().ruins_tile, null);
   assert.equal(placedCaches(), null);
@@ -2064,8 +2071,7 @@ test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires h
 });
 
 test("Ruins draw applies damage but ends the expedition without combat rewards", async (t) => {
-  const encounter = getRuinsEncounter(9);
-  assert.ok(encounter);
+  const encounter = getRuinsEncounter("vault-scavenger");
   const originalHp = encounter.enemy.hp;
   encounter.enemy.hp = 100000;
   t.after(() => {
@@ -2076,7 +2082,7 @@ test("Ruins draw applies damage but ends the expedition without combat rewards",
 
   await reachScavenger();
   assert.equal(
-    (await explore("engage")).headers.get("location"),
+    (await explore("move", 9)).headers.get("location"),
     "/game/nexaris",
   );
   assert.equal(ruinsState().ruins_tile, null);
@@ -2138,9 +2144,9 @@ test("Ruins use normal healing and attribute allocation without moving", async (
 });
 
 test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stairs", async () => {
-  await explore("enter");
+  await enterWithFixtureCaches();
   const entrance = (await viewRuins()).html;
-  assert.match(entrance, /ruins-tile--stairs" aria-hidden="true">2</);
+  assert.doesNotMatch(entrance, /ruins-tile--stairs/);
   assert.doesNotMatch(entrance, /Descend to Floor 2/);
 
   await explore("move", 1);
@@ -2149,7 +2155,7 @@ test("Ruins marks the sealed Floor 2 entrance and shows descent only on the stai
   assert.match(discovered, /Floor 2 entrance discovered/);
   assert.match(
     discovered,
-    /ruins-tile--stairs ruins-tile--player" data-player-tile role="img" aria-label="Your position \(2, 0\), Floor 2 entrance"[^>]*>P2</,
+    /ruins-tile--explored ruins-tile--stairs ruins-tile--player" data-player-tile role="img" aria-label="Your position \(2, 0\), Floor 2 entrance"[^>]*>P2</,
   );
   assert.match(discovered, /id="ruins-floor">Floor 1</);
   assert.match(

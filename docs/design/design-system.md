@@ -6,7 +6,7 @@ Use this reference when designing a new screen, extending a component, or briefi
 
 ## Design principles
 
-- **Put the decision first.** Show the relevant state, cost, and consequence close to the action. A player deciding whether to fight needs current HP and encounter context within easy reach.
+- **Put the decision first.** Show the relevant state, cost, and consequence close to the action. A player deciding whether to enter an unexplored Ruins square needs current HP and the risk of a hidden mandatory encounter within easy reach.
 - **Use a clear hierarchy.** Let headings, spacing, and plain labels organize the screen. Reserve strong accents for actions, active states, and meaningful feedback.
 - **Keep the world visible.** Use location art, item icons, and short observations to express the setting. Use concise language for rules, rewards, and recovery steps.
 - **Build on native controls.** Use semantic links, buttons, forms, tables, and headings. Add JavaScript for behavior such as live totals and directional map focus while preserving the underlying forms.
@@ -98,7 +98,7 @@ Equipment shows supported slots with an item, its signed modifier, and a seconda
 
 Group the map and Surroundings on the left at wide widths. Place the interior art and expedition resources beside them. At narrow widths place the HP meter before the map and the interior art after the Recall Beacon. Preserve the keyboard order at both widths. Keep the floor and coordinates above the map, and the legend and instructions below it.
 
-Put discovery feedback, enemy choices, and exit or stair actions in Surroundings. Place a victory report after the tile actions. Keep HP, attribute allocation, potions in strength order, and Recall status easy to find. Use an outlined Recall action. The entrance illustration and action introduce the expedition. At zero HP, guide the player to Sanctum.
+Put discovery feedback and exit or stair actions in Surroundings. Mandatory encounters resolve on movement; place their victory report after the tile actions. Give unexplored squares a dark surface and explored or cleared squares a subtle blue tint without encoding enemy information. Keep HP, attribute allocation, potions in strength order, and Recall status easy to find. Use an outlined Recall action. The entrance illustration and action introduce the expedition. At zero HP, guide the player to Sanctum.
 
 See [The Ruins](../gameplay/ruins.md) for event visibility and [keyboard and reporting requirements](accessibility.md#maps-and-combat-reports) for accessible interaction.
 
