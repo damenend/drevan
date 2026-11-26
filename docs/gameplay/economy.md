@@ -28,7 +28,7 @@ Use the purchase category links to browse all items, equipment, weapons, armor, 
 
 The Emporium uses server-side catalog prices. A null purchase price keeps the item off the purchase list. A blank quantity counts as zero. Purchases read current prices, balance, and owned counts, then deduct gold and add inventory in one transaction. Reject totals or stacks outside JavaScript's safe integer range and show the result after redirect.
 
-With JavaScript enabled, the purchase button shows the cart total as quantities change. Purchase and Sell each become available when their form has a valid quantity and the purchase fits the gold balance or the sale payout fits the gold limit. The server validates both forms with or without JavaScript.
+With JavaScript enabled, the Purchase button shows the cost and the manual sale form shows the payout. Each form requires valid quantities and at least one positive quantity to enable its button. The purchase cost must fit the available balance, and a sale must keep the resulting balance within the gold limit. Both forms can be submitted without JavaScript. The server checks current prices, quantities, and gold at checkout.
 
 Buyback has its own catalog sell price. The Emporium accepts owned weapons, armor, fish, and materials with positive sell prices. An equipped copy stays reserved. Selling checks current quantities, equipped slots, and available gold balance capacity before reducing stacks and crediting the payout together.
 
@@ -59,4 +59,4 @@ Lesser Potion, Potion, and Greater Potion restore up to 10, 50, and 100 HP respe
 
 Sanctum can heal a character from zero HP. It restores all missing HP for one gold per HP. The update requires enough gold and current matching HP and max HP, so the charge and heal are applied together.
 
-[Equipment rules](../../src/services/equipment.ts) · [Item actions](../../src/routes/game/inventory.ts) · [Category and effect display](../../src/routes/game/quarters-inventory.ts) · [Emporium transactions](../../src/services/emporium.ts) · [Sanctum route](../../src/routes/game/hospital.ts) · [Transaction tests](../../tests/game-routes.test.ts)
+[Equipment rules](../../src/services/equipment.ts) · [Inventory service](../../src/services/inventory.ts) · [Category and effect display](../../src/presentation/items.ts) · [Emporium transactions](../../src/services/emporium.ts) · [Sanctum route](../../src/routes/game/hospital.ts) · [Transaction tests](../../tests/game-routes.test.ts)

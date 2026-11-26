@@ -1,0 +1,2 @@
+<label for="<%= fieldId %>" class="visually-hidden"><%= label %></label>
+<input type="number" id="<%= fieldId %>" name="items[item-<%= itemId %>]" value="0" min="0"<% if (locals.maxQuantity !== undefined) { %> max="<%= maxQuantity %>"<% } %> step="1" data-price="<%= price %>" class="item-quantity">

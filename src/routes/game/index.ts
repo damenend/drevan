@@ -1,21 +1,5 @@
-import {
-  getBaseAttackPower,
-  getPrimaryAttributes,
-  getSpentPoints,
-} from "../../services/character-stats";
 import { Router } from "express";
 import { getAuthenticatedPlayer, requireAuth } from "../../middleware/auth";
-import { and, eq, gt, asc } from "drizzle-orm";
-import { db } from "../../db";
-import { items, inventory } from "../../db/schema";
-import {
-  applyEquipmentBonuses,
-  equipmentSlots,
-  getEquipmentColumn,
-  getEquippedSlot,
-  getAvailableQuantity,
-} from "../../services/equipment";
-
 import arenaRouter from "./arena";
 import hospitalRouter from "./hospital";
 import storeRouter from "./store";
@@ -26,14 +10,7 @@ import usersRouter from "./users";
 import fishingRouter from "./fishing";
 import progressionRouter from "./progression";
 import ruinsRouter from "./ruins";
-import { getProgression, statAllocations } from "../../services/progression";
-
-import {
-  describeItemEffect,
-  getInventoryCategory,
-  matchesItemCategory,
-  inventoryCategories,
-} from "./quarters-inventory";
+import { renderQuarters } from "./quarters";
 
 const router = Router();
 
@@ -58,73 +35,7 @@ router.use((req, res, next) => {
   next();
 });
 
-// Game homepage
-router.get("/", (req, res) => {
-  const player = getAuthenticatedPlayer(res);
-
-  const playerInventory = db
-    .select({
-      id: items.id,
-      name: items.name,
-      description: items.description,
-      image: items.image,
-      sellPrice: items.sellPrice,
-      type: items.type,
-      quantity: inventory.quantity,
-      effect: items.effect,
-      effectValue: items.effectValue,
-    })
-    .from(inventory)
-    .innerJoin(items, eq(inventory.itemId, items.id))
-    .where(and(eq(inventory.userId, player.id), gt(inventory.quantity, 0)))
-    .orderBy(asc(items.name))
-    .all()
-    .map((item) => {
-      const equippedSlot = getEquippedSlot(player, item);
-      return {
-        ...item,
-        equippedSlot,
-        quantity: getAvailableQuantity(player, item),
-      };
-    });
-
-  const attributes = getPrimaryAttributes(player);
-  const equipped = playerInventory.filter((item) => item.equippedSlot);
-
-  const category = getInventoryCategory(req.query.category);
-  const available = playerInventory.filter((item) => item.quantity > 0);
-
-  return res.render("game/index", {
-    title: "The Quarters",
-    equipment: Object.keys(equipmentSlots).map((slot) => ({
-      slot,
-      item: equipped.find((item) => item.equippedSlot === slot),
-    })),
-    inventory: available
-      .filter((item) => matchesItemCategory(item.type, category))
-      .map((item) => ({
-        ...item,
-        action:
-          item.type === "consumable"
-            ? "Use"
-            : !item.equippedSlot && getEquipmentColumn(item.type)
-              ? "Equip"
-              : null,
-      })),
-    inventoryEmpty: available.length === 0,
-    inventoryCategories,
-    category,
-    actionQuery: category === "all" ? "" : `?category=${category}`,
-    describeItemEffect,
-    effectiveStats: applyEquipmentBonuses(player, equipped),
-    attributes,
-    baseAttackPower: getBaseAttackPower(attributes),
-    progression: getProgression(player.exp, getSpentPoints(player)),
-    statAllocations,
-    message:
-      typeof req.query.message === "string" ? req.query.message : undefined,
-  });
-});
+router.get("/", renderQuarters);
 
 // Location directory
 router.get("/nexaris", (req, res) => {

@@ -1,32 +1,27 @@
 import { and, asc, eq, gt, gte, inArray, ne, sql } from "drizzle-orm";
 import { db } from "../db";
 import { inventory, items, users } from "../db/schema";
-import { getAvailableQuantity } from "./equipment";
+import { getStackAvailability, type EquipmentOwner } from "./equipment";
+import { grantInventoryItem } from "./inventory";
 
 export type ItemSelection = { itemId: number; quantity: number };
 
-// A catalog item needs a positive payout and an eligible type.
-const buybackEligible = and(
+type Seller = EquipmentOwner & { id: number; gold: number };
+
+const purchaseStock = and(gte(items.price, 0), ne(items.type, "material"));
+const buybackStock = and(
   gt(items.sellPrice, 0),
   inArray(items.type, ["weapon", "armor", "fish", "material"]),
 );
 
-/** Loads the shop catalog and counts spare copies the player can sell. */
-export function getEmporiumItems(
-  player: Pick<
-    typeof users.$inferSelect,
-    "id" | "equippedWeaponId" | "equippedArmorId"
-  >,
+function getBuybackItems(
+  database: Pick<typeof db, "select">,
+  player: Seller,
+  selectedIds?: number[],
 ) {
-  const storeItems = db
-    .select()
-    .from(items)
-    .where(and(gte(items.price, 0), ne(items.type, "material")))
-    .orderBy(asc(items.price))
-    .all();
-
-  const sellableItems = db
+  return database
     .select({
+      stackId: inventory.id,
       id: items.id,
       name: items.name,
       type: items.type,
@@ -40,17 +35,44 @@ export function getEmporiumItems(
       and(
         eq(inventory.userId, player.id),
         gt(inventory.quantity, 0),
-        buybackEligible,
+        buybackStock,
+        selectedIds && inArray(inventory.itemId, selectedIds),
       ),
     )
     .orderBy(asc(items.name))
     .all()
-    .map((item) => ({
-      ...item,
-      available: getAvailableQuantity(player, item),
-    }));
+    .map((item) => ({ ...item, ...getStackAvailability(player, item) }));
+}
 
-  return { storeItems, sellableItems };
+function getGoldAfterSale(gold: number, payout: number) {
+  const total = gold + payout;
+  return Number.isSafeInteger(payout) && Number.isSafeInteger(total)
+    ? total
+    : null;
+}
+
+/** Loads purchase stock and previews a sale of all eligible spare copies. */
+export function getEmporiumItems(player: Seller) {
+  const purchaseItems = db
+    .select()
+    .from(items)
+    .where(purchaseStock)
+    .orderBy(asc(items.price))
+    .all();
+
+  const sellableItems = getBuybackItems(db, player);
+  const sellAllTotal = sellableItems.reduce(
+    (total, item) => total + item.available * (item.sellPrice ?? 0),
+    0,
+  );
+  return {
+    purchaseItems,
+    sellableItems,
+    hasSellableCopies: sellableItems.some((item) => item.available > 0),
+    sellAllTotal,
+    sellAllExceedsGoldLimit:
+      getGoldAfterSale(player.gold, sellAllTotal) === null,
+  };
 }
 
 /**
@@ -69,7 +91,6 @@ export function buyEmporiumItems(
         .select({
           id: items.id,
           price: items.price,
-          type: items.type,
           owned: inventory.quantity,
         })
         .from(items)
@@ -78,9 +99,12 @@ export function buyEmporiumItems(
           and(eq(inventory.itemId, items.id), eq(inventory.userId, userId)),
         )
         .where(
-          inArray(
-            items.id,
-            selectedItems.map(({ itemId }) => itemId),
+          and(
+            purchaseStock,
+            inArray(
+              items.id,
+              selectedItems.map(({ itemId }) => itemId),
+            ),
           ),
         )
         .all();
@@ -91,9 +115,7 @@ export function buyEmporiumItems(
 
         if (
           !item ||
-          item.type === "material" ||
           item.price === null ||
-          item.price < 0 ||
           !Number.isSafeInteger((item.owned ?? 0) + purchase.quantity)
         ) {
           return "invalid";
@@ -106,7 +128,6 @@ export function buyEmporiumItems(
         return "invalid";
       }
 
-      // Deduct gold only if the player can afford the purchase
       const deduction = tx
         .update(users)
         .set({
@@ -119,21 +140,10 @@ export function buyEmporiumItems(
         return "gold";
       }
 
-      // Add purchased items to inventory
-      for (const purchase of selectedItems) {
-        tx.insert(inventory)
-          .values({
-            userId: userId,
-            itemId: purchase.itemId,
-            quantity: purchase.quantity,
-          })
-          .onConflictDoUpdate({
-            target: [inventory.userId, inventory.itemId],
-            set: {
-              quantity: sql`${inventory.quantity} + ${purchase.quantity}`,
-            },
-          })
-          .run();
+      for (const { itemId, quantity } of selectedItems) {
+        if (!grantInventoryItem(tx, userId, itemId, quantity)) {
+          throw new Error("Purchased inventory stack could not be updated");
+        }
       }
 
       return "success";
@@ -145,8 +155,9 @@ export function buyEmporiumItems(
 
 /**
  * Checks ownership and equipped copies before applying any sale. Credits gold
- * and updates all selected stacks in the same transaction. An "all" sale
- * uses every spare copy eligible for buyback at the time of the transaction.
+ * and updates all selected stacks in the same transaction. Manual sales
+ * require distinct item IDs and positive safe-integer quantities. An "all"
+ * sale uses every spare copy eligible for buyback at the time of the transaction.
  */
 export function sellEmporiumItems(
   userId: number,
@@ -157,6 +168,7 @@ export function sellEmporiumItems(
     (tx) => {
       const player = tx
         .select({
+          id: users.id,
           gold: users.gold,
           equippedWeaponId: users.equippedWeaponId,
           equippedArmorId: users.equippedArmorId,
@@ -168,53 +180,26 @@ export function sellEmporiumItems(
         return "unavailable";
       }
 
-      let totalPayout = 0;
-      const remainingStacks: { id: number; quantity: number }[] = [];
-
-      const stacks = tx
-        .select({
-          id: inventory.id,
-          itemId: inventory.itemId,
-          quantity: inventory.quantity,
-          type: items.type,
-          sellPrice: items.sellPrice,
-        })
-        .from(inventory)
-        .innerJoin(items, eq(items.id, inventory.itemId))
-        .where(
-          and(
-            eq(inventory.userId, userId),
-            selection === "all"
-              ? gt(inventory.quantity, 0)
-              : inArray(
-                  inventory.itemId,
-                  selection.map(({ itemId }) => itemId),
-                ),
-            buybackEligible,
-          ),
-        )
-        .all();
-      const stacksByItemId = new Map(
-        stacks.map((stack) => [stack.itemId, stack]),
+      const stacks = getBuybackItems(
+        tx,
+        player,
+        selection === "all" ? undefined : selection.map(({ itemId }) => itemId),
       );
+      const stacksByItemId = new Map(stacks.map((stack) => [stack.id, stack]));
 
       const selectedItems =
         selection === "all"
           ? stacks
-              .map((stack) => ({
-                itemId: stack.itemId,
-                quantity: getAvailableQuantity(player, {
-                  ...stack,
-                  id: stack.itemId,
-                }),
-              }))
-              .filter(({ quantity }) => quantity > 0)
+              .filter(({ available }) => available > 0)
+              .map(({ id, available }) => ({ itemId: id, quantity: available }))
           : selection;
 
       if (selectedItems.length === 0) {
         return "empty";
       }
 
+      let totalPayout = 0;
+      const remainingStacks: { id: number; quantity: number }[] = [];
       for (const { itemId, quantity } of selectedItems) {
         const stack = stacksByItemId.get(itemId);
 
@@ -228,17 +213,19 @@ export function sellEmporiumItems(
           return "unavailable";
         }
 
-        const remaining = stack.quantity - quantity;
-        if (quantity > getAvailableQuantity(player, { ...stack, id: itemId })) {
+        if (quantity > stack.available) {
           return "equipped";
         }
 
         totalPayout += stack.sellPrice * quantity;
-        remainingStacks.push({ id: stack.id, quantity: remaining });
+        remainingStacks.push({
+          id: stack.stackId,
+          quantity: stack.quantity - quantity,
+        });
       }
 
-      const gold = player.gold + totalPayout;
-      if (!Number.isSafeInteger(totalPayout) || !Number.isSafeInteger(gold)) {
+      const gold = getGoldAfterSale(player.gold, totalPayout);
+      if (gold === null) {
         return "overflow";
       }
 

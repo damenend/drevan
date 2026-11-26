@@ -11,7 +11,7 @@ The Ruins is Drevan’s first playable dungeon. Players leave the settlement of 
 
 A victory awards gold, XP, and any loot that reaches inventory, saves remaining HP, and leaves the player on the same square. The battle report appears once in The Ruins. Defeat and draw save remaining HP and rewards from earlier actions, award nothing for that fight, and send the player to Nexaris with a one-time report. A player at zero HP must recover before entering again.
 
-Enemy offers return when a player leaves their square and comes back. Claimed caches stay claimed. Each successful expedition action saves its result and advances the form revision, so resubmitting an old form cannot repeat the payout.
+Enemy offers return when a player leaves their square and comes back. Claimed caches stay claimed. Entering, moving, fighting, passing by, walking out, and recalling each advance the form revision when successful. That prevents an old form from repeating an action even after the player returns to the same tile. Potion use and attribute allocation have their own forms and leave the expedition revision unchanged.
 
 ## Floor 1 reference
 
@@ -75,8 +75,8 @@ At the provisional [Emporium prices](economy.md#ruins-materials), the theoretica
 
 ## Map visibility and persistence
 
-The playtest map shows `P` for the player, `E` for the exit, and `2` for the sealed stairs. Markers combine, for example `PE` at the exit. Enemy encounters appear in **Surroundings** when the player reaches their square. See the [design system](../design/design-system.md#ruins-map) for layout and the [accessibility guide](../design/accessibility.md#maps-and-combat-reports) for keyboard behavior.
+The playtest map shows `P` for the player, `E` for the exit, and `2` for the sealed stairs. Markers can combine, as in `PE` at the exit. The stairs are visible from the start. Their discovery notice and disabled descent button appear on arrival. Enemy encounters appear in **Surroundings** when the player reaches their square. See the [design system](../design/design-system.md#ruins-map) for layout and the [accessibility guide](../design/accessibility.md#maps-and-combat-reports) for keyboard behavior.
 
 The player record stores the current tile (null outside), whether the encounter is available on this visit, the revision, the placed discoveries, and the last gold claim date. See the [database guide](../development/database.md#randomized-ruins-discovery-migration) for existing expeditions. Movement, discovery rewards, combat, and exits save with the corresponding expedition state. The game router redirects other gameplay pages to The Ruins while the player is inside. It allows the existing potion and allocation actions.
 
-[Map and encounter values](../../src/services/ruins-map.ts) · [Discovery placement](../../src/services/ruins-discoveries.ts) · [Loot tables](../../src/services/ruins-loot.ts) · [Expedition service](../../src/services/ruins.ts) · [Route tests](../../tests/game-routes.test.ts)
+[Map and encounter values](../../src/services/ruins-map.ts) · [Discovery placement](../../src/services/ruins-discoveries.ts) · [Loot tables](../../src/services/ruins-loot.ts) · [Cache and loot grants](../../src/services/ruins-rewards.ts) · [Expedition service](../../src/services/ruins.ts) · [Route tests](../../tests/game-routes.test.ts)

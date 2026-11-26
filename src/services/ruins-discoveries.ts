@@ -57,3 +57,11 @@ export function getRuinsDiscovery(
 ) {
   return discoveries?.find((discovery) => discovery.tile === tile);
 }
+
+export function describeRuinsDiscovery(discovery: RuinsDiscovery) {
+  const { description } = discoveryDefinitions[discovery.id];
+  const status = discovery.claimed
+    ? "You already collected this cache."
+    : "Return to this square to try again.";
+  return `${description} ${status}`;
+}

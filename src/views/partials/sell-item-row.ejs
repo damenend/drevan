@@ -8,8 +8,10 @@
     <% if (item.available === 0) { %>
     <a href="/game#equipped">Unequip in The Quarters</a>
     <% } else { %>
-    <label for="sell-<%= item.id %>" class="visually-hidden">Quantity of <%= item.name %> to sell</label>
-    <input type="number" id="sell-<%= item.id %>" name="items[item-<%= item.id %>]" value="0" min="0" max="<%= item.available %>" step="1" data-price="<%= item.sellPrice %>" class="item-quantity">
+    <%- include("./cart-quantity", {
+      fieldId: `sell-${item.id}`, itemId: item.id,
+      label: `Quantity of ${item.name} to sell`, price: item.sellPrice, maxQuantity: item.available,
+    }) %>
     <% } %>
   </td>
 </tr>

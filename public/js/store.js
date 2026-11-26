@@ -1,21 +1,18 @@
 (() => {
   const formatter = new Intl.NumberFormat("en-US");
-  const availableGold = Number(
-    document.getElementById("player-gold").dataset.gold,
-  );
 
-  function updateCart(form, totalDisplay, { maxTotal, limitMessage }) {
+  function evaluateCart(fields, maxTotal, limitMessage) {
     let total = 0;
     let hasSelection = false;
-    for (const field of form.querySelectorAll("[data-price]")) {
+    for (const field of fields) {
       const quantity = Number(field.value);
-      const valid =
-        field.validity.valid &&
-        (field.value === "" || /^\d+$/.test(field.value)) &&
-        Number.isSafeInteger(quantity);
-      if (!valid) {
-        totalDisplay.textContent = "—";
+      if (
+        !field.validity.valid ||
+        (field.value !== "" && !/^\d+$/.test(field.value)) ||
+        !Number.isSafeInteger(quantity)
+      ) {
         return {
+          total: null,
           canSubmit: false,
           error: "Enter whole quantities within the allowed range.",
         };
@@ -24,29 +21,34 @@
       total += quantity * Number(field.dataset.price);
     }
 
-    const supported = Number.isSafeInteger(total);
-    totalDisplay.textContent = supported ? formatter.format(total) : "—";
-    if (!supported) {
+    if (!Number.isSafeInteger(total)) {
       return {
+        total: null,
         canSubmit: false,
         error: "This total exceeds the supported gold limit.",
       };
     }
-    if (total > maxTotal) return { canSubmit: false, error: limitMessage };
-    return { canSubmit: hasSelection, error: "" };
+    if (total > maxTotal) {
+      return { total, canSubmit: false, error: limitMessage };
+    }
+    return { total, canSubmit: hasSelection, error: "" };
   }
 
-  function connectCart(formId, totalId, messageId, limits) {
-    const form = document.getElementById(formId);
-    const totalDisplay = document.getElementById(totalId);
-    const message = document.getElementById(messageId);
-    if (!totalDisplay) return;
-
+  function connectCart(form) {
+    const fields = form.querySelectorAll("[data-price]");
+    const summary = form.querySelector("[data-cart-summary]");
+    const totalDisplay = summary.querySelector("[data-cart-total]");
+    const message = form.querySelector("[data-cart-message]");
     const submitButton = form.querySelector('button[type="submit"]');
-    totalDisplay.parentElement.hidden = false;
+    const maxTotal = Number(form.dataset.cartMaxTotal);
 
     function update() {
-      const { canSubmit, error } = updateCart(form, totalDisplay, limits);
+      const { total, canSubmit, error } = evaluateCart(
+        fields,
+        maxTotal,
+        form.dataset.cartLimitMessage,
+      );
+      totalDisplay.textContent = total === null ? "—" : formatter.format(total);
       if (message.textContent !== error) message.textContent = error;
       submitButton.disabled = !canSubmit;
     }
@@ -56,16 +58,12 @@
       update();
       if (submitButton.disabled) event.preventDefault();
     });
-    update();
     window.addEventListener("pageshow", update);
+    update();
+    summary.hidden = false;
   }
 
-  connectCart("purchase-form", "total-gold", "purchase-message", {
-    maxTotal: availableGold,
-    limitMessage: "You do not have enough gold.",
-  });
-  connectCart("sell-form", "sell-total", "sell-message", {
-    maxTotal: Number.MAX_SAFE_INTEGER - availableGold,
-    limitMessage: "This sale would exceed the supported gold limit.",
-  });
+  for (const form of document.querySelectorAll("form[data-cart-max-total]")) {
+    connectCart(form);
+  }
 })();

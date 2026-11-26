@@ -14,44 +14,43 @@
   <% if (purchased) { %>
   <p tabindex="-1" data-result-focus>Purchase complete.</p>
   <% } %>
-  <% if (err) { %>
-  <p class="text-error" tabindex="-1" data-result-focus><%= err %></p>
+  <% if (purchaseError) { %>
+  <p class="text-error" tabindex="-1" data-result-focus><%= purchaseError %></p>
   <% } %>
   <%- include("../partials/item-category-nav", {
     label: "Purchase categories", path: "/game/store", headingId: "buy-heading", categories: purchaseCategories,
   }) %>
-  <% if (items.length === 0) { %>
+  <% if (purchaseItems.length === 0) { %>
   <p>No items for purchase in this category.</p>
   <% } else { %>
-  <form id="purchase-form" action="/game/store<%= category === "all" ? "" : "?category=" + category %>" method="POST">
+  <form id="purchase-form" action="/game/store<%= category === "all" ? "" : "?category=" + category %>" method="POST" data-cart-max-total="<%= purchaseGoldLimit %>" data-cart-limit-message="<%= purchaseGoldLimitMessage %>">
     <%- include("../partials/item-table", {
-      rows: items, rowView: "./purchase-item-row", scrollLabel: "Items for purchase",
+      rows: purchaseItems, rowView: "./purchase-item-row", scrollLabel: "Items for purchase",
       headingId: "buy-heading", columns: ["Item", "Description", "Effect", "Value", "Price", "Quantity"],
     }) %>
-    <p id="purchase-message" class="text-error" role="status"></p>
-    <button type="submit" class="button--spaced">Purchase<span hidden> for <span id="total-gold">0</span> gold</span></button>
+    <p id="purchase-message" class="text-error" role="status" data-cart-message></p>
+    <button type="submit" class="button--spaced">Purchase<span data-cart-summary hidden> for <span id="total-gold" data-cart-total>0</span> gold</span></button>
   </form>
   <% } %>
   <section id="sell" aria-labelledby="sell-heading">
     <h2 id="sell-heading">Sell items</h2>
-    <% const hasSellableCopies = sellableItems.some(item => item.available > 0); %>
     <% if (sold || emptySale) { %>
     <p id="sale-result" tabindex="-1" data-result-focus><%= sold ? "Sale complete." : "You have nothing available to sell here." %></p>
     <% } else if (sellableItems.length === 0) { %>
     <p>You have nothing available to sell here.</p>
     <% } %>
     <% if (sellableItems.length > 0) { %>
-    <form id="sell-form" action="/game/store/sell" method="POST">
+    <form id="sell-form" action="/game/store/sell" method="POST"<% if (hasSellableCopies) { %> data-cart-max-total="<%= saleGoldLimit %>" data-cart-limit-message="<%= saleGoldLimitMessage %>"<% } %>>
       <%- include("../partials/item-table", {
         rows: sellableItems, rowView: "./sell-item-row", scrollLabel: "Items for sale",
         headingId: "sell-heading", columns: ["Item", "Available", "Value", "Sell quantity"],
       }) %>
       <% if (hasSellableCopies) { %>
-      <p hidden>
+      <p data-cart-summary hidden>
         <label for="sell-total">Sale total</label>:
-        <output id="sell-total" aria-live="off">0</output> gold
+        <output id="sell-total" aria-live="off" data-cart-total>0</output> gold
       </p>
-      <p id="sell-message" class="text-error" role="status"></p>
+      <p id="sell-message" class="text-error" role="status" data-cart-message></p>
       <button type="submit" class="button--spaced">Sell</button>
       <% } %>
     </form>
@@ -60,7 +59,7 @@
       <p id="sell-all-note">Sell all eligible items in your inventory. Equipped items will be retained.</p>
       <button type="submit" class="button--secondary" aria-describedby="sell-all-note<% if (sellAllExceedsGoldLimit) { %> sell-all-limit<% } %>"<% if (sellAllExceedsGoldLimit) { %> disabled<% } %>>Sell all<% if (Number.isSafeInteger(sellAllTotal)) { %> for <%= formatNumber(sellAllTotal) %> gold<% } %></button>
       <% if (sellAllExceedsGoldLimit) { %>
-      <span id="sell-all-limit">This sale would exceed the supported gold limit.</span>
+      <span id="sell-all-limit"><%= saleGoldLimitMessage %></span>
       <% } %>
     </form>
     <% } %>

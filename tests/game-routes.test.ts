@@ -881,26 +881,29 @@ test("Emporium preserves stock when crediting sale gold fails", async (t) => {
   }
 });
 
-test("an inventory write failure rolls back the Emporium gold deduction", async (t) => {
+test("a failed or skipped inventory grant rolls back the Emporium gold deduction", async (t) => {
   const initial = player();
   const log = t.mock.method(console, "error", () => {});
-  sqlite.exec(`
-    CREATE TRIGGER fail_purchase BEFORE INSERT ON inventory
-    BEGIN
-      SELECT RAISE(ABORT, 'Test inventory write failure');
-    END;
-  `);
 
-  try {
-    const purchase = await post("/game/store", { items: { "item-1": 1 } });
-    assert.equal(purchase.status, 500);
-    assert.match(purchase.html, /Server error/);
-    assert.equal(log.mock.callCount(), 1);
-    assert.deepEqual(player(), initial);
-    assert.deepEqual(ownedItems(), []);
-  } finally {
-    sqlite.exec("DROP TRIGGER fail_purchase;");
+  for (const failure of ["ABORT, 'Test inventory write failure'", "IGNORE"]) {
+    sqlite.exec(`
+      CREATE TRIGGER fail_purchase BEFORE INSERT ON inventory
+      BEGIN
+        SELECT RAISE(${failure});
+      END;
+    `);
+
+    try {
+      const purchase = await post("/game/store", { items: { "item-1": 1 } });
+      assert.equal(purchase.status, 500, failure);
+      assert.match(purchase.html, /Server error/);
+      assert.deepEqual(player(), initial);
+      assert.deepEqual(ownedItems(), []);
+    } finally {
+      sqlite.exec("DROP TRIGGER fail_purchase;");
+    }
   }
+  assert.equal(log.mock.callCount(), 2);
 });
 
 test("The Quarters filters available items and retains the category after actions", async () => {

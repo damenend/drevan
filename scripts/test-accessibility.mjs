@@ -425,6 +425,13 @@ try {
     javaScriptEnabled: false,
   });
   const nativePage = await nativeContext.newPage();
+  await nativePage.goto(base + "/game/store?category=consumables");
+  await nativePage.getByLabel("Quantity of Lesser Potion").fill("1");
+  await nativePage
+    .getByRole("button", { name: "Purchase", exact: true })
+    .click();
+  await nativePage.getByText("Purchase complete.", { exact: true }).waitFor();
+
   await nativePage.goto(base + "/game/ruins");
   await nativePage.getByRole("button", { name: "Enter The Ruins" }).click();
   await nativePage.locator("[data-player-tile]").waitFor();

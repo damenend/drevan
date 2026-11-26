@@ -68,7 +68,8 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 ### 6b. Playtest Floor 1 with reduced map markers (P1 · Medium)
 
 - **Status.** Planned.
-- **Dependencies.** Floor 1 exploration (6). Cache locations are already hidden (6a). Enemy and stair markers are still visible across the map.
+- **Dependencies.** Floor 1 exploration (6) and hidden caches (6a).
+- **Current behavior.** [Floor 1](../gameplay/ruins.md#map-visibility-and-persistence) already hides enemy markers from the map, marker list, and movement labels. The sealed stairs are visible before arrival, and the discovery notice and descent control appear at the stair tile.
 - **Scope.** Hide enemy spoilers in the map, marker list, and movement labels. Reveal the sealed stairs on arrival. At narrow widths, bring discovery and empty-cache feedback, current HP, and **Fight** and **Pass by** into view when relevant. Make walkout and Recall easy to locate and verify focus after both exits.
 - **Done when.** First-time players can orient themselves without a known route, notice discoveries, make a fight or retreat decision, and return to Nexaris. Check keyboard and screen-reader discovery and encounter feedback, battle summary and log, and return focus. Repeat the 320 CSS pixel walkthrough and browser regression checks. The [reduced-marker trial](../audits/balance-playtests.md#reduced-markers-at-320-css-pixels) records the baseline.
 

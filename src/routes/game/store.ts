@@ -2,17 +2,18 @@ import { Router, type Response } from "express";
 import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { renderError } from "../../middleware/errors";
 import {
+  getInventoryCategory,
+  getItemEffectLabel,
+  inventoryCategories,
+  matchesItemCategory,
+} from "../../presentation/items";
+import {
   buyEmporiumItems,
   getEmporiumItems,
   sellEmporiumItems,
   type ItemSelection,
 } from "../../services/emporium";
 import { parseFormInteger } from "../../utils/parse-form-integer";
-import {
-  getInventoryCategory,
-  inventoryCategories,
-  matchesItemCategory,
-} from "./quarters-inventory";
 
 const router = Router();
 
@@ -24,51 +25,43 @@ const purchaseCategories = {
   consumables: inventoryCategories.consumables,
 };
 
-function getPurchaseCategory(value: unknown) {
-  const category = getInventoryCategory(value);
-  return Object.hasOwn(purchaseCategories, category) ? category : "all";
-}
+const purchaseErrors = {
+  gold: "You do not have enough gold.",
+  quantity: "Enter a whole quantity of at least 1 for an item you want to buy.",
+  invalid:
+    "This purchase could not be completed. Check the items and quantities and try again.",
+};
+
+const saleGoldLimitMessage = "This sale would exceed the supported gold limit.";
 
 // Store page
 router.get("/", (req, res) => {
   const player = getAuthenticatedPlayer(res);
-  const { storeItems, sellableItems } = getEmporiumItems(player);
-  const sellAllTotal = sellableItems.reduce(
-    (total, item) => total + item.available * (item.sellPrice ?? 0),
-    0,
-  );
-  const sellAllExceedsGoldLimit =
-    !Number.isSafeInteger(sellAllTotal) ||
-    !Number.isSafeInteger(player.gold + sellAllTotal);
-
-  const category = getPurchaseCategory(req.query.category);
-  const errorMessage = {
-    gold: "You do not have enough gold.",
-    quantity:
-      "Enter a whole quantity of at least 1 for an item you want to buy.",
-    invalid:
-      "This purchase could not be completed. Check the items and quantities and try again.",
-  };
+  const { purchaseItems, ...salePreview } = getEmporiumItems(player);
+  const category = getInventoryCategory(req.query.category, purchaseCategories);
   const error = req.query.err;
-  const err =
-    typeof error === "string" && Object.hasOwn(errorMessage, error)
-      ? errorMessage[error as keyof typeof errorMessage]
+  const purchaseError =
+    typeof error === "string" && Object.hasOwn(purchaseErrors, error)
+      ? purchaseErrors[error as keyof typeof purchaseErrors]
       : undefined;
 
   return res.render("game/store", {
     title: "Curious Emporium",
-    items: storeItems.filter((item) =>
+    purchaseItems: purchaseItems.filter((item) =>
       matchesItemCategory(item.type, category),
     ),
     category,
     purchaseCategories,
-    sellableItems,
-    sellAllTotal,
-    sellAllExceedsGoldLimit,
+    ...salePreview,
+    getItemEffectLabel,
+    purchaseGoldLimit: player.gold,
+    purchaseGoldLimitMessage: purchaseErrors.gold,
+    saleGoldLimit: Number.MAX_SAFE_INTEGER - player.gold,
+    saleGoldLimitMessage,
     sold: req.query.sold === "1",
     emptySale: req.query.sold === "empty",
     purchased: req.query.purchased === "1",
-    err,
+    purchaseError,
   });
 });
 
@@ -105,7 +98,7 @@ function parseItemSelection(requestedItems: unknown) {
 
 // Purchase items
 router.post("/", (req, res) => {
-  const category = getPurchaseCategory(req.query.category);
+  const category = getInventoryCategory(req.query.category, purchaseCategories);
   const redirectToPurchase = (feedback: Record<string, string>) => {
     const query = new URLSearchParams(feedback);
     if (category !== "all") query.set("category", category);
@@ -122,13 +115,8 @@ router.post("/", (req, res) => {
     selectedItems,
   );
 
-  // Redirect with an error if the player lacks gold
-  if (result === "gold") {
-    return redirectToPurchase({ err: "gold" });
-  }
-
   return redirectToPurchase(
-    result === "success" ? { purchased: "1" } : { err: "invalid" },
+    result === "success" ? { purchased: "1" } : { err: result },
   );
 });
 
@@ -160,7 +148,7 @@ function sellItems(res: Response, selection: ItemSelection[] | "all" | null) {
       });
     case "overflow":
       return renderError(res, 409, {
-        message: "This sale would exceed the supported gold limit.",
+        message: saleGoldLimitMessage,
       });
     case "empty":
       return res.redirect(303, "/game/store?sold=empty#sale-result");

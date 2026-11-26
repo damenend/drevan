@@ -6,10 +6,14 @@ import {
 import { Router } from "express";
 import { getProgression, statAllocations } from "../../services/progression";
 import {
-  discoveryDefinitions,
+  describeRuinsDiscovery,
   getRuinsDiscovery,
 } from "../../services/ruins-discoveries";
-import { actInRuins, getRuinsSupplies } from "../../services/ruins";
+import {
+  actInRuins,
+  getRuinsSupplies,
+  type RuinsAction,
+} from "../../services/ruins";
 import {
   canMoveInRuins,
   getRuinsEncounter,
@@ -46,7 +50,6 @@ router.get("/", (req, res) => {
     restoreMapFocus: req.query.focus === "map",
     encounter: enemy,
     atNextFloor,
-    // After manual playtesting, reveal the marker only while standing on it.
     nextFloorMarker: RUINS_NEXT_FLOOR,
     emptySquare:
       position !== null &&
@@ -60,44 +63,43 @@ router.get("/", (req, res) => {
     statAllocations,
     ...(position === null ? {} : getRuinsSupplies(player.id)),
     recalledToday: player.recallDate === getGameDate(),
-    message:
-      message ??
-      (discovery
-        ? `${discoveryDefinitions[discovery.id].description} ${discovery.claimed ? "You already collected this cache." : "Return to this square to try again."}`
-        : undefined),
+    message: message ?? (discovery && describeRuinsDiscovery(discovery)),
     battle,
   });
 });
 
-router.post("/action", (req, res) => {
-  const revision = parseFormInteger(req.body?.revision);
-  if (revision === null) return res.redirect(303, "/game/ruins");
-
-  const kind = req.body?.action;
-  const destination = parseFormInteger(req.body?.destination);
-  const id = getAuthenticatedPlayer(res).id;
-  let result;
+function parseRuinsAction(
+  kind: unknown,
+  rawDestination: unknown,
+): RuinsAction | null {
   switch (kind) {
     case "enter":
     case "exit":
     case "recall":
     case "engage":
     case "ignore":
-      result = actInRuins(id, revision, { kind });
-      break;
-    case "move":
-      if (destination === null) return res.redirect(303, "/game/ruins");
-      result = actInRuins(id, revision, { kind, destination });
-      break;
+      return { kind };
+    case "move": {
+      const destination = parseFormInteger(rawDestination);
+      return destination === null ? null : { kind, destination };
+    }
     default:
-      return res.redirect(303, "/game/ruins");
+      return null;
   }
+}
 
+router.post("/action", (req, res) => {
+  const revision = parseFormInteger(req.body?.revision);
+  const action = parseRuinsAction(req.body?.action, req.body?.destination);
+  if (revision === null || !action) return res.redirect(303, "/game/ruins");
+
+  const result = actInRuins(getAuthenticatedPlayer(res).id, revision, action);
   if (result.battle) req.session.ruinsBattle = result.battle;
   const path = result.left ? "/game/nexaris" : "/game/ruins";
   const query = new URLSearchParams();
   if (result.message) query.set("message", result.message);
-  if (kind === "enter" || kind === "move") query.set("focus", "map");
+  if (action.kind === "enter" || action.kind === "move")
+    query.set("focus", "map");
   return res.redirect(303, query.size ? `${path}?${query}` : path);
 });
 

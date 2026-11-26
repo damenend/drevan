@@ -7,53 +7,51 @@ import {
   MAX_ATTACK_POWER,
 } from "./character-stats";
 
-type EquippedPlayer = Pick<
-  typeof users.$inferSelect,
-  | "id"
-  | "strength"
-  | "strengthPoints"
-  | "agility"
-  | "agilityPoints"
-  | "intellect"
-  | "intellectPoints"
-  | "fortitude"
-  | "fortitudePoints"
-  | "speed"
-  | "defense"
-  | "equippedWeaponId"
-  | "equippedArmorId"
->;
-
 export const equipmentSlots = {
   weapon: "equippedWeaponId",
   armor: "equippedArmorId",
 } as const;
 
+type EquipmentSlot = keyof typeof equipmentSlots;
+export type EquipmentOwner = Pick<
+  typeof users.$inferSelect,
+  (typeof equipmentSlots)[EquipmentSlot]
+>;
+
+type EquippedPlayer = EquipmentOwner &
+  Pick<
+    typeof users.$inferSelect,
+    | "id"
+    | "strength"
+    | "strengthPoints"
+    | "agility"
+    | "agilityPoints"
+    | "intellect"
+    | "intellectPoints"
+    | "fortitude"
+    | "fortitudePoints"
+    | "speed"
+    | "defense"
+  >;
+
+function isEquipmentSlot(type: string): type is EquipmentSlot {
+  return Object.hasOwn(equipmentSlots, type);
+}
+
 /** Maps a catalog item type to its player equipment column. */
 export function getEquipmentColumn(type: string) {
-  if (type === "weapon" || type === "armor") return equipmentSlots[type];
-  return null;
+  return isEquipmentSlot(type) ? equipmentSlots[type] : null;
 }
 
-/**
- * Identifies the slot that reserves one copy of this inventory stack.
- */
-export function getEquippedSlot(
-  player: Pick<EquippedPlayer, "equippedWeaponId" | "equippedArmorId">,
-  item: Pick<typeof items.$inferSelect, "id" | "type">,
+/** Identifies the equipped copy and counts the remaining copies in an owned stack. */
+export function getStackAvailability(
+  player: EquipmentOwner,
+  item: Pick<typeof items.$inferSelect, "id" | "type"> & { quantity: number },
 ) {
-  if (item.type === "weapon" || item.type === "armor") {
-    if (item.id === player[equipmentSlots[item.type]]) return item.type;
-  }
-  return null;
-}
-
-/** Counts copies available after reserving one for the equipped slot. */
-export function getAvailableQuantity(
-  player: Parameters<typeof getEquippedSlot>[0],
-  item: Parameters<typeof getEquippedSlot>[1] & { quantity: number },
-) {
-  return item.quantity - Number(getEquippedSlot(player, item) !== null);
+  const { id, type, quantity } = item;
+  const equippedSlot =
+    isEquipmentSlot(type) && id === player[equipmentSlots[type]] ? type : null;
+  return { equippedSlot, available: quantity - Number(equippedSlot !== null) };
 }
 
 /**
