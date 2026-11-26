@@ -55,12 +55,12 @@ before(async () => {
     migrationsFolder: path.resolve(__dirname, "../drizzle"),
   });
   sqlite.exec(`
-    INSERT INTO items (id, name, description, price, type, effect, effect_value)
-    VALUES (1, 'Lesser Potion', 'Test potion', 5, 'consumable', 'heal', 10),
-           (2, 'Rusted Sword', 'Test sword', 100, 'weapon', 'attack_power', 1),
-           (3, 'Murkfin', 'Test fish', NULL, 'fish', NULL, NULL),
-           (4, 'Recall Beacon', 'Test utility', NULL, 'utility', NULL, NULL),
-           (5, 'Revival Potion', 'Test revival potion', 25, 'consumable', 'revive', 1);
+    INSERT INTO items (id, name, description, price, type, effect, effect_value, level)
+    VALUES (1, 'Lesser Potion', 'Test potion', 5, 'consumable', 'heal', 10, NULL),
+           (2, 'Rusted Sword', 'Test sword', 100, 'weapon', 'attack_power', 1, 1),
+           (3, 'Murkfin', 'Test fish', NULL, 'fish', NULL, NULL, NULL),
+           (4, 'Recall Beacon', 'Test utility', NULL, 'utility', NULL, NULL, NULL),
+           (5, 'Revival Potion', 'Test revival potion', 25, 'consumable', 'revive', 1, NULL);
     UPDATE items SET sell_price = 50 WHERE id = 2;
     UPDATE items SET sell_price = 1 WHERE id = 3;
   `);
@@ -79,8 +79,8 @@ before(async () => {
   }
 
   const insertEquipment = sqlite.prepare(`
-    INSERT INTO items (name, description, type, effect, effect_value, sell_price, price)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO items (name, description, type, effect, effect_value, sell_price, price, level)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
   for (const item of ruinsEquipment) {
     insertEquipment.run(
@@ -91,6 +91,7 @@ before(async () => {
       item.effectValue,
       item.sellPrice,
       item.price,
+      item.level,
     );
   }
 
@@ -786,6 +787,7 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
     .find((row) => row.includes("Rusted Sword"));
   assert.ok(swordRow);
   assert.match(swordRow, /<td class="quarters-quantity">\s*1\s*<\/td>/);
+  assert.match(swordRow, /<td>1<\/td>/);
   assert.doesNotMatch(swordRow, /Equip Rusted Sword/);
   assert.doesNotMatch(bag, /Unequip Rusted Sword/);
 
@@ -1091,6 +1093,42 @@ test("The Quarters filters available items and retains the category after action
   assert.match(unequipLocation, /category=equipment/);
   const unequipped = await request(unequipLocation, { headers: { cookie } });
   assert.match(unequipped.html, /aria-label="Equip Rusted Sword"/);
+});
+
+test("equipment requires the catalog level on the server", async () => {
+  const woodenAxe = sqlite
+    .prepare<[], { id: number }>(
+      "SELECT id FROM items WHERE name = 'Wooden Axe'",
+    )
+    .get();
+  assert.ok(woodenAxe);
+  sqlite
+    .prepare(
+      `INSERT INTO inventory (user_id, item_id, quantity)
+       SELECT id, ?, 1 FROM users WHERE email = ?`,
+    )
+    .run(woodenAxe.id, account.email);
+
+  const inventory = await request("/game?category=weapons", {
+    headers: { cookie },
+  });
+  assert.match(inventory.html, /Level 2 required/);
+  assert.doesNotMatch(inventory.html, /aria-label="Equip Wooden Axe"/);
+
+  const rejected = await post("/game/inventory/equip?category=weapons", {
+    itemId: woodenAxe.id,
+  });
+  assert.match(
+    rejected.headers.get("location") ?? "",
+    /message=Your%20level%20is%20too%20low%20to%20equip%20this%20item/,
+  );
+  assert.equal(player().equipped_weapon_id, null);
+
+  sqlite.exec("UPDATE users SET exp = 60;");
+  await post("/game/inventory/equip?category=weapons", {
+    itemId: woodenAxe.id,
+  });
+  assert.equal(player().equipped_weapon_id, woodenAxe.id);
 });
 
 test("consumption, gear and Sanctum use current player state", async () => {
@@ -2089,6 +2127,7 @@ test("a Scavenger victory stacks and reports multiple drops once even if replaye
     /^\/game\/ruins/,
   );
   await explore("recall");
+  sqlite.exec("UPDATE users SET exp = 60;");
   const weapons = (
     await request("/game?category=weapon", { headers: { cookie } })
   ).html;
@@ -2503,7 +2542,7 @@ test("new catalog items are seeded and purchasable through Emporium", async () =
     assert.deepEqual(
       sqlite
         .prepare(
-          "SELECT type, effect, effect_value, price, sell_price, description, image FROM items WHERE id = ?",
+          "SELECT type, effect, effect_value, price, sell_price, description, image, level FROM items WHERE id = ?",
         )
         .get(id),
       {
@@ -2513,6 +2552,7 @@ test("new catalog items are seeded and purchasable through Emporium", async () =
         price: item.price,
         sell_price: item.sellPrice,
         description: item.description,
+        level: item.level,
         image:
           item.type === "weapon"
             ? "/images/rusted-sword.webp"
@@ -2532,6 +2572,7 @@ test("new catalog items are seeded and purchasable through Emporium", async () =
   assert.equal(purchase.headers.get("location"), "/game/store?purchased=1");
   assert.equal(player().gold, 1000 - total);
   assert.deepEqual(ownedItems(), purchased);
+  sqlite.exec("UPDATE users SET exp = 1000000000");
   for (const category of ["weapon", "armor"] as const) {
     const inventory = await request(`/game?category=${category}`, {
       headers: { cookie },

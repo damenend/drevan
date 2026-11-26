@@ -12,15 +12,17 @@ The Quarters filters available items by Equipment, Weapons, Armor, Consumables, 
 
 [Floor 1 victories](ruins.md#victory-loot) can award Wooden, Reinforced, and Ancient equipment. Shields and bracers use the armor slot. The shared prefixes indicate intended progression. Each item defines its own fixed modifier and buyback price in the [Ruins catalog](../../src/db/ruins-loot-catalog.ts).
 
-| Tier       | Weapon           | Attack Power | Armor              | Defense | Buyback (gold) | Future level |
-| ---------- | ---------------- | -----------: | ------------------ | ------: | -------------: | -----------: |
-| Wooden     | Wooden Axe       |           +2 | Wooden Shield      |      +4 |             15 |            2 |
-| Reinforced | Reinforced Sword |           +3 | Reinforced Bracers |      +5 |             25 |            4 |
-| Ancient    | Ancient Blade    |           +4 | Ancient Plate      |      +6 |             40 |            6 |
-| Arcane     | Arcane Mace      |           +5 | Arcane Bulwark     |      +7 |             60 |            8 |
-| Corrupt    | Corrupt Staff    |           +6 | Corrupt Armor      |      +8 |             90 |           10 |
+| Tier       | Weapon           | Attack Power | Armor              | Defense | Buyback (gold) | Required level |
+| ---------- | ---------------- | -----------: | ------------------ | ------: | -------------: | -------------: |
+| Wooden     | Wooden Axe       |           +2 | Wooden Shield      |      +4 |             15 |              2 |
+| Reinforced | Reinforced Sword |           +3 | Reinforced Bracers |      +5 |             25 |              4 |
+| Ancient    | Ancient Blade    |           +4 | Ancient Plate      |      +6 |             40 |              6 |
+| Arcane     | Arcane Mace      |           +5 | Arcane Bulwark     |      +7 |             60 |              8 |
+| Corrupt    | Corrupt Staff    |           +6 | Corrupt Armor      |      +8 |             90 |             10 |
 
-Armor starts one point above Worn Leather Armor and increases by one point per tier. The future levels are design references. New weapons use the Rusted Sword image and new armor uses the Worn Leather Armor image until individual art is ready. Curious Emporium stocks all ten items at provisional purchase prices of 30, 50, 80, 120, and 180 gold per piece, from Wooden through Corrupt. Arcane and Corrupt gear are currently shop purchases. Modifiers, payouts, and drop rates are provisional pending dedicated balance playtesting.
+Armor starts one point above Worn Leather Armor and increases by one point per tier. A player can own or sell equipment above their level, but must reach its required level before equipping it. New weapons use the Rusted Sword image and new armor uses the Worn Leather Armor image until individual art is ready. Curious Emporium stocks all ten items at provisional purchase prices of 30, 50, 80, 120, and 180 gold per piece, from Wooden through Corrupt. Arcane and Corrupt gear are currently shop purchases. Modifiers, payouts, and drop rates are provisional pending dedicated balance playtesting.
+
+Catalog seeding clears an equipped slot when a newly applied requirement exceeds the player's current level. The item remains in inventory.
 
 ## Buy and sell
 

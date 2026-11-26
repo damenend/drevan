@@ -5,6 +5,7 @@
   <td><%= item.description %></td>
   <td><%= getItemEffectLabel(item.effect) %></td>
   <td><%= item.effectValue === null ? "—" : formatNumber(item.effectValue) %></td>
+  <td><%= item.level === null ? "—" : formatNumber(item.level) %></td>
   <td><%= formatNumber(item.price) %> gold</td>
   <td>
     <%- include("./cart-quantity", {

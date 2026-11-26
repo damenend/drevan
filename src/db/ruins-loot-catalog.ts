@@ -79,6 +79,7 @@ export const ruinsEquipment = [
     effectValue: 2,
     sellPrice: 15,
     price: 30,
+    level: 2,
   },
   {
     name: "Reinforced Sword",
@@ -88,6 +89,7 @@ export const ruinsEquipment = [
     effectValue: 3,
     sellPrice: 25,
     price: 50,
+    level: 4,
   },
   {
     name: "Ancient Blade",
@@ -98,6 +100,7 @@ export const ruinsEquipment = [
     effectValue: 4,
     sellPrice: 40,
     price: 80,
+    level: 6,
   },
   {
     name: "Arcane Mace",
@@ -108,6 +111,7 @@ export const ruinsEquipment = [
     effectValue: 5,
     sellPrice: 60,
     price: 120,
+    level: 8,
   },
   {
     name: "Corrupt Staff",
@@ -118,6 +122,7 @@ export const ruinsEquipment = [
     effectValue: 6,
     sellPrice: 90,
     price: 180,
+    level: 10,
   },
   {
     name: "Wooden Shield",
@@ -128,6 +133,7 @@ export const ruinsEquipment = [
     effectValue: 4,
     sellPrice: 15,
     price: 30,
+    level: 2,
   },
   {
     name: "Reinforced Bracers",
@@ -137,6 +143,7 @@ export const ruinsEquipment = [
     effectValue: 5,
     sellPrice: 25,
     price: 50,
+    level: 4,
   },
   {
     name: "Ancient Plate",
@@ -147,6 +154,7 @@ export const ruinsEquipment = [
     effectValue: 6,
     sellPrice: 40,
     price: 80,
+    level: 6,
   },
   {
     name: "Arcane Bulwark",
@@ -157,6 +165,7 @@ export const ruinsEquipment = [
     effectValue: 7,
     sellPrice: 60,
     price: 120,
+    level: 8,
   },
   {
     name: "Corrupt Armor",
@@ -167,5 +176,6 @@ export const ruinsEquipment = [
     effectValue: 8,
     sellPrice: 90,
     price: 180,
+    level: 10,
   },
 ] as const satisfies readonly (typeof items.$inferInsert)[];

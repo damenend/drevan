@@ -8,6 +8,7 @@
   <td class="quarters-quantity">
     <%= formatNumber(item.available) %>
   </td>
+  <td><%= item.level === null ? "—" : formatNumber(item.level) %></td>
   <td>
     <% const effect = describeItemEffect(item.effect, item.effectValue); %>
     <% if (effect) { %>
@@ -17,7 +18,9 @@
     <% } %>
   </td>
   <td>
-    <% if (item.action) { %>
+    <% if (item.action === "Equip" && item.level !== null && level < item.level) { %>
+    <span class="text-muted">Level <%= formatNumber(item.level) %> required</span>
+    <% } else if (item.action) { %>
     <form action="/game/inventory/<%= item.action.toLowerCase() %><%= actionQuery %>" method="POST">
       <input type="hidden" name="itemId" value="<%= item.id %>">
       <button type="submit" aria-label="<%= item.action %> <%= item.name %>"><%= item.action %></button>

@@ -13,6 +13,7 @@ const router = Router();
 const equipMessages = {
   missing: "You do not have that item in your inventory.",
   unsupported: "This item cannot be equipped.",
+  level: "Your level is too low to equip this item.",
   "in-expedition": "Leave The Ruins to change equipment.",
   equipped: "Item equipped.",
 };

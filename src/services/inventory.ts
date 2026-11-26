@@ -8,6 +8,7 @@ import {
 } from "./equipment";
 import { applyItemEffect } from "./items";
 import { addSummaryItem, emptyRuinsStats } from "./ruins-summary";
+import { getProgression } from "./progression";
 
 /** Lists stacks by item name. Quantities include equipped copies. */
 export function getPlayerInventory(userId: number) {
@@ -22,6 +23,7 @@ export function getPlayerInventory(userId: number) {
       quantity: inventory.quantity,
       effect: items.effect,
       effectValue: items.effectValue,
+      level: items.level,
     })
     .from(inventory)
     .innerJoin(items, eq(inventory.itemId, items.id))
@@ -47,6 +49,7 @@ function findOwnedItem(
       type: items.type,
       effect: items.effect,
       effectValue: items.effectValue,
+      level: items.level,
     })
     .from(inventory)
     .innerJoin(items, eq(inventory.itemId, items.id))
@@ -166,6 +169,20 @@ export function equipInventoryItem(userId: number, itemId: number) {
 
       const column = getEquipmentColumn(item.type);
       if (!column) return "unsupported";
+
+      const player = tx
+        .select({ exp: users.exp, ruinsTile: users.ruinsTile })
+        .from(users)
+        .where(eq(users.id, userId))
+        .get();
+      if (!player) return "missing";
+      if (player.ruinsTile !== null) return "in-expedition";
+      if (
+        item.level !== null &&
+        getProgression(player.exp).level < item.level
+      ) {
+        return "level";
+      }
 
       const equipped = tx
         .update(users)

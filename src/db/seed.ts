@@ -1,8 +1,9 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "./index";
+import { getProgression } from "../services/progression";
 import { RECALL_BEACON } from "../services/ruins-map";
 import { LESSER_POTION, materials, ruinsEquipment } from "./ruins-loot-catalog";
-import { items } from "./schema";
+import { items, users } from "./schema";
 
 type Item = typeof items.$inferInsert;
 
@@ -68,6 +69,7 @@ async function seed() {
       effect: "attack_power",
       effectValue: 1,
       image: equipmentImages.weapon,
+      level: 1,
     },
   ];
 
@@ -82,6 +84,7 @@ async function seed() {
       effect: "defense",
       effectValue: 3,
       image: equipmentImages.armor,
+      level: 1,
     },
   ];
 
@@ -121,45 +124,92 @@ async function seed() {
     },
   ];
 
-  await db
-    .insert(items)
-    .values([
-      ...potions,
-      ...weapons,
-      ...armor,
-      ...ruinsEquipment.map((item) => ({
-        image: equipmentImages[item.type],
-        ...item,
-      })),
-      ...fish,
-      ...materials.map((material) => ({
-        type: "material",
-        price: null,
-        effect: null,
-        effectValue: null,
-        image: "/images/material-placeholder.webp",
-        ...material,
-      })),
-      {
-        name: RECALL_BEACON,
-        description:
-          "The mechanism is a mystery, but the destination is reliable. Returns you to Nexaris from The Ruins once per day, resetting at midnight Central time.",
-        type: "utility",
-        image: "/images/recall-beacon.webp",
-      },
-    ])
-    .onConflictDoUpdate({
-      target: items.name,
-      set: {
-        description: sql`excluded.description`,
-        price: sql`excluded.price`,
-        sellPrice: sql`excluded.sell_price`,
-        type: sql`excluded.type`,
-        effect: sql`excluded.effect`,
-        effectValue: sql`excluded.effect_value`,
-        image: sql`excluded.image`,
-      },
-    });
+  db.transaction((tx) => {
+    tx.insert(items)
+      .values([
+        ...potions,
+        ...weapons,
+        ...armor,
+        ...ruinsEquipment.map((item) => ({
+          image: equipmentImages[item.type],
+          ...item,
+        })),
+        ...fish,
+        ...materials.map((material) => ({
+          type: "material",
+          price: null,
+          effect: null,
+          effectValue: null,
+          image: "/images/material-placeholder.webp",
+          ...material,
+        })),
+        {
+          name: RECALL_BEACON,
+          description:
+            "The mechanism is a mystery, but the destination is reliable. Returns you to Nexaris from The Ruins once per day, resetting at midnight Central time.",
+          type: "utility",
+          image: "/images/recall-beacon.webp",
+        },
+      ])
+      .onConflictDoUpdate({
+        target: items.name,
+        set: {
+          description: sql`excluded.description`,
+          price: sql`excluded.price`,
+          sellPrice: sql`excluded.sell_price`,
+          type: sql`excluded.type`,
+          effect: sql`excluded.effect`,
+          effectValue: sql`excluded.effect_value`,
+          image: sql`excluded.image`,
+          level: sql`excluded.level`,
+        },
+      })
+      .run();
+
+    const equipmentLevels = new Map(
+      tx
+        .select({ id: items.id, level: items.level })
+        .from(items)
+        .all()
+        .map((item) => [item.id, item.level]),
+    );
+    const players = tx
+      .select({
+        id: users.id,
+        exp: users.exp,
+        equippedWeaponId: users.equippedWeaponId,
+        equippedArmorId: users.equippedArmorId,
+      })
+      .from(users)
+      .all();
+
+    for (const player of players) {
+      const level = getProgression(player.exp).level;
+      const weaponLevel =
+        player.equippedWeaponId === null
+          ? null
+          : equipmentLevels.get(player.equippedWeaponId);
+      const armorLevel =
+        player.equippedArmorId === null
+          ? null
+          : equipmentLevels.get(player.equippedArmorId);
+      const equipmentChanges = {
+        ...(weaponLevel !== null &&
+          weaponLevel !== undefined &&
+          level < weaponLevel && { equippedWeaponId: null }),
+        ...(armorLevel !== null &&
+          armorLevel !== undefined &&
+          level < armorLevel && { equippedArmorId: null }),
+      };
+
+      if (Object.keys(equipmentChanges).length > 0) {
+        tx.update(users)
+          .set(equipmentChanges)
+          .where(eq(users.id, player.id))
+          .run();
+      }
+    }
+  });
 
   console.log("Database seeded!");
 }

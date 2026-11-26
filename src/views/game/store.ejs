@@ -26,7 +26,7 @@
   <form id="purchase-form" action="/game/store<%= category === "all" ? "" : "?category=" + category %>" method="POST" data-cart-max-total="<%= purchaseGoldLimit %>" data-cart-limit-message="<%= purchaseGoldLimitMessage %>">
     <%- include("../partials/item-table", {
       rows: purchaseItems, rowView: "./purchase-item-row", scrollLabel: "Items for purchase",
-      headingId: "buy-heading", columns: ["Item", "Description", "Effect", "Value", "Price", "Quantity"],
+      headingId: "buy-heading", columns: ["Item", "Description", "Effect", "Value", "Level", "Price", "Quantity"],
     }) %>
     <p id="purchase-message" class="text-error" role="status" data-cart-message></p>
     <button type="submit" class="button--spaced">Purchase<span data-cart-summary hidden> for <span id="total-gold" data-cart-total>0</span> gold</span></button>

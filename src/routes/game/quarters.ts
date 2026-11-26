@@ -45,6 +45,7 @@ export function renderQuarters(req: Request, res: Response) {
 
   return res.render("game/index", {
     title: "The Quarters",
+    level: getProgression(player.exp).level,
     equipment: Object.keys(equipmentSlots).map((slot) => ({
       slot,
       item: equipped.find((item) => item.equippedSlot === slot),

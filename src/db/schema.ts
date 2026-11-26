@@ -97,6 +97,7 @@ export const items = sqliteTable("items", {
   effect: text("effect"),
   effectValue: integer("effect_value"),
   image: text("image"),
+  level: integer("level"),
 });
 
 export const inventory = sqliteTable(
