@@ -1,0 +1,24 @@
+@use "../abstracts/vars";
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: vars.$space-3;
+}
+
+.cluster--between {
+  justify-content: space-between;
+}
+
+.cluster--baseline {
+  align-items: baseline;
+}
+
+.cluster--end {
+  align-items: end;
+}
+
+.cluster--gap-small {
+  gap: vars.$space-2;
+}

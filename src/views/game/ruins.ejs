@@ -12,7 +12,7 @@
   }) %>
 
   <% if (message) { %>
-  <p tabindex="-1" data-result-focus<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
+  <p tabindex="-1" data-result-focus<% if (discovery) { %> class="callout callout--surface callout--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
   <% } %>
   <p>The depths of the Ruins conceal dangers unseen. Tread carefully, tend to your wounds, and know when to turn back.</p>
   <% if (user.hp > 0) { %>
@@ -77,10 +77,10 @@
         <h2 id="ruins-surroundings">Surroundings</h2>
         <div id="ruins-tile-feedback"<% if (!restoreMapFocus && message && !battle) { %> tabindex="-1" data-result-focus<% } %>>
           <% if (message) { %>
-          <p<% if (discovery) { %> class="ruins-notice ruins-notice--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
+          <p<% if (discovery) { %> class="callout callout--surface callout--discovery"<% } %>><% if (discovery) { %><strong>Discovery.</strong> <% } %><%= message %></p>
           <% } %>
           <% if (atNextFloor) { %>
-          <p class="ruins-notice ruins-notice--discovery"><strong>Floor 2 entrance discovered.</strong> The way down is sealed.</p>
+          <p class="callout callout--surface callout--discovery"><strong>Floor 2 entrance discovered.</strong> The way down is sealed.</p>
           <% } else if (emptySquare && !message) { %>
           <p class="ruins-empty">There’s nothing to do here.</p>
           <% } %>
@@ -115,7 +115,7 @@
 
       <section aria-labelledby="ruins-character">
         <h2 id="ruins-character">Character</h2>
-        <dl class="ruins-stats">
+        <dl class="data-list">
           <dt>Level</dt>
           <dd><%= formatNumber(progression.level) %></dd>
           <dt>Fortitude</dt>
@@ -129,7 +129,7 @@
           <dt>Unspent attribute points</dt>
           <dd><%= formatNumber(progression.unspentPoints) %></dd>
           <dt>Gold</dt>
-          <dd class="ruins-gold"><%= formatNumber(user.gold) %></dd>
+          <dd class="currency"><%= formatNumber(user.gold) %></dd>
         </dl>
         <%- include("../partials/stat-allocation") %>
       </section>

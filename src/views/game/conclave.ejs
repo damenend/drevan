@@ -25,7 +25,7 @@
   <p>Current class: <%= formatPlayerName(user.characterClass) %></p>
   <% } %>
   <form class="conclave-class-form" action="/game/conclave" method="POST">
-    <fieldset class="conclave-classes">
+    <fieldset class="choice-group choice-group--prominent">
       <legend>Choose your class</legend>
       <p id="class-selection-note" class="text-muted">
         The Conclave preserves three ancient disciplines. Choose the path
@@ -33,7 +33,7 @@
         your class later.
       </p>
 
-      <div class="conclave-class-options">
+      <div class="choice-grid choice-grid--three">
         <label class="choice-card conclave-class-option" for="melee">
           <span class="conclave-class-option__heading">
             <input type="radio" name="characterClass" id="melee" value="melee" required aria-describedby="melee-description class-selection-note" <% if (user.characterClass === 'melee') { %>checked disabled<% } %> />

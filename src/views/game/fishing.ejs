@@ -24,7 +24,7 @@
         <% } %>
       </form>
 
-      <section class="driftwater-result" aria-labelledby="driftwater-last-cast">
+      <section class="panel panel--compact driftwater-result" aria-labelledby="driftwater-last-cast">
         <h3 class="section-heading" id="driftwater-last-cast"<% if (report) { %> tabindex="-1" data-result-focus aria-describedby="driftwater-cast-result"<% } %>><%= report?.kind === "net" ? "Net result" : "Last cast" %></h3>
         <div id="driftwater-cast-result">
           <% if (report?.kind === "net") { %>

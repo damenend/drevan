@@ -520,7 +520,7 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
   `);
   t.mock.method(Math, "random", () => 0.1);
   const playerHit =
-    /battle-log-entry--player">\s*<span class="battle-actor--player">[^<]+<\/span>\s*attacks\s*<span class="battle-actor--enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
+    /battle-log__entry--player">\s*<span class="battle-actor battle-actor--player">[^<]+<\/span>\s*attacks\s*<span class="battle-actor battle-actor--enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
   const dominion = await request("/game/arena", { headers: { cookie } });
   assert.match(dominion.html, /<dt>Combat Strength<\/dt>\s*<dd>12<\/dd>/);
   assert.match(
@@ -1674,10 +1674,7 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
     goldPage.html,
     /data-position="1" data-size="7" data-restore-focus/,
   );
-  assert.match(
-    goldPage.html,
-    /ruins-notice--discovery[\s\S]*You collect 8 gold/,
-  );
+  assert.match(goldPage.html, /callout--discovery[\s\S]*You collect 8 gold/);
   assert.equal(player().gold, 108);
   assert.deepEqual(ownedItems(), [{ item_id: 4, quantity: 1 }]);
   assert.doesNotMatch(goldPage.html, /cracked supply case|potion-cache/);
@@ -1700,7 +1697,7 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   const itemPage = await request(itemLocation, { headers: { cookie } });
   assert.match(
     itemPage.html,
-    /ruins-notice--discovery[\s\S]*You collect 1 × Lesser Potion/,
+    /callout--discovery[\s\S]*You collect 1 × Lesser Potion/,
   );
   assert.deepEqual(ownedItems(), [
     { item_id: 1, quantity: 1 },

@@ -1,0 +1,32 @@
+@use "../abstracts/vars";
+
+.callout {
+  padding: vars.$space-2 vars.$space-3;
+  border-inline-start: vars.$notice-width solid
+    var(--callout-accent, #{vars.$color-primary});
+}
+
+.callout--surface {
+  background: vars.$color-surface;
+}
+
+.callout--accent,
+.callout--discovery {
+  --callout-accent: #{vars.$color-discovery};
+}
+
+.callout--discovery {
+  color: vars.$color-discovery;
+}
+
+.callout--danger {
+  --callout-accent: #{vars.$color-error};
+}
+
+.callout--info {
+  --callout-accent: #{vars.$color-blue};
+}
+
+.callout--muted {
+  --callout-accent: #{vars.$color-muted};
+}

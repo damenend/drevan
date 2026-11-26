@@ -105,9 +105,6 @@ input[type="submit"] {
 }
 
 .stat-allocation {
-  display: flex;
-  flex-wrap: wrap;
-  gap: vars.$space-2;
   margin-block-start: vars.$space-3;
 }
 

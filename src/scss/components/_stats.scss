@@ -19,11 +19,11 @@
   font-size: vars.$type-support;
 }
 
-.character-stat-bonus {
+.stat-change--positive {
   color: vars.$color-stat-positive;
 }
 
-.character-stat-penalty {
+.stat-change--negative {
   color: vars.$color-stat-negative;
 }
 

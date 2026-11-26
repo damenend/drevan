@@ -1,0 +1,42 @@
+@use "../abstracts/vars";
+
+.choice-group {
+  min-width: 0;
+  margin: 0 0 vars.$space-4;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-block-end: vars.$space-1;
+    padding: 0;
+  }
+}
+
+.choice-group--prominent {
+  legend {
+    font-family: vars.$font-display;
+    font-size: vars.$type-section;
+    font-weight: vars.$weight-semibold;
+    line-height: vars.$line-compact;
+  }
+
+  > p {
+    max-width: 65ch;
+    margin-block-start: 0;
+  }
+}
+
+.choice-grid {
+  display: grid;
+  gap: vars.$space-3;
+}
+
+.choice-grid--compact {
+  grid-template-columns: repeat(2, minmax(0, 7rem));
+}
+
+@media (width >= vars.$breakpoint-columns) {
+  .choice-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

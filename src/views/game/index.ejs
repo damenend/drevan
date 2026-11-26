@@ -36,9 +36,9 @@
         <%- include("../partials/health-meter", { id: "quarters-hp" }) %>
 
         <dl class="character-stats character-stats--compact<%= progression.nextLevelXp !== null ? ' character-stats--three' : '' %>">
-          <div class="character-stat quarters-gold">
+          <div class="character-stat">
             <dt>Gold</dt>
-            <dd><%= formatNumber(user.gold) %></dd>
+            <dd class="currency"><%= formatNumber(user.gold) %></dd>
           </div>
           <div class="character-stat">
             <dt>Lifetime XP</dt>
@@ -70,13 +70,13 @@
               <dd><%- include("../partials/stat-total", { total: effectiveStats.defense, base: user.defense }) %></dd>
             </div>
           </dl>
-          <p class="quarters-support">Speed affects who attacks first and how often they attack. Defense reduces damage taken.</p>
+          <p class="support-text support-text--spaced">Speed affects who attacks first and how often they attack. Defense reduces damage taken.</p>
         </section>
 
         <section aria-labelledby="primary-attributes-heading">
-          <div class="quarters-attributes-heading">
+          <div class="cluster cluster--between cluster--baseline quarters-attributes-heading">
             <h3 class="section-heading" id="primary-attributes-heading">Primary attributes</h3>
-            <p class="quarters-support"><%= formatNumber(progression.unspentPoints) %> unspent attribute <%= progression.unspentPoints === 1 ? "point" : "points" %></p>
+            <p class="support-text"><%= formatNumber(progression.unspentPoints) %> unspent attribute <%= progression.unspentPoints === 1 ? "point" : "points" %></p>
           </div>
           <dl class="character-stats character-stats--compact character-stats--attributes">
             <div class="character-stat">
@@ -96,7 +96,7 @@
               <dd><%= formatNumber(attributes.fortitude) %></dd>
             </div>
           </dl>
-          <p class="quarters-support">Strength, Agility, and Intellect each add 1 Attack Power per point. Fortitude adds 3 max HP per point.</p>
+          <p class="support-text support-text--spaced">Strength, Agility, and Intellect each add 1 Attack Power per point. Fortitude adds 3 max HP per point.</p>
           <%- include("../partials/stat-allocation") %>
         </section>
       </div>
@@ -107,7 +107,7 @@
     <h2 id="equipped-heading">Equipment</h2>
     <div class="quarters-equipment">
       <% for (const { slot, item } of equipment) { %>
-      <section class="equipment-slot" aria-labelledby="slot-<%= slot %>">
+      <section class="panel panel--outlined equipment-slot" aria-labelledby="slot-<%= slot %>">
         <h3 class="section-heading" id="slot-<%= slot %>"><%= formatPlayerName(slot) %></h3>
         <% if (item) { %>
         <%- include("../partials/item-figure", { item }) %>
@@ -117,7 +117,7 @@
           <button type="submit" class="button--secondary" aria-label="Unequip <%= item.name %>">Unequip</button>
         </form>
         <% } else { %>
-        <p class="quarters-support">No <%= slot %> equipped.</p>
+        <p class="support-text support-text--spaced">No <%= slot %> equipped.</p>
         <% } %>
       </section>
       <% } %>

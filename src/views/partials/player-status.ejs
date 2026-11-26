@@ -1,5 +1,5 @@
-<section class="player-status" aria-labelledby="<%= id %>-heading">
-  <div class="player-status__heading">
+<section class="panel panel--bordered player-status" aria-labelledby="<%= id %>-heading">
+  <div class="cluster cluster--between cluster--baseline player-status__heading">
     <h2 id="<%= id %>-heading">Combat readiness</h2>
     <p>Level <%= formatNumber(progression.level) %></p>
   </div>
@@ -22,7 +22,7 @@
     <% } %>
   </div>
 
-  <dl class="player-status__stats">
+  <dl class="data-list data-list--cards player-status__stats">
     <div>
       <dt>Combat Strength</dt>
       <dd><%= formatNumber(effectiveStats.attackPower) %></dd>

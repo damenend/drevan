@@ -30,24 +30,8 @@
   }
 }
 
-.avatar-models {
-  min-width: 0;
-  margin-inline: 0;
-  padding: 0;
-  border: 0;
-
-  legend {
-    margin-bottom: vars.$space-1;
-    padding: 0;
-  }
-}
-
-.avatar-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 7rem));
-  gap: vars.$space-3;
-
-  .avatar-option {
+.homepage-avatar-options {
+  .homepage-avatar-option {
     justify-items: center;
     gap: vars.$space-1;
 

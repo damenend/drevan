@@ -2,7 +2,7 @@
 <% const outcome = battleLog.find(entry => entry.type === "outcome"); %>
 <% const encounter = battleLog.find(entry => entry.type === "encounter"); %>
 <% if (encounter) { %>
-<p><span class="battle-actor--player"><%= encounter.player %></span> encounters <span class="battle-actor--enemy"><%= encounter.target %></span>.</p>
+<p><span class="battle-actor battle-actor--player"><%= encounter.player %></span> encounters <span class="battle-actor battle-actor--enemy"><%= encounter.target %></span>.</p>
 <% } %>
 <% if (outcome) { %>
 <%- include("battle-summary", { entry: outcome, headingLevel }) %>
@@ -12,12 +12,12 @@
   <ol class="battle-log">
     <% for (const entry of battleLog) { %>
     <% if (entry.type === "attack") { %>
-    <li class="battle-log-entry battle-log-entry--<%= entry.actor %><%= entry.critical ? ' battle-log-entry--critical' : '' %>">
-      <span class="battle-actor--<%= entry.actor %>"><%= entry.player %></span>
+    <li class="battle-log__entry battle-log__entry--<%= entry.actor %><%= entry.critical ? ' battle-log__entry--critical' : '' %>">
+      <span class="battle-actor battle-actor--<%= entry.actor %>"><%= entry.player %></span>
       attacks
-      <span class="battle-actor--<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
+      <span class="battle-actor battle-actor--<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
       for <strong><%= formatNumber(entry.damage) %></strong> damage.
-      <% if (entry.critical) { %><strong class="critical-hit">Critical hit.</strong><% } %>
+      <% if (entry.critical) { %><strong class="battle-log__critical">Critical hit.</strong><% } %>
     </li>
     <% } %>
     <% } %>

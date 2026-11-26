@@ -144,6 +144,29 @@ main {
   max-inline-size: 60rem;
 }
 
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cluster--between {
+  justify-content: space-between;
+}
+
+.cluster--baseline {
+  align-items: baseline;
+}
+
+.cluster--end {
+  align-items: end;
+}
+
+.cluster--gap-small {
+  gap: 0.5rem;
+}
+
 input,
 button,
 select,
@@ -243,9 +266,6 @@ input[type=submit]:hover:not(:disabled) {
 }
 
 .stat-allocation {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
   margin-block-start: 0.75rem;
 }
 
@@ -313,38 +333,137 @@ input[type=submit]:hover:not(:disabled) {
     text-decoration: underline;
   }
 }
-.battle-actor--player {
+.panel {
+  padding: 1rem;
+  background: #242424;
+  border-radius: 4px;
+}
+
+.panel--bordered {
+  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
+}
+
+.panel--compact {
+  padding: 0.75rem;
+}
+
+.panel--outlined {
+  background: transparent;
+  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
+}
+
+.panel--small-radius {
+  border-radius: 3px;
+}
+
+.callout {
+  padding: 0.5rem 0.75rem;
+  border-inline-start: 3px solid var(--callout-accent, #b58b4c);
+}
+
+.callout--surface {
+  background: #242424;
+}
+
+.callout--accent,
+.callout--discovery {
+  --callout-accent: #b58b4c;
+}
+
+.callout--discovery {
+  color: #b58b4c;
+}
+
+.callout--danger {
+  --callout-accent: #ff5454;
+}
+
+.callout--info {
+  --callout-accent: #54bdff;
+}
+
+.callout--muted {
+  --callout-accent: #999999;
+}
+
+.data-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) fit-content(60%);
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.data-list dt {
+  color: #999999;
+}
+.data-list dd {
+  margin: 0;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.data-list--cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.data-list--cards > div {
+  min-width: 0;
+}
+.data-list--cards dt {
+  font-size: 0.875rem;
+}
+.data-list--cards dd {
+  margin-block-start: 0.25rem;
+  text-align: start;
+  font-size: 1.5rem;
   font-weight: 500;
+}
+
+.support-text {
+  color: #999999;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.support-text--spaced {
+  margin: 0.5rem 0 0;
+}
+
+.currency {
+  color: #b58b4c;
+  font-variant-numeric: tabular-nums;
+}
+
+.battle-actor {
+  font-weight: 500;
+}
+
+.battle-actor--player {
   color: #54bdff;
 }
 
 .battle-actor--enemy {
-  font-weight: 500;
   color: #ff5454;
 }
 
-.battle-log-entry {
+.battle-log__entry {
   padding-inline-start: 0.5rem;
   margin-bottom: 1rem;
   border-inline-start: 2px solid transparent;
 }
-.battle-log-entry--player {
+.battle-log__entry--player {
   border-inline-start-color: #54bdff;
 }
-.battle-log-entry--enemy {
+.battle-log__entry--enemy {
   border-inline-start-color: #ff5454;
 }
-.battle-log-entry--critical .critical-hit {
+.battle-log__entry--critical .battle-log__critical {
   color: #b58b4c;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .battle-stats {
-  background: #242424;
-  padding: 1rem;
-  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
-  border-radius: 3px;
   margin-bottom: 1rem;
   margin-top: 1rem;
 }
@@ -590,11 +709,11 @@ img {
   font-size: 0.875rem;
 }
 
-.character-stat-bonus {
+.stat-change--positive {
   color: #54bdff;
 }
 
-.character-stat-penalty {
+.stat-change--negative {
   color: #ff5454;
 }
 
@@ -641,8 +760,6 @@ img {
   justify-items: start;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
-  border-radius: 4px;
 }
 .equipment-slot h3 {
   margin: 0;
@@ -650,17 +767,9 @@ img {
 
 .player-status {
   margin-block: 1.5rem;
-  padding: 1rem;
-  background: #242424;
-  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
-  border-radius: 4px;
 }
 
 .player-status__heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
   gap: 0.25rem 0.75rem;
   margin-block-end: 0.75rem;
 }
@@ -683,24 +792,7 @@ img {
 }
 
 .player-status__stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
   margin: 1rem 0 0;
-}
-.player-status__stats div {
-  min-width: 0;
-}
-.player-status__stats dt {
-  color: #999999;
-  font-size: 0.875rem;
-}
-.player-status__stats dd {
-  margin: 0.25rem 0 0;
-  font-size: 1.5rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
 }
 
 @media (width >= 44rem) {
@@ -746,6 +838,42 @@ img {
   border-radius: 3px;
 }
 
+.choice-group {
+  min-width: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+}
+.choice-group legend {
+  margin-block-end: 0.25rem;
+  padding: 0;
+}
+
+.choice-group--prominent legend {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.625rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.choice-group--prominent > p {
+  max-width: 65ch;
+  margin-block-start: 0;
+}
+
+.choice-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.choice-grid--compact {
+  grid-template-columns: repeat(2, minmax(0, 7rem));
+}
+
+@media (width >= 44rem) {
+  .choice-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 .homepage {
   display: grid;
   grid-template-areas: "auth" "intro" "art";
@@ -768,32 +896,16 @@ img {
   margin-bottom: 0;
 }
 
-.avatar-models {
-  min-width: 0;
-  margin-inline: 0;
-  padding: 0;
-  border: 0;
-}
-.avatar-models legend {
-  margin-bottom: 0.25rem;
-  padding: 0;
-}
-
-.avatar-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 7rem));
-  gap: 0.75rem;
-}
-.avatar-options .avatar-option {
+.homepage-avatar-options .homepage-avatar-option {
   justify-items: center;
   gap: 0.25rem;
 }
-.avatar-options .avatar-option img {
+.homepage-avatar-options .homepage-avatar-option img {
   width: 100%;
   height: 7.5rem;
   object-fit: contain;
 }
-.avatar-options .avatar-option span {
+.homepage-avatar-options .homepage-avatar-option span {
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -815,9 +927,6 @@ img {
 }
 .quarters p:last-child {
   margin-bottom: 0;
-}
-.quarters .quarters-gold dd {
-  color: #b58b4c;
 }
 
 .quarters-intro,
@@ -852,26 +961,12 @@ img {
 }
 
 .quarters-attributes-heading {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem 1rem;
-  align-items: baseline;
-  justify-content: space-between;
   margin-bottom: 0.75rem;
 }
 .quarters-attributes-heading h3,
-.quarters-attributes-heading .quarters-support {
+.quarters-attributes-heading .support-text {
   margin: 0;
-}
-
-.quarters-support {
-  color: #999999;
-  font-size: 0.875rem;
-  font-weight: 400;
-}
-
-.quarters-support {
-  margin: 0.5rem 0 0;
 }
 
 .quarters-inventory td {
@@ -962,29 +1057,9 @@ img {
   font-size: 0.875rem;
 }
 
-.ruins-stats {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) fit-content(60%);
-  gap: 0.25rem 0.75rem;
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-}
-.ruins-stats dt {
-  color: #999999;
-}
-.ruins-stats dd {
-  margin: 0;
-  text-align: end;
-  overflow-wrap: anywhere;
-}
-
 .ruins-controls section > :last-child,
 .ruins-surroundings > :last-child {
   margin-bottom: 0;
-}
-
-.ruins-gold {
-  color: #b58b4c;
 }
 
 .ruins-consumables {
@@ -1070,18 +1145,6 @@ img {
   color: #999999;
 }
 
-.ruins-notice {
-  background: #242424;
-  border-inline-start: 3px solid currentColor;
-  padding: 0.5rem 0.75rem;
-}
-.ruins-notice--discovery {
-  color: #b58b4c;
-}
-.ruins-notice--encounter {
-  color: #ff5454;
-}
-
 .ruins-summary {
   display: grid;
   max-width: 60rem;
@@ -1100,26 +1163,12 @@ img {
 
 .ruins-summary__outcome {
   padding-inline-start: 1rem;
-  border-inline-start: 3px solid #b58b4c;
-}
-.ruins-summary--recall .ruins-summary__outcome {
-  border-color: #54bdff;
-}
-.ruins-summary--defeat .ruins-summary__outcome {
-  border-color: #ff5454;
-}
-.ruins-summary--draw .ruins-summary__outcome {
-  border-color: #999999;
 }
 
 .ruins-summary__rewards {
   font-family: "Rajdhani", sans-serif;
   font-size: 1.5rem;
   font-variant-numeric: tabular-nums;
-}
-
-.ruins-summary__gold {
-  color: #b58b4c;
 }
 
 .ruins-summary__items {
@@ -1137,12 +1186,6 @@ img {
   accent-color: #b58b4c;
 }
 
-.ruins-summary__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-}
 .ruins-summary__actions form {
   margin: 0;
 }
@@ -1182,9 +1225,6 @@ img {
 .driftwater-result {
   min-height: 8.5rem;
   margin-top: 1rem;
-  padding: 0.75rem;
-  background: #242424;
-  border-radius: 4px;
 }
 .driftwater-result h3 {
   margin-bottom: 0.5rem;
@@ -1202,12 +1242,6 @@ img {
   margin-block-start: 1.5rem;
 }
 
-.dominion-training__form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 0.75rem;
-}
 .dominion-training__form .form-group {
   margin: 0;
 }
@@ -1218,30 +1252,6 @@ img {
 
 .conclave-class-form {
   max-width: 60rem;
-}
-
-.conclave-classes {
-  min-width: 0;
-  margin: 0 0 1rem;
-  padding: 0;
-  border: 0;
-}
-.conclave-classes legend {
-  margin-bottom: 0.25rem;
-  padding: 0;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 1.625rem;
-  font-weight: 600;
-  line-height: 1.2;
-}
-.conclave-classes > p {
-  max-width: 65ch;
-  margin-top: 0;
-}
-
-.conclave-class-options {
-  display: grid;
-  gap: 0.75rem;
 }
 
 .conclave-class-option {
@@ -1279,11 +1289,6 @@ img {
   color: #e5e5e5;
 }
 
-@media (width >= 44rem) {
-  .conclave-class-options {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 .visually-hidden {
   position: absolute;
   width: 1px;

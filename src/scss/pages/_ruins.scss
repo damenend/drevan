@@ -69,31 +69,9 @@ $unexplored-color: #151a20;
   font-size: vars.$type-support;
 }
 
-.ruins-stats {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) fit-content(60%);
-  gap: vars.$space-1 vars.$space-3;
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-
-  dt {
-    color: vars.$color-muted;
-  }
-
-  dd {
-    margin: 0;
-    text-align: end;
-    overflow-wrap: anywhere;
-  }
-}
-
 .ruins-controls section > :last-child,
 .ruins-surroundings > :last-child {
   margin-bottom: 0;
-}
-
-.ruins-gold {
-  color: vars.$color-primary;
 }
 
 .ruins-consumables {
@@ -188,20 +166,6 @@ $unexplored-color: #151a20;
   color: vars.$color-muted;
 }
 
-.ruins-notice {
-  background: vars.$color-surface;
-  border-inline-start: vars.$notice-width solid currentColor;
-  padding: vars.$space-2 vars.$space-3;
-
-  &--discovery {
-    color: vars.$color-discovery;
-  }
-
-  &--encounter {
-    color: vars.$color-combat-enemy;
-  }
-}
-
 .ruins-summary {
   display: grid;
   max-width: vars.$activity-max;
@@ -224,29 +188,12 @@ $unexplored-color: #151a20;
 
 .ruins-summary__outcome {
   padding-inline-start: vars.$space-4;
-  border-inline-start: vars.$notice-width solid vars.$color-primary;
-
-  .ruins-summary--recall & {
-    border-color: vars.$color-blue;
-  }
-
-  .ruins-summary--defeat & {
-    border-color: vars.$color-error;
-  }
-
-  .ruins-summary--draw & {
-    border-color: vars.$color-muted;
-  }
 }
 
 .ruins-summary__rewards {
   font-family: vars.$font-display;
   font-size: vars.$type-stat;
   font-variant-numeric: tabular-nums;
-}
-
-.ruins-summary__gold {
-  color: vars.$color-primary;
 }
 
 .ruins-summary__items {
@@ -265,11 +212,6 @@ $unexplored-color: #151a20;
 }
 
 .ruins-summary__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: vars.$space-3;
-
   form {
     margin: 0;
   }

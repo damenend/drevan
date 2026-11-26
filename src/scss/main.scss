@@ -3,9 +3,15 @@
 
 @use "layout/shell";
 @use "layout/activity-layout";
+@use "layout/composition";
 
 @use "components/forms";
 @use "components/navigation";
+@use "components/panel";
+@use "components/callout";
+@use "components/data-list";
+@use "components/support-text";
+@use "components/currency";
 @use "components/battle";
 @use "components/table";
 @use "components/images";
@@ -14,6 +20,7 @@
 @use "components/equipment";
 @use "components/player-status";
 @use "components/choice-card";
+@use "components/choice-group";
 
 @use "pages/homepage";
 @use "pages/quarters";

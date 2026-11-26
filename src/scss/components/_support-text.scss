@@ -1,0 +1,11 @@
+@use "../abstracts/vars";
+
+.support-text {
+  color: vars.$color-muted;
+  font-size: vars.$type-support;
+  font-weight: vars.$weight-regular;
+}
+
+.support-text--spaced {
+  margin: vars.$space-2 0 0;
+}

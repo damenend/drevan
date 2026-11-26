@@ -4,33 +4,6 @@
   max-width: vars.$activity-max;
 }
 
-.conclave-classes {
-  min-width: 0;
-  margin: 0 0 vars.$space-4;
-  padding: 0;
-  border: 0;
-
-  legend {
-    margin-bottom: vars.$space-1;
-    padding: 0;
-
-    font-family: vars.$font-display;
-    font-size: vars.$type-section;
-    font-weight: vars.$weight-semibold;
-    line-height: vars.$line-compact;
-  }
-
-  > p {
-    max-width: 65ch;
-    margin-top: 0;
-  }
-}
-
-.conclave-class-options {
-  display: grid;
-  gap: vars.$space-3;
-}
-
 .conclave-class-option {
   align-content: start;
   gap: vars.$space-3;
@@ -65,11 +38,5 @@
 
   strong {
     color: vars.$color-text;
-  }
-}
-
-@media (width >= vars.$breakpoint-columns) {
-  .conclave-class-options {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

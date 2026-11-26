@@ -1,18 +1,18 @@
-<div class="battle-stats">
+<div class="panel panel--bordered panel--small-radius battle-stats">
   <h<%= headingLevel %><% if (headingLevel === 3) { %> class="section-heading"<% } %><% if (locals.focusBattleSummary) { %> tabindex="-1" data-result-focus aria-describedby="battle-summary-values"<% } %>>Battle summary</h<%= headingLevel %>>
   <div id="battle-summary-values">
-    <p><span class="battle-actor--player"><%= formatPlayerName(user.name) %></span> HP changed from <%= formatNumber(startingPlayerHp) %> to <%= formatNumber(playerHp) %></p>
-    <p><span class="battle-actor--enemy"><%= enemyName %></span> HP changed from <%= formatNumber(startingEnemyHp) %> to <%= formatNumber(enemyHp) %></p>
+    <p><span class="battle-actor battle-actor--player"><%= formatPlayerName(user.name) %></span> HP changed from <%= formatNumber(startingPlayerHp) %> to <%= formatNumber(playerHp) %></p>
+    <p><span class="battle-actor battle-actor--enemy"><%= enemyName %></span> HP changed from <%= formatNumber(startingEnemyHp) %> to <%= formatNumber(enemyHp) %></p>
     <% if (entry.result === "win") { %>
     <p>
-      <span class="battle-actor--player"><%= entry.player %></span> wins.
+      <span class="battle-actor battle-actor--player"><%= entry.player %></span> wins.
     </p>
     <p>Reward: <%= formatNumber(entry.reward) %> gold, <%= formatNumber(xpEarned) %> XP</p>
     <% if (locals.loot?.length) { %>
     <p>Loot: <% for (const [index, item] of loot.entries()) { %><%= index > 0 ? ", " : "" %><%= item.name %> ×<%= formatNumber(item.quantity) %><% } %></p>
     <% } %>
     <% } else if (entry.result === "loss") { %>
-    <p><span class="battle-actor--player"><%= entry.player %></span> was defeated.</p>
+    <p><span class="battle-actor battle-actor--player"><%= entry.player %></span> was defeated.</p>
     <% } else if (entry.result === "draw") { %>
     <p>
       The battle ended in a draw.

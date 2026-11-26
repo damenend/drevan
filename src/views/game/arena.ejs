@@ -17,7 +17,7 @@
     <% if (dead) { %>
     <%- include("../partials/arena-heal-notice", { focusNotice: battle === null }) %>
     <% } else { %>
-    <form class="dominion-training__form" action="/game/training" method="POST">
+    <form class="cluster cluster--end dominion-training__form" action="/game/training" method="POST">
       <div class="form-group">
         <label for="level">Training dummy level</label>
         <input class="dominion-training__level" type="number" name="level" id="level" value="<%= level %>" min="1" max="<%= maxTrainingLevel %>" step="1" required />

@@ -10,10 +10,6 @@
   p:last-child {
     margin-bottom: 0;
   }
-
-  .quarters-gold dd {
-    color: vars.$color-primary;
-  }
 }
 
 .quarters-intro,
@@ -48,27 +44,13 @@
 }
 
 .quarters-attributes-heading {
-  display: flex;
-  flex-wrap: wrap;
   gap: vars.$space-2 vars.$space-4;
-  align-items: baseline;
-  justify-content: space-between;
   margin-bottom: vars.$space-3;
 
   h3,
-  .quarters-support {
+  .support-text {
     margin: 0;
   }
-}
-
-.quarters-support {
-  color: vars.$color-muted;
-  font-size: vars.$type-support;
-  font-weight: vars.$weight-regular;
-}
-
-.quarters-support {
-  margin: vars.$space-2 0 0;
 }
 
 .quarters-inventory {

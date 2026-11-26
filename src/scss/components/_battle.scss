@@ -1,16 +1,18 @@
 @use "../abstracts/vars";
 
-.battle-actor--player {
+.battle-actor {
   font-weight: vars.$weight-medium;
+}
+
+.battle-actor--player {
   color: vars.$color-combat-player;
 }
 
 .battle-actor--enemy {
-  font-weight: vars.$weight-medium;
   color: vars.$color-combat-enemy;
 }
 
-.battle-log-entry {
+.battle-log__entry {
   padding-inline-start: vars.$space-2;
   margin-bottom: vars.$space-4;
   border-inline-start: vars.$accent-width solid transparent;
@@ -24,7 +26,7 @@
   }
 
   &--critical {
-    .critical-hit {
+    .battle-log__critical {
       color: vars.$color-primary;
       font-weight: vars.$weight-bold;
       text-transform: uppercase;
@@ -33,10 +35,6 @@
 }
 
 .battle-stats {
-  background: vars.$color-surface;
-  padding: vars.$space-4;
-  border: vars.$border-width solid vars.$color-surface-border;
-  border-radius: vars.$radius-small;
   margin-bottom: vars.$space-4;
   margin-top: vars.$space-4;
 

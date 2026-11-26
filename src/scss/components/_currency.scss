@@ -1,0 +1,6 @@
+@use "../abstracts/vars";
+
+.currency {
+  color: vars.$color-primary;
+  font-variant-numeric: tabular-nums;
+}

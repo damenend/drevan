@@ -1,5 +1,5 @@
 <article class="ruins-summary ruins-summary--<%= summary.outcome %>" aria-labelledby="ruins-summary-heading">
-  <header class="ruins-summary__outcome" tabindex="-1" data-result-focus>
+  <header class="callout <%= summary.outcome === 'recall' ? 'callout--info' : summary.outcome === 'defeat' ? 'callout--danger' : summary.outcome === 'draw' ? 'callout--muted' : 'callout--accent' %> ruins-summary__outcome" tabindex="-1" data-result-focus>
     <h1 id="ruins-summary-heading"><%= outcome.heading %></h1>
     <p><%= outcome.text %></p>
     <% if (user.hp <= 0) { %>
@@ -10,7 +10,7 @@
   <section aria-labelledby="ruins-summary-rewards">
     <h2 id="ruins-summary-rewards">Rewards acquired</h2>
     <p class="ruins-summary__rewards">
-      <strong class="ruins-summary__gold"><%= formatNumber(summary.goldAcquired) %> gold</strong>
+      <strong class="currency"><%= formatNumber(summary.goldAcquired) %> gold</strong>
       <span aria-hidden="true"> · </span>
       <strong><%= formatNumber(summary.xpGained) %> XP</strong>
     </p>
@@ -34,7 +34,7 @@
 
   <section aria-labelledby="ruins-summary-exploration">
     <h2 id="ruins-summary-exploration">Expedition statistics</h2>
-    <dl class="ruins-stats">
+    <dl class="data-list">
       <dt>Enemies encountered</dt><dd><%= formatNumber(summary.enemiesEncountered) %></dd>
       <dt>Enemies defeated</dt><dd><%= formatNumber(summary.enemiesDefeated) %></dd>
       <dt>Tiles explored</dt><dd><%= formatNumber(summary.tilesExplored) %> / <%= formatNumber(summary.totalTiles) %></dd>
@@ -45,7 +45,7 @@
 
   <section aria-labelledby="ruins-summary-resources">
     <h2 id="ruins-summary-resources">Resource consumption</h2>
-    <dl class="ruins-stats">
+    <dl class="data-list">
       <dt>Total HP lost</dt><dd><%= formatNumber(summary.hpLost) %></dd>
       <dt>Remaining HP</dt><dd><%= formatNumber(summary.remainingHp) %> / <%= formatNumber(summary.maximumHp) %></dd>
     </dl>
@@ -61,7 +61,7 @@
     <% } %>
   </section>
 
-  <nav class="ruins-summary__actions" aria-label="Expedition next actions">
+  <nav class="cluster ruins-summary__actions" aria-label="Expedition next actions">
     <% if (user.hp <= 0) { %>
     <form action="/game/hospital" method="get"><button type="submit">Visit Sanctum</button></form>
     <a href="/game/nexaris">Return to Nexaris</a>

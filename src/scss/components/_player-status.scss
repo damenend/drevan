@@ -2,17 +2,9 @@
 
 .player-status {
   margin-block: vars.$space-6;
-  padding: vars.$space-4;
-  background: vars.$color-surface;
-  border: vars.$border-width solid vars.$color-surface-border;
-  border-radius: vars.$radius-panel;
 }
 
 .player-status__heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
   gap: vars.$space-1 vars.$space-3;
   margin-block-end: vars.$space-3;
 
@@ -36,27 +28,7 @@
 }
 
 .player-status__stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: vars.$space-2;
   margin: vars.$space-4 0 0;
-
-  div {
-    min-width: 0;
-  }
-
-  dt {
-    color: vars.$color-muted;
-    font-size: vars.$type-support;
-  }
-
-  dd {
-    margin: vars.$space-1 0 0;
-    font-size: vars.$type-stat;
-    font-weight: vars.$weight-medium;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-  }
 }
 
 @media (width >= vars.$breakpoint-columns) {
