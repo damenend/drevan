@@ -84,7 +84,7 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 ### 8. Add class specializations (P2 · Large)
 
 - **Status.** Planned.
-- **Progress.** [Class storage and class-neutral stats](../gameplay/character.md) are available. Class selection and bonuses remain planned.
+- **Progress.** [Class storage, class-neutral stats, and level-10 class selection](../gameplay/character.md) are available. Players may change their selection freely at The Conclave. Classes do not affect combat yet; bonuses remain planned.
 - **Dependencies.** Combat audit (4) and basic stat allocation (5).
 - **Scope.** Add Melee (Strength), Ranged (Agility), and Caster (Intellect) specializations. Each will receive additional offensive scaling from its preferred attribute. All three offensive attributes will still contribute to Attack Power for every class.
 - **Done when.** Players can select an implemented specialization, The Quarters shows their selected class and calculated Attack Power, and the shared simulator applies the same damage rules across encounter modes. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
@@ -114,7 +114,7 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 
 - **Status.** Planned.
 - **Dependencies.** Classes (8), refundable point accounting (5), and gear eligibility (9).
-- **Scope.** Offer three repeatable paid services under the working name **The Artificer**. Players can reset spent points, change class, or do both. Preview gold cost, stat changes, and gear that will be unequipped. Check eligibility against the resulting character.
+- **Scope.** Offer a repeatable paid service under the working name **The Artificer** that resets spent attribute points. Class changes remain freely available at The Conclave. Preview the gold cost, stat changes, and gear that will be unequipped. Check eligibility against the resulting character.
 - **Done when.** A reset restores spent points to the unspent pool and removes only the increases they bought. XP, level, and other permanent gains are preserved. Ineligible gear returns to inventory as unequipped gear. Current HP is capped at the new maximum without healing. Charges and character updates succeed together.
 
 ### 13. Add material selling and a Materials inventory filter (P2 · Medium)

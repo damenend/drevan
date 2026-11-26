@@ -709,6 +709,43 @@ img {
     align-items: end;
   }
 }
+.choice-card {
+  display: grid;
+  margin: 0;
+  padding: 1rem;
+  background: #242424;
+  border: 1px solid rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.choice-card:hover:not(:has(:disabled)) {
+  border-color: #999999;
+}
+.choice-card:has(:checked) {
+  border-color: #b58b4c;
+  box-shadow: inset 0 0 0 1px #b58b4c;
+}
+.choice-card:has(:focus-visible) {
+  outline: 2px solid #e5e5e5;
+  outline-offset: 2px;
+}
+.choice-card:has(:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.choice-card input[type=radio] {
+  margin: 0;
+  accent-color: #b58b4c;
+}
+.choice-card input[type=radio]:focus-visible {
+  outline: 0;
+}
+
+.choice-card--compact {
+  padding: 0.5rem;
+  border-radius: 3px;
+}
+
 .homepage {
   display: grid;
   grid-template-areas: "auth" "intro" "art";
@@ -748,18 +785,8 @@ img {
   gap: 0.75rem;
 }
 .avatar-options .avatar-option {
-  display: grid;
   justify-items: center;
   gap: 0.25rem;
-  margin: 0;
-  padding: 0.5rem;
-  border: 1px solid #999999;
-  border-radius: 3px;
-  cursor: pointer;
-}
-.avatar-options .avatar-option:has(:checked) {
-  border-color: #b58b4c;
-  background: #242424;
 }
 .avatar-options .avatar-option img {
   width: 100%;
@@ -770,10 +797,6 @@ img {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-}
-.avatar-options .avatar-option input {
-  margin: 0;
-  accent-color: #b58b4c;
 }
 
 @media (width >= 60rem) {
@@ -1193,6 +1216,74 @@ img {
   max-width: 7rem;
 }
 
+.conclave-class-form {
+  max-width: 60rem;
+}
+
+.conclave-classes {
+  min-width: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+}
+.conclave-classes legend {
+  margin-bottom: 0.25rem;
+  padding: 0;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.625rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.conclave-classes > p {
+  max-width: 65ch;
+  margin-top: 0;
+}
+
+.conclave-class-options {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.conclave-class-option {
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.conclave-class-option__current {
+  margin-inline-start: auto;
+  color: #e5e5e5;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.conclave-class-option__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.conclave-class-option__description {
+  overflow-wrap: anywhere;
+}
+
+.conclave-class-option__attribute {
+  color: #999999;
+  font-size: 0.875rem;
+}
+.conclave-class-option__attribute strong {
+  color: #e5e5e5;
+}
+
+@media (width >= 44rem) {
+  .conclave-class-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 .visually-hidden {
   position: absolute;
   width: 1px;

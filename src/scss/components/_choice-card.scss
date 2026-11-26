@@ -1,0 +1,44 @@
+@use "../abstracts/vars";
+
+.choice-card {
+  display: grid;
+  margin: 0;
+  padding: vars.$space-4;
+  background: vars.$color-surface;
+  border: vars.$border-width solid vars.$color-surface-border;
+  border-radius: vars.$radius-panel;
+  cursor: pointer;
+
+  &:hover:not(:has(:disabled)) {
+    border-color: vars.$color-muted;
+  }
+
+  &:has(:checked) {
+    border-color: vars.$color-primary;
+    box-shadow: inset 0 0 0 vars.$border-width vars.$color-primary;
+  }
+
+  &:has(:focus-visible) {
+    outline: vars.$focus-width solid vars.$color-focus;
+    outline-offset: vars.$focus-offset;
+  }
+
+  &:has(:disabled) {
+    opacity: vars.$disabled-opacity;
+    cursor: not-allowed;
+  }
+
+  input[type="radio"] {
+    margin: 0;
+    accent-color: vars.$color-primary;
+
+    &:focus-visible {
+      outline: 0;
+    }
+  }
+}
+
+.choice-card--compact {
+  padding: vars.$space-2;
+  border-radius: vars.$radius-small;
+}

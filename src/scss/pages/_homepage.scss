@@ -48,19 +48,8 @@
   gap: vars.$space-3;
 
   .avatar-option {
-    display: grid;
     justify-items: center;
     gap: vars.$space-1;
-    margin: 0;
-    padding: vars.$space-2;
-    border: vars.$border-width solid vars.$color-muted;
-    border-radius: vars.$radius-small;
-    cursor: pointer;
-
-    &:has(:checked) {
-      border-color: vars.$color-primary;
-      background: vars.$color-surface;
-    }
 
     img {
       width: 100%;
@@ -72,11 +61,6 @@
       display: flex;
       align-items: center;
       gap: vars.$space-1;
-    }
-
-    input {
-      margin: 0;
-      accent-color: vars.$color-primary;
     }
   }
 }

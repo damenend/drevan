@@ -20,7 +20,7 @@ Signup stores the selected `male` or `female` avatar model. The default is `male
 
 Total attributes include allocated points. Use the [shared maximum HP expression](../../src/services/character-stats.ts) when validating or healing. Effective combat stats use [equipment calculations](../../src/services/equipment.ts).
 
-The class is displayed as Unaligned by default. The database accepts `unaligned`, `melee`, `ranged`, and `caster`. Class selection and bonuses are tracked in [milestone 8](../planning/roadmap.md#8-add-class-specializations-p2--large).
+The class is displayed as Unaligned by default. After reaching level 10, players can visit The Conclave to choose Melee, Ranged, or Caster and may change between those classes freely. The server derives eligibility from lifetime XP and accepts only those three choices. The selected class currently has no effect on attributes or combat calculations; class bonuses remain planned in [milestone 8](../planning/roadmap.md#8-add-class-specializations-p2--large).
 
 ## XP and attribute points
 

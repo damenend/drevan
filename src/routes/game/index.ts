@@ -11,6 +11,7 @@ import fishingRouter from "./fishing";
 import progressionRouter from "./progression";
 import ruinsRouter from "./ruins";
 import { renderQuarters } from "./quarters";
+import conclaveRouter from "./conclave";
 
 const router = Router();
 
@@ -66,5 +67,6 @@ router.use("/inventory", inventoryRouter);
 router.use("/users", usersRouter);
 router.use("/fishing", fishingRouter);
 router.use("/progression", progressionRouter);
+router.use("/conclave", conclaveRouter);
 
 export default router;

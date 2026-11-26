@@ -1,0 +1,81 @@
+<section aria-labelledby="conclave-heading">
+  <h1 id="conclave-heading">The Conclave</h1>
+
+  <%- include("../partials/location-image", {
+    src: "/images/conclave.webp",
+    width: 1672,
+    height: 941,
+    caption: "Three stone figures stand beneath a suspended blue crystal.",
+  }) %>
+
+  <p>The Conclave keeps three combat disciplines beneath its vaulted hall.</p>
+
+  <p>Current level: <%= formatNumber(level) %></p>
+
+  <% if (message) { %>
+  <p tabindex="-1" data-result-focus><%= message %></p>
+  <% } %>
+
+  <% if (level < 10) { %>
+  <p>Class selection opens at level 10. Return after earning more XP.</p>
+  <% } else { %>
+  <% if (user.characterClass === 'unaligned') { %>
+  <p>You are currently Unaligned.</p>
+  <% } else { %>
+  <p>Current class: <%= formatPlayerName(user.characterClass) %></p>
+  <% } %>
+  <form class="conclave-class-form" action="/game/conclave" method="POST">
+    <fieldset class="conclave-classes">
+      <legend>Choose your class</legend>
+      <p id="class-selection-note" class="text-muted">
+        The Conclave preserves three ancient disciplines. Choose the path
+        that best reflects your approach to combat. You may return and change
+        your class later.
+      </p>
+
+      <div class="conclave-class-options">
+        <label class="choice-card conclave-class-option" for="melee">
+          <span class="conclave-class-option__heading">
+            <input type="radio" name="characterClass" id="melee" value="melee" required aria-describedby="melee-description class-selection-note" <% if (user.characterClass === 'melee') { %>checked disabled<% } %> />
+            <span>Melee</span>
+            <% if (user.characterClass === 'melee') { %><span class="conclave-class-option__current">Current class</span><% } %>
+          </span>
+          <span id="melee-description" class="conclave-class-option__description">
+            Master the art of close-quarters combat, overcoming adversaries
+            through raw power and martial prowess.
+          </span>
+          <span class="conclave-class-option__attribute">Preferred attribute: <strong>Strength</strong></span>
+        </label>
+
+        <label class="choice-card conclave-class-option" for="caster">
+          <span class="conclave-class-option__heading">
+            <input type="radio" name="characterClass" id="caster" value="caster" required aria-describedby="caster-description class-selection-note" <% if (user.characterClass === 'caster') { %>checked disabled<% } %> />
+            <span>Caster</span>
+            <% if (user.characterClass === 'caster') { %><span class="conclave-class-option__current">Current class</span><% } %>
+          </span>
+          <span id="caster-description" class="conclave-class-option__description">
+            Harness the enigmatic energies of the old world, bending
+            forgotten forces to your will.
+          </span>
+          <span class="conclave-class-option__attribute">Preferred attribute: <strong>Intellect</strong></span>
+        </label>
+
+        <label class="choice-card conclave-class-option" for="ranged">
+          <span class="conclave-class-option__heading">
+            <input type="radio" name="characterClass" id="ranged" value="ranged" required aria-describedby="ranged-description class-selection-note" <% if (user.characterClass === 'ranged') { %>checked disabled<% } %> />
+            <span>Ranged</span>
+            <% if (user.characterClass === 'ranged') { %><span class="conclave-class-option__current">Current class</span><% } %>
+          </span>
+          <span id="ranged-description" class="conclave-class-option__description">
+            Strike from afar, relying on precision, dexterity,
+            and calculated execution.
+          </span>
+          <span class="conclave-class-option__attribute">Preferred attribute: <strong>Agility</strong></span>
+        </label>
+      </div>
+    </fieldset>
+
+    <button type="submit">Choose class</button>
+  </form>
+  <% } %>
+</section>

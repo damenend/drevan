@@ -13,11 +13,13 @@
 @use "components/stats";
 @use "components/equipment";
 @use "components/player-status";
+@use "components/choice-card";
 
 @use "pages/homepage";
 @use "pages/quarters";
 @use "pages/ruins";
 @use "pages/driftwater";
 @use "pages/dominion";
+@use "pages/conclave";
 
 @use "utilities/utilities";

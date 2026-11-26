@@ -207,6 +207,16 @@ function player() {
   return row;
 }
 
+function playerClass() {
+  const row = sqlite
+    .prepare<[string], { character_class: string }>(
+      "SELECT character_class FROM users WHERE email = ?",
+    )
+    .get(account.email);
+  assert.ok(row);
+  return row.character_class;
+}
+
 function ownedItems() {
   return sqlite
     .prepare<[], { item_id: number; quantity: number }>(
@@ -463,6 +473,43 @@ test("class identifiers are constrained and Admin leaves the class read-only", a
   assert.match(admin.html, /Class: <strong>Unaligned<\/strong>/);
   assert.match(admin.html, /Attack Power: <strong>12<\/strong>/);
   assert.doesNotMatch(admin.html, /name="stats\[characterClass\]"/);
+});
+
+test("The Conclave validates level and permits class changes", async () => {
+  const headers = { cookie };
+  const locked = await request("/game/conclave", { headers });
+  assert.equal(locked.status, 200);
+  assert.doesNotMatch(locked.html, /name="characterClass"/);
+
+  const tooLow = await post("/game/conclave", { characterClass: "melee" });
+  assert.equal(tooLow.headers.get("location"), "/game/conclave?err=true");
+  assert.equal(playerClass(), "unaligned");
+
+  sqlite.exec("UPDATE users SET exp = 6300");
+  const available = await request("/game/conclave", { headers });
+  assert.match(available.html, /name="characterClass"/);
+  assert.match(available.html, /value="melee" required/);
+
+  for (const characterClass of [undefined, "unaligned", "invalid"]) {
+    const rejected = await post("/game/conclave", { characterClass });
+    assert.equal(rejected.headers.get("location"), "/game/conclave?err=true");
+    assert.equal(playerClass(), "unaligned");
+  }
+
+  const selected = await post("/game/conclave", { characterClass: "melee" });
+  assert.equal(selected.headers.get("location"), "/game/conclave?update=true");
+  assert.equal(playerClass(), "melee");
+
+  const unchanged = await post("/game/conclave", { characterClass: "melee" });
+  assert.equal(
+    unchanged.headers.get("location"),
+    "/game/conclave?unchanged=true",
+  );
+  assert.equal(playerClass(), "melee");
+
+  const changed = await post("/game/conclave", { characterClass: "caster" });
+  assert.equal(changed.headers.get("location"), "/game/conclave?update=true");
+  assert.equal(playerClass(), "caster");
 });
 
 test("Dominion and The Ruins use the same calculated player Attack Power", async (t) => {

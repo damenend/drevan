@@ -34,7 +34,7 @@ const avatars = [
     <legend>Avatar model</legend>
     <div class="avatar-options">
       <% for (const avatar of avatars) { %>
-      <label class="avatar-option">
+      <label class="choice-card choice-card--compact avatar-option">
         <img src="/images/drevan-avatar-<%= avatar.value %>.webp" alt="" width="<%= avatar.width %>" height="<%= avatar.height %>" />
         <span>
           <input type="radio" id="signup-<%= avatar.value === 'male' ? 'avatarModel' : 'avatar-female' %>" name="avatarModel" value="<%= avatar.value %>" aria-describedby="signup-avatarModel-error" <% if (error?.field === "avatarModel") { %>aria-invalid="true"<% } %> <% if ((values.avatarModel ?? "male") === avatar.value) { %>checked<% } %> required />

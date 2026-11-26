@@ -18,6 +18,7 @@ Nexaris is a refuge and gathering place built among old structures and machinery
 | The Registry     | A record of Drevan’s players.                                                                                               |
 | The Reliquary    | A library of surviving lore and histories.                                                                                  |
 | The Ruins        | Structures associated with the buried Axiom Engine. Explorers search the upper chambers. The entrance to Floor 2 is sealed. |
+| The Conclave     | A vaulted hall where level-10 players choose among three preserved combat disciplines.                                      |
 
 The Driftwater yields Murkfin, Glassscale, and Astral Koi. Murkfin are bottom-dwellers. Glassscale are translucent and refract light. Astral Koi bear luminous markings. In The Ruins, the Vault Scavenger sorts through old wiring, the Fractured Sentinel tracks intruders with a flickering red eye, and the Alloy Warden watches a buried vault. Explorers can use a Recall Beacon to return to Nexaris.
 
