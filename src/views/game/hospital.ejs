@@ -9,7 +9,7 @@
     caption: "The entrance to Sanctum.",
   }) %>
 
-  <p>Old healing apparatus hums in the quiet halls of Sanctum. The attendants charge 1 gold for each HP restored.</p>
+  <p>Old healing apparatus hums in the quiet halls of Sanctum.</p>
 
   <%- include("../partials/player-gold", { gold: user.gold }) %>
 
@@ -17,15 +17,21 @@
   <p tabindex="-1" data-result-focus><%= message %></p>
   <% } %>
 
-  <% if (user.hp >= user.maxHp) { %>
+  <% if (user.hp === 0) { %>
+  <p>The Sanctum can restore you to life, but your wounds will remain. Revival restores 1 HP.</p>
+  <form action="/game/hospital/revive" method="POST">
+    <button type="submit">Revive (<%= formatNumber(revivalCost) %> gold)</button>
+  </form>
+  <% } else if (user.hp >= user.maxHp) { %>
   <p>You’re at full health.</p>
   <% } else { %>
+  <p>The attendants charge 1 gold for each HP restored.</p>
   <p>Healing costs <%= formatNumber(cost) %> gold.</p>
 
   <% if (cost > user.gold) { %>
   <p>You do not have enough gold to heal.</p>
   <% } else { %>
-  <form action="/game/hospital" method="POST">
+  <form action="/game/hospital/heal" method="POST">
     <button type="submit">Heal</button>
   </form>
   <% } %>

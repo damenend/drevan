@@ -57,6 +57,8 @@ Rarities are provisional design labels. The game uses the same inventory rules a
 
 Lesser Potion, Potion, and Greater Potion restore up to 10, 50, and 100 HP respectively. Potions require positive HP and restore at most the missing amount. Healing and consumption save together. At full HP there is no item effect to save.
 
-Sanctum can heal a character from zero HP. It restores all missing HP for one gold per HP. The update requires enough gold and current matching HP and max HP, so the charge and heal are applied together.
+Sanctum healing is available only while alive. It restores all missing HP for one gold per HP. The update requires enough gold and current matching HP and max HP, so the charge and heal are applied together.
 
-[Equipment rules](../../src/services/equipment.ts) · [Inventory service](../../src/services/inventory.ts) · [Category and effect display](../../src/presentation/items.ts) · [Emporium transactions](../../src/services/emporium.ts) · [Sanctum route](../../src/routes/game/hospital.ts) · [Transaction tests](../../tests/game-routes.test.ts)
+At zero HP, a character must revive before healing or using a healing potion. Revival restores exactly 1 HP and has a provisional flat fee of 10 gold. If the character has fewer than 10 gold, Sanctum takes their remaining gold; with no gold, revival is free. The balance deduction and revival are saved together, and a repeated request cannot charge an already-revived character. Afterward, the character can buy normal Sanctum healing or use a potion.
+
+[Equipment rules](../../src/services/equipment.ts) · [Inventory service](../../src/services/inventory.ts) · [Category and effect display](../../src/presentation/items.ts) · [Emporium transactions](../../src/services/emporium.ts) · [Sanctum revival](../../src/services/sanctum.ts) · [Sanctum route](../../src/routes/game/hospital.ts) · [Transaction tests](../../tests/game-routes.test.ts)

@@ -1007,9 +1007,9 @@ test("consumption, gear and Sanctum use current player state", async () => {
   assert.equal(player().equipped_weapon_id, null);
 });
 
-test("at zero HP, potions and training are blocked and Sanctum requires enough gold", async () => {
+test("at zero HP, potions and healing are blocked until Sanctum revival", async () => {
   await post("/game/store", { items: { "item-1": 1 } });
-  sqlite.exec("UPDATE users SET hp = 0, gold = 24;");
+  sqlite.exec("UPDATE users SET hp = 0, gold = 100;");
   const initial = player();
 
   await post("/game/inventory/use", { itemId: 1 });
@@ -1019,19 +1019,53 @@ test("at zero HP, potions and training are blocked and Sanctum requires enough g
   assert.equal(training.status, 200);
   assert.match(training.html, /Heal at Sanctum/);
   assert.equal(
-    (await post("/game/hospital")).headers.get("location"),
-    "/game/hospital?err=gold",
+    (await post("/game/hospital/heal")).headers.get("location"),
+    "/game/hospital?err=heal",
   );
   assert.deepEqual(player(), initial);
   assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 1 }]);
 
-  sqlite.exec("UPDATE users SET gold = 25;");
   assert.equal(
-    (await post("/game/hospital")).headers.get("location"),
-    "/game/hospital?healed=25",
+    (await post("/game/hospital/revive")).headers.get("location"),
+    "/game/hospital?revived=10",
+  );
+  assert.equal(player().hp, 1);
+  assert.equal(player().gold, 90);
+
+  assert.equal(
+    (await post("/game/hospital/revive")).headers.get("location"),
+    "/game/hospital?err=revive",
+  );
+  assert.equal(player().hp, 1);
+  assert.equal(player().gold, 90);
+
+  assert.equal(
+    (await post("/game/hospital/heal")).headers.get("location"),
+    "/game/hospital?healed=24",
   );
   assert.equal(player().hp, 25);
-  assert.equal(player().gold, 0);
+  assert.equal(player().gold, 66);
+});
+
+test("Sanctum emergency revival takes only the gold a defeated player has", async () => {
+  for (const gold of [10, 5, 0]) {
+    sqlite.exec(`UPDATE users SET hp = 0, gold = ${gold};`);
+    const sanctum = await request("/game/hospital", {
+      headers: { cookie },
+    });
+    assert.match(
+      sanctum.html,
+      new RegExp(`Revive \\(${Math.min(gold, 10)} gold\\)`),
+    );
+    assert.doesNotMatch(sanctum.html, /action="\/game\/hospital\/heal"/);
+    const revived = await post("/game/hospital/revive");
+    assert.equal(
+      revived.headers.get("location"),
+      `/game/hospital?revived=${Math.min(gold, 10)}`,
+    );
+    assert.equal(player().hp, 1);
+    assert.equal(player().gold, 0);
+  }
 });
 
 test("a failed healing write leaves the potion in inventory", async (t) => {
@@ -1915,7 +1949,7 @@ test("Ruins defeat preserves earlier rewards, returns to Nexaris, and requires h
   );
   await post("/game/inventory/use", { itemId: 1 });
   assert.equal(player().hp, 0);
-  await post("/game/hospital");
+  await post("/game/hospital/revive");
   await explore("enter");
   assert.equal(ruinsState().ruins_tile, 0);
 });
