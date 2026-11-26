@@ -22,6 +22,8 @@ The [Ruins discovery definitions and placement](../../src/services/ruins-discove
 
 For training, fishing, and Ruins fights, a submission saves the action and redirects. The next eligible page reads and clears the session report. Refreshing that page does not repeat the action. Other routes can redirect with simple feedback in the URL, such as Emporium checkout.
 
+The [Emporium sale service](../../src/services/emporium.ts) uses an immediate transaction for both manual and batch sales. Sell all reads the player’s current inventory, equipped slots, and catalog buyback prices within that transaction. It updates the inventory and credits gold together.
+
 ## Rendering and browser behavior
 
 The [main layout](../../src/views/layouts/main.ejs) provides the shell and helpers exposed by Express. Views include [reusable partials](../../src/views/partials/) for figures, meters, and reports. [The Sass entry point](../../src/scss/main.scss) organizes shared tokens, base rules, layout, components, pages, and utilities. It builds to [tracked CSS and its source map](../../public/css/). [Static art](../../public/images/) is generally WebP.

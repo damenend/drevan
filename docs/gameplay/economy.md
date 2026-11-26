@@ -30,6 +30,8 @@ The Emporium uses server-side catalog prices. A null purchase price keeps the it
 
 Buyback has its own catalog sell price. The Emporium accepts owned weapons, armor, fish, and materials with positive sell prices. An equipped copy stays reserved. Selling checks current quantities, equipped slots, and available gold balance capacity before reducing stacks and crediting the payout together.
 
+Use **Sell all for {amount} gold** to sell every eligible spare copy in one action, regardless of the quantities entered for a manual sale. The total shown on the button uses the available quantities and buyback prices on the page. The Emporium checks the current inventory and prices again at submission and credits one payout. The button is disabled when the payout would exceed the gold limit. If the balance changes before submission and the payout no longer fits, the entire sale is declined.
+
 ## Ruins materials
 
 [Floor 1 victories](ruins.md#victory-loot) can award stackable materials. In The Quarters, use the **Materials** filter to see each stack, its description, and its sale price. Materials have no equipment or use actions. The Emporium buys them at the listed price per unit and keeps them out of purchase stock. For example, three Metal Scraps sell for six gold.

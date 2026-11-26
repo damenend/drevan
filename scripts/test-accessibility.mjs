@@ -390,8 +390,9 @@ try {
   await page.getByRole("rowheader", { name: /Metal Scraps/ }).waitFor();
   await scan("materials-inventory");
   await scan("material-buyback", "/game/store");
-  await page.getByLabel("Quantity of Metal Scraps to sell").fill("1");
-  await page.getByRole("button", { name: "Sell", exact: true }).click();
+  await page
+    .getByRole("button", { name: /^Sell all for [\d,]+ gold$/ })
+    .click();
   await page.waitForURL("**/game/store?sold=1#sale-result");
   assert.equal(await page.locator(":focus").innerText(), "Sale complete.");
 

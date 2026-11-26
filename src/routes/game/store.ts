@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Response } from "express";
 import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { renderError } from "../../middleware/errors";
 import {
@@ -31,9 +31,15 @@ function getPurchaseCategory(value: unknown) {
 
 // Store page
 router.get("/", (req, res) => {
-  const { storeItems, sellableItems } = getEmporiumItems(
-    getAuthenticatedPlayer(res),
+  const player = getAuthenticatedPlayer(res);
+  const { storeItems, sellableItems } = getEmporiumItems(player);
+  const sellAllTotal = sellableItems.reduce(
+    (total, item) => total + item.available * (item.sellPrice ?? 0),
+    0,
   );
+  const sellAllExceedsGoldLimit =
+    !Number.isSafeInteger(sellAllTotal) ||
+    !Number.isSafeInteger(player.gold + sellAllTotal);
 
   const category = getPurchaseCategory(req.query.category);
   const errorMessage = {
@@ -57,7 +63,10 @@ router.get("/", (req, res) => {
     category,
     purchaseCategories,
     sellableItems,
+    sellAllTotal,
+    sellAllExceedsGoldLimit,
     sold: req.query.sold === "1",
+    emptySale: req.query.sold === "empty",
     purchased: req.query.purchased === "1",
     err,
   });
@@ -123,10 +132,9 @@ router.post("/", (req, res) => {
   );
 });
 
-// Sell the selected items together.
-router.post("/sell", (req, res) => {
-  const selectedItems = parseItemSelection(req.body?.items);
-  if (!selectedItems?.length) {
+// Both sale routes use the same validation and feedback.
+function sellItems(res: Response, selection: ItemSelection[] | "all" | null) {
+  if (selection !== "all" && !selection?.length) {
     return renderError(res, 400, {
       message:
         "Enter a whole quantity of at least 1 for an item you want to sell.",
@@ -134,7 +142,7 @@ router.post("/sell", (req, res) => {
   }
 
   const userId = getAuthenticatedPlayer(res).id;
-  const result = sellEmporiumItems(userId, selectedItems);
+  const result = sellEmporiumItems(userId, selection);
 
   switch (result) {
     case "unavailable":
@@ -154,9 +162,16 @@ router.post("/sell", (req, res) => {
       return renderError(res, 409, {
         message: "This sale would exceed the supported gold limit.",
       });
+    case "empty":
+      return res.redirect(303, "/game/store?sold=empty#sale-result");
     case "sold":
       return res.redirect(303, "/game/store?sold=1#sale-result");
   }
-});
+}
+
+router.post("/sell", (req, res) =>
+  sellItems(res, parseItemSelection(req.body?.items)),
+);
+router.post("/sell-all", (_req, res) => sellItems(res, "all"));
 
 export default router;

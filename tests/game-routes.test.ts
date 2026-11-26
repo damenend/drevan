@@ -648,7 +648,7 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
   assert.doesNotMatch(buySection, /Murkfin/);
   assert.match(sellSection, /Murkfin/);
   assert.match(sellSection, /id="sell-2"[^>]*max="1"[^>]*data-price="50"/);
-  assert.equal((sellSection.match(/type="submit"/g) ?? []).length, 1);
+  assert.equal((sellSection.match(/type="submit"/g) ?? []).length, 2);
   assert.match(sellSection, /id="sell-total"/);
 
   const home = await request("/game", { headers: { cookie } });
@@ -716,6 +716,60 @@ test("Emporium buys owned fish at catalog prices and protects equipped gear", as
   );
   assert.equal(player().gold, 202);
   assert.deepEqual(ownedItems(), [{ item_id: 3, quantity: 1 }]);
+});
+
+test("Emporium Sell all pays once for eligible spare copies", async () => {
+  sqlite.exec(`
+    INSERT INTO inventory (user_id, item_id, quantity)
+    SELECT id, 1, 3 FROM users WHERE email = 'test@example.test'
+    UNION ALL SELECT id, 2, 2 FROM users WHERE email = 'test@example.test'
+    UNION ALL SELECT id, 3, 3 FROM users WHERE email = 'test@example.test'
+    UNION ALL SELECT id, ${firstMaterialId}, 2 FROM users WHERE email = 'test@example.test';
+    UPDATE users SET equipped_weapon_id = 2;
+  `);
+
+  const store = await request("/game/store?category=weapon", {
+    headers: { cookie },
+  });
+  assert.match(store.html, /action="\/game\/store\/sell-all" method="POST"/);
+  assert.match(store.html, />Sell all for 57 gold<\/button>/);
+
+  const originalInventory = ownedItems();
+  sqlite.exec(`UPDATE users SET gold = ${Number.MAX_SAFE_INTEGER}`);
+  const atGoldLimit = await request("/game/store", { headers: { cookie } });
+  assert.match(atGoldLimit.html, /disabled>Sell all for 57 gold<\/button>/);
+  assert.match(
+    atGoldLimit.html,
+    /id="sell-all-limit">This sale would exceed the supported gold limit/,
+  );
+  assert.equal((await post("/game/store/sell-all")).status, 409);
+  assert.equal(player().gold, Number.MAX_SAFE_INTEGER);
+  assert.deepEqual(ownedItems(), originalInventory);
+
+  sqlite.exec("UPDATE users SET gold = 100");
+  const sales = await Promise.all([
+    post("/game/store/sell-all", { items: { "item-1": 3 }, sellPrice: 999 }),
+    post("/game/store/sell-all"),
+  ]);
+  assert.deepEqual(sales.map((sale) => sale.headers.get("location")).sort(), [
+    "/game/store?sold=1#sale-result",
+    "/game/store?sold=empty#sale-result",
+  ]);
+  assert.equal(player().gold, 157);
+  assert.equal(player().equipped_weapon_id, 2);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 3 },
+    { item_id: 2, quantity: 1 },
+  ]);
+
+  const empty = await request("/game/store?sold=empty", {
+    headers: { cookie },
+  });
+  assert.match(
+    empty.html,
+    /data-result-focus>You have nothing available to sell here/,
+  );
+  assert.doesNotMatch(empty.html, /action="\/game\/store\/sell-all"/);
 });
 
 test("The Quarters filters materials and Emporium sells them at the direct catalog price", async (t) => {
@@ -1482,6 +1536,7 @@ test("Ruins location survives logout and login, and other gameplay is blocked", 
     ["/game/training", { level: 1 }],
     ["/game/store", { quantities: { 1: 1 } }],
     ["/game/store/sell", {}],
+    ["/game/store/sell-all", {}],
     ["/game/inventory/equip", { itemId: 2 }],
     ["/game/inventory/unequip", { itemId: 2 }],
     ["/game/admin", { stats: { gold: 999 } }],

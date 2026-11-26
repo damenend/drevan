@@ -145,11 +145,12 @@ export function buyEmporiumItems(
 
 /**
  * Checks ownership and equipped copies before applying any sale. Credits gold
- * and updates all selected stacks in the same transaction.
+ * and updates all selected stacks in the same transaction. An "all" sale
+ * uses every spare copy eligible for buyback at the time of the transaction.
  */
 export function sellEmporiumItems(
   userId: number,
-  selectedItems: readonly ItemSelection[],
+  selection: readonly ItemSelection[] | "all",
 ) {
   const playerFilter = eq(users.id, userId);
   return db.transaction(
@@ -183,10 +184,12 @@ export function sellEmporiumItems(
         .where(
           and(
             eq(inventory.userId, userId),
-            inArray(
-              inventory.itemId,
-              selectedItems.map(({ itemId }) => itemId),
-            ),
+            selection === "all"
+              ? gt(inventory.quantity, 0)
+              : inArray(
+                  inventory.itemId,
+                  selection.map(({ itemId }) => itemId),
+                ),
             buybackEligible,
           ),
         )
@@ -194,6 +197,23 @@ export function sellEmporiumItems(
       const stacksByItemId = new Map(
         stacks.map((stack) => [stack.itemId, stack]),
       );
+
+      const selectedItems =
+        selection === "all"
+          ? stacks
+              .map((stack) => ({
+                itemId: stack.itemId,
+                quantity: getAvailableQuantity(player, {
+                  ...stack,
+                  id: stack.itemId,
+                }),
+              }))
+              .filter(({ quantity }) => quantity > 0)
+          : selection;
+
+      if (selectedItems.length === 0) {
+        return "empty";
+      }
 
       for (const { itemId, quantity } of selectedItems) {
         const stack = stacksByItemId.get(itemId);

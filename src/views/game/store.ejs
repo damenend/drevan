@@ -38,18 +38,19 @@
   <% } %>
   <section id="sell" aria-labelledby="sell-heading">
     <h2 id="sell-heading">Sell items</h2>
-    <% if (sold) { %>
-    <p id="sale-result" tabindex="-1" data-result-focus>Sale complete.</p>
-    <% } %>
-    <% if (sellableItems.length === 0) { %>
+    <% const hasSellableCopies = sellableItems.some(item => item.available > 0); %>
+    <% if (sold || emptySale) { %>
+    <p id="sale-result" tabindex="-1" data-result-focus><%= sold ? "Sale complete." : "You have nothing available to sell here." %></p>
+    <% } else if (sellableItems.length === 0) { %>
     <p>You have nothing available to sell here.</p>
-    <% } else { %>
+    <% } %>
+    <% if (sellableItems.length > 0) { %>
     <form id="sell-form" action="/game/store/sell" method="POST">
       <%- include("../partials/item-table", {
         rows: sellableItems, rowView: "./sell-item-row", scrollLabel: "Items for sale",
         headingId: "sell-heading", columns: ["Item", "Available", "Value", "Sell quantity"],
       }) %>
-      <% if (sellableItems.some(item => item.available > 0)) { %>
+      <% if (hasSellableCopies) { %>
       <p hidden>
         <label for="sell-total">Sale total</label>:
         <output id="sell-total" aria-live="off">0</output> gold
@@ -58,6 +59,15 @@
       <button type="submit" class="button--spaced">Sell</button>
       <% } %>
     </form>
+    <% if (hasSellableCopies) { %>
+    <form action="/game/store/sell-all" method="POST">
+      <p id="sell-all-note">Sell all eligible items in your inventory. Equipped items will be retained.</p>
+      <button type="submit" class="button--secondary" aria-describedby="sell-all-note<% if (sellAllExceedsGoldLimit) { %> sell-all-limit<% } %>"<% if (sellAllExceedsGoldLimit) { %> disabled<% } %>>Sell all<% if (Number.isSafeInteger(sellAllTotal)) { %> for <%= formatNumber(sellAllTotal) %> gold<% } %></button>
+      <% if (sellAllExceedsGoldLimit) { %>
+      <span id="sell-all-limit">This sale would exceed the supported gold limit.</span>
+      <% } %>
+    </form>
+    <% } %>
     <% } %>
   </section>
 </section>
