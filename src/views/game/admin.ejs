@@ -9,7 +9,6 @@
 
   <p>Class: <strong><%= formatPlayerName(user.characterClass) %></strong></p>
   <p>Attack Power: <strong><%= formatNumber(effectiveStats.attackPower) %></strong></p>
-  <p>Speed: <strong><%= formatNumber(effectiveStats.speed) %></strong></p>
   <p>Current HP: <strong><%= formatNumber(user.hp) %></strong></p>
   <p>Max HP: <strong><%= formatNumber(user.maxHp) %></strong></p>
   <p>Total Fortitude: <%= formatNumber(fortitude) %>. Each point adds <%= formatNumber(hpPerFortitude) %> max HP. Changing base Fortitude refills current HP to the new cap.</p>

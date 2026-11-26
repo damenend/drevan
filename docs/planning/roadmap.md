@@ -83,8 +83,8 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 
 ### 8. Add class specializations (P2 · Large)
 
-- **Status.** Planned.
-- **Progress.** [Class storage, class-neutral stats, and level-10 class selection](../gameplay/character.md) are available. Players may change their selection freely at The Conclave. Classes do not affect combat yet; bonuses remain planned.
+- **Status.** In progress.
+- **Progress.** [Class storage, level-10 class selection, and primary-attribute Attack Power bonuses](../gameplay/character.md) are available. Players may change their selection freely at The Conclave. PvE balance and distinct class strengths and weaknesses still need playtesting.
 - **Dependencies.** Combat audit (4) and basic stat allocation (5).
 - **Scope.** Add Melee (Strength), Ranged (Agility), and Caster (Intellect) specializations. Each will receive additional offensive scaling from its preferred attribute. All three offensive attributes will still contribute to Attack Power for every class.
 - **Done when.** Players can select an implemented specialization, The Quarters shows their selected class and calculated Attack Power, and the shared simulator applies the same damage rules across encounter modes. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.

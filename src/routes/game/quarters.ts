@@ -18,7 +18,7 @@ import {
   getStackAvailability,
 } from "../../services/equipment";
 import { getPlayerInventory } from "../../services/inventory";
-import { getProgression, statAllocations } from "../../services/progression";
+import { getProgression, getStatAllocations } from "../../services/progression";
 
 function getInventoryAction(item: {
   type: string;
@@ -59,9 +59,12 @@ export function renderQuarters(req: Request, res: Response) {
     describeItemEffect,
     effectiveStats: applyEquipmentBonuses(player, equipped),
     attributes,
-    baseAttackPower: getBaseAttackPower(attributes),
+    baseAttackPower: getBaseAttackPower({
+      ...attributes,
+      characterClass: player.characterClass,
+    }),
     progression: getProgression(player.exp, getSpentPoints(player)),
-    statAllocations,
+    statAllocations: getStatAllocations(player.characterClass),
     message:
       typeof req.query.message === "string" ? req.query.message : undefined,
   });

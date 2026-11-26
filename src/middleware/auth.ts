@@ -30,6 +30,7 @@ function findPlayer(userId: number) {
       avatarModel: users.avatarModel,
       characterClass: users.characterClass,
       speed: users.speed,
+      speedPoints: users.speedPoints,
       gold: users.gold,
       hp: users.hp,
       maxHp: effectiveMaxHp,

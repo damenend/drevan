@@ -1,4 +1,5 @@
 import { HP_PER_FORTITUDE } from "./character-stats";
+import type { CharacterClass } from "../db/schema";
 
 export const MAX_PLAYER_LEVEL = 100;
 
@@ -14,10 +15,35 @@ export const statAllocations = {
   strength: { label: "+1 Strength (+1 Attack Power)" },
   agility: { label: "+1 Agility (+1 Attack Power)" },
   intellect: { label: "+1 Intellect (+1 Attack Power)" },
+  speed: { label: "+1 Speed" },
   fortitude: { label: `+1 Fortitude (+${HP_PER_FORTITUDE} max HP)` },
 } as const;
 
 type AllocationStat = keyof typeof statAllocations;
+
+const classPrimaryStats: Record<
+  CharacterClass,
+  "strength" | "agility" | "intellect" | null
+> = {
+  unaligned: null,
+  melee: "strength",
+  ranged: "agility",
+  caster: "intellect",
+};
+
+/** Labels allocation choices with the Attack Power granted by the player's class. */
+export function getStatAllocations(characterClass: CharacterClass) {
+  const primaryStat = classPrimaryStats[characterClass];
+
+  return Object.fromEntries(
+    Object.entries(statAllocations).map(([stat, option]) => [
+      stat,
+      stat === primaryStat
+        ? { label: option.label.replace("+1 Attack Power", "+3 Attack Power") }
+        : option,
+    ]),
+  ) as Record<AllocationStat, { label: string }>;
+}
 
 export function isAllocationStat(value: unknown): value is AllocationStat {
   return typeof value === "string" && Object.hasOwn(statAllocations, value);

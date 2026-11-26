@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `speed_points` integer DEFAULT 0 NOT NULL;

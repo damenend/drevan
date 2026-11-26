@@ -24,6 +24,7 @@ const statLabels = {
   strength: "Base Strength",
   agility: "Base Agility",
   intellect: "Base Intellect",
+  speed: "Speed",
   defense: "Base Defense",
   gold: "Gold",
   fishing_casts_used: "Fishing casts used today",
@@ -99,6 +100,7 @@ router.post("/", (req, res) => {
           strengthPoints: users.strengthPoints,
           agilityPoints: users.agilityPoints,
           intellectPoints: users.intellectPoints,
+          speedPoints: users.speedPoints,
           maxHp: maximumHp(
             sql`(${updates.fortitude ?? users.fortitude} + ${users.fortitudePoints})`,
           ),
@@ -108,7 +110,12 @@ router.post("/", (req, res) => {
         .get();
 
       if (!player || !Number.isSafeInteger(player.maxHp)) return false;
-      for (const stat of ["strength", "agility", "intellect"] as const) {
+      for (const stat of [
+        "strength",
+        "agility",
+        "intellect",
+        "speed",
+      ] as const) {
         const base = updates[stat];
         if (
           base !== undefined &&

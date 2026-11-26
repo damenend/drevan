@@ -135,7 +135,7 @@ beforeEach(() => {
     UPDATE users SET gold = 100, hp = 25, strength = 5, character_class = 'unaligned',
       speed = 5, agility = 5, defense = 0, equipped_weapon_id = NULL, equipped_armor_id = NULL,
       intellect = 0, fortitude = 5, intellect_points = 0,
-      exp = 0, strength_points = 0, agility_points = 0, fortitude_points = 0,
+      exp = 0, strength_points = 0, agility_points = 0, fortitude_points = 0, speed_points = 0,
       fishing_casts_used = 0, fishing_cast_date = NULL,
       ruins_tile = NULL, ruins_revision = 0, ruins_enemy_pending = 0, recall_date = NULL,
       ruins_discoveries = NULL, ruins_gold_claim_date = NULL,
@@ -407,17 +407,27 @@ test("Changing base Fortitude in Admin refills HP without changing spent points"
   assert.equal(player().hp, 28);
 });
 
-test("each other primary attribute still spends exactly one point", async () => {
-  sqlite.exec("UPDATE users SET exp = 480");
-  for (const [index, stat] of ["strength", "agility", "intellect"].entries()) {
+test("offensive attributes and Speed each spend exactly one point", async () => {
+  sqlite.exec("UPDATE users SET exp = 1080");
+  for (const [index, stat] of [
+    "strength",
+    "agility",
+    "intellect",
+    "speed",
+  ].entries()) {
     const spent = await post("/game/progression", { stat });
     assert.match(spent.headers.get("location") ?? "", /Point%20spent/);
     const { html } = await request("/game", { headers: { cookie } });
     assert.match(
       html,
-      new RegExp(`<dt>Attack Power</dt>\\s*<dd>\\s*${11 + index}\\s*</dd>`),
+      new RegExp(
+        `<dt>Attack Power</dt>\\s*<dd>\\s*${stat === "speed" ? 13 : 11 + index}\\s*</dd>`,
+      ),
     );
-    assert.match(html, /<dt>Speed<\/dt>\s*<dd>5<\/dd>/);
+    assert.match(
+      html,
+      new RegExp(`<dt>Speed</dt>\\s*<dd>${stat === "speed" ? 6 : 5}</dd>`),
+    );
   }
   const home = await request("/game", { headers: { cookie } });
   assert.match(home.html, /<dt>Strength<\/dt>\s*<dd>6<\/dd>/);
@@ -426,15 +436,27 @@ test("each other primary attribute still spends exactly one point", async () => 
   assert.match(home.html, /0 unspent attribute points/);
 });
 
-test("equal offensive totals yield equal Attack Power regardless of Fortitude", () => {
+test("only offensive attributes and the selected class contribute to Attack Power", () => {
   for (const [strength, agility, intellect, fortitude] of [
     [5, 5, 0, 5],
     [0, 5, 5, 6],
     [0, 0, 10, 7],
   ]) {
-    const attributes = { strength, agility, intellect, fortitude };
-    assert.equal(getBaseAttackPower(attributes), 10);
+    const stats = {
+      strength,
+      agility,
+      intellect,
+      fortitude,
+      speed: 5,
+      characterClass: "unaligned" as const,
+    };
+    assert.equal(getBaseAttackPower(stats), 10);
   }
+
+  const stats = { strength: 7, agility: 11, intellect: 13, speed: 17 };
+  assert.equal(getBaseAttackPower({ ...stats, characterClass: "melee" }), 45);
+  assert.equal(getBaseAttackPower({ ...stats, characterClass: "ranged" }), 53);
+  assert.equal(getBaseAttackPower({ ...stats, characterClass: "caster" }), 57);
 });
 
 test("extreme attributes and equipped bonuses respect the Attack Power cap", async () => {
@@ -455,7 +477,7 @@ test("extreme attributes and equipped bonuses respect the Attack Power cap", asy
   );
 });
 
-test("class identifiers are constrained and Admin leaves the class read-only", async () => {
+test("Admin edits Speed but leaves the class read-only", async () => {
   for (const characterClass of ["melee", "ranged", "caster", "unaligned"]) {
     sqlite.prepare("UPDATE users SET character_class = ?").run(characterClass);
   }
@@ -472,7 +494,17 @@ test("class identifiers are constrained and Admin leaves the class read-only", a
   const admin = await request("/game/admin", { headers });
   assert.match(admin.html, /Class: <strong>Unaligned<\/strong>/);
   assert.match(admin.html, /Attack Power: <strong>12<\/strong>/);
+  assert.match(
+    admin.html,
+    /name="stats\[speed\]" value="5" min="0" step="1" required/,
+  );
   assert.doesNotMatch(admin.html, /name="stats\[characterClass\]"/);
+
+  const saved = await post("/game/admin", { stats: { speed: 9 } });
+  assert.equal(saved.headers.get("location"), "/game/admin?message=success");
+  const updated = await request("/game/admin", { headers });
+  assert.match(updated.html, /Attack Power: <strong>12<\/strong>/);
+  assert.match(updated.html, /name="stats\[speed\]" value="9"/);
 });
 
 test("The Conclave validates level and permits class changes", async () => {
@@ -499,6 +531,15 @@ test("The Conclave validates level and permits class changes", async () => {
   const selected = await post("/game/conclave", { characterClass: "melee" });
   assert.equal(selected.headers.get("location"), "/game/conclave?update=true");
   assert.equal(playerClass(), "melee");
+  const meleeQuarters = await request("/game", { headers });
+  assert.match(
+    meleeQuarters.html,
+    />\+1 Strength \(\+3 Attack Power\)<\/button>/,
+  );
+  assert.match(
+    meleeQuarters.html,
+    />\+1 Agility \(\+1 Attack Power\)<\/button>/,
+  );
 
   const unchanged = await post("/game/conclave", { characterClass: "melee" });
   assert.equal(
@@ -510,6 +551,24 @@ test("The Conclave validates level and permits class changes", async () => {
   const changed = await post("/game/conclave", { characterClass: "caster" });
   assert.equal(changed.headers.get("location"), "/game/conclave?update=true");
   assert.equal(playerClass(), "caster");
+  const casterQuarters = await request("/game", { headers });
+  assert.match(
+    casterQuarters.html,
+    />\+1 Intellect \(\+3 Attack Power\)<\/button>/,
+  );
+  assert.match(
+    casterQuarters.html,
+    />\+1 Strength \(\+1 Attack Power\)<\/button>/,
+  );
+  const allocated = await post("/game/progression", { stat: "intellect" });
+  assert.match(
+    allocated.headers.get("location") ?? "",
+    /%2B1%20Intellect%20\(%2B3%20Attack%20Power\)/,
+  );
+  assert.match(
+    (await request("/game", { headers })).html,
+    /<dt>Attack Power<\/dt>\s*<dd>\s*13\s*<\/dd>/,
+  );
 });
 
 test("Dominion and The Ruins use the same calculated player Attack Power", async (t) => {
@@ -588,7 +647,7 @@ test("Fortitude migration preserves spent HP points and current health", () => {
     `);
     migrate(database, { migrationsFolder });
     const migrated =
-      database.all(sql`SELECT hp, fortitude, fortitude_points, agility, agility_points, speed, character_class,
+      database.all(sql`SELECT hp, fortitude, fortitude_points, agility, agility_points, speed, speed_points, character_class,
       exp, ${maximumHp(sql.raw("(fortitude + fortitude_points)"))} as cap FROM users ORDER BY id`);
     assert.deepEqual(migrated, [
       {
@@ -598,6 +657,7 @@ test("Fortitude migration preserves spent HP points and current health", () => {
         agility: 7,
         agility_points: 1,
         speed: 8,
+        speed_points: 0,
         character_class: "unaligned",
         exp: 480,
         cap: 31,
@@ -609,6 +669,7 @@ test("Fortitude migration preserves spent HP points and current health", () => {
         agility: 5,
         agility_points: 0,
         speed: 5,
+        speed_points: 0,
         character_class: "unaligned",
         exp: 210,
         cap: 28,

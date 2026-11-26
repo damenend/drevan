@@ -46,6 +46,7 @@ export const users = sqliteTable(
     agilityPoints: integer("agility_points").notNull().default(0),
     intellectPoints: integer("intellect_points").notNull().default(0),
     fortitudePoints: integer("fortitude_points").notNull().default(0),
+    speedPoints: integer("speed_points").notNull().default(0),
     equippedWeaponId: integer("equipped_weapon_id"),
     equippedArmorId: integer("equipped_armor_id"),
     defense: integer("defense").notNull().default(0),

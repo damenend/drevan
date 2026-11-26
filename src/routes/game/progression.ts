@@ -6,8 +6,8 @@ import { users } from "../../db/schema";
 import { getSpentPoints, maximumHp } from "../../services/character-stats";
 import {
   getProgression,
+  getStatAllocations,
   isAllocationStat,
-  statAllocations,
 } from "../../services/progression";
 
 const router = Router();
@@ -26,6 +26,7 @@ router.post("/", (req, res) => {
       const player = tx
         .select({
           exp: users.exp,
+          characterClass: users.characterClass,
           strength: users.strength,
           agility: users.agility,
           intellect: users.intellect,
@@ -34,6 +35,8 @@ router.post("/", (req, res) => {
           agilityPoints: users.agilityPoints,
           intellectPoints: users.intellectPoints,
           fortitudePoints: users.fortitudePoints,
+          speed: users.speed,
+          speedPoints: users.speedPoints,
           nextMaxHp: maximumHp(
             sql`(${users.fortitude} + ${users.fortitudePoints} + 1)`,
           ),
@@ -58,7 +61,7 @@ router.post("/", (req, res) => {
         .set({ [pointColumn]: sql`${users[pointColumn]} + 1` })
         .where(eq(users.id, id))
         .run();
-      return `Point spent. ${statAllocations[stat].label}.`;
+      return `Point spent. ${getStatAllocations(player.characterClass)[stat].label}.`;
     },
     { behavior: "immediate" },
   );

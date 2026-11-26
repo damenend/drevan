@@ -14,6 +14,7 @@ type AttributePoints = {
   agilityPoints: number;
   intellectPoints: number;
   fortitudePoints: number;
+  speedPoints: number;
 };
 
 type AttributeBases = {
@@ -21,6 +22,14 @@ type AttributeBases = {
   agility: number;
   intellect: number;
   fortitude: number;
+  speed: number;
+};
+
+type AttackPowerStats = Pick<
+  AttributeBases,
+  "strength" | "agility" | "intellect"
+> & {
+  characterClass: "unaligned" | "melee" | "ranged" | "caster";
 };
 
 /** Adds allocated points to base attributes before applying equipment. */
@@ -30,29 +39,37 @@ export function getPrimaryAttributes(player: AttributeBases & AttributePoints) {
     agility: player.agility + player.agilityPoints,
     intellect: player.intellect + player.intellectPoints,
     fortitude: player.fortitude + player.fortitudePoints,
+    speed: player.speed + player.speedPoints,
   };
 }
 
 /**
- * Converts offensive attribute totals, including allocated points, to base
- * Attack Power at one per point.
+ * Converts offensive attribute totals to base Attack Power. An aligned
+ * character gains two additional contributions from their class's primary
+ * attribute: Strength for Melee, Agility for Ranged, or Intellect for Caster.
  */
-export function getBaseAttackPower(
-  attributes: Pick<AttributeBases, "strength" | "agility" | "intellect">,
-) {
+export function getBaseAttackPower(stats: AttackPowerStats) {
+  const classBonus = {
+    unaligned: 0,
+    melee: stats.strength * 2,
+    ranged: stats.agility * 2,
+    caster: stats.intellect * 2,
+  }[stats.characterClass];
+
   return Math.min(
     MAX_ATTACK_POWER,
-    attributes.strength + attributes.agility + attributes.intellect,
+    stats.strength + stats.agility + stats.intellect + classBonus,
   );
 }
 
-/** Counts spent AP across all attributes. Each Fortitude purchase costs one AP. */
+/** Counts spent attribute points across all five allocatable stats. */
 export function getSpentPoints(player: AttributePoints) {
   return (
     player.strengthPoints +
     player.agilityPoints +
     player.intellectPoints +
-    player.fortitudePoints
+    player.fortitudePoints +
+    player.speedPoints
   );
 }
 

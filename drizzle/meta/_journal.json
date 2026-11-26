@@ -120,6 +120,13 @@
       "when": 1795675809086,
       "tag": "0016_ruins_expedition_summary",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1795726289759,
+      "tag": "0017_tired_kronos",
+      "breakpoints": true
     }
   ]
 }

@@ -62,7 +62,7 @@
 
             <div class="character-stat">
               <dt>Speed</dt>
-              <dd><%= formatNumber(effectiveStats.speed) %></dd>
+              <dd><%= formatNumber(attributes.speed) %></dd>
             </div>
 
             <div class="character-stat">
@@ -96,7 +96,7 @@
               <dd><%= formatNumber(attributes.fortitude) %></dd>
             </div>
           </dl>
-          <p class="support-text support-text--spaced">Strength, Agility, and Intellect each add 1 Attack Power per point. Fortitude adds 3 max HP per point.</p>
+          <p class="support-text support-text--spaced">Strength, Agility, and Intellect each add 1 Attack Power per point. Speed affects initiative and attack frequency. Fortitude adds 3 max HP per point.</p>
           <%- include("../partials/stat-allocation") %>
         </section>
       </div>

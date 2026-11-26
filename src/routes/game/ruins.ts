@@ -4,7 +4,7 @@ import {
   getSpentPoints,
 } from "../../services/character-stats";
 import { Router } from "express";
-import { getProgression, statAllocations } from "../../services/progression";
+import { getProgression, getStatAllocations } from "../../services/progression";
 import {
   describeRuinsDiscovery,
   getRuinsDiscovery,
@@ -86,7 +86,7 @@ router.get("/", (req, res) => {
     discovery: Boolean(discovery),
     attributes: getPrimaryAttributes(player),
     progression: getProgression(player.exp, getSpentPoints(player)),
-    statAllocations,
+    statAllocations: getStatAllocations(player.characterClass),
     ...(position === null ? {} : getRuinsSupplies(player.id)),
     recalledToday: player.recallDate === getGameDate(),
     message: message ?? (discovery && describeRuinsDiscovery(discovery)),

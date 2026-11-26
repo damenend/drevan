@@ -55,6 +55,7 @@ These migrations illustrate adjustments that preserved character progress.
 - [0011](../../drizzle/0011_fortitude.sql) preserves spent HP points as Fortitude allocations.
 - [0012](../../drizzle/0012_fortitude_health.sql) converts legacy base health and Fortitude to the nearest nonnegative base Fortitude, keeps allocated points, and clamps HP when the new cap is lower.
 - [0013](../../drizzle/0013_character_class_and_speed.sql) keeps Agility and allocated Agility, initializes independent Speed from their sum, and converts the old weapon and armor Strength effect to Attack Power in place.
+- [0017](../../drizzle/0017_tired_kronos.sql) adds separate Speed allocation storage. Existing characters start with zero allocated Speed and retain their base Speed and other spent points.
 
 The November 25 Ruins changes use migration 0014 for discovery persistence and the seed for equipment, materials, and shop prices. A database already on 0014 only needs `yarn db:seed` to pick up catalog changes.
 

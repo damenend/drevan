@@ -31,6 +31,8 @@ type EquippedPlayer = EquipmentOwner &
     | "fortitude"
     | "fortitudePoints"
     | "speed"
+    | "speedPoints"
+    | "characterClass"
     | "defense"
   >;
 
@@ -100,9 +102,13 @@ export function applyEquipmentBonuses(
   player: Omit<EquippedPlayer, "id" | "equippedWeaponId" | "equippedArmorId">,
   equipment: Pick<typeof items.$inferSelect, "effect" | "effectValue">[],
 ) {
+  const attributes = getPrimaryAttributes(player);
   const stats = {
-    attackPower: getBaseAttackPower(getPrimaryAttributes(player)),
-    speed: player.speed,
+    attackPower: getBaseAttackPower({
+      ...attributes,
+      characterClass: player.characterClass,
+    }),
+    speed: attributes.speed,
     defense: player.defense,
   };
 
