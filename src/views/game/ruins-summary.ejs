@@ -1,0 +1,76 @@
+<article class="ruins-summary ruins-summary--<%= summary.outcome %>" aria-labelledby="ruins-summary-heading">
+  <header class="ruins-summary__outcome" tabindex="-1" data-result-focus>
+    <h1 id="ruins-summary-heading"><%= outcome.heading %></h1>
+    <p><%= outcome.text %></p>
+    <% if (user.hp <= 0) { %>
+    <p><strong>You must recover at Sanctum before entering the Ruins again.</strong></p>
+    <% } %>
+  </header>
+
+  <section aria-labelledby="ruins-summary-rewards">
+    <h2 id="ruins-summary-rewards">Rewards acquired</h2>
+    <p class="ruins-summary__rewards">
+      <strong class="ruins-summary__gold"><%= formatNumber(summary.goldAcquired) %> gold</strong>
+      <span aria-hidden="true"> · </span>
+      <strong><%= formatNumber(summary.xpGained) %> XP</strong>
+    </p>
+    <% if (summary.levelsGained > 0) { %>
+    <p>Levels gained: <%= formatNumber(summary.levelsGained) %></p>
+    <% } %>
+  </section>
+
+  <section aria-labelledby="ruins-summary-items">
+    <h2 id="ruins-summary-items">Items acquired</h2>
+    <% if (summary.itemsAcquired.length === 0) { %>
+    <p>No items acquired.</p>
+    <% } else { %>
+    <ul class="ruins-summary__items">
+      <% for (const item of summary.itemsAcquired) { %>
+      <li><%- include("../partials/item-figure", { item, compact: true, itemQuantity: item.quantity }) %></li>
+      <% } %>
+    </ul>
+    <% } %>
+  </section>
+
+  <section aria-labelledby="ruins-summary-exploration">
+    <h2 id="ruins-summary-exploration">Expedition statistics</h2>
+    <dl class="ruins-stats">
+      <dt>Enemies encountered</dt><dd><%= formatNumber(summary.enemiesEncountered) %></dd>
+      <dt>Enemies defeated</dt><dd><%= formatNumber(summary.enemiesDefeated) %></dd>
+      <dt>Tiles explored</dt><dd><%= formatNumber(summary.tilesExplored) %> / <%= formatNumber(summary.totalTiles) %></dd>
+      <dt>Discoveries made</dt><dd><%= formatNumber(summary.discoveriesMade) %></dd>
+    </dl>
+    <progress class="ruins-summary__progress" max="<%= summary.totalTiles %>" value="<%= summary.tilesExplored %>" aria-label="Tiles explored"><%= summary.tilesExplored %> of <%= summary.totalTiles %></progress>
+  </section>
+
+  <section aria-labelledby="ruins-summary-resources">
+    <h2 id="ruins-summary-resources">Resource consumption</h2>
+    <dl class="ruins-stats">
+      <dt>Total HP lost</dt><dd><%= formatNumber(summary.hpLost) %></dd>
+      <dt>Remaining HP</dt><dd><%= formatNumber(summary.remainingHp) %> / <%= formatNumber(summary.maximumHp) %></dd>
+    </dl>
+    <h3>Consumables used</h3>
+    <% if (summary.consumablesUsed.length === 0) { %>
+    <p>No consumables used.</p>
+    <% } else { %>
+    <ul class="ruins-summary__items">
+      <% for (const item of summary.consumablesUsed) { %>
+      <li><%- include("../partials/item-figure", { item, compact: true, itemQuantity: item.quantity }) %></li>
+      <% } %>
+    </ul>
+    <% } %>
+  </section>
+
+  <nav class="ruins-summary__actions" aria-label="Expedition next actions">
+    <% if (user.hp <= 0) { %>
+    <form action="/game/hospital" method="get"><button type="submit">Visit Sanctum</button></form>
+    <a href="/game/nexaris">Return to Nexaris</a>
+    <% } else { %>
+    <form action="/game/nexaris" method="get"><button type="submit">Return to Nexaris</button></form>
+    <form action="/game/ruins/action" method="post">
+      <input type="hidden" name="revision" value="<%= user.ruinsRevision %>">
+      <button class="button--secondary" type="submit" name="action" value="enter">Begin another expedition</button>
+    </form>
+    <% } %>
+  </nav>
+</article>

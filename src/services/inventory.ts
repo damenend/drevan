@@ -7,6 +7,7 @@ import {
   type EquipmentOwner,
 } from "./equipment";
 import { applyItemEffect } from "./items";
+import { addSummaryItem, emptyRuinsStats } from "./ruins-summary";
 
 /** Lists stacks by item name. Quantities include equipped copies. */
 export function getPlayerInventory(userId: number) {
@@ -40,6 +41,9 @@ function findOwnedItem(
 ) {
   return database
     .select({
+      id: items.id,
+      name: items.name,
+      image: items.image,
       type: items.type,
       effect: items.effect,
       effectValue: items.effectValue,
@@ -90,6 +94,7 @@ export function useInventoryItem(userId: number, itemId: number) {
           hp: users.hp,
           maxHp: effectiveMaxHp,
           ruinsTile: users.ruinsTile,
+          ruinsStats: users.ruinsStats,
         })
         .from(users)
         .where(playerFilter)
@@ -124,7 +129,25 @@ export function useInventoryItem(userId: number, itemId: number) {
         .run();
       if (consumed.changes !== 1) return null;
 
-      tx.update(users).set({ hp: result.hp }).where(playerFilter).run();
+      const ruinsStats =
+        player.ruinsTile === null
+          ? undefined
+          : {
+              ...(player.ruinsStats ?? emptyRuinsStats()),
+              consumablesUsed: addSummaryItem(
+                player.ruinsStats?.consumablesUsed ?? [],
+                {
+                  id: item.id,
+                  name: item.name,
+                  image: item.image,
+                  quantity: 1,
+                },
+              ),
+            };
+      tx.update(users)
+        .set({ hp: result.hp, ...(ruinsStats && { ruinsStats }) })
+        .where(playerFilter)
+        .run();
       tx.delete(inventory)
         .where(and(stack, eq(inventory.quantity, 0)))
         .run();

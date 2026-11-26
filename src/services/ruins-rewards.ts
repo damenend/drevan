@@ -18,9 +18,19 @@ type GoldCacheState = Pick<
 >;
 type DiscoveryPlayer = GoldCacheState &
   Pick<typeof users.$inferSelect, "id" | "ruinsDiscoveries">;
-type CacheAward = { message: string } & (
-  { granted: false } | { granted: true; goldChanges?: GoldCacheState }
-);
+type AwardedItem = {
+  id: number;
+  name: string;
+  image: string | null;
+  quantity: number;
+};
+type CacheAward = {
+  message: string;
+  granted: boolean;
+  goldChanges?: GoldCacheState;
+  awardedGold?: number;
+  awardedItem?: AwardedItem;
+};
 
 function awardGoldCache(player: GoldCacheState, amount: number): CacheAward {
   const today = getGameDate();
@@ -38,6 +48,7 @@ function awardGoldCache(player: GoldCacheState, amount: number): CacheAward {
   return {
     granted: true,
     goldChanges: { gold: player.gold + awarded, ruinsGoldClaimDate: today },
+    awardedGold: awarded,
     message: `You collect ${formatNumber(awarded)} gold.`,
   };
 }
@@ -49,7 +60,7 @@ function awardItemCache(
 ): CacheAward {
   const { item: name, quantity } = definition;
   const item = database
-    .select({ id: items.id })
+    .select({ id: items.id, image: items.image })
     .from(items)
     .where(eq(items.name, name))
     .get();
@@ -67,6 +78,7 @@ function awardItemCache(
   }
   return {
     granted: true,
+    awardedItem: { id: item.id, name, image: item.image, quantity },
     message: `You collect ${formatNumber(quantity)} × ${name}.`,
   };
 }
@@ -101,6 +113,8 @@ export function claimRuinsDiscovery(
         entry === discovery ? { ...entry, claimed: true } : entry,
       ),
     },
+    awardedGold: award.awardedGold,
+    awardedItem: award.awardedItem,
   };
 }
 
@@ -114,11 +128,11 @@ export function grantRuinsLoot(
   enemyId: RuinsEnemyId,
 ) {
   const drops = rollRuinsLoot(enemyId);
-  const awarded: { name: string; quantity: number }[] = [];
+  const awarded: AwardedItem[] = [];
   if (drops.length === 0) return awarded;
 
   const catalog = database
-    .select({ id: items.id, name: items.name })
+    .select({ id: items.id, name: items.name, image: items.image })
     .from(items)
     .where(
       inArray(
@@ -127,15 +141,15 @@ export function grantRuinsLoot(
       ),
     )
     .all();
-  const itemIds = new Map(catalog.map(({ id, name }) => [name, id]));
+  const catalogByName = new Map(catalog.map((item) => [item.name, item]));
 
   for (const { item, quantity } of drops) {
-    const id = itemIds.get(item);
+    const catalogItem = catalogByName.get(item);
     if (
-      id !== undefined &&
-      grantInventoryItem(database, userId, id, quantity)
+      catalogItem &&
+      grantInventoryItem(database, userId, catalogItem.id, quantity)
     ) {
-      awarded.push({ name: item, quantity });
+      awarded.push({ ...catalogItem, quantity });
     }
   }
   return awarded;

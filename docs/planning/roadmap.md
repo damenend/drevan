@@ -56,7 +56,7 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 ### 6. Open The Ruins for basic exploration and PvE (P1 · Large)
 
 - **Status.** Complete.
-- **Delivered.** [Floor 1](../gameplay/ruins.md) has persistent fog-of-war exploration, randomized finite enemy populations, mandatory fights, discoveries, walkout, and Recall. Victories permanently clear enemy instances. The map supports keyboard movement, and battle results summarize rewards and remaining HP above the expandable log. [Route tests](../../tests/game-routes.test.ts) cover expedition state, outcomes, duplicate submissions, and stale forms; [map tests](../../tests/ruins-map.test.ts) cover deterministic placement and weights.
+- **Delivered.** [Floor 1](../gameplay/ruins.md) has persistent fog-of-war exploration, randomized finite enemy populations, mandatory fights, discoveries, walkout, and Recall. Victories permanently clear enemy instances. The map supports keyboard movement, battle results summarize each fight, and every termination condition opens a persistent expedition summary of rewards, exploration, and resource use. [Route tests](../../tests/game-routes.test.ts) cover expedition state, summaries, outcomes, duplicate submissions, and stale forms; [map tests](../../tests/ruins-map.test.ts) cover deterministic placement and weights.
 - **Deferred.** Additional floors, roaming enemies, and bosses.
 
 ### 6a. Adopt split Floor 1 cache claims (P1 · Medium)

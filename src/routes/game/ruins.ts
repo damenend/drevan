@@ -25,6 +25,35 @@ import { parseFormInteger } from "../../utils/parse-form-integer";
 
 const router = Router();
 
+const summaryOutcomes = {
+  exit: {
+    heading: "Expedition complete",
+    text: "You emerge from the Ruins, carrying the spoils of your journey.",
+  },
+  recall: {
+    heading: "Emergency extraction",
+    text: "Your Recall Beacon carries you safely from the depths.",
+  },
+  defeat: {
+    heading: "Expedition ended in defeat",
+    text: "The Ruins have claimed another adventurer. Your journey ends here, for now.",
+  },
+  draw: {
+    heading: "Expedition ended in stalemate",
+    text: "Neither combatant prevailed. Your expedition has come to an end.",
+  },
+} as const;
+
+router.get("/summary", (_req, res) => {
+  const player = getAuthenticatedPlayer(res);
+  if (!player.ruinsSummary) return res.redirect(303, "/game/ruins");
+  return res.render("game/ruins-summary", {
+    title: "Expedition summary",
+    summary: player.ruinsSummary,
+    outcome: summaryOutcomes[player.ruinsSummary.outcome],
+  });
+});
+
 router.get("/", (req, res) => {
   const player = getAuthenticatedPlayer(res);
   const position = player.ruinsTile;
@@ -89,11 +118,15 @@ router.post("/action", (req, res) => {
   if (revision === null || !action) return res.redirect(303, "/game/ruins");
 
   const result = actInRuins(getAuthenticatedPlayer(res).id, revision, action);
-  if (result.battle) req.session.ruinsBattle = result.battle;
-  const path = result.left ? "/game/nexaris" : "/game/ruins";
+  if (result.battle && !result.left) req.session.ruinsBattle = result.battle;
+  const path = result.left ? "/game/ruins/summary" : "/game/ruins";
   const query = new URLSearchParams();
-  if (result.message) query.set("message", result.message);
-  if (!result.left && (action.kind === "enter" || action.kind === "move"))
+  if (result.message && !result.left) query.set("message", result.message);
+  if (
+    !result.left &&
+    !result.battle &&
+    (action.kind === "enter" || action.kind === "move")
+  )
     query.set("focus", "map");
   return res.redirect(303, query.size ? `${path}?${query}` : path);
 });

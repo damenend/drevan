@@ -9,7 +9,15 @@ The Ruins is Drevan’s first playable dungeon. Players leave Nexaris, explore a
 3. **Decide how much farther to go.** Current HP carries between mandatory fights. A victory permanently clears that enemy from the expedition. Players can safely retrace cleared squares, use an owned healing potion while alive, or spend earned attribute points during the expedition. Changing equipment, healing at Sanctum, and selling items require a return to Nexaris.
 4. **Leave or resume later.** Walk back to the entrance to use **Return to Nexaris**, or use the Recall Beacon from any square. The Beacon works once per Central calendar day and resets at midnight in America/Chicago. Logging out preserves the expedition position and login resumes it there.
 
-A victory awards gold, XP, and any loot that reaches inventory, saves remaining HP, and leaves the player on the same square. The battle report appears once in The Ruins. Defeat and draw save remaining HP and rewards from earlier actions, award nothing for that fight, and send the player to Nexaris with a one-time report. A player at zero HP must recover before entering again.
+A victory awards gold, XP, and any loot that reaches inventory, saves remaining HP, and leaves the player on the same square. The battle report appears once in The Ruins. Defeat and draw save remaining HP and rewards from earlier actions, award nothing for that fight, and conclude the expedition with its summary. A player at zero HP must recover before entering again.
+
+## Expedition summary
+
+Walking out, Recall, defeat, and a combat draw each finalize a durable expedition summary. The summary records successfully awarded gold, XP, and grouped items; levels crossed by that XP; encounters and victories; claimed discoveries; unique explored tiles; cumulative actual HP lost; successful consumable use; and final HP. Recall is included in consumption even though the permanent Beacon remains in inventory. Floor 1's exploration denominator is 47: the entrance and sealed stairs are excluded from both the explored count and total.
+
+Counters describe events rather than the difference between starting and ending inventory or HP. Healing therefore does not reduce HP lost, and acquiring then consuming an item reports both events. Failed awards, blocked item use, revisited tiles, rejected actions, and stale revisions do not increment counters.
+
+Active counters live with the expedition and survive refresh, logout, and resume. Completion snapshots them in the same transaction that clears the active map; refreshing the summary is read-only. Only the latest completed summary is retained. Beginning another expedition clears it and initializes clean active counters. Expeditions already active when summary storage is added begin counting new events only; their persisted explored tiles still provide the final unique-tile count.
 
 Enemy instances, cleared enemies, explored squares, and cache claims persist for the expedition. Entering, moving (including its combat), walking out, and recalling each advance the form revision when successful. That prevents an old form from repeating a move, fight, or reward. Potion use and attribute allocation have their own forms and leave the expedition revision unchanged.
 

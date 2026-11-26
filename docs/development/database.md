@@ -62,6 +62,10 @@ The November 25 Ruins changes use migration 0014 for discovery persistence and t
 
 [Migration 0015](../../drizzle/0015_eager_peter_quill.sql) adds JSON columns for an expedition's enemy instances and explored tile IDs. New expeditions fill both columns on entry. An active expedition from an older version retains its position, rewards, discoveries, and revision. It resumes with its current square treated as explored and an empty legacy population; the next successful in-expedition action saves that compatibility state, while leaving clears it with the rest of the expedition. Its next expedition receives the normal randomized population. Apply the migration before starting the updated app.
 
+### Ruins expedition summary migration
+
+[Migration 0016](../../drizzle/0016_ruins_expedition_summary.sql) adds JSON columns for active expedition counters and the latest finalized summary. Existing active expeditions keep their map and character state. They start recording newly completed events after migration; existing explored tile IDs remain the source for their final unique-tile count. No earlier rewards or resource use are inferred. Starting a new expedition initializes a complete counter record, and completing it replaces the player's previous summary. Apply the migration before starting the updated app.
+
 ### Randomized Ruins discovery migration
 
 [Migration 0014](../../drizzle/0014_randomized_ruins_discoveries.sql) adds nullable columns for the expedition's discovery records and the last Central gold claim date. Active expeditions retain their position, pending enemy, and earned rewards. The former repeatable caches had no claim history to backfill, so these expeditions receive no caches until their next entry. The first expedition started under the new rules generates fresh caches and starts tracking claims. Apply the migration before starting the updated app.

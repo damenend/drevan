@@ -1,5 +1,9 @@
 import type { RuinsDiscovery } from "../services/ruins-discoveries";
 import type { RuinsEnemy } from "../services/ruins-map";
+import type {
+  RuinsExpeditionStats,
+  RuinsExpeditionSummary,
+} from "../services/ruins-summary";
 import { sql } from "drizzle-orm";
 import {
   sqliteTable,
@@ -62,6 +66,12 @@ export const users = sqliteTable(
     ruinsExploredTiles: text("ruins_explored_tiles", { mode: "json" }).$type<
       number[]
     >(),
+    ruinsStats: text("ruins_stats", {
+      mode: "json",
+    }).$type<RuinsExpeditionStats>(),
+    ruinsSummary: text("ruins_summary", {
+      mode: "json",
+    }).$type<RuinsExpeditionSummary>(),
   },
   (table) => [
     check(

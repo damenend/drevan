@@ -52,6 +52,7 @@ function findPlayer(userId: number) {
       ruinsDiscoveries: users.ruinsDiscoveries,
       ruinsEnemies: users.ruinsEnemies,
       ruinsExploredTiles: users.ruinsExploredTiles,
+      ruinsSummary: users.ruinsSummary,
       recallDate: users.recallDate,
     })
     .from(users)

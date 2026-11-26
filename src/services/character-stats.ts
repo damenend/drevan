@@ -60,3 +60,8 @@ export function getSpentPoints(player: AttributePoints) {
 export function maximumHp(fortitude: SQLWrapper | number) {
   return sql<number>`(${MINIMUM_MAX_HP} + ${fortitude} * ${HP_PER_FORTITUDE})`;
 }
+
+/** Calculates the same maximum HP rule for an already loaded Fortitude value. */
+export function getMaximumHp(fortitude: number) {
+  return MINIMUM_MAX_HP + fortitude * HP_PER_FORTITUDE;
+}

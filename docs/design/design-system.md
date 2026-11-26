@@ -100,6 +100,8 @@ Group the map and Surroundings on the left at wide widths. Place the interior ar
 
 Put discovery feedback and exit or stair actions in Surroundings. Mandatory encounters resolve on movement; place their victory report after the tile actions. Give unexplored squares a dark surface and explored or cleared squares a subtle blue tint without encoding enemy information. Keep HP, attribute allocation, potions in strength order, and Recall status easy to find. Use an outlined Recall action. The entrance illustration and action introduce the expedition. At zero HP, guide the player to Sanctum.
 
+On completion, replace exploration with the expedition summary. Lead with a text-labeled outcome, emphasize gold and XP, then show grouped item figures, compact definition lists for exploration and resource statistics, and next actions. Outcome borders may use semantic color but the heading must carry the meaning. Keep the summary as a readable single-column report rather than a dashboard; its native progress element supplements the numeric explored-tile fraction.
+
 See [The Ruins](../gameplay/ruins.md) for event visibility and [keyboard and reporting requirements](accessibility.md#maps-and-combat-reports) for accessible interaction.
 
 ## Accessibility

@@ -162,6 +162,11 @@ $unexplored-color: #151a20;
 .ruins-map button.ruins-tile {
   border-color: var(--tile-border, #{vars.$color-muted});
   background: color-mix(in srgb, vars.$color-surface, vars.$color-primary 20%);
+  color: vars.$color-text;
+}
+
+.ruins-map .ruins-tile--player {
+  background: vars.$color-primary;
 }
 
 .ruins-map button.ruins-tile:hover,
@@ -194,6 +199,79 @@ $unexplored-color: #151a20;
 
   &--encounter {
     color: vars.$color-combat-enemy;
+  }
+}
+
+.ruins-summary {
+  display: grid;
+  max-width: vars.$activity-max;
+  gap: vars.$space-6;
+
+  section,
+  header {
+    max-width: $map-width;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.ruins-summary__outcome {
+  padding-inline-start: vars.$space-4;
+  border-inline-start: vars.$notice-width solid vars.$color-primary;
+
+  .ruins-summary--recall & {
+    border-color: vars.$color-blue;
+  }
+
+  .ruins-summary--defeat & {
+    border-color: vars.$color-error;
+  }
+
+  .ruins-summary--draw & {
+    border-color: vars.$color-muted;
+  }
+}
+
+.ruins-summary__rewards {
+  font-family: vars.$font-display;
+  font-size: vars.$type-stat;
+  font-variant-numeric: tabular-nums;
+}
+
+.ruins-summary__gold {
+  color: vars.$color-primary;
+}
+
+.ruins-summary__items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: vars.$space-3;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.ruins-summary__progress {
+  width: 100%;
+  margin-block-start: vars.$space-3;
+  accent-color: vars.$color-primary;
+}
+
+.ruins-summary__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: vars.$space-3;
+
+  form {
+    margin: 0;
   }
 }
 

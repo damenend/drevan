@@ -80,6 +80,7 @@ try {
         violations: results.violations.map(({ id, nodes }) => ({
           id,
           targets: nodes.map(({ target }) => target.join(" ")),
+          summaries: nodes.map(({ failureSummary }) => failureSummary),
         })),
         width: document.documentElement.scrollWidth,
       };
@@ -325,6 +326,13 @@ try {
   } finally {
     Math.random = originalRandom;
   }
+  applicationDatabase.exec(`
+    UPDATE users
+    SET ruins_discoveries = '[{"id":"gold-cache","tile":1,"claimed":false},{"id":"potion-cache","tile":14,"claimed":false}]',
+        ruins_enemies = '[{"enemyId":"vault-scavenger","tile":9}]',
+        ruins_explored_tiles = '[0]'
+    WHERE email = 'audit@example.test'
+  `);
   assert.equal(
     await page
       .getByRole("button", { name: "Move east to (1, 0)", exact: true })
@@ -387,13 +395,12 @@ try {
   });
   await scan("expedition-text-spacing");
   applicationDatabase.exec("UPDATE users SET strength = 100, speed = 100");
-  for (const tile of [2, 9]) {
-    await page.locator(`button[name="destination"][value="${tile}"]`).click();
-    await page.locator(`[data-position="${tile}"]`).waitFor();
-  }
+  await page.locator('button[name="destination"][value="2"]').click();
+  await page.locator('[data-position="2"]').waitFor();
   try {
     Math.random = () => 0;
-    await page.getByRole("button", { name: "Fight", exact: true }).click();
+    await page.locator('button[name="destination"][value="9"]').click();
+    await page.locator('[data-position="9"]').waitFor();
     await page.getByText(/Loot: Lesser Potion ×1, Metal Scraps ×1/).waitFor();
   } finally {
     Math.random = originalRandom;
@@ -405,10 +412,18 @@ try {
   await page.setViewportSize({ width: 1280, height: 800 });
   await scan("expedition-wide");
   await page.getByRole("button", { name: "Activate Recall Beacon" }).click();
-  await page.waitForURL("**/game/nexaris?**");
-  await scan("recall-result");
+  assert.match(page.url(), /\/game\/ruins\/summary$/);
+  await page.getByRole("heading", { name: "Emergency extraction" }).waitFor();
+  assert.equal(
+    await page.locator(":focus").getAttribute("data-result-focus"),
+    "",
+  );
+  await scan("expedition-summary-wide");
 
   await page.setViewportSize({ width: 320, height: 768 });
+  await scan("expedition-summary");
+  await page.getByRole("button", { name: "Return to Nexaris" }).click();
+  assert.match(page.url(), /\/game\/nexaris\??$/);
   await page.goto(base + "/game");
   for (const [filter, gear] of [
     ["Weapons", "Wooden Axe"],
