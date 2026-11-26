@@ -472,6 +472,16 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
   t.mock.method(Math, "random", () => 0.1);
   const playerHit =
     /battle-log-entry--player">\s*<span class="battle-actor--player">[^<]+<\/span>\s*attacks\s*<span class="battle-actor--enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
+  const dominion = await request("/game/arena", { headers: { cookie } });
+  assert.match(dominion.html, /<dt>Combat Strength<\/dt>\s*<dd>12<\/dd>/);
+  assert.match(
+    dominion.html,
+    /id="dominion-status-hp"[^>]*max="25"[^>]*value="25"/,
+  );
+  assert.match(
+    dominion.html,
+    /id="dominion-status-xp"[^>]*max="60"[^>]*value="0"/,
+  );
   assert.match(
     (await followAction(await post("/game/training", { level: 1 }))).html,
     playerHit,
@@ -1102,7 +1112,9 @@ test("at zero HP, potions and healing are blocked until Sanctum revival", async 
     await post("/game/training", { level: 1 }),
   );
   assert.equal(training.status, 200);
-  assert.match(training.html, /Heal at Sanctum/);
+  assert.match(training.html, /You must revive before returning to combat/);
+  assert.match(training.html, /Revive at Sanctum/);
+  assert.doesNotMatch(training.html, /action="\/game\/training"/);
   assert.equal(
     (await post("/game/hospital/heal")).headers.get("location"),
     "/game/hospital?err=heal",
@@ -1189,6 +1201,18 @@ test("training rejects malformed levels and saves the fight result", async (t) =
   );
   assert.equal(fight.status, 200);
   assert.match(fight.html, /Training Dummy/);
+  assert.match(
+    fight.html,
+    /id="dominion-status-hp"[^>]*max="25"[^>]*value="24"/,
+  );
+  assert.match(
+    fight.html,
+    /id="dominion-status-xp"[^>]*max="60"[^>]*value="10"/,
+  );
+  assert.ok(
+    fight.html.indexOf("Combat readiness") <
+      fight.html.indexOf("Battle summary"),
+  );
   assert.doesNotMatch(fight.html, /Loot:/);
   assert.deepEqual(ownedItems(), []);
   const refresh = await request("/game/training", { headers: { cookie } });

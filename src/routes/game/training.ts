@@ -3,6 +3,7 @@ import { getAuthenticatedPlayer } from "../../middleware/auth";
 import { MAX_TRAINING_LEVEL } from "../../services/battle";
 import { trainAgainstDummy } from "../../services/training";
 import { parseFormInteger } from "../../utils/parse-form-integer";
+import { renderArena } from "./arena";
 
 const router = Router();
 
@@ -11,12 +12,7 @@ router.get("/", (req, res) => {
   if (!report) return res.redirect("/game/arena");
 
   delete req.session.trainingReport;
-  return res.render("game/battle", {
-    title: "Dominion training",
-    dead: report.battle === null,
-    level: report.level,
-    ...report.battle,
-  });
+  return renderArena(req, res, report);
 });
 
 // Training battle

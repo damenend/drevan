@@ -1,7 +1,7 @@
 <div class="resource-meter">
   <div class="resource-meter__label">
     <label for="<%= id %>"><%= label %></label>
-    <span id="<%= id %>-value"><%= formatNumber(value) %> / <%= formatNumber(max) %><% if (locals.unit) { %><span class="visually-hidden"> <%= unit %></span><% } %><% if (locals.critical) { %> · Critical<% } %></span>
+    <span id="<%= id %>-value"><% if (locals.valueText) { %><%= valueText %><% } else { %><%= formatNumber(value) %> / <%= formatNumber(max) %><% if (locals.unit) { %><span class="visually-hidden"> <%= unit %></span><% } %><% } %><% if (locals.critical) { %> · Critical<% } %></span>
   </div>
-  <meter id="<%= id %>" min="0" max="<%= max %>" value="<%= value %>" class="resource-meter__track<%= locals.critical ? ' resource-meter__track--critical' : '' %>" aria-describedby="<%= id %>-value<%= locals.descriptionId ? ' ' + descriptionId : '' %>"></meter>
+  <meter id="<%= id %>" min="0" max="<%= max %>" value="<%= value %>" class="resource-meter__track<%= locals.critical ? ' resource-meter__track--critical' : '' %>" aria-describedby="<%= id %>-value<%= locals.descriptionId ? ' ' + descriptionId : '' %>"<% if (locals.ariaValueText) { %> aria-valuetext="<%= ariaValueText %>"<% } %>></meter>
 </div>

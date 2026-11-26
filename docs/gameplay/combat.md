@@ -16,4 +16,6 @@ Start with positive HP. The form defaults to level 1 for a missing or invalid se
 
 Training keeps remaining HP on every outcome. A win grants `10 * L` gold and XP, each limited to what fits in its balance up to JavaScript's maximum safe integer. Losses and draws grant zero. The result appears once after redirect. For threats with their own rewards or exit rules, see [The Ruins](ruins.md).
 
+Dominion shows current HP, level progress, and effective equipment-aware combat stats before training. After a fight, it reloads those values before showing the one-time result. At 0 HP, the training action is unavailable and Dominion directs the player to revival at Sanctum.
+
 [Simulator and dummy definition](../../src/services/battle.ts) · [Training persistence](../../src/services/training.ts) · [Battle tests](../../tests/battle.test.ts) · [Playtesting](../planning/playtesting.md)

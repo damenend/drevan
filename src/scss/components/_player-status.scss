@@ -1,0 +1,67 @@
+@use "../abstracts/vars";
+
+.player-status {
+  margin-block: vars.$space-6;
+  padding: vars.$space-4;
+  background: vars.$color-surface;
+  border: vars.$border-width solid vars.$color-surface-border;
+  border-radius: vars.$radius-panel;
+}
+
+.player-status__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: vars.$space-1 vars.$space-3;
+  margin-block-end: vars.$space-3;
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.player-status__meters {
+  display: grid;
+  gap: vars.$space-3;
+}
+
+.player-status__health .resource-meter__label {
+  font-weight: vars.$weight-semibold;
+}
+
+.player-status__health .resource-meter__track {
+  height: calc(vars.$resource-track-size * 2);
+}
+
+.player-status__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: vars.$space-2;
+  margin: vars.$space-4 0 0;
+
+  div {
+    min-width: 0;
+  }
+
+  dt {
+    color: vars.$color-muted;
+    font-size: vars.$type-support;
+  }
+
+  dd {
+    margin: vars.$space-1 0 0;
+    font-size: vars.$type-stat;
+    font-weight: vars.$weight-medium;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (width >= vars.$breakpoint-columns) {
+  .player-status__meters {
+    grid-template-columns: 2fr 1fr;
+    align-items: end;
+  }
+}

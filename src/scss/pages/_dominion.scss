@@ -1,0 +1,21 @@
+@use "../abstracts/vars";
+
+.dominion-training,
+.dominion-result {
+  margin-block-start: vars.$space-6;
+}
+
+.dominion-training__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: vars.$space-3;
+
+  .form-group {
+    margin: 0;
+  }
+}
+
+.dominion-training__level {
+  max-width: 7rem;
+}

@@ -12,10 +12,12 @@
 @use "components/resource-meter";
 @use "components/stats";
 @use "components/equipment";
+@use "components/player-status";
 
 @use "pages/homepage";
 @use "pages/quarters";
 @use "pages/ruins";
 @use "pages/driftwater";
+@use "pages/dominion";
 
 @use "utilities/utilities";

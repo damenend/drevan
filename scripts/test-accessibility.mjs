@@ -295,10 +295,25 @@ try {
   await page.getByRole("button", { name: "Fight training dummy" }).click();
   await page.waitForURL("**/game/training");
   await scan("training-result");
+  assert.equal(
+    await page.getByRole("heading", { name: "Combat readiness" }).count(),
+    1,
+  );
+  assert.match(
+    await page.locator("#dominion-status-hp-value").innerText(),
+    /\d+ \/ \d+/,
+  );
+  assert.match(
+    await page.locator("#dominion-status-xp-value").innerText(),
+    /\d+ \/ \d+/,
+  );
   assert.equal(await page.locator(":focus").innerText(), "Battle summary");
   await page.getByText("Battle log", { exact: true }).focus();
   await page.keyboard.press("Space");
   assert.ok((await page.locator("details[open] .battle-log li").count()) > 0);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await scan("training-result-wide");
+  await page.setViewportSize({ width: 320, height: 768 });
 
   await page.goto(base + "/game/ruins");
   const originalRandom = Math.random;

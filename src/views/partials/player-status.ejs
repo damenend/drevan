@@ -1,0 +1,39 @@
+<section class="player-status" aria-labelledby="<%= id %>-heading">
+  <div class="player-status__heading">
+    <h2 id="<%= id %>-heading">Combat readiness</h2>
+    <p>Level <%= formatNumber(progression.level) %></p>
+  </div>
+
+  <div class="player-status__meters">
+    <div class="player-status__health">
+      <%- include("health-meter", { id: `${id}-hp` }) %>
+    </div>
+    <% if (progression.nextLevelXp === null) { %>
+    <%- include("resource-meter", {
+      id: `${id}-xp`, label: "XP progression", value: 100, max: 100,
+      valueText: `Maximum level · ${formatNumber(user.exp)} lifetime XP`,
+      ariaValueText: `Maximum level; ${formatNumber(user.exp)} lifetime XP`,
+    }) %>
+    <% } else { %>
+    <%- include("resource-meter", {
+      id: `${id}-xp`, label: "XP toward next level",
+      value: progression.currentLevelXp, max: progression.nextLevelXp, unit: "XP",
+    }) %>
+    <% } %>
+  </div>
+
+  <dl class="player-status__stats">
+    <div>
+      <dt>Combat Strength</dt>
+      <dd><%= formatNumber(effectiveStats.attackPower) %></dd>
+    </div>
+    <div>
+      <dt>Speed</dt>
+      <dd><%= formatNumber(effectiveStats.speed) %></dd>
+    </div>
+    <div>
+      <dt>Defense</dt>
+      <dd><%= formatNumber(effectiveStats.defense) %></dd>
+    </div>
+  </dl>
+</section>

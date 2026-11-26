@@ -1,4 +1,4 @@
-<section>
+<section class="dominion">
   <h1><%= title %></h1>
   <%- include("../partials/location-image", {
     src: "/images/dominion.webp",
@@ -9,16 +9,32 @@
   }) %>
 
   <p>Steel and sorcery share the floor at Dominion. Try your strength against a training dummy. A win pays in gold and XP.</p>
-  <% if (dead) { %>
-  <%- include("../partials/arena-heal-notice") %>
-  <% } else { %>
-  <form action="/game/training" method="POST">
-    <div class="form-group">
-      <label for="level">Training dummy level</label>
-      <input type="number" name="level" id="level" value="<%= level %>" min="1" max="<%= maxTrainingLevel %>" step="1" required />
-    </div>
 
-    <button type="submit">Fight training dummy</button>
-  </form>
+  <%- include("../partials/player-status", { id: "dominion-status" }) %>
+
+  <section class="dominion-training" aria-labelledby="training-heading">
+    <h2 id="training-heading">Training</h2>
+    <% if (dead) { %>
+    <%- include("../partials/arena-heal-notice", { focusNotice: battle === null }) %>
+    <% } else { %>
+    <form class="dominion-training__form" action="/game/training" method="POST">
+      <div class="form-group">
+        <label for="level">Training dummy level</label>
+        <input class="dominion-training__level" type="number" name="level" id="level" value="<%= level %>" min="1" max="<%= maxTrainingLevel %>" step="1" required />
+      </div>
+
+      <button type="submit">Fight training dummy</button>
+    </form>
+    <% } %>
+  </section>
+
+  <% if (battle) { %>
+  <section class="dominion-result" aria-labelledby="battle-result-heading">
+    <h2 id="battle-result-heading" class="visually-hidden">Battle result</h2>
+    <%- include("../partials/battle-log", { battleHeadingLevel: 3, focusBattleSummary: true, enemyName: `Level ${formatNumber(level)} Training Dummy`, ...battle }) %>
+    <% if (battle.gainedLevel !== null) { %>
+    <p>You reached level <%= formatNumber(battle.gainedLevel) %>. <a href="/game#character-heading">Spend attribute points in The Quarters</a>.</p>
+    <% } %>
+  </section>
   <% } %>
 </section>
