@@ -28,6 +28,8 @@ Use the purchase category links to browse all items, equipment, weapons, armor, 
 
 The Emporium uses server-side catalog prices. A null purchase price keeps the item off the purchase list. A blank quantity counts as zero. Purchases read current prices, balance, and owned counts, then deduct gold and add inventory in one transaction. Reject totals or stacks outside JavaScript's safe integer range and show the result after redirect.
 
+With JavaScript enabled, the purchase button shows the cart total as quantities change. Purchase and Sell each become available when their form has a valid quantity and the purchase fits the gold balance or the sale payout fits the gold limit. The server validates both forms with or without JavaScript.
+
 Buyback has its own catalog sell price. The Emporium accepts owned weapons, armor, fish, and materials with positive sell prices. An equipped copy stays reserved. Selling checks current quantities, equipped slots, and available gold balance capacity before reducing stacks and crediting the payout together.
 
 Use **Sell all for {amount} gold** to sell every eligible spare copy in one action, regardless of the quantities entered for a manual sale. The total shown on the button uses the available quantities and buyback prices on the page. The Emporium checks the current inventory and prices again at submission and credits one payout. The button is disabled when the payout would exceed the gold limit. If the balance changes before submission and the payout no longer fits, the entire sale is declined.

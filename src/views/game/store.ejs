@@ -28,12 +28,8 @@
       rows: items, rowView: "./purchase-item-row", scrollLabel: "Items for purchase",
       headingId: "buy-heading", columns: ["Item", "Description", "Effect", "Value", "Price", "Quantity"],
     }) %>
-    <p hidden>
-      <label for="total-gold">Purchase total</label>:
-      <output id="total-gold" aria-live="off">0</output> gold
-    </p>
     <p id="purchase-message" class="text-error" role="status"></p>
-    <button type="submit" class="button--spaced">Purchase</button>
+    <button type="submit" class="button--spaced">Purchase<span hidden> for <span id="total-gold">0</span> gold</span></button>
   </form>
   <% } %>
   <section id="sell" aria-labelledby="sell-heading">

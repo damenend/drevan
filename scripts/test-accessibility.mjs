@@ -191,9 +191,26 @@ try {
       document.querySelector("[data-scroll-label='Items for purchase']")
         .scrollLeft > 0,
   );
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Purchase for 0 gold" })
+      .isDisabled(),
+    true,
+  );
   await page.getByLabel("Quantity of Lesser Potion").fill("1");
-  await page.getByLabel("Quantity of Rusted Sword").fill("1");
-  await page.getByRole("button", { name: "Purchase" }).click();
+  const swordQuantity = page.getByLabel("Quantity of Rusted Sword");
+  await swordQuantity.fill("10");
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Purchase for 1,005 gold" })
+      .isDisabled(),
+    true,
+  );
+  await page
+    .getByText("You do not have enough gold.", { exact: true })
+    .waitFor();
+  await swordQuantity.fill("1");
+  await page.getByRole("button", { name: "Purchase for 105 gold" }).click();
   await page.waitForURL("**/game/store?purchased=1");
   await scan("purchase-result");
   assert.equal(await page.locator(":focus").innerText(), "Purchase complete.");
@@ -221,8 +238,15 @@ try {
   await page.getByRole("button", { name: "Unequip Rusted Sword" }).click();
   await page.getByRole("button", { name: "Equip Rusted Sword" }).waitFor();
   await page.goto(base + "/game/store");
-  await page.getByLabel("Quantity of Rusted Sword to sell").fill("1");
-  await page.getByRole("button", { name: "Sell", exact: true }).click();
+  const sell = page.getByRole("button", { name: "Sell", exact: true });
+  const sellQuantity = page.getByLabel("Quantity of Rusted Sword to sell");
+  assert.equal(await sell.isDisabled(), true);
+  await sellQuantity.fill("1");
+  assert.equal(await sell.isEnabled(), true);
+  await sellQuantity.clear();
+  assert.equal(await sell.isDisabled(), true);
+  await sellQuantity.fill("1");
+  await sell.click();
   await page.waitForURL("**/game/store?sold=1#sale-result");
   await scan("sale-result");
   assert.equal(await page.locator(":focus").innerText(), "Sale complete.");

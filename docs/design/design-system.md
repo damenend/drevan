@@ -87,7 +87,7 @@ Equipment shows supported slots with an item, its signed modifier, and a seconda
 
 ### Forms and results
 
-- **Before submission.** Put the current balance, limits, and expected units beside the decision. The Emporium uses labeled `output` elements for current gold totals and a polite status region for changes to validation feedback.
+- **Before submission.** Put the current balance, limits, and expected units beside the decision. The Emporium shows the purchase total in the purchase button and uses a labeled `output` for the manual sale total. Cart validation feedback uses a polite status region.
 - **On submission.** The server validates eligibility, prices, and rewards. Browser validation and live calculation help the player make a choice.
 - **After submission.** Show what changed. Training, fishing, Emporium, and Ruins actions redirect to a page after saving so a refresh does not submit the action again. Render outcome and reward text from the saved result.
 - **Unavailable actions.** Give the reason and a way forward when one exists. At zero HP, Dominion and The Ruins link to Sanctum. The Emporium directs players to unequip gear when the equipped copy is all they have available.
