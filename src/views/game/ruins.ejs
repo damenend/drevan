@@ -37,9 +37,8 @@
         <% /** Shares the visible marker metadata between map tiles and the marker list. */
         function tileDetails(tile) {
           const coordinates = `(${tile % size}, ${Math.floor(tile / size)})`;
-          const enemy = hasEnemy(tile);
-          const [symbol, description] = tile === entrance ? ["E", "entrance and exit"] : tile === nextFloorMarker ? ["2", "Floor 2 entrance"] : enemy ? ["X", "enemy encounter"] : ["", ""];
-          const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : enemy ? " ruins-tile--enemy" : "");
+          const [symbol, description] = tile === entrance ? ["E", "entrance and exit"] : tile === nextFloorMarker ? ["2", "Floor 2 entrance"] : ["", ""];
+          const style = "ruins-tile" + (tile === entrance ? " ruins-tile--exit" : tile === nextFloorMarker ? " ruins-tile--stairs" : "");
           return { coordinates, symbol, description, style };
         } %>
         <% const current = tileDetails(position); %>
@@ -59,7 +58,7 @@
           <% } %>
         </form>
         <script src="/js/ruins-map.js" defer></script>
-        <p class="ruins-map-legend">P: Player · E: Exit<% if (nextFloorMarker !== null) { %> · 2: Floor 2<% } %> · X: Enemy</p>
+        <p class="ruins-map-legend">P: Player · E: Exit<% if (nextFloorMarker !== null) { %> · 2: Floor 2<% } %></p>
         <p id="ruins-map-keys" class="ruins-map-legend">Use Tab to choose a move. Press Enter or Space to move.</p>
         <% if (visibleMarkers.length) { %>
         <details class="ruins-map-legend">

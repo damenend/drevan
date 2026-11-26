@@ -944,9 +944,6 @@ img {
 .ruins-map .ruins-tile--gold, .ruins-map .ruins-tile--item {
   --tile-border: #b58b4c;
 }
-.ruins-map .ruins-tile--enemy {
-  --tile-border: #ff5454;
-}
 .ruins-map .ruins-tile--player {
   background: #b58b4c;
   color: #171717;

@@ -75,7 +75,7 @@ At the provisional [Emporium prices](economy.md#ruins-materials), the theoretica
 
 ## Map visibility and persistence
 
-The playtest map shows `P` for the player, `E` for the exit, `2` for the sealed stairs, and `X` for an enemy. Markers combine, for example `PE` at the exit. See the [design system](../design/design-system.md#ruins-map) for layout and the [accessibility guide](../design/accessibility.md#maps-and-combat-reports) for keyboard behavior.
+The playtest map shows `P` for the player, `E` for the exit, and `2` for the sealed stairs. Markers combine, for example `PE` at the exit. Enemy encounters appear in **Surroundings** when the player reaches their square. See the [design system](../design/design-system.md#ruins-map) for layout and the [accessibility guide](../design/accessibility.md#maps-and-combat-reports) for keyboard behavior.
 
 The player record stores the current tile (null outside), whether the encounter is available on this visit, the revision, the placed discoveries, and the last gold claim date. See the [database guide](../development/database.md#randomized-ruins-discovery-migration) for existing expeditions. Movement, discovery rewards, combat, and exits save with the corresponding expedition state. The game router redirects other gameplay pages to The Ruins while the player is inside. It allows the existing potion and allocation actions.
 

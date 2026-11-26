@@ -1365,10 +1365,9 @@ test("Ruins entrance, adjacency, discoveries, replay protection, and normal exit
   await explore("enter", undefined, 0);
   assert.deepEqual(placedCaches(), originalCaches);
   assert.equal(random.mock.callCount(), 2);
-  assert.equal(
-    (start.html.match(/ruins-tile--enemy" aria-hidden="true">X</g) ?? [])
-      .length,
-    3,
+  assert.doesNotMatch(
+    start.html,
+    /ruins-tile--enemy|>X<|X: Enemy|enemy encounter/i,
   );
   assert.equal((start.html.match(/class="ruins-tile/g) ?? []).length, 49);
   assert.equal((start.html.match(/name="destination"/g) ?? []).length, 2);

@@ -142,10 +142,6 @@ $exit-color: #719270;
     --tile-border: #{vars.$color-primary};
   }
 
-  &--enemy {
-    --tile-border: #{vars.$color-red};
-  }
-
   &--player {
     background: vars.$color-primary;
     color: vars.$color-background;
