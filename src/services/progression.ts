@@ -1,6 +1,14 @@
 import { HP_PER_FORTITUDE } from "./character-stats";
 
-const levelXpCosts = [60, 150, 270, 420, 600, 810, 1050, 1320, 1620] as const;
+export const MAX_PLAYER_LEVEL = 100;
+
+const levelXpCosts = Array.from(
+  { length: MAX_PLAYER_LEVEL - 1 },
+  (_, index) => {
+    const currentLevel = index + 1;
+    return 15 * currentLevel * (currentLevel + 3);
+  },
+);
 
 export const statAllocations = {
   strength: { label: "+1 Strength (+1 Attack Power)" },

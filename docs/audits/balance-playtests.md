@@ -5,11 +5,38 @@ These trials record the builds, rules, and results used for earlier balance deci
 - [Starter equipment](#starter-equipment-results)
 - [Combat stat audit](#combat-stat-audit)
 - [Early XP pacing trial](#early-xp-pacing-trial)
+- [Level 100 progression baseline](#level-100-progression-baseline)
 - [Level 10 progression playtest](#level-10-progression-playtest)
 - [Ruins comparison](#class-neutral-attack-power-comparison)
 - [Full Floor 1 expeditions](#full-floor-1-expeditions)
 - [Floor 1 repeat-cache comparison](#floor-1-repeat-cache-comparison)
 - [Floor 1 live cache trial](#floor-1-live-cache-trial)
+
+## Level 100 progression baseline
+
+The November 25, 2026 baseline used the live progression and combat rules:
+
+```sh
+node --import tsx scripts/playtest-level-100.ts
+```
+
+The XP curve reached every checkpoint exactly. Level 10 starts at 6,300 lifetime XP, level 25 at 87,000, level 50 at 661,500, level 75 at 2,192,250, and level 100 at 5,148,000. Simulated winning-bout policies preserved XP carryover and produced these totals:
+
+| Training policy                 | Bouts to level 10 | Bouts to level 25 | Bouts to level 50 | Bouts to level 75 | Bouts to level 100 |
+| ------------------------------- | ----------------: | ----------------: | ----------------: | ----------------: | -----------------: |
+| Fixed dummy level 4             |               158 |             2,175 |            16,538 |            54,807 |            128,700 |
+| Half character level, minimum 4 |               150 |             1,027 |             3,986 |             8,824 |             15,534 |
+| Same as current character level |               109 |               559 |             2,060 |             4,497 |              7,873 |
+
+Those bout counts assume every fight is won, so the faster policies are theoretical. Combat snapshots used the Rusted Sword and Worn Leather Armor, spent every earned point according to the named allocation, restored full HP after each bout, and ran 1,000 seeded bouts per representative matchup. None of the level-10, 25, 50, 75, or 100 builds won a same-level dummy fight. A separate 250-bout scan selected the highest dummy with at least a 90% win rate and nonnegative mean gold after full healing:
+
+| Allocation    | Level 10 | Level 25 | Level 50 | Level 75 | Level 100 |
+| ------------- | -------: | -------: | -------: | -------: | --------: |
+| All offense   |        6 |        7 |        9 |       10 |        11 |
+| Balanced      |        7 |       10 |       13 |       16 |        19 |
+| All Fortitude |        7 |        8 |        9 |        9 |         9 |
+
+The expanded curve is numerically stable, but the current training roster does not scale alongside character level. Fixed low-level training remains profitable but would require up to 128,700 wins. Balanced allocation supports the strongest tested opponents, yet only dummy level 19 at character level 100. Long-term manual play should track when repetition stops producing useful decisions before tuning the XP curve, adding opponents, or changing combat growth.
 
 ## Historical combat playtests
 

@@ -1,16 +1,20 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getProgression } from "../src/services/progression";
+import { getProgression, MAX_PLAYER_LEVEL } from "../src/services/progression";
 
-test("progression grants one point per level through level 10", () => {
-  const costs = [60, 150, 270, 420, 600, 810, 1050, 1320, 1620];
-  const thresholds = [60, 210, 480, 900, 1500, 2310, 3360, 4680, 6300];
+test("progression grants one point per level through level 100", () => {
+  const costs = Array.from(
+    { length: MAX_PLAYER_LEVEL - 1 },
+    (_, index) => 15 * (index + 1) * (index + 4),
+  );
+  let threshold = 0;
 
-  for (const [index, threshold] of thresholds.entries()) {
+  for (const [index, cost] of costs.entries()) {
+    threshold += cost;
     assert.deepEqual(getProgression(threshold - 1), {
       level: index + 1,
-      currentLevelXp: costs[index] - 1,
-      nextLevelXp: costs[index],
+      currentLevelXp: cost - 1,
+      nextLevelXp: cost,
       unspentPoints: index,
     });
     assert.deepEqual(getProgression(threshold), {
@@ -37,15 +41,15 @@ test("excess XP carries over even when a win crosses multiple levels", () => {
   });
 });
 
-test("lifetime XP above the cap grants no further levels or points", () => {
-  assert.deepEqual(getProgression(6300, 3), {
-    level: 10,
+test("lifetime XP above level 100 grants no further levels or points", () => {
+  assert.deepEqual(getProgression(5_148_000, 3), {
+    level: 100,
     currentLevelXp: 0,
     nextLevelXp: null,
-    unspentPoints: 6,
+    unspentPoints: 96,
   });
-  assert.deepEqual(getProgression(7000, 9), {
-    level: 10,
+  assert.deepEqual(getProgression(5_148_700, 99), {
+    level: 100,
     currentLevelXp: 700,
     nextLevelXp: null,
     unspentPoints: 0,

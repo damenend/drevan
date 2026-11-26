@@ -3,6 +3,7 @@
 Use these references for the rules players encounter and the implementation that enforces them. The [roadmap](../planning/roadmap.md) owns future scope and milestones.
 
 - [Character and progression](character.md) covers signup, attributes, HP, XP, levels, class, and the Admin playtest controls.
+- [Level XP reference](leveling-reference.md) lists the incremental and cumulative XP requirements for levels 1 through 100.
 - [Combat](combat.md) covers attack timing, damage, outcomes, and Dominion training.
 - [Inventory and economy](economy.md) covers item ownership, equipment, potions, shop transactions, and Sanctum.
 - [Activities](activities.md) covers Nexaris, The Driftwater, The Registry, and The Reliquary.

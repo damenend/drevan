@@ -24,9 +24,9 @@ The class is displayed as Unaligned by default. The database accepts `unaligned`
 
 ## XP and attribute points
 
-Level-up costs for levels 2 through 10 are 60, 150, 270, 420, 600, 810, 1,050, 1,320, and 1,620 XP. Excess XP carries forward. Level 10 begins at 6,300 lifetime XP. Lifetime XP remains visible and continues accumulating at the cap.
+Level-up costs follow `15 × (current level) × (current level + 3)` XP through level 100. The early costs remain 60 XP for level 2, 150 for level 3, and 270 for level 4. Level 10 begins at 6,300 lifetime XP, level 50 at 661,500, and level 100 at 5,148,000. Excess XP carries forward. Lifetime XP remains visible and continues accumulating at the cap. The [level XP reference](leveling-reference.md) lists every incremental cost and lifetime threshold.
 
-Each level-up grants one attribute point, up to nine. Spend one point on +1 Strength, Agility, Intellect, or Fortitude in The Quarters or The Ruins. Allocated points are saved separately from base attributes. Raising max HP by allocation preserves current HP. [Progression rules](../../src/services/progression.ts) · [Progression tests](../../tests/progression.test.ts)
+Each level-up grants one attribute point, up to 99. Spend one point on +1 Strength, Agility, Intellect, or Fortitude in The Quarters or The Ruins. Allocated points are saved separately from base attributes. Raising max HP by allocation preserves current HP. Existing characters keep their lifetime XP, so raising the cap can immediately grant levels and unspent points beyond the former level-10 limit. [Progression rules](../../src/services/progression.ts) · [Progression tests](../../tests/progression.test.ts)
 
 ## Admin playtest controls
 

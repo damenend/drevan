@@ -48,7 +48,7 @@ Before a public alpha, use the [launch architecture proposal](launch-architectur
 
 - **Status.** Complete.
 - **Dependencies.** Combat audit (4), Dominion training, and player attributes.
-- **Delivered.** Level 10 progression and persistent allocations, visible in The Quarters and through level displays in The Registry. Class effects and refunds follow later. See the [historical starter-supplies run](../audits/balance-playtests.md#starter-supplies-rerun).
+- **Delivered.** Level 100 progression and persistent allocations, visible in The Quarters and through level displays in The Registry. Existing lifetime XP carries into the expanded curve so one character can support long-term manual playtesting. Class effects and refunds follow later. See the [historical starter-supplies run](../audits/balance-playtests.md#starter-supplies-rerun).
 - **Follow-up.** Rerun fresh-account progression with current Attack Power, then compare timed Dominion, Driftwater, and Ruins sessions after the cache change (6a). Record time to level and first gear purchase, potions used, and net gold after healing before tuning XP, activity payouts, or material prices. The existing expedition comparisons measure route payouts and action counts. See the [playtest procedure](playtesting.md#recurring-session-checks).
 
 ## P1 — High: Ruins exploration and loot
