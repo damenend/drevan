@@ -26,3 +26,12 @@ test("effects that restore no HP and unsupported effects return null", () => {
   assert.equal(applyItemEffect(injured, "heal", -10), null);
   assert.equal(applyItemEffect(injured, "strength", 10), null);
 });
+
+test("revival restores exactly 1 HP only when the player has 0 HP", () => {
+  assert.deepEqual(applyItemEffect({ hp: 0, maxHp: 100 }, "revive", 1), {
+    hp: 1,
+    message: "Revived with 1 HP.",
+  });
+  assert.equal(applyItemEffect({ hp: 1, maxHp: 100 }, "revive", 1), null);
+  assert.equal(applyItemEffect({ hp: 0, maxHp: 100 }, "revive", 10), null);
+});

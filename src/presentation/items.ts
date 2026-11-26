@@ -46,6 +46,7 @@ const itemEffectLabels = {
   attack_power: "Attack Power",
   defense: "Defense",
   heal: "Restore HP",
+  revive: "Revive",
 } as const;
 
 export function getItemEffectLabel(effect: string | null) {
@@ -57,7 +58,8 @@ export function getItemEffectLabel(effect: string | null) {
 
 /**
  * Formats a catalog effect and supplies its signed stat modifier for styling.
- * Healing has no stat modifier. Unset or unsupported effects return null.
+ * Consumable effects have no stat modifier. Unset or unsupported effects
+ * return null.
  */
 export function describeItemEffect(
   effect: string | null,
@@ -66,6 +68,9 @@ export function describeItemEffect(
   if (value === null) return null;
   if (effect === "heal") {
     return { text: `Restores ${formatNumber(value)} HP`, modifier: 0 };
+  }
+  if (effect === "revive" && value === 1) {
+    return { text: "Revives with 1 HP (requires 0 HP)", modifier: 0 };
   }
   if (effect !== "attack_power" && effect !== "defense") return null;
 

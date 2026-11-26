@@ -106,7 +106,11 @@ export function useInventoryItem(userId: number, itemId: number) {
       }
 
       const canUseItem =
-        item.effect === "heal" ? player.hp > 0 : player.ruinsTile === null;
+        item.effect === "heal"
+          ? player.hp > 0
+          : item.effect === "revive"
+            ? player.hp === 0
+            : player.ruinsTile === null;
       if (!canUseItem) return null;
 
       const result = applyItemEffect(player, item.effect, item.effectValue);

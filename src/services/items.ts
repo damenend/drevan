@@ -12,7 +12,8 @@ type ItemEffectResult = {
 
 /**
  * Calculates an item's effect without updating the player or inventory.
- * Healing restores at most the player's missing HP.
+ * Healing restores at most the player's missing HP. Revival works only at
+ * zero HP and restores exactly 1 HP.
  *
  * @returns The new HP and display message, or null if the effect is unsupported
  * or would restore no HP.
@@ -35,6 +36,11 @@ export function applyItemEffect(
         message: `Restored ${formatNumber(healed)} HP.`,
       };
     }
+
+    case "revive":
+      return player.hp === 0 && value === 1
+        ? { hp: 1, message: "Revived with 1 HP." }
+        : null;
 
     default:
       return null;

@@ -59,7 +59,8 @@ before(async () => {
     VALUES (1, 'Lesser Potion', 'Test potion', 5, 'consumable', 'heal', 10),
            (2, 'Rusted Sword', 'Test sword', 100, 'weapon', 'attack_power', 1),
            (3, 'Murkfin', 'Test fish', NULL, 'fish', NULL, NULL),
-           (4, 'Recall Beacon', 'Test utility', NULL, 'utility', NULL, NULL);
+           (4, 'Recall Beacon', 'Test utility', NULL, 'utility', NULL, NULL),
+           (5, 'Revival Potion', 'Test revival potion', 25, 'consumable', 'revive', 1);
     UPDATE items SET sell_price = 50 WHERE id = 2;
     UPDATE items SET sell_price = 1 WHERE id = 3;
   `);
@@ -996,15 +997,96 @@ test("consumption, gear and Sanctum use current player state", async () => {
   await post("/game/inventory/equip", { itemId: 2 });
   sqlite.exec(`
     INSERT INTO items (id, name, description, type, effect, effect_value)
-    VALUES (5, 'Worn Leather Armor', 'Test armor', 'armor', 'defense', 3);
-    INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 5, 2 FROM users;
+    VALUES (6, 'Worn Leather Armor', 'Test armor', 'armor', 'defense', 3);
+    INSERT INTO inventory (user_id, item_id, quantity) SELECT id, 6, 2 FROM users;
   `);
-  await post("/game/inventory/equip", { itemId: 5 });
+  await post("/game/inventory/equip", { itemId: 6 });
   const home = await request("/game", { headers: { cookie } });
   assert.match(home.html, /<dt>Attack Power<\/dt>\s*<dd>\s*11\s*<span/);
   assert.match(home.html, /<dt>Defense<\/dt>\s*<dd>\s*3\s*<span/);
   await post("/game/inventory/unequip", { itemId: 2 });
   assert.equal(player().equipped_weapon_id, null);
+});
+
+test("Revival Potions revive defeated players once and preserve normal healing", async () => {
+  await post("/game/store?category=consumables", {
+    items: { "item-1": 1, "item-5": 2 },
+  });
+  assert.equal(player().gold, 45);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 5, quantity: 2 },
+  ]);
+
+  const inventory = await request("/game?category=consumables", {
+    headers: { cookie },
+  });
+  assert.match(inventory.html, /Revival Potion/);
+  assert.match(inventory.html, /Revives with 1 HP \(requires 0 HP\)/);
+  assert.match(inventory.html, /aria-label="Use Revival Potion"/);
+
+  await post("/game/inventory/use?category=consumables", { itemId: 5 });
+  assert.equal(player().hp, 25);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 5, quantity: 2 },
+  ]);
+
+  sqlite.exec("UPDATE users SET hp = 0;");
+  const revival = await post("/game/inventory/use?category=consumables", {
+    itemId: 5,
+  });
+  const revivalLocation = revival.headers.get("location");
+  assert.ok(revivalLocation);
+  const revived = await request(revivalLocation, { headers: { cookie } });
+  assert.match(revived.html, /data-result-focus>Revived with 1 HP\./);
+  assert.equal(player().hp, 1);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 5, quantity: 1 },
+  ]);
+
+  await post("/game/inventory/use?category=consumables", { itemId: 5 });
+  assert.equal(player().hp, 1);
+  assert.deepEqual(ownedItems(), [
+    { item_id: 1, quantity: 1 },
+    { item_id: 5, quantity: 1 },
+  ]);
+
+  await post("/game/inventory/use?category=consumables", { itemId: 1 });
+  assert.equal(player().hp, 11);
+  assert.deepEqual(ownedItems(), [{ item_id: 5, quantity: 1 }]);
+
+  sqlite.exec(
+    "DELETE FROM inventory WHERE item_id = 5; UPDATE users SET hp = 0;",
+  );
+  await post("/game/inventory/use", { itemId: 5 });
+  assert.equal(player().hp, 0);
+  assert.deepEqual(ownedItems(), []);
+});
+
+test("a failed revival write leaves the Revival Potion in inventory", async (t) => {
+  await post("/game/store", { items: { "item-5": 1 } });
+  sqlite.exec("UPDATE users SET hp = 0;");
+  const initial = player();
+  t.mock.method(console, "error", () => {});
+  sqlite.exec(`
+    CREATE TRIGGER fail_revival BEFORE UPDATE OF hp ON users
+    BEGIN
+      SELECT RAISE(ABORT, 'Test revival write failure');
+    END;
+  `);
+
+  try {
+    assert.equal(
+      (await post("/game/inventory/use", { itemId: 5 })).status,
+      500,
+    );
+    assert.deepEqual(player(), initial);
+    assert.deepEqual(ownedItems(), [{ item_id: 5, quantity: 1 }]);
+  } finally {
+    sqlite.exec("DROP TRIGGER fail_revival;");
+  }
 });
 
 test("at zero HP, potions and healing are blocked until Sanctum revival", async () => {
@@ -2202,11 +2284,28 @@ test("Emporium gives explicit result feedback for purchase and empty selection",
   assert.deepEqual(ownedItems(), [{ item_id: 1, quantity: 1 }]);
 });
 
-test("all new equipment is seeded with fixed modifiers and purchasable through Emporium", async () => {
+test("new catalog items are seeded and purchasable through Emporium", async () => {
   const removeEquipment = sqlite.prepare("DELETE FROM items WHERE name = ?");
   for (const { name } of ruinsEquipment) removeEquipment.run(name);
   await import("../src/db/seed.js");
   const stock = (await request("/game/store", { headers: { cookie } })).html;
+  assert.deepEqual(
+    sqlite
+      .prepare(
+        "SELECT type, effect, effect_value, price, description, image FROM items WHERE name = 'Revival Potion'",
+      )
+      .get(),
+    {
+      type: "consumable",
+      effect: "revive",
+      effect_value: 1,
+      price: 25,
+      description:
+        "A potent alchemical remedy that restores life, though it does little for the wounds that ended it.",
+      image: "/images/potion.webp",
+    },
+  );
+  assert.match(stock, /Quantity of Revival Potion/);
   const cart: Record<string, number> = {};
   const purchased: { item_id: number; quantity: number }[] = [];
   let total = 0;

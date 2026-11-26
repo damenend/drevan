@@ -46,6 +46,16 @@ async function seed() {
       effectValue: 100,
       image: "/images/greater-potion.webp",
     },
+    {
+      name: "Revival Potion",
+      description:
+        "A potent alchemical remedy that restores life, though it does little for the wounds that ended it.",
+      price: 25,
+      type: "consumable",
+      effect: "revive",
+      effectValue: 1,
+      image: "/images/potion.webp",
+    },
   ];
 
   const weapons: Item[] = [
