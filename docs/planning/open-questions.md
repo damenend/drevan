@@ -17,19 +17,11 @@ Use this reference for unresolved gameplay decisions and candidate values. The [
 
 ## Class passives
 
-The first class passives should be automatic and preserve the approved identities without rigid equipment restrictions. Candidate designs are not final abilities:
+The [class passive reference](../gameplay/character.md#class-passives) lists the implemented effects and provisional values.
 
-| Class    | Candidate    | Provisional behavior                                                |
-| -------- | ------------ | ------------------------------------------------------------------- |
-| Vanguard | Resolve      | Reduce incoming damage below an HP threshold.                       |
-| Ranger   | First Strike | Add damage to the first successful attack.                          |
-| Arcanist | Resonance    | Gain temporary offensive power as combat progresses, up to a limit. |
-
-- What are the qualifying events, limits, and cleanup rules for each passive?
-- How should attack frequency affect First Strike and Resonance? Do temporary Attack Power changes alter an already scheduled action?
-- How do passives interact with critical hits, equipment procs, temporary effects, stacking limits, the attack cap, and encounter termination?
-- Which candidate creates a recognizable identity without becoming mandatory for one enemy type? Exact thresholds, durations, and multipliers require focused playtesting.
-- Should Strength, Agility, and Intellect later gain secondary universal benefits? Do not combine that exploration with the first passive implementation.
+- Do the provisional values make each class recognizable across encounters?
+- How should future equipment and temporary effects interact with class passives?
+- Should Strength, Agility, and Intellect later gain secondary universal benefits?
 
 ## Named NPCs
 

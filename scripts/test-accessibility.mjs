@@ -309,9 +309,24 @@ try {
     /\d+ \/ \d+/,
   );
   assert.equal(await page.locator(":focus").innerText(), "Battle summary");
-  await page.getByText("Battle log", { exact: true }).focus();
+  const battleDisclosure = page.locator(".battle-details > summary");
+  await battleDisclosure.focus();
   await page.keyboard.press("Space");
-  assert.ok((await page.locator("details[open] .battle-log li").count()) > 0);
+  const battleLedger = page.getByRole("table", { name: "Combat actions" });
+  assert.deepEqual(
+    await battleLedger.getByRole("columnheader").allTextContents(),
+    ["#Action number", "Attacker", "Target", "Damage", "Modifiers"],
+  );
+  assert.match(
+    await battleDisclosure.innerText(),
+    /^Battle log · [12] actions?$/,
+  );
+  assert.equal(
+    await battleLedger
+      .getByRole("rowheader", { name: "1", exact: true })
+      .count(),
+    1,
+  );
   await page.setViewportSize({ width: 1280, height: 800 });
   await scan("training-result-wide");
   await page.setViewportSize({ width: 320, height: 768 });
@@ -398,16 +413,28 @@ try {
   await page.locator('button[name="destination"][value="2"]').click();
   await page.locator('[data-position="2"]').waitFor();
   try {
+    applicationDatabase.exec(
+      "UPDATE users SET character_class = 'caster' WHERE id = 1",
+    );
     Math.random = () => 0;
     await page.locator('button[name="destination"][value="9"]').click();
     await page.locator('[data-position="9"]').waitFor();
     await page.getByText(/Loot: Lesser Potion ×1, Metal Scraps ×1/).waitFor();
   } finally {
     Math.random = originalRandom;
+    applicationDatabase.exec(
+      "UPDATE users SET character_class = 'unaligned' WHERE id = 1",
+    );
   }
   await page.getByText(/Wooden Axe ×1, Wooden Shield ×1/).waitFor();
   await scan("victory-loot");
   assert.equal(await page.locator(":focus").innerText(), "Battle summary");
+  await battleDisclosure.click();
+  const surge = battleLedger.getByRole("cell", {
+    name: /^Critical hit · Arcane Surge \(\+\d+ damage\)$/,
+  });
+  await surge.waitFor();
+  await scan("victory-battle-log");
 
   await page.setViewportSize({ width: 1280, height: 800 });
   await scan("expedition-wide");
@@ -449,6 +476,17 @@ try {
     .click();
   await page.waitForURL("**/game/store?sold=1#sale-result");
   assert.equal(await page.locator(":focus").innerText(), "Sale complete.");
+
+  applicationDatabase.exec("UPDATE users SET exp = 6300 WHERE id = 1");
+  await scan("conclave", "/game/conclave");
+  const ranger = page.getByRole("radio", { name: "Ranger", exact: true });
+  await ranger.focus();
+  await page.keyboard.press("Space");
+  assert.ok(await ranger.isChecked());
+  await page.getByRole("button", { name: "Choose class" }).click();
+  await page.waitForURL("**/game/conclave?update=true");
+  await scan("conclave-selected");
+  await scan("profile-with-passive", "/game/users/1");
 
   const nativeContext = await browser.newContext({
     storageState: await context.storageState(),

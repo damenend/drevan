@@ -66,7 +66,7 @@ Location images are generally WebP, displayed in a figure with a caption. The st
 | Item figure and player portrait | Item figures keep the item name visible even when an image is absent. Player portraits use the selected avatar model and an accessible description.                                                                                  | [Item figure](../../src/views/partials/item-figure.ejs) and [player avatar](../../src/views/partials/player-avatar.ejs)                                                            |
 | Character stats and gold        | Use a description list for label and value pairs. Show the effective stat first and add the base value and signed modifier when it differs. Reuse the shared gold display.                                                           | [The Quarters](../../src/views/game/index.ejs), [stat total](../../src/views/partials/stat-total.ejs), and [player gold](../../src/views/partials/player-gold.ejs)                 |
 | Combat readiness                | Keep current level, HP, XP toward the next level, and effective combat stats together before a combat action. Give HP more prominence than XP and use exact values alongside both meters.                                            | [Player status](../../src/views/partials/player-status.ejs) and [Dominion](../../src/views/game/arena.ejs)                                                                         |
-| Battle report                   | Shows the outcome summary before an expandable attack log. Blue and red identify actors alongside their names. Critical hits have an explicit label. The summary shows the outcome, HP change, and any awarded gold, XP, or loot.    | [Battle log partial](../../src/views/partials/battle-log.ejs) and [battle styles](../../src/scss/components/_battle.scss)                                                          |
+| Battle report                   | Summarizes outcome, HP change, and rewards before the expandable log. See the [combat ledger pattern](#combat-ledger).                                                                                                               | [Battle log partial](../../src/views/partials/battle-log.ejs) and [battle styles](../../src/scss/components/_battle.scss)                                                          |
 | Status message and error page   | Place contextual feedback near the action or at the top of the relevant view. Use the shared error page for HTTP errors and include a safe recovery link.                                                                            | [Ruins notices](../../src/views/game/ruins.ejs) and [error page](../../src/views/error.ejs)                                                                                        |
 
 ## Interaction patterns
@@ -98,6 +98,14 @@ Equipment shows supported slots with an item, its signed modifier, and a seconda
 - **After submission.** Show what changed. Training, fishing, Emporium, and Ruins actions redirect to a page after saving so a refresh does not submit the action again. Render outcome and reward text from the saved result.
 - **Unavailable actions.** Give the reason and a way forward when one exists. At zero HP, Dominion and The Ruins link to revival at Sanctum. The Emporium directs players to unequip gear when the equipped copy is all they have available.
 - **Empty states.** State what is absent in context, such as “You have no healing potions.” Give the next action when the player can take one.
+
+### Combat ledger
+
+Place the chronological ledger in a native disclosure with the action count in its summary. Use a named table with columns for the action number, attacker, target, final damage, and modifiers. The encounter and outcome frame the table outside its counted actions.
+
+Use the compact `.table--ledger` variant for plain rows with subtle separators. Color attackers by side and keep targets neutral. Use tabular numbers and align damage at the end of its column. Group critical hits and named effects in one accent-colored cell, with a muted em dash when there are none. The damage column already includes the contributions shown under Modifiers.
+
+Keep body-sized text and wrap names and modifier text. If the table exceeds the available width, use the standard local horizontal scroll wrapper. Keep vertical scrolling in normal page flow. [Battle log partial](../../src/views/partials/battle-log.ejs) · [Table styles](../../src/scss/components/_table.scss) · [Battle styles](../../src/scss/components/_battle.scss)
 
 ### Ruins map
 

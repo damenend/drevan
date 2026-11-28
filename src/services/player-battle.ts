@@ -1,5 +1,6 @@
 import { formatPlayerName } from "../utils/format-player-name";
 import { simulateBattle, type BattleResult, type Combatant } from "./battle";
+import { classPassives } from "./class-passives";
 import { getEffectiveStats } from "./equipment";
 
 export type PlayerBattleReport = BattleResult & { xpEarned: number };
@@ -31,6 +32,7 @@ export function resolvePlayerBattle(
       name: formatPlayerName(player.name),
       hp: player.hp,
       ...getEffectiveStats(player, database),
+      passive: classPassives[player.characterClass],
     },
     enemy,
     capReward(player.gold, rewards.gold),

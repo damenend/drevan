@@ -446,23 +446,6 @@ input[type=submit]:hover:not(:disabled) {
   color: #ff5454;
 }
 
-.battle-log__entry {
-  padding-inline-start: 0.5rem;
-  margin-bottom: 1rem;
-  border-inline-start: 2px solid transparent;
-}
-.battle-log__entry--player {
-  border-inline-start-color: #54bdff;
-}
-.battle-log__entry--enemy {
-  border-inline-start-color: #ff5454;
-}
-.battle-log__entry--critical .battle-log__critical {
-  color: #b58b4c;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
 .battle-stats {
   margin-bottom: 1rem;
   margin-top: 1rem;
@@ -482,8 +465,25 @@ input[type=submit]:hover:not(:disabled) {
   margin-bottom: 0.75rem;
 }
 
-.battle-log {
-  padding-inline-start: 2rem;
+.battle-log .battle-log__number,
+.battle-log .battle-log__damage {
+  width: 1%;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.battle-log .battle-log__number[scope=row] {
+  color: #999999;
+  font-weight: 400;
+}
+.battle-log .battle-log__damage {
+  text-align: end;
+  font-weight: 600;
+}
+.battle-log .battle-log__target {
+  color: #999999;
+}
+.battle-log .battle-log__modifiers {
+  color: #b58b4c;
 }
 
 table {
@@ -542,6 +542,26 @@ th {
 }
 .table td button {
   white-space: nowrap;
+}
+
+.table--ledger :is(th, td) {
+  padding: 0.25rem;
+  vertical-align: top;
+  border-bottom-color: rgb(26.1176470588%, 26.1176470588%, 26.1176470588%);
+}
+.table--ledger :is(th, td):first-child {
+  padding-inline-start: 0;
+}
+.table--ledger :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+.table--ledger thead,
+.table--ledger tbody tr:nth-child(even),
+.table--ledger tbody tr:hover {
+  background-color: transparent;
+}
+.table--ledger thead th {
+  color: #e5e5e5;
 }
 
 .table-responsive {

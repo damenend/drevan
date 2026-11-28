@@ -1,22 +1,53 @@
 import { and, eq } from "drizzle-orm";
 import { Router } from "express";
 import { db } from "../../db";
+import { users, type CharacterClass } from "../../db/schema";
 import { getAuthenticatedPlayer } from "../../middleware/auth";
+import { formatCharacterClass } from "../../presentation/characters";
+import { classPrimaryStats } from "../../services/character-stats";
+import { classPassives } from "../../services/class-passives";
 import { getProgression } from "../../services/progression";
-import { users } from "../../db/schema";
-import type { CharacterClass } from "../../db/schema";
 
 type SelectableClass = Exclude<CharacterClass, "unaligned">;
 
 const selectableClasses = {
-  vanguard: "melee",
-  ranger: "ranged",
-  arcanist: "caster",
-} as const satisfies Record<string, SelectableClass>;
+  vanguard: {
+    characterClass: "melee",
+    description:
+      "Master the art of close-quarters combat, overcoming adversaries through raw power and martial prowess.",
+  },
+  arcanist: {
+    characterClass: "caster",
+    description:
+      "Harness the enigmatic energies of the old world, bending forgotten forces to your will.",
+  },
+  ranger: {
+    characterClass: "ranged",
+    description:
+      "Strike from afar, relying on precision, dexterity, and calculated execution.",
+  },
+} as const satisfies Record<
+  string,
+  { characterClass: SelectableClass; description: string }
+>;
+
+const classOptions = Object.entries(selectableClasses).map(
+  ([id, { characterClass, description }]) => {
+    const attribute = classPrimaryStats[characterClass];
+    return {
+      id,
+      characterClass,
+      description,
+      name: formatCharacterClass(characterClass),
+      preferredAttribute: attribute[0].toUpperCase() + attribute.slice(1),
+      passive: classPassives[characterClass],
+    };
+  },
+);
 
 function getSelectableClass(value: unknown): SelectableClass | undefined {
   return typeof value === "string" && Object.hasOwn(selectableClasses, value)
-    ? selectableClasses[value as keyof typeof selectableClasses]
+    ? selectableClasses[value as keyof typeof selectableClasses].characterClass
     : undefined;
 }
 
@@ -36,6 +67,7 @@ router.get("/", (req, res) => {
   return res.render("game/conclave", {
     title: "The Conclave",
     level: getProgression(player.exp).level,
+    classOptions,
     message,
   });
 });

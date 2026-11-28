@@ -3,9 +3,9 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { renderError } from "../../middleware/errors";
-import { formatPlayerName } from "../../utils/format-player-name";
-
+import { classPassives } from "../../services/class-passives";
 import { getProgression } from "../../services/progression";
+import { formatPlayerName } from "../../utils/format-player-name";
 
 const router = Router();
 
@@ -51,6 +51,7 @@ router.get("/:id", (req, res) => {
     title: formatPlayerName(player.name),
     player,
     playerLevel: getProgression(player.exp).level,
+    classPassive: classPassives[player.characterClass],
   });
 });
 

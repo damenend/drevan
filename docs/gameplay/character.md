@@ -24,6 +24,18 @@ The class is displayed as Unaligned by default. After reaching level 10, players
 
 The database retains the original `melee`, `ranged`, and `caster` identifiers so existing characters need no migration. Presentation code maps those implementation details to the canonical names before rendering them.
 
+### Class passives
+
+Each specialization grants one automatic combat passive in addition to its preferred-attribute scaling.
+
+| Class    | Passive      | Provisional effect                                         |
+| -------- | ------------ | ---------------------------------------------------------- |
+| Vanguard | Iron Resolve | Reduces incoming attack damage by 10% after Defense.       |
+| Ranger   | Precision    | Adds 5 percentage points to critical strike chance.        |
+| Arcanist | Arcane Surge | Gives each hit a 10% chance to deal 25% additional damage. |
+
+The Conclave previews each passive before selection. The Registry profile shows the player's current passive. Changing class replaces the passive, and Unaligned characters have none. See [combat resolution](combat.md#resolve-attacks) for rounding and battle log behavior.
+
 ## XP and attribute points
 
 Level-up costs follow `15 × (current level) × (current level + 3)` XP through level 100. The early costs remain 60 XP for level 2, 150 for level 3, and 270 for level 4. Level 10 begins at 6,300 lifetime XP, level 50 at 661,500, and level 100 at 5,148,000. Excess XP carries forward. Lifetime XP remains visible and continues accumulating at the cap. The [level XP reference](leveling-reference.md) lists every incremental cost and lifetime threshold.

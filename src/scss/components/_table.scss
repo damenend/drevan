@@ -75,6 +75,32 @@ th {
   }
 }
 
+.table--ledger {
+  :is(th, td) {
+    padding: vars.$space-1;
+    vertical-align: top;
+    border-bottom-color: vars.$color-surface-border;
+
+    &:first-child {
+      padding-inline-start: 0;
+    }
+
+    &:last-child {
+      padding-inline-end: 0;
+    }
+  }
+
+  thead,
+  tbody tr:nth-child(even),
+  tbody tr:hover {
+    background-color: transparent;
+  }
+
+  thead th {
+    color: vars.$color-text;
+  }
+}
+
 // Responsive tables
 .table-responsive {
   // Keep visually hidden cell labels inside the local scroll area.

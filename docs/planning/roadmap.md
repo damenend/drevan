@@ -117,15 +117,12 @@ Give players desirable equipment, formidable opponents, and meaningful character
 
 Let players compare builds, recognize strengths, and establish personal goals.
 
-**Recommended order:** add class passives after the naming migration and records foundation; practice PvP can proceed once profiles expose useful equipment and stats; Floor 2 depends on a permanent unlock model; contracts should follow stable qualifying events.
+**Recommended order.** Practice PvP can proceed once profiles expose useful equipment and stats. Floor 2 depends on a permanent unlock model. Contracts should follow stable qualifying events.
 
 ### 8. Complete class specialization with one passive per class (Large)
 
-- **Status.** Active.
-- **Delivered.** Class storage, free level-10 selection, approved Vanguard/Ranger/Arcanist names, and preferred-attribute Attack Power scaling are implemented. All offensive attributes contribute to every class.
-- **Dependencies.** Stat allocation (5), class naming (8a), and temporary combat state sufficient for the selected passives.
-- **Remaining scope.** Add one intrinsic automatic passive per class. Preserve Vanguard endurance and sustained combat, Ranger precision and opening burst, and Arcanist escalating or sustained magical offense. Resolve and log effects automatically. Candidate designs—Resolve, First Strike, and Resonance—remain provisional in [open questions](open-questions.md#class-passives).
-- **Done when.** Each class has one understandable mechanical identity, shared encounter modes apply it consistently, unconventional builds remain possible, and controlled tests cover activation, limits, encounter cleanup, and relevant attack-frequency interactions.
+- **Status.** Complete.
+- **Delivered.** Each specialization gains one [automatic passive](../gameplay/character.md#class-passives) alongside preferred-attribute Attack Power scaling. Dominion and The Ruins resolve and log these effects. The Conclave previews all three and the Registry profile shows the active passive. Controlled tests cover activation, damage limits, and class changes.
 - **Deferred.** Secondary universal attribute benefits, active abilities, skill trees, and exact balance targets.
 
 ### 11. Introduce practice PvP in Dominion (Medium)

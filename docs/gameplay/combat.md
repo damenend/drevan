@@ -1,14 +1,17 @@
 # Combat
 
-Dominion training and The Ruins share a turn-based simulator. The server resolves the fight after one action and returns a structured log showing the actor, damage, target HP, and critical-hit flag. Each encounter mode defines the rewards and saves the relevant player state. Practice PvP is planned separately.
+Dominion training and The Ruins share a turn-based simulator. The server resolves the fight after one action and records the attacker, target, damage, remaining target HP, critical-hit flag, and any [class passive](character.md#class-passives) effects. The combat ledger shows the chronological attacks, final damage, and modifiers. Each encounter mode defines the rewards and saves the relevant player state. Practice PvP is planned separately.
 
 ## Resolve attacks
 
 1. Treat Speed below 1 as 1. Pick the first attacker once. Each side's chance is its share of combined Speed.
 2. Schedule attacks at intervals of `100 / speed`. Later attacks due together use an even roll for order. The second fighter attacks if they survive.
-3. Roll base damage uniformly from half Attack Power rounded up to full Attack Power, with a minimum of 1. A critical hit has a baseline 5% chance and multiplies damage by 1.5, rounded up.
-4. Apply Defense after the critical bonus. For nonnegative Defense, the damage reduction is `0.6 * defense / (defense + 10)`. Round the result to the nearest integer with a minimum of 1. A 4-damage roll still deals 4 at 1 or 2 Defense and deals 3 at 3 Defense.
-5. End the fight at zero HP or after 1,000 attacks. If both fighters survive the cap, record a draw.
+3. Roll base damage uniformly from half Attack Power rounded up to full Attack Power, with a minimum of 1. Roll once for a critical hit against the baseline 5% chance plus any Precision bonus. A critical hit multiplies damage by 1.5, rounded up.
+4. Roll Arcane Surge once for an attacker with that passive. On success, increase the same attack's damage after any critical bonus. The extra damage is part of the original hit.
+5. Apply Defense. For nonnegative Defense, the damage reduction is `0.6 * defense / (defense + 10)`. Round the result to the nearest integer with a minimum of 1. A 4-damage roll still deals 4 at 1 or 2 Defense and deals 3 at 3 Defense. Apply the defender's Iron Resolve to this rounded amount, then round again with the same minimum.
+6. End the fight at zero HP or after 1,000 attacks. If both fighters survive the cap, record a draw.
+
+The battle log reports Precision when its bonus turns the roll into a critical hit. It reports Iron Resolve and Arcane Surge when they change final rounded damage and gives the difference in damage.
 
 ## Dominion training
 

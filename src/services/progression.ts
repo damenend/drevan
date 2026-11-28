@@ -1,4 +1,4 @@
-import { HP_PER_FORTITUDE } from "./character-stats";
+import { classPrimaryStats, HP_PER_FORTITUDE } from "./character-stats";
 import type { CharacterClass } from "../db/schema";
 
 export const MAX_PLAYER_LEVEL = 100;
@@ -20,16 +20,6 @@ export const statAllocations = {
 } as const;
 
 type AllocationStat = keyof typeof statAllocations;
-
-const classPrimaryStats: Record<
-  CharacterClass,
-  "strength" | "agility" | "intellect" | null
-> = {
-  unaligned: null,
-  melee: "strength",
-  ranged: "agility",
-  caster: "intellect",
-};
 
 /** Labels allocation choices with the Attack Power granted by the player's class. */
 export function getStatAllocations(characterClass: CharacterClass) {

@@ -15,6 +15,15 @@
       <dt>Class</dt>
       <dd><%= formatCharacterClass(player.characterClass) %></dd>
     </div>
+    <% if (classPassive) { %>
+    <div class="character-stat">
+      <dt>Class passive</dt>
+      <dd>
+        <%= classPassive.name %>
+        <span class="character-stat-breakdown"><%= classPassive.description %></span>
+      </dd>
+    </div>
+    <% } %>
   </dl>
   <p><a href="/game/users">Return to The Registry</a></p>
 </section>

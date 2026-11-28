@@ -8,6 +8,7 @@ import { handleError, handleNotFound } from "./middleware/errors";
 import indexRouter from "./routes/index";
 import { formatNumber } from "./utils/format-number";
 import { formatPlayerName } from "./utils/format-player-name";
+import { formatBattleModifiers } from "./presentation/battle";
 import { formatCharacterClass } from "./presentation/characters";
 
 export const app = express();
@@ -17,6 +18,7 @@ const port = Number(process.env.PORT ?? 3000);
 app.set("view engine", "ejs");
 app.locals.formatNumber = formatNumber;
 app.locals.formatPlayerName = formatPlayerName;
+app.locals.formatBattleModifiers = formatBattleModifiers;
 app.locals.formatCharacterClass = formatCharacterClass;
 app.set("views", path.join(__dirname, "../src/views"));
 

@@ -35,44 +35,24 @@
       </p>
 
       <div class="choice-grid choice-grid--three">
-        <label class="choice-card conclave-class-option" for="vanguard">
+        <% for (const option of classOptions) { %>
+        <% const current = user.characterClass === option.characterClass; %>
+        <label class="choice-card conclave-class-option" for="<%= option.id %>">
           <span class="conclave-class-option__heading">
-            <input type="radio" name="characterClass" id="vanguard" value="vanguard" required aria-describedby="vanguard-description class-selection-note" <% if (user.characterClass === 'melee') { %>checked disabled<% } %> />
-            <span>Vanguard</span>
-            <% if (user.characterClass === 'melee') { %><span class="conclave-class-option__current">Current class</span><% } %>
+            <input type="radio" name="characterClass" id="<%= option.id %>" value="<%= option.id %>" required
+              aria-labelledby="<%= option.id %>-name<% if (current) { %> <%= option.id %>-current<% } %>"
+              aria-describedby="<%= option.id %>-description <%= option.id %>-attribute <%= option.id %>-passive class-selection-note"
+              <% if (current) { %>checked disabled<% } %> />
+            <span id="<%= option.id %>-name"><%= option.name %></span>
+            <% if (current) { %><span id="<%= option.id %>-current" class="conclave-class-option__current">Current class</span><% } %>
           </span>
-          <span id="vanguard-description" class="conclave-class-option__description">
-            Master the art of close-quarters combat, overcoming adversaries
-            through raw power and martial prowess.
+          <span id="<%= option.id %>-description" class="conclave-class-option__description"><%= option.description %></span>
+          <span id="<%= option.id %>-attribute" class="conclave-class-option__attribute">Preferred attribute: <strong><%= option.preferredAttribute %></strong></span>
+          <span id="<%= option.id %>-passive" class="conclave-class-option__description">
+            <strong><%= option.passive.name %>.</strong> <%= option.passive.flavor %> <%= option.passive.description %>
           </span>
-          <span class="conclave-class-option__attribute">Preferred attribute: <strong>Strength</strong></span>
         </label>
-
-        <label class="choice-card conclave-class-option" for="arcanist">
-          <span class="conclave-class-option__heading">
-            <input type="radio" name="characterClass" id="arcanist" value="arcanist" required aria-describedby="arcanist-description class-selection-note" <% if (user.characterClass === 'caster') { %>checked disabled<% } %> />
-            <span>Arcanist</span>
-            <% if (user.characterClass === 'caster') { %><span class="conclave-class-option__current">Current class</span><% } %>
-          </span>
-          <span id="arcanist-description" class="conclave-class-option__description">
-            Harness the enigmatic energies of the old world, bending
-            forgotten forces to your will.
-          </span>
-          <span class="conclave-class-option__attribute">Preferred attribute: <strong>Intellect</strong></span>
-        </label>
-
-        <label class="choice-card conclave-class-option" for="ranger">
-          <span class="conclave-class-option__heading">
-            <input type="radio" name="characterClass" id="ranger" value="ranger" required aria-describedby="ranger-description class-selection-note" <% if (user.characterClass === 'ranged') { %>checked disabled<% } %> />
-            <span>Ranger</span>
-            <% if (user.characterClass === 'ranged') { %><span class="conclave-class-option__current">Current class</span><% } %>
-          </span>
-          <span id="ranger-description" class="conclave-class-option__description">
-            Strike from afar, relying on precision, dexterity,
-            and calculated execution.
-          </span>
-          <span class="conclave-class-option__attribute">Preferred attribute: <strong>Agility</strong></span>
-        </label>
+        <% } %>
       </div>
     </fieldset>
 

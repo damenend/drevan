@@ -12,28 +12,6 @@
   color: vars.$color-combat-enemy;
 }
 
-.battle-log__entry {
-  padding-inline-start: vars.$space-2;
-  margin-bottom: vars.$space-4;
-  border-inline-start: vars.$accent-width solid transparent;
-
-  &--player {
-    border-inline-start-color: vars.$color-combat-player;
-  }
-
-  &--enemy {
-    border-inline-start-color: vars.$color-combat-enemy;
-  }
-
-  &--critical {
-    .battle-log__critical {
-      color: vars.$color-primary;
-      font-weight: vars.$weight-bold;
-      text-transform: uppercase;
-    }
-  }
-}
-
 .battle-stats {
   margin-bottom: vars.$space-4;
   margin-top: vars.$space-4;
@@ -57,5 +35,28 @@
 }
 
 .battle-log {
-  padding-inline-start: vars.$space-8;
+  .battle-log__number,
+  .battle-log__damage {
+    width: 1%;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .battle-log__number[scope="row"] {
+    color: vars.$color-muted;
+    font-weight: vars.$weight-regular;
+  }
+
+  .battle-log__damage {
+    text-align: end;
+    font-weight: vars.$weight-semibold;
+  }
+
+  .battle-log__target {
+    color: vars.$color-muted;
+  }
+
+  .battle-log__modifiers {
+    color: vars.$color-primary;
+  }
 }

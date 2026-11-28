@@ -1,4 +1,10 @@
+import type { ClassPassive } from "./class-passives";
+
 export type Actor = "player" | "enemy";
+
+type PassiveEffect =
+  | { id: "precision"; name: string }
+  | { id: "iron-resolve" | "arcane-surge"; name: string; damage: number };
 
 export type BattleLogEntry =
   | {
@@ -14,6 +20,7 @@ export type BattleLogEntry =
       hp: number;
       actor: Actor;
       critical: boolean;
+      passiveEffects?: PassiveEffect[];
     }
   | {
       type: "outcome";
@@ -28,6 +35,7 @@ export type Combatant = {
   attackPower: number;
   speed: number;
   defense: number;
+  passive?: ClassPassive;
 };
 
 export type BattleResult = {
@@ -67,39 +75,80 @@ export function createTrainingDummy(level: number): Combatant {
 type DamageResult = {
   damage: number;
   critical: boolean;
+  passiveEffects?: PassiveEffect[];
 };
 
+function roundDamage(damage: number) {
+  return Math.max(1, Math.round(damage));
+}
+
 /**
- * Rolls base damage, rounds up any critical bonus, then applies Defense.
- * Final damage rounds to the nearest whole number with a minimum of 1.
+ * Applies outgoing bonuses before Defense and Iron Resolve after Defense.
+ * Logs only effects that change the critical result or rounded damage.
  */
 function generateDamage(
-  attackPower: number,
-  defense: number,
+  attacker: Combatant,
+  defender: Combatant,
   random: () => number,
   criticalChance: number,
 ): DamageResult {
-  const maxDamage = Math.max(1, attackPower);
+  const maxDamage = Math.max(1, attacker.attackPower);
   const minDamage = Math.ceil(maxDamage * 0.5);
 
-  // Generate base damage
   let damage = Math.floor(random() * (maxDamage - minDamage + 1)) + minDamage;
-
-  // Determine whether this attack is critical
-  const critical = random() < criticalChance;
+  const passiveEffects: PassiveEffect[] = [];
+  const { passive } = attacker;
+  const criticalRoll = random();
+  const precision =
+    passive?.id === "precision" &&
+    criticalRoll >= criticalChance &&
+    criticalRoll < criticalChance + passive.criticalChanceBonus;
+  const critical = criticalRoll < criticalChance || precision;
 
   if (critical) {
     damage = Math.ceil(damage * CRIT_MULTIPLIER);
   }
+  if (precision) {
+    passiveEffects.push({ id: passive.id, name: passive.name });
+  }
 
-  const effectiveDefense = Math.max(0, defense);
+  const effectiveDefense = Math.max(0, defender.defense);
   const damageReduction =
     MAX_DAMAGE_REDUCTION *
     (effectiveDefense / (effectiveDefense + HALF_MAX_REDUCTION_DEFENSE));
+  const surged = passive?.id === "arcane-surge" && random() < passive.chance;
+  const attackDamage = surged ? damage * (1 + passive.damageBonus) : damage;
+  const defendedDamage = roundDamage(attackDamage * (1 - damageReduction));
+
+  const ironResolve = defender.passive;
+  const incomingMultiplier =
+    ironResolve?.id === "iron-resolve" ? 1 - ironResolve.damageReduction : 1;
+  const finalDamage = roundDamage(defendedDamage * incomingMultiplier);
+
+  if (surged) {
+    const damageWithoutSurge = roundDamage(
+      roundDamage(damage * (1 - damageReduction)) * incomingMultiplier,
+    );
+    if (finalDamage > damageWithoutSurge) {
+      passiveEffects.push({
+        id: passive.id,
+        name: passive.name,
+        damage: finalDamage - damageWithoutSurge,
+      });
+    }
+  }
+  if (ironResolve?.id === "iron-resolve" && finalDamage < defendedDamage) {
+    passiveEffects.push({
+      id: ironResolve.id,
+      name: ironResolve.name,
+      damage: defendedDamage - finalDamage,
+    });
+  }
 
   return {
-    damage: Math.max(1, Math.round(damage * (1 - damageReduction))),
+    damage: finalDamage,
     critical,
+    ...(passiveEffects.length ? { passiveEffects } : {}),
   };
 }
 
@@ -177,14 +226,9 @@ export function simulateBattle(
           );
     const attacker = combatants[actor];
     const defender = combatants[actor === "player" ? "enemy" : "player"];
-    const { damage, critical } = generateDamage(
-      attacker.attackPower,
-      defender.defense,
-      random,
-      criticalChance,
-    );
+    const hit = generateDamage(attacker, defender, random, criticalChance);
 
-    defender.hp = Math.max(0, defender.hp - damage);
+    defender.hp = Math.max(0, defender.hp - hit.damage);
     elapsedTime = Math.max(elapsedTime, attacker.nextAttack);
     attacker.nextAttack += attacker.attackInterval;
 
@@ -192,10 +236,9 @@ export function simulateBattle(
       type: "attack",
       player: attacker.name,
       target: defender.name,
-      damage,
+      ...hit,
       hp: defender.hp,
       actor,
-      critical,
     });
   }
 

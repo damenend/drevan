@@ -1,6 +1,7 @@
 import { sql, type SQLWrapper } from "drizzle-orm";
+import type { CharacterClass } from "../db/schema";
 
-// Leave room for the 1.5× critical multiplier in integer damage calculations.
+// Leave room for critical and passive damage bonuses in integer calculations.
 export const MAX_ATTACK_POWER = Math.floor(Number.MAX_SAFE_INTEGER / 2);
 
 export const HP_PER_FORTITUDE = 3;
@@ -25,11 +26,17 @@ type AttributeBases = {
   speed: number;
 };
 
-type AttackPowerStats = Pick<
-  AttributeBases,
-  "strength" | "agility" | "intellect"
-> & {
-  characterClass: "unaligned" | "melee" | "ranged" | "caster";
+type OffensiveAttribute = "strength" | "agility" | "intellect";
+
+export const classPrimaryStats = {
+  unaligned: null,
+  melee: "strength",
+  ranged: "agility",
+  caster: "intellect",
+} as const satisfies Record<CharacterClass, OffensiveAttribute | null>;
+
+type AttackPowerStats = Pick<AttributeBases, OffensiveAttribute> & {
+  characterClass: CharacterClass;
 };
 
 /** Adds allocated points to base attributes before applying equipment. */
@@ -50,12 +57,8 @@ export function getPrimaryAttributes(player: AttributeBases & AttributePoints) {
  * Arcanist. Stored class identifiers remain internal implementation details.
  */
 export function getBaseAttackPower(stats: AttackPowerStats) {
-  const classBonus = {
-    unaligned: 0,
-    melee: stats.strength * 2,
-    ranged: stats.agility * 2,
-    caster: stats.intellect * 2,
-  }[stats.characterClass];
+  const primaryStat = classPrimaryStats[stats.characterClass];
+  const classBonus = primaryStat ? stats[primaryStat] * 2 : 0;
 
   return Math.min(
     MAX_ATTACK_POWER,

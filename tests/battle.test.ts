@@ -6,6 +6,7 @@ import {
   simulateBattle,
   type Combatant,
 } from "../src/services/battle";
+import { classPassives } from "../src/services/class-passives";
 
 const player: Combatant = {
   name: "Player",
@@ -16,6 +17,113 @@ const player: Combatant = {
 };
 
 const enemy: Combatant = { ...player, name: "Enemy" };
+
+function openingAttack(
+  attacker: Combatant,
+  defender: Combatant,
+  actor: "player" | "enemy",
+  ...damageRolls: number[]
+) {
+  const rolls = [actor === "player" ? 0 : 0.75, ...damageRolls];
+  const target = { ...defender, hp: 1 };
+  const [first, second] =
+    actor === "player" ? [attacker, target] : [target, attacker];
+  const { battleLog } = simulateBattle(first, second, 0, {
+    random: () => {
+      const roll = rolls.shift();
+      assert.ok(roll !== undefined, "Unexpected combat roll");
+      return roll;
+    },
+  });
+  assert.equal(rolls.length, 0);
+  const attacks = battleLog.filter((entry) => entry.type === "attack");
+  assert.equal(attacks.length, 1);
+  assert.equal(attacks[0].actor, actor);
+  return attacks[0];
+}
+
+test("Iron Resolve reduces damage for the defender after Defense", () => {
+  const attacker = { ...enemy, attackPower: 60 };
+  const defender = { ...player, defense: 10 };
+  const normal = openingAttack(attacker, defender, "enemy", 0, 0.5);
+  assert.equal(normal.damage, 21);
+  assert.equal(normal.passiveEffects, undefined);
+
+  const vanguard = { ...defender, passive: classPassives.melee };
+  const reduced = openingAttack(attacker, vanguard, "enemy", 0, 0.5);
+  assert.equal(reduced.damage, 19);
+  assert.deepEqual(reduced.passiveEffects, [
+    { id: "iron-resolve", name: "Iron Resolve", damage: 2 },
+  ]);
+  const minimum = openingAttack(
+    { ...attacker, attackPower: 1 },
+    vanguard,
+    "enemy",
+    0,
+    0.5,
+  );
+  assert.equal(minimum.damage, 1);
+  assert.equal(minimum.passiveEffects, undefined);
+});
+
+test("Precision only appears in the log when its bonus turns a roll critical", () => {
+  const ranger = { ...player, passive: classPassives.ranged };
+  const unaligned = { ...player, passive: classPassives.unaligned };
+  const ordinary = openingAttack(unaligned, enemy, "player", 0, 0.05);
+  assert.equal(ordinary.critical, false);
+  assert.equal(ordinary.damage, 5);
+  assert.equal(ordinary.passiveEffects, undefined);
+
+  const natural = openingAttack(ranger, enemy, "player", 0, 0.049);
+  assert.equal(natural.critical, true);
+  assert.equal(natural.damage, 8);
+  assert.equal(natural.passiveEffects, undefined);
+
+  const precise = openingAttack(ranger, enemy, "enemy", 0, 0.05);
+  assert.equal(precise.critical, true);
+  assert.equal(precise.damage, 8);
+  assert.deepEqual(precise.passiveEffects, [
+    { id: "precision", name: "Precision" },
+  ]);
+
+  const missed = openingAttack(ranger, enemy, "player", 0, 0.1);
+  assert.equal(missed.critical, false);
+  assert.equal(missed.damage, 5);
+  assert.equal(missed.passiveEffects, undefined);
+});
+
+test("Arcane Surge rolls once per attack and records its damage after mitigation", () => {
+  const arcanist = {
+    ...player,
+    attackPower: 20,
+    passive: classPassives.caster,
+  };
+  const vanguard = { ...enemy, defense: 10, passive: classPassives.melee };
+  const surged = openingAttack(arcanist, vanguard, "player", 0, 0, 0.099);
+  assert.equal(surged.critical, true);
+  assert.equal(surged.damage, 12);
+  assert.deepEqual(surged.passiveEffects, [
+    { id: "arcane-surge", name: "Arcane Surge", damage: 2 },
+    { id: "iron-resolve", name: "Iron Resolve", damage: 1 },
+  ]);
+
+  const missed = openingAttack(arcanist, vanguard, "player", 0, 0, 0.1);
+  assert.equal(missed.damage, 10);
+  assert.deepEqual(missed.passiveEffects, [
+    { id: "iron-resolve", name: "Iron Resolve", damage: 1 },
+  ]);
+
+  const roundedAway = openingAttack(
+    { ...arcanist, attackPower: 1 },
+    vanguard,
+    "player",
+    0,
+    0.5,
+    0,
+  );
+  assert.equal(roundedAway.damage, 1);
+  assert.equal(roundedAway.passiveEffects, undefined);
+});
 
 test("training dummies scale from the starter to the highest level", () => {
   assert.deepEqual(createTrainingDummy(1), {

@@ -525,6 +525,12 @@ test("The Conclave validates level and permits class changes", async () => {
   assert.match(available.html, />Vanguard</);
   assert.match(available.html, />Ranger</);
   assert.match(available.html, />Arcanist</);
+  assert.match(available.html, /Reduces incoming attack damage by 10%/);
+  assert.match(
+    available.html,
+    /Increases critical strike chance by 5 percentage points/,
+  );
+  assert.match(available.html, /10% chance to deal 25% additional damage/);
   assert.doesNotMatch(available.html, />Melee<|>Ranged<|>Caster</);
 
   for (const characterClass of [undefined, "unaligned", "melee", "invalid"]) {
@@ -585,6 +591,44 @@ test("The Conclave validates level and permits class changes", async () => {
   );
 });
 
+test("profiles and encounters follow the current class after changes and resets", async (t) => {
+  sqlite.exec("UPDATE users SET exp = 6300, strength = 100, speed = 20");
+  t.mock.method(Math, "random", () => 0.075);
+  const profile = async () =>
+    (await request("/game/users/1", { headers: { cookie } })).html;
+  const train = async () =>
+    (await followAction(await post("/game/training", { level: 1 }))).html;
+
+  assert.doesNotMatch(await profile(), /<dt>Class passive<\/dt>/);
+
+  await post("/game/conclave", { characterClass: "ranger" });
+  assert.match(await profile(), /<dt>Class passive<\/dt>\s*<dd>\s*Precision/);
+  const rangerBattle = await train();
+  assert.match(
+    rangerBattle,
+    /Critical hit · Precision \(made this hit critical\)/,
+  );
+
+  await post("/game/conclave", { characterClass: "arcanist" });
+  assert.match(
+    await profile(),
+    /<dt>Class passive<\/dt>\s*<dd>\s*Arcane Surge/,
+  );
+  const arcanistBattle = await train();
+  const surge = /Arcane Surge \(\+\d+ damage\)/;
+  assert.match(arcanistBattle, surge);
+  assert.doesNotMatch(arcanistBattle, /Precision \(made this hit critical\)/);
+
+  sqlite.exec("UPDATE users SET character_class = 'unaligned'");
+  assert.doesNotMatch(await profile(), /<dt>Class passive<\/dt>/);
+  assert.doesNotMatch(await train(), /Arcane Surge|Precision|Iron Resolve/);
+
+  await post("/game/conclave", { characterClass: "arcanist" });
+  await reachScavenger();
+  await explore("move", 9);
+  assert.match((await viewRuins()).html, surge);
+});
+
 test("Dominion and The Ruins use the same calculated player Attack Power", async (t) => {
   sqlite.exec(`
     UPDATE users SET strength = 0, agility = 0, intellect = 10, intellect_points = 1,
@@ -593,7 +637,7 @@ test("Dominion and The Ruins use the same calculated player Attack Power", async
   `);
   t.mock.method(Math, "random", () => 0.1);
   const playerHit =
-    /battle-log__entry--player">\s*<span class="battle-actor battle-actor--player">[^<]+<\/span>\s*attacks\s*<span class="battle-actor battle-actor--enemy">[^<]+<\/span>\s*for\s*<strong>6<\/strong>\s*damage\./;
+    /<td class="battle-actor battle-actor--player">[^<]+<\/td>\s*<td class="battle-log__target">[^<]+<\/td>\s*<td class="battle-log__damage">6<\/td>\s*<td class="text-muted">—<\/td>/;
   const dominion = await request("/game/arena", { headers: { cookie } });
   assert.match(dominion.html, /<dt>Combat Strength<\/dt>\s*<dd>12<\/dd>/);
   assert.match(
@@ -1461,6 +1505,11 @@ test("a capped training draw saves HP loss and awards no gold", async (t) => {
 
   assert.equal(fight.status, 200);
   assert.match(fight.html, /The battle ended in a draw/);
+  assert.match(fight.html, /<summary>Battle log · 1,000 actions<\/summary>/);
+  assert.match(
+    fight.html,
+    /scope="row" class="battle-log__number">1,000<\/th>/,
+  );
   assert.equal(player().hp, 62000);
   assert.equal(
     sqlite

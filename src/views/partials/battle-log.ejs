@@ -1,6 +1,7 @@
 <% const headingLevel = locals.battleHeadingLevel ?? 3; %>
 <% const outcome = battleLog.find(entry => entry.type === "outcome"); %>
 <% const encounter = battleLog.find(entry => entry.type === "encounter"); %>
+<% const attacks = battleLog.filter(entry => entry.type === "attack"); %>
 <% if (encounter) { %>
 <p><span class="battle-actor battle-actor--player"><%= encounter.player %></span> encounters <span class="battle-actor battle-actor--enemy"><%= encounter.target %></span>.</p>
 <% } %>
@@ -8,18 +9,39 @@
 <%- include("battle-summary", { entry: outcome, headingLevel }) %>
 <% } %>
 <details class="battle-details">
-  <summary>Battle log</summary>
-  <ol class="battle-log">
-    <% for (const entry of battleLog) { %>
-    <% if (entry.type === "attack") { %>
-    <li class="battle-log__entry battle-log__entry--<%= entry.actor %><%= entry.critical ? ' battle-log__entry--critical' : '' %>">
-      <span class="battle-actor battle-actor--<%= entry.actor %>"><%= entry.player %></span>
-      attacks
-      <span class="battle-actor battle-actor--<%= entry.actor === 'player' ? 'enemy' : 'player' %>"><%= entry.target %></span>
-      for <strong><%= formatNumber(entry.damage) %></strong> damage.
-      <% if (entry.critical) { %><strong class="battle-log__critical">Critical hit.</strong><% } %>
-    </li>
-    <% } %>
-    <% } %>
-  </ol>
+  <summary>Battle log · <%= formatNumber(attacks.length) %> <%= attacks.length === 1 ? "action" : "actions" %></summary>
+  <% if (attacks.length) { %>
+  <p id="battle-damage-note" class="text-muted">Damage totals include modifiers.</p>
+  <div class="table-responsive" data-scroll-label="Combat actions">
+    <table class="table table--ledger battle-log" aria-describedby="battle-damage-note">
+      <caption class="visually-hidden">Combat actions</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="battle-log__number"><span aria-hidden="true">#</span><span class="visually-hidden">Action number</span></th>
+          <th scope="col">Attacker</th>
+          <th scope="col">Target</th>
+          <th scope="col" class="battle-log__damage">Damage</th>
+          <th scope="col">Modifiers</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (const [index, entry] of attacks.entries()) { %>
+        <%
+          const modifiers = formatBattleModifiers(entry);
+          const sameName = entry.player === entry.target;
+        %>
+        <tr>
+          <th scope="row" class="battle-log__number"><%= formatNumber(index + 1) %></th>
+          <td class="battle-actor battle-actor--<%= entry.actor %>"><%= entry.player %><% if (sameName) { %> (<%= entry.actor === "player" ? "player" : "opponent" %>)<% } %></td>
+          <td class="battle-log__target"><%= entry.target %><% if (sameName) { %> (<%= entry.actor === "player" ? "opponent" : "player" %>)<% } %></td>
+          <td class="battle-log__damage"><%= formatNumber(entry.damage) %></td>
+          <td class="<%= modifiers ? 'battle-log__modifiers' : 'text-muted' %>"><%= modifiers || "—" %></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  <% } else { %>
+  <p>No combat actions were logged.</p>
+  <% } %>
 </details>

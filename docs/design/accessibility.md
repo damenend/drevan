@@ -21,7 +21,7 @@ Use the [native resource meter](../../src/views/partials/resource-meter.ejs) for
 
 In The Ruins, focus the player square on entry and after successful movement. It describes the current tile and feedback. Arrow keys focus destinations relative to that square. Enter or Space submits the focused move. All legal moves stay in the native Tab order, and without JavaScript the adjacent buttons remain usable directly. The Map markers disclosure exposes only explored landmarks and coordinates. Cache and enemy data stay out of unexplored tile markup and accessible names. Arriving at a cache adds its result to the focused tile's feedback; arriving at an enemy resolves combat and focuses the existing battle summary. When an expedition ends, focus its text-labeled outcome and keep exact reward, exploration, HP, and consumption values available in the completed summary. Its exploration progress element supplements the visible numeric fraction. [Ruins view](../../src/views/game/ruins.ejs) · [Summary view](../../src/views/game/ruins-summary.ejs) · [Map script](../../public/js/ruins-map.js)
 
-Show outcome, current HP, and earned rewards before the expandable battle log. Identify actors and critical hits in text. Keep the full attack sequence available in order. [Battle log](../../src/views/partials/battle-log.ejs)
+Show outcome, current HP, and earned rewards before the expandable battle log. Name the combat ledger and use scoped headers for its columns and action numbers. Identify actors and critical hits in text, and keep the full attack sequence available in order. [Battle log](../../src/views/partials/battle-log.ejs)
 
 ## Contrast, reflow, and user preferences
 
