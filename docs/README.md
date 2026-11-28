@@ -19,6 +19,7 @@ Use this index to find the guide that owns the information you need. The [projec
 
 ## Plan and verify
 
+- [Gameplay philosophy](planning/gameplay-philosophy.md) defines the durable vision, design principles, and progression pillars.
 - [Gameplay roadmap](planning/roadmap.md) owns priorities, milestone status, and dependencies.
 - [Open design questions](planning/open-questions.md) records unresolved choices and provisional ideas.
 - [Gameplay playtesting](planning/playtesting.md) explains how to run comparable simulations and full sessions.
@@ -28,6 +29,6 @@ Use this index to find the guide that owns the information you need. The [projec
 
 ## Information ownership
 
-[Package scripts](../package.json) and tool configuration define commands. The [schema](../src/db/schema.ts) and [migrations](../drizzle/) define storage. Source and tests show what the game implements. Gameplay references record established rules and approved intent. Sass defines implemented tokens and styles. The design and accessibility guides define interface expectations. Lore owns canon and terminology owns naming. Roadmap entries record project commitments and status. Open questions and audits record design candidates and evidence, respectively.
+[Package scripts](../package.json) and tool configuration define commands. The [schema](../src/db/schema.ts) and [migrations](../drizzle/) define storage. Source and tests show what the game implements. Gameplay references record implemented behavior and established rules. Sass defines implemented tokens and styles. The design and accessibility guides define interface expectations. Lore owns canon and terminology owns naming. The gameplay philosophy owns durable design direction; roadmap entries own commitments and status. Open questions and audits record design candidates and evidence, respectively.
 
 When these sources disagree, inspect the implementing code, tests, and documented intent. Record the discrepancy and identify the decision needed before changing an approved requirement.

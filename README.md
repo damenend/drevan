@@ -12,6 +12,7 @@ Start with [Run Drevan locally](docs/development/getting-started.md) to install 
 - [Gameplay rules](docs/gameplay/README.md) for the playable systems
 - [Design system](docs/design/design-system.md) and [accessibility guide](docs/design/accessibility.md) for interface work
 - [Lore](docs/world/lore.md) and [writing guide](docs/world/writing-guide.md) for Drevan's setting and voice
+- [Gameplay philosophy](docs/planning/gameplay-philosophy.md) for the durable progression and player-experience direction
 - [Roadmap](docs/planning/roadmap.md) for the current milestone and future plans
 
 The [package metadata](package.json) declares an MIT license.

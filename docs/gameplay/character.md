@@ -22,6 +22,8 @@ Total attributes and Speed include allocated points. Use the [shared maximum HP 
 
 The class is displayed as Unaligned by default. After reaching level 10, players can visit The Conclave to choose Melee, Ranged, or Caster and may change between those classes freely. The server derives eligibility from lifetime XP and accepts only those three choices. Melee gains three Attack Power per Strength, Ranged gains three per Agility, and Caster gains three per Intellect. Their other offensive attributes remain worth one Attack Power per point. Unaligned characters receive one Attack Power per offensive attribute point and no primary-stat bonus.
 
+Vanguard, Ranger, and Arcanist are the approved future player-facing names for those three classes. The application has not completed that [terminology migration](../planning/roadmap.md#8a-adopt-approved-class-names-small), so this implemented-behavior reference retains the names players currently see.
+
 ## XP and attribute points
 
 Level-up costs follow `15 × (current level) × (current level + 3)` XP through level 100. The early costs remain 60 XP for level 2, 150 for level 3, and 270 for level 4. Level 10 begins at 6,300 lifetime XP, level 50 at 661,500, and level 100 at 5,148,000. Excess XP carries forward. Lifetime XP remains visible and continues accumulating at the cap. The [level XP reference](leveling-reference.md) lists every incremental cost and lifetime threshold.

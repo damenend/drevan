@@ -10,3 +10,5 @@ Use these references for the rules players encounter and the implementation that
 - [The Ruins](ruins.md) covers Floor 1, expedition state, discoveries, combat rewards, and retreat.
 
 Use [canonical terminology](../world/terminology.md) in feature descriptions and player-facing labels.
+
+These references describe implemented gameplay, not planned systems. Use the [gameplay philosophy](../planning/gameplay-philosophy.md) for durable design direction, the [roadmap](../planning/roadmap.md) for commitments, and [open questions](../planning/open-questions.md) for unresolved mechanics.

@@ -22,15 +22,15 @@ Drevan is a server-rendered, text-driven science-fantasy RPG with an early-2000s
 
 Open the references for the task at hand. The [documentation index](docs/README.md) maps the rest of the project.
 
-| Task                                                          | Start here                                                                                |
-| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Routes, sessions, services, rendering, or test infrastructure | [Architecture](docs/development/architecture.md)                                          |
-| Schema, migrations, or catalog updates                        | [Database development](docs/development/database.md)                                      |
-| Stats, progression, or battles                                | [Character progression](docs/gameplay/character.md) and [combat](docs/gameplay/combat.md) |
-| Items, gear, trade, or healing                                | [Inventory and economy](docs/gameplay/economy.md)                                         |
-| Fishing, expeditions, or other playable activities            | [Activities](docs/gameplay/activities.md) and [The Ruins](docs/gameplay/ruins.md)         |
-| Components and styling                                        | [Design system](docs/design/design-system.md)                                             |
-| Semantics, keyboard interaction, and browser checks           | [Accessibility](docs/design/accessibility.md)                                             |
-| Player-facing copy                                            | [Writing guide](docs/world/writing-guide.md) and [terminology](docs/world/terminology.md) |
-| Setting and fictional claims                                  | [Lore](docs/world/lore.md)                                                                |
-| Feature scope, status, and dependencies                       | [Roadmap](docs/planning/roadmap.md) and [open questions](docs/planning/open-questions.md) |
+| Task                                                          | Start here                                                                                                                                              |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes, sessions, services, rendering, or test infrastructure | [Architecture](docs/development/architecture.md)                                                                                                        |
+| Schema, migrations, or catalog updates                        | [Database development](docs/development/database.md)                                                                                                    |
+| Stats, progression, or battles                                | [Character progression](docs/gameplay/character.md) and [combat](docs/gameplay/combat.md)                                                               |
+| Items, gear, trade, or healing                                | [Inventory and economy](docs/gameplay/economy.md)                                                                                                       |
+| Fishing, expeditions, or other playable activities            | [Activities](docs/gameplay/activities.md) and [The Ruins](docs/gameplay/ruins.md)                                                                       |
+| Components and styling                                        | [Design system](docs/design/design-system.md)                                                                                                           |
+| Semantics, keyboard interaction, and browser checks           | [Accessibility](docs/design/accessibility.md)                                                                                                           |
+| Player-facing copy                                            | [Writing guide](docs/world/writing-guide.md) and [terminology](docs/world/terminology.md)                                                               |
+| Setting and fictional claims                                  | [Lore](docs/world/lore.md)                                                                                                                              |
+| Significant game-design or progression decisions              | [Gameplay philosophy](docs/planning/gameplay-philosophy.md), [roadmap](docs/planning/roadmap.md), and [open questions](docs/planning/open-questions.md) |

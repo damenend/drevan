@@ -1,8 +1,28 @@
 # Gameplay playtesting
 
-Use controlled simulations to compare individual rules, then play real sessions to measure decisions, recovery, and time. Run commands from the repository root with the pinned Node and installed dependencies.
+Evaluate three different things deliberately: functional correctness, the gameplay experience, and numerical balance. A feature may work correctly without being enjoyable, and an enjoyable provisional feature need not be comprehensively balanced before ordinary development continues. Run commands from the repository root with the pinned Node and installed dependencies.
+
+During current development, prefer small independently playable features, provisional values, focused deterministic tests, type checking and builds, and manual sessions. Verify persistence, transaction boundaries, stale submissions, eligibility, and edge cases in proportion to the feature's risk. Do not make large simulations, exhaustive matchup matrices, or speculative tuning a default gate.
+
+## Manual gameplay experience
+
+Play a fresh character without Admin changes when evaluating progression or enjoyment. Admin-assisted setup remains useful for isolating a rule, but it cannot show whether the acquisition path or pacing is satisfying. During a session, ask:
+
+- Does the player have a meaningful objective?
+- Does productive play advance that objective?
+- Are rewards desirable enough to pursue?
+- Are preparation and progression decisions interesting and understandable?
+- Is character improvement noticeable in the challenges the player can overcome?
+- Do different builds provide recognizable advantages without making ordinary builds unusable?
+- Is there a challenge the player wants to return and overcome?
+- Does the player have a reason to return that is not a chore or punishment for absence?
+- Is the player enjoying the game rather than merely evaluating its implementation?
+
+Record observations as evidence, not as automatic mandates. Identify the objective attempted, character state, session length, decisions made, moments of confusion, desired rewards, and what the player wanted to do next.
 
 ## Repeatable simulations
+
+Use controlled simulations when a numerical question is specific enough to compare. Preserve the historical procedures below; they are not required for every feature.
 
 - Record the player build, opponent, rules under test, seed range, and fights
   per matchup. Change one rule or item value at a time and rerun the same fights.
@@ -66,3 +86,7 @@ test a different XP curve or a less aggressive path to harder dummies.
 
 - **PvE first.** Compare starter and better-prepared builds against ordinary and specialized foes. Repeat in practice PvP to look for competitive problems. For boss rewards, compare net payouts after healing across activities before adding cooldowns or limits.
 - **Repeatable simulations.** As part of the combat audit (4), use a small script or test utility to run batches with controlled or seeded randomness. Reuse the same matchups before and after each change and swap fighter positions. Track win rates, remaining HP, attack counts, encounter duration, damage dealt and received, and how often fights reach the cap. For later effects, track activations per attack and per battle, bonus damage, peak stacks, and interactions with critical hits and long fights. Consider chance, magnitude, or explicit trigger and stack limits if the results show a problem with Speed or survivability. Keep the existing attack cap and define the outcome when a fight reaches it.
+
+## Future balance phase
+
+Once multiple equipment modifiers, class passives, enhancements, enchantments, and differentiated enemies coexist, consider reusable local tooling for build interactions, enemy matchups, dominant strategies, and competitive fairness. Seek multiple viable approaches with recognizable strengths and weaknesses rather than identical performance across every encounter. Simulations should guide focused manual sessions and should not replace them.

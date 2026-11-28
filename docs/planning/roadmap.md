@@ -1,250 +1,296 @@
 # Drevan gameplay roadmap
 
-**Next milestone.** Finish the reduced-marker map (6b). Floor 1 now has hidden, randomized caches with split claim limits (6a), plus equipment and material drops and buyback (7 and 13). Economy tuning and longer playtests can follow in a later milestone.
+**Next milestone.** Finish Floor 1 exploration, usability, and accessibility verification (6b), then implement the named Dominion boss and its first persistent victory record (4a). In parallel, prepare the terminology migration in 8a before class passives use the approved Vanguard, Ranger, and Arcanist names. The first boss should establish an aspirational PvE reward path; multiple-modifier equipment and requirements (9) follow as the next character-building layer.
 
-Build complete loops that connect combat, progression, exploration, rewards, inventory, and the economy. Reuse shared systems. Keep multiple currencies, mandatory stamina, durability, crafting professions, procedural gear, and recurring task schedules outside the initial scope.
+The [gameplay philosophy](gameplay-philosophy.md) owns durable design direction. This roadmap owns commitments, priorities, dependencies, and completion criteria. Technical prerequisites enable work; they do not by themselves determine gameplay priority. Prefer small, complete loops that connect an objective, acquisition, use, and visible progress.
 
-Statuses are **Complete**, **Active**, **Planned**, and **Exploratory**. Dependencies give the order for independent work. Small, Medium, and Large are relative estimates.
+Statuses are **Complete**, **Active**, **Planned**, and **Exploratory**. A milestone with shipped behavior and outstanding verification remains **Active**; balance follow-up does not make an otherwise complete feature active. Small, Medium, and Large are relative estimates.
 
-## Release verification
+## Release verification and integrity
 
-The November 2026 UI pass updated authentication, The Quarters, The Driftwater, The Ruins, and Curious Emporium. The Chromium suite covers hidden cache discovery, mixed victory loot, inventory categories, purchase filters, and shop feedback. The [accessibility audit](../audits/2026-11-24-accessibility.md#follow-up-verification) records the remaining manual checks. For a wider playtest or launch, verify the affected flows with screen readers, real browser zoom and text resizing, Windows High Contrast, and touch and orientation in addition to the Chromium suite. Follow the [regression procedure](../design/accessibility.md#regression-procedure).
+The November 2026 UI pass updated authentication, The Quarters, The Driftwater, The Ruins, and Curious Emporium. The Chromium suite covers hidden cache discovery, mixed victory loot, inventory categories, purchase filters, and shop feedback. The [accessibility audit](../audits/2026-11-24-accessibility.md#follow-up-verification) owns the remaining manual checks.
 
-Before a public alpha, use the [launch architecture proposal](launch-architecture.md) to plan persistent sessions, HTTPS, off-server backups with a tested restore, monitoring, and a burst test for signup and training.
+Before an external alpha, provide persistent sessions, HTTPS, off-server backups with a tested restore, monitoring, deployment validation, and appropriate burst testing as described in the [launch architecture](launch-architecture.md). Also restrict the self-editing Admin portal on the server. Hiding its navigation link is not authorization. This restriction is required before persistent progression, competitive records, public rankings, or player trading can be treated as trustworthy.
 
-## P0 — Critical: Combat foundations and basic progression
+## Completed foundations
 
-### 1. Finish equipment effectiveness playtesting (P0 · Small)
+These milestones preserve delivered history and remain dependencies for later work.
 
-- **Status.** Complete.
-- Starter gear effectiveness was measured in seeded matchups. See the [equipment results](../audits/balance-playtests.md#starter-equipment-results).
-
-### 2. Add basic fishing (P0 · Small)
+### 1. Finish starter equipment effectiveness playtesting (Small)
 
 - **Status.** Complete.
-- The Driftwater supports daily casts, catch reports, and inventory rewards. Rods, reels, and bait remain future ideas.
+- Starter equipment was measured in seeded matchups. See the [equipment results](../audits/balance-playtests.md#starter-equipment-results).
 
-### 3. Establish equipment and fish buyback (P0 · Medium)
-
-- **Status.** Complete.
-- Buyback supports spare gear and fish. See the [economy rules](../gameplay/economy.md) and [historical comparison](../audits/balance-playtests.md#historical-economy-comparison).
-
-### 4. Combat stat audit and balancing (P0 · Medium)
+### 2. Add basic fishing (Small)
 
 - **Status.** Complete.
-- The audit led to even rolls for later tied attacks. See [combat stat audit results](../audits/balance-playtests.md#combat-stat-audit).
-- **Dependencies.** Starter equipment playtest (1) and the existing battle simulator.
-- **Scope.** Compare offensive power, Defense, Speed, critical hits, and max HP in repeated fights. Match balanced and specialized builds at comparable investment. Use controlled or seeded rolls. Measure win rate, HP remaining, total attacks, encounter duration, and how many turns the slower side gets. Check Speed's effect on both initiative and attack frequency. Swap fighter positions to measure timing bias and validate the random tie rule.
-- **Done when.** Results document where stats and combinations excel, including timing bias and low-impact bonuses. Tune one rule or bonus at a time and rerun the same matchups before expanding progression or PvE encounters.
+- The Driftwater supports 50 daily casts, line and net casting, catch reports, and inventory rewards. Environments, rods, bait, and processing are future work.
 
-### 4a. Prototype a named Dominion boss (P0 · Small, optional)
-
-- **Status.** Exploratory.
-- **Dependencies.** Initial combat audit (4), the training simulator, and reliable equipment calculations (1). This optional prototype can proceed independently after the audit. The Ruins can proceed without it.
-- **Scope.** Start with one opponent, such as The Blighted Guardian. Define its ID, name, lore, recommended level, fixed attributes, and basic rewards in TypeScript. Tune its stat spread against a comparable training dummy so it has a recognizable matchup. Resolve challenges automatically through the shared simulator and show the existing battle log. The first encounter uses ordinary attacks and keeps its difficulty fixed. Revisit database-backed definitions if the catalog, location-specific rewards, or administrative tools warrant them. Track player progress separately from the opponent definition.
-- **Done when.** Players can challenge and defeat the boss. Starter characters are clearly outmatched through combat itself, and prepared characters have a realistic path to victory. Compare win rate, remaining HP, and battle length across differently equipped builds. Verify the same boss stats are used for every challenger and training still resolves as before.
-
-### 5. Add basic XP, leveling, and stat allocation (P0 · Large)
+### 3. Establish equipment and fish buyback (Medium)
 
 - **Status.** Complete.
-- **Dependencies.** Combat audit (4), Dominion training, and player attributes.
-- **Delivered.** Level 100 progression and persistent allocations, visible in The Quarters and through level displays in The Registry. Existing lifetime XP carries into the expanded curve so one character can support long-term manual playtesting. Class effects and refunds follow later. See the [historical starter-supplies run](../audits/balance-playtests.md#starter-supplies-rerun).
-- **Follow-up.** Rerun fresh-account progression with current Attack Power, then compare timed Dominion, Driftwater, and Ruins sessions after the cache change (6a). Record time to level and first gear purchase, potions used, and net gold after healing before tuning XP, activity payouts, or material prices. The existing expedition comparisons measure route payouts and action counts. See the [playtest procedure](playtesting.md#recurring-session-checks).
+- Curious Emporium buys spare equipment, fish, and eligible materials under the [implemented economy rules](../gameplay/economy.md).
 
-## P1 — High: Ruins exploration and loot
-
-### 6. Open The Ruins for basic exploration and PvE (P1 · Large)
+### 4. Audit core combat stats (Medium)
 
 - **Status.** Complete.
-- **Delivered.** [Floor 1](../gameplay/ruins.md) has persistent fog-of-war exploration, randomized finite enemy populations, mandatory fights, discoveries, walkout, and Recall. Victories permanently clear enemy instances. The map supports keyboard movement, battle results summarize each fight, and every termination condition opens a persistent expedition summary of rewards, exploration, and resource use. [Route tests](../../tests/game-routes.test.ts) cover expedition state, summaries, outcomes, duplicate submissions, and stale forms; [map tests](../../tests/ruins-map.test.ts) cover deterministic placement and weights.
-- **Deferred.** Additional floors, roaming enemies, and bosses.
+- The audit led to independent rolls for later tied attacks. Historical methods and results remain in the [balance audit](../audits/balance-playtests.md#combat-stat-audit).
+- **Follow-up.** Revisit numerical balance after modifiers, passives, and additional enemies create meaningful matchups. It is not a prerequisite for ordinary feature work.
 
-### 6a. Adopt split Floor 1 cache claims (P1 · Medium)
-
-- **Status.** Complete.
-- **Delivered.** Floor 1 places a hidden gold cache and potion cache when an expedition starts. Claims follow [the discovery rules](../gameplay/ruins.md#exploration-discoveries) and save with movement. Existing expeditions retain earned rewards and receive randomized caches on their next entry.
-- **Deferred.** Measure route efficiency, potion supply, and realized income in a dedicated playtest.
-
-### 6b. Playtest Floor 1 with reduced map markers (P1 · Medium)
-
-- **Status.** Planned.
-- **Dependencies.** Floor 1 exploration (6) and hidden caches (6a).
-- **Delivered.** [Floor 1](../gameplay/ruins.md#map-visibility-and-persistence) distinguishes unexplored and cleared squares while keeping enemy identities and locations out of the map, marker list, movement labels, and accessible markup. The sealed stairs and its descent control appear after arrival.
-- **Remaining scope.** Playtest the reduced-marker map at narrow widths. Confirm discovery and empty-cache feedback, current HP, mandatory battle outcomes, walkout, and Recall remain easy to locate, and verify focus after movement and both exits.
-- **Done when.** First-time players can orient themselves without a known route, notice discoveries, judge whether to continue after a fight, and return to Nexaris. Check keyboard and screen-reader discovery and encounter feedback, battle summary and log, and return focus. Repeat the 320 CSS pixel walkthrough and browser regression checks. The [reduced-marker trial](../audits/balance-playtests.md#reduced-markers-at-320-css-pixels) records the baseline.
-
-### 7. Add basic Ruins loot and material drops (P1 · Medium)
+### 5. Add XP, leveling, and stat allocation (Large)
 
 - **Status.** Complete.
-- **Delivered.** The Scavenger and Warden award stackable materials and fixed-stat gear through [Floor 1 victory loot tables](../gameplay/ruins.md#victory-loot). The Scavenger keeps its Lesser Potion roll. Drops save with the fight and appear in the battle report. All ten gear pieces are available for purchase at Curious Emporium and use the existing slots and buyback rules. Purchase categories organize the expanded stock. Materials can be sold through milestone 13.
-- **Deferred.** Evaluate equipment effectiveness, sale prices, and drop rates in a dedicated playtest. Arcane and Corrupt gear have no Ruins drops yet. Shop pagination remains future work.
+- Level 100 progression, lifetime XP, five allocatable stats, and persistent point accounting are implemented. Fresh-character progression remains useful experience evidence, not unfinished functional scope.
 
-## P2 — Medium: Character depth and supporting gameplay
-
-### 8. Add class specializations (P2 · Large)
-
-- **Status.** In progress.
-- **Progress.** [Class storage, level-10 class selection, and primary-attribute Attack Power bonuses](../gameplay/character.md) are available. Players may change their selection freely at The Conclave. PvE balance and distinct class strengths and weaknesses still need playtesting.
-- **Dependencies.** Combat audit (4) and basic stat allocation (5).
-- **Scope.** Add Melee (Strength), Ranged (Agility), and Caster (Intellect) specializations. Each will receive additional offensive scaling from its preferred attribute. All three offensive attributes will still contribute to Attack Power for every class.
-- **Done when.** Players can select an implemented specialization, The Quarters shows their selected class and calculated Attack Power, and the shared simulator applies the same damage rules across encounter modes. PvE matchups show distinct class strengths and weaknesses. Recheck them in practice PvP (11) when available.
-
-### 9. Add gear with multiple modifiers and requirements (P2 · Medium)
-
-- **Status.** Planned.
-- **Dependencies.** Classes (8) and stat allocation (5).
-- **Scope.** Add a few items with signed modifiers and requirements checked against permanent stats, including allocated points, before applying gear bonuses. A Titanium Warlock Robe could require Strength and trade Speed for Intellect and Defense. Compare it with a lighter robe with an easier requirement.
-- **Done when.** The shop and inventory show requirements and tradeoffs, the server enforces eligibility, and The Quarters and combat reflect the same bonuses. Different builds have reasons to choose different items.
-
-### 10. Open The Bounty Board (P2 · Medium)
-
-- **Status.** Planned.
-- **Dependencies.** Nexaris, Dominion training, and fishing (2).
-- **Scope.** Start with two repeatable contracts. One counts training dummy wins in Dominion, and **Supply the Settlement** counts fish caught in The Driftwater. Players accept one active contract at a time. Start with bonus gold and keep contracts available without expiration or daily resets. Define qualifying events so future Ruins and boss objectives can use the same tracking.
-- **Done when.** Each qualifying event advances the active contract once, completion pays the reward once, and the player can accept another contract.
-
-### 11. Introduce practice PvP in Dominion (P2 · Medium)
-
-- **Status.** Planned.
-- **Dependencies.** Initial combat audit (4), The Registry, and shared combat and equipment calculations.
-- **Scope.** Let a living player select another living registered player for a practice duel. Show the shared battle log and use the results to compare established builds.
-- **Done when.** The server validates both fighters at the start and rejects self-matches. Results render correctly, and both players keep their persistent HP, gold, XP, and equipment.
-
-### 12. Open The Artificer for respecs (P2 · Medium)
-
-- **Status.** Planned.
-- **Dependencies.** Classes (8), refundable point accounting (5), and gear eligibility (9).
-- **Scope.** Offer a repeatable paid service under the working name **The Artificer** that resets spent attribute points. Class changes remain freely available at The Conclave. Preview the gold cost, stat changes, and gear that will be unequipped. Check eligibility against the resulting character.
-- **Done when.** A reset restores spent points to the unspent pool and removes only the increases they bought. XP, level, and other permanent gains are preserved. Ineligible gear returns to inventory as unequipped gear. Current HP is capped at the new maximum without healing. Charges and character updates succeed together.
-
-### 13. Add material selling and a Materials inventory filter (P2 · Medium)
+### 6. Open Floor 1 of The Ruins (Large)
 
 - **Status.** Complete.
-- Players can view Materials in The Quarters and sell owned quantities at Curious Emporium. The sale updates gold and inventory together at the [catalog prices](../gameplay/economy.md#ruins-materials). Collectibles remain a future category.
+- Floor 1 has persistent fog of war, randomized finite enemy populations, mandatory fights, discoveries, walkout, Recall, and durable expedition summaries. Victories permanently clear generated enemies for that expedition.
 
-### 13a. Pilot a boss bounty (P2 · Medium)
+### 6a. Adopt split Floor 1 cache claims (Medium)
 
-- **Status.** Planned.
-- **Dependencies.** The Bounty Board (10) and a named Dominion boss (4a). XP rewards depend on milestone 5.
-- **Scope.** Add a contract for defeating a named boss. Try allowing direct challenges and using the contract to pay an additional reward while keeping the encounter identical. Start with a simple reward and consider XP, reagents, rare equipment, or unique items as their supporting systems mature.
-- **Done when.** A qualifying victory satisfies the objective once and the contract pays once. Compare repeat boss payouts after healing with training, fishing, and exploration. Use that evidence to decide whether rewards need repeat restrictions.
+- **Status.** Complete.
+- A hidden gold cache and potion cache are placed per expedition and follow the [implemented discovery rules](../gameplay/ruins.md#exploration-discoveries).
 
-## P3 — Low: Equipment economy and advanced systems
+### 7. Add basic Ruins loot and material drops (Medium)
 
-### 14. Add basic equipment salvaging (P3 · Medium)
+- **Status.** Complete.
+- Floor 1 enemies grant fixed-stat equipment and materials through fixed loot tables. The ten-item equipment progression spans levels 2–10 and remains available at Curious Emporium. Arcane and Corrupt equipment are not current Ruins drops.
 
-- **Status.** Planned.
-- **Dependencies.** Emporium buyback (3), a starter material catalog, and material selling (13).
-- **Scope.** Open The Forge with a service for a few ordinary weapons and armor pieces. Preview predefined yields, ask for confirmation, and show recovered materials. A spare Rusted Sword can become Metal Scraps or be sold for guaranteed gold.
-- **Done when.** A confirmed action consumes exactly one eligible unequipped piece and grants materials in the same transaction. Failed or duplicate actions cannot consume extra gear or grant extra rewards. Selling and salvaging each have a purpose, and buying gear to salvage loses gold on average.
+### 13. Add material selling and inventory filtering (Medium)
 
-### 15. Expand loot tables and reagent sources (P3 · Medium)
+- **Status.** Complete.
+- Materials have an inventory category and can be sold at their catalog prices. They do not yet have crafting or processing uses.
 
-- **Status.** Planned.
-- **Dependencies.** Basic Ruins loot and material drops (7), material selling (13), and named uses for new rewards.
-- **Scope.** Differentiate enemy and exploration rewards by difficulty and activity. Add uncommon and rare materials gradually. Keep lore collectibles distinct from recipe ingredients.
-- **Done when.** Tougher encounters and exploration offer distinct rewards, added reagents have a practical use, and the easiest activity remains a poor source of rare materials.
+## Phase 1 — Establish aspirational progression
 
-### 16. Track equipment copies and add guaranteed enhancements (P3 · Large)
+Give players desirable equipment, formidable opponents, and meaningful character-building decisions.
 
-- **Status.** Planned.
-- **Dependencies.** Equipment playtesting (1), tested allocation (5) and classes (8), and a decision on how modified copies coexist with stacks.
-- **Scope.** Track the specific equipment copy a player modifies or equips. At The Forge, offer a short series of guaranteed gold-only upgrades with rising costs. Improve existing bonuses so gear keeps its role. Upgrading carries no risk of destruction.
-- **Done when.** Two copies of the same item can hold different upgrades and combat uses the equipped copy's bonuses. Ordinary gear remains usable. Starter gear is worth improving while new gear still has a purpose.
+**Recommended order:** finish 6b; deliver 4a and 22a together; complete the naming migration in 8a; then implement 9 and the free reset slice of 12. PvE-exclusive rewards can start with 4a and expand through 9 without waiting for advanced equipment infrastructure.
 
-### 17. Add removable attribute enchantments (P3 · Large)
+### 6b. Verify Floor 1 exploration and reduced markers (Medium)
 
-- **Status.** Planned.
-- **Dependencies.** Starter reagents (7), material selling (13), tested allocation, class, and gear builds (5, 8, and 9), and per-copy enhancements (16). Initial recipes can use starter reagents.
-- **Scope.** At The Forge, offer deterministic attribute bonuses with fixed gold and reagent recipes. Allow one enchantment per piece. Preview the current effect, new effect, recipe, owned quantities, and costs. Allow removal, replacement, and reapplication. Replacement and reapplication cost the full new recipe.
-- **Done when.** Changing an enchantment preserves the original item and its ordinary enhancement level. Previous gold and reagents are nonrefundable. Costs and effects update together. The Quarters, shop, and inventory distinguish base, enhancement, and enchantment bonuses where applicable, and PvE playtests show viable alternatives. Check PvP balance once practice duels are available.
+- **Status.** Active.
+- **Dependencies.** Floor 1 (6) and hidden caches (6a).
+- **Delivered.** Unexplored and cleared squares are distinct; enemy locations and identities are absent from map markup and movement labels; the sealed stairs appear after arrival.
+- **Remaining scope.** Playtest at narrow widths and verify that discoveries, cache feedback, HP, battle outcomes, walkout, Recall, and post-action focus are understandable by keyboard and screen reader. Repeat the 320 CSS pixel walkthrough and documented browser regression checks.
+- **Done when.** First-time players can orient without a known route, notice rewards, judge whether to continue, and return to Nexaris. Record the remaining manual accessibility results separately from later balance work.
 
-### 18. Expand equipment salvaging (P3 · Medium)
+### 4a. Introduce The Blighted Guardian (Small)
 
 - **Status.** Planned.
-- **Dependencies.** Basic salvaging (14), broader material sources (15), and tracked equipment copies (16). Enchanted gear support depends on milestone 17.
-- **Scope.** Use base-item or category yields for more valuable gear, with occasional uncommon or rare materials. Materials go into the same stacks as drops. Salvaging a modified piece consumes its enhancements and enchantment along with the item.
-- **Done when.** Confirmation identifies the exact copy and only that copy is consumed. Earlier spending and enchantment ingredients are never recovered. Better gear can yield better materials while purchase-and-salvage loops lose gold on average.
+- **Dependencies.** Shared battle resolution and effective equipment calculations (1 and 4). Persistent victory recording uses 22a.
+- **Scope.** Add one repeatable named Dominion opponent with a stable ID, recognizable lore, fixed attributes, an advisory recommended level, and desirable rewards including the first PvE-exclusive named equipment. Use ordinary automated attacks and the existing battle report. Let living players attempt it without a level gate. Keep its definition separate from player progress.
+- **Done when.** The same fixed opponent is used for every challenger; underprepared characters are outmatched through combat rather than a gate; prepared characters have a realistic path to victory; rewards and one victory record save atomically; training remains unchanged.
+- **Deferred.** Unique mechanics, database-backed enemy catalogs, exhaustive tuning, bounties, and additional bosses.
 
-### 18a. Pilot an intrinsic equipment proc (P3 · Medium)
-
-- **Status.** Planned.
-- **Dependencies.** Combat audit (4), shared equipment calculations (1), and reliable equipped-item identification. Use per-copy tracking (16) if the effect must vary by copy.
-- **Scope.** Static modifiers always apply. Passive combat effects apply whenever their condition is met. A proc rolls a chance on a qualifying event. Start with one intrinsic effect on the Flaming Great Axe of Ravenspire, a weapon that independently rolls on each qualifying successful attack to deal bonus damage. Use ordinary damage rules and treat fire as flavor. Resolve and log it automatically. The effect belongs to the item. Forge enchantments (17) are separately applied, removable, and use their own gold and reagent costs.
-- **Done when.** Controlled rolls reproduce results, each activation logs and applies its bonus damage once, and bonus damage cannot trigger another proc. Compare fast and slow builds and verify training with ordinary gear still behaves as before.
-
-### 18b. Pilot Poison as a temporary combat effect (P3 · Medium)
+### 8a. Adopt approved class names (Small)
 
 - **Status.** Planned.
-- **Dependencies.** Named Dominion boss (4a) and a tested baseline for its ordinary fight. Playtest Poison separately from the first equipment proc (18a).
-- **Scope.** Try letting a successful enemy attack apply Poison to its target in a rematch with The Blighted Guardian. Define its duration and test ticking on the affected fighter’s actions. Log application, damage ticks, and any defeat caused by a tick. Keep all temporary effects and stat changes in the simulation and clear them at encounter end. Save remaining HP and ordinary rewards according to the encounter’s existing rules.
-- **Done when.** The log shows when Poison applies and deals damage, the effect expires as specified, and a new fight starts with no effects carried over. Compare fast and slow builds to check how action frequency affects damage and duration. Verify that lethal ticks end the encounter correctly and that the combat cap still applies.
+- **Dependencies.** Existing class selection and calculations (8).
+- **Scope.** Replace the current player-facing Melee, Ranged, and Caster names with Vanguard, Ranger, and Arcanist. Decide whether stored identifiers can remain implementation details or require a migration. Update player-facing copy, canonical terminology, tests, and documentation together without changing class math.
+- **Done when.** The Conclave, Quarters, profiles, reports, and contributor references use the approved names consistently, existing characters retain their class, and stored values cannot leak into player-facing output.
 
-## P4 — Backlog: Future concepts
+### 9. Add fixed multi-modifier equipment and requirements (Medium)
 
-These entries are candidates for design and playtesting. Their completion criteria describe what would justify or validate a first playable version.
+- **Status.** Planned.
+- **Dependencies.** Stat allocation (5), implemented class scaling (8), and approved class terminology (8a).
+- **Scope.** Add a small handcrafted set with signed modifiers, deliberate tradeoffs, visible acquisition sources, and requirements checked against permanent attributes before equipment bonuses. Include baseline merchant choices and more desirable PvE choices. Keep progression tier, rarity, identity, and individual quality distinct; do not add randomized affixes or per-copy storage.
+- **Done when.** The shop, rewards, inventory, comparison UI, Quarters, and combat show the same modifiers and requirements; the server enforces eligibility; at least two pieces create a real build tradeoff; PvE rewards are desirable without making merchant gear useless.
 
-### 19. Advanced enchantments (P4 · Large)
+### 12. Open The Artificer for alpha experimentation (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Refundable point accounting (5) and equipment eligibility (9).
+- **Scope.** First provide free, repeatable attribute resets and retain free class changes during alpha. A reset removes only allocated gains, returns those points, preserves XP, level, and permanent gains, unequips newly ineligible gear, and caps current HP at the new maximum without healing. Preview the result.
+- **Done when.** Preview and update agree; point, equipment, and HP changes succeed together; stale or repeated submissions cannot duplicate points; existing permanent gains are preserved.
+- **Deferred.** Gold costs and other friction until the economy and build system are mature enough to justify them.
+
+### 22a. Record foundational lifetime statistics (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Stable identifiers for each qualifying event. Begin with the event introduced by 4a.
+- **Scope.** Establish direct, transactional counters and personal records without a general event-processing framework. Candidate records include training wins and defeats, highest successful training difficulty, Ruins encounters and victories, expeditions completed, deepest floor, named boss victories, lifetime gold earned, and significant discoveries. Define each qualifying event before adding its counter. Draws are neither wins nor losses.
+- **Done when.** The first selected statistics update once in the same transaction as their outcome, stale or repeated submissions cannot double-count, and players can inspect the values on an appropriate profile or activity page.
+- **Deferred.** Achievements, rewards for thresholds, earned titles, collection logs, broad backfilling, and public rankings.
+
+## Phase 2 — Character identity and measurable accomplishment
+
+Let players compare builds, recognize strengths, and establish personal goals.
+
+**Recommended order:** add class passives after the naming migration and records foundation; practice PvP can proceed once profiles expose useful equipment and stats; Floor 2 depends on a permanent unlock model; contracts should follow stable qualifying events.
+
+### 8. Complete class specialization with one passive per class (Large)
+
+- **Status.** Active.
+- **Delivered.** Class storage, free level-10 selection, and preferred-attribute Attack Power scaling are implemented under the current Melee/Ranged/Caster names. All offensive attributes contribute to every class.
+- **Dependencies.** Stat allocation (5), class naming (8a), and temporary combat state sufficient for the selected passives.
+- **Remaining scope.** Add one intrinsic automatic passive per class. Preserve Vanguard endurance and sustained combat, Ranger precision and opening burst, and Arcanist escalating or sustained magical offense. Resolve and log effects automatically. Candidate designs—Resolve, First Strike, and Resonance—remain provisional in [open questions](open-questions.md#class-passives).
+- **Done when.** Each class has one understandable mechanical identity, shared encounter modes apply it consistently, unconventional builds remain possible, and controlled tests cover activation, limits, encounter cleanup, and relevant attack-frequency interactions.
+- **Deferred.** Secondary universal attribute benefits, active abilities, skill trees, and exact balance targets.
+
+### 11. Introduce practice PvP in Dominion (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** The Registry, shared combat and equipment calculations, and useful profile comparisons (22b). Passives (8) should be included if already shipped but need not block the first practice slice.
+- **Scope.** Let a living player select another living player for a practice duel using the shared simulator. Validate both fighters and reject self-matches. Preserve both players' persistent HP, gold, XP, equipment, and resources. Keep practice records distinct from future competitive records.
+- **Done when.** Results render correctly, neither fighter's persistent resources change, draws count as neither wins nor losses, and one submission cannot create duplicate records.
+- **Deferred.** Stakes, matchmaking, ratings, competitive rewards, anti-farming rules, and public rankings.
+
+### 22b. Improve profiles and equipment comparison (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Foundational records (22a) and multi-modifier equipment (9).
+- **Scope.** Show selected lifetime records, equipped items, acquisition or rarity context where useful, and a clear comparison between owned equipment. Avoid exposing private account information or untrusted implementation identifiers.
+- **Done when.** A player can understand another character's demonstrated accomplishments and compare an owned candidate with the currently equipped item without manually reconstructing modifiers.
+
+### 20a. Add Floor 2 and permanent floor access (Large)
+
+- **Status.** Planned.
+- **Dependencies.** Floor 1 verification (6b), a durable floor-unlock representation, and rewards with a defined use.
+- **Scope.** Unlock Floor 2 permanently through a guardian, key discovery, or another explicit exploration objective. Keep temporary keys and sealed discoveries expedition-specific and optional. Add a distinct fixed enemy population, challenge range, discoveries, and desirable equipment or materials. Generalize only the Floor 1 assumptions required by the delivered floor.
+- **Done when.** A qualifying player unlocks ordinary Floor 2 access once and need not rediscover a mandatory random key on every expedition; Floor 1 remains functional; returning to earlier content demonstrates character growth; summaries distinguish the deepest floor reached.
+
+### 10. Open The Bounty Board with repeatable contracts (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Stable qualifying events and foundational records (22a); boss objectives also depend on 4a.
+- **Scope.** Start with a small set of repeatable, non-expiring contracts and one active contract at a time. Use established events such as training victories rather than inventing a general event bus. Begin with useful, bounded rewards and no daily reset.
+- **Done when.** Each qualifying event advances the active contract once, completion pays once, and the player can accept another contract. Refreshes and stale submissions cannot duplicate progress or payment.
+
+### 13a. Add a boss bounty (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Bounty Board (10) and named boss (4a).
+- **Scope.** Add a contract for defeating The Blighted Guardian while keeping direct challenges available. The contract may add a simple reward; use later evidence to decide whether repeat restrictions are necessary.
+- **Done when.** A qualifying victory advances the objective once and payment occurs once. Record repeat payout and healing evidence without making comprehensive economy balance part of delivery.
+
+### 24a. Add differentiated named opponents (Medium per opponent)
+
+- **Status.** Planned.
+- **Dependencies.** Named boss foundation (4a), records (22a), and enough equipment choices to support preparation (9).
+- **Scope.** Add opponents one at a time using contrasting existing stats: durable and defensive, fast and fragile, slow with powerful individual attacks, or demanding sustained offense. Give each a recognizable reward and advisory preparation information. Strategies should emerge from shared mechanics, not class-specific counters.
+- **Done when.** The opponent produces a different matchup from prior bosses, its meaningful traits are explained to players, and more than one viable build can overcome it.
+
+## Phase 3 — Equipment investment and connected resources
+
+Turn unwanted equipment, fish, gold, and materials into useful choices. Deliver acquisition and consumption together where practical instead of stockpiling purposeless reagents.
+
+**Recommended order:** basic salvage can use current materials; per-copy tracking should arrive only with enhancements; enchantments then create a material sink; expand sources alongside recipes. Fishing equipment and processing should ship in slices that produce something already useful.
+
+### 14. Add basic equipment salvaging (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Buyback (3), material inventory and selling (13), and at least one useful material sink or an immediately following enhancement slice.
+- **Scope.** Open The Forge for predefined yields from a small set of ordinary unequipped items. Preview the yield and require confirmation. Selling offers guaranteed gold; salvaging supports equipment investment.
+- **Done when.** One confirmed action consumes exactly one eligible unequipped item and grants its materials atomically; duplicate actions cannot repeat either side; buying equipment solely to salvage loses gold on average.
+
+### 16. Track equipment instances and add guaranteed enhancements (Large)
+
+- **Status.** Planned.
+- **Dependencies.** Stable equipment rules (9) and a reviewed migration for current inventory stacks and equipped catalog IDs.
+- **Scope.** Introduce individual storage because the feature requires per-copy state. Offer a short sequence of guaranteed gold-funded upgrades with increasing costs and no destruction risk. Preserve the item's designed identity.
+- **Done when.** Two copies of one catalog item can hold different enhancement levels, the equipped copy is unambiguous, combat uses its values, and migration preserves existing ownership and equipment.
+
+### 17. Add removable material-based enchantments (Large)
+
+- **Status.** Planned.
+- **Dependencies.** Equipment instances and enhancements (16), fixed equipment tradeoffs (9), and named reagent sources with useful recipes.
+- **Scope.** Offer deterministic bonuses with explicit gold and material costs. Start with one removable enchantment per eligible piece. Preview replacement and removal; replacement consumes the full new recipe while the base item and enhancement level remain.
+- **Done when.** Costs and effects update atomically, inventory and combat identify base modifiers, enhancement, and enchantment, and at least two recipes create viable choices rather than one universal best option.
+
+### 15. Expand material acquisition with actual uses (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** A consuming feature such as 14 or 17 and the relevant reward source.
+- **Scope.** Add uncommon and rare materials only alongside recipes, salvage yields, or processing outputs that use them. Differentiate sources by activity and challenge. Keep lore collectibles separate from ingredients.
+- **Done when.** Each introduced reagent has a practical use, difficult content offers a meaningful advantage without becoming the sole mandatory path, and sale remains a valid alternative.
+
+### 18. Expand salvage and inventory protection (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Basic salvage (14), equipment instances (16), and expanded materials (15). Enchanted-item handling depends on 17.
+- **Scope.** Extend yields by item or category, identify the exact copy consumed, and add item locking or equivalent bulk-sale and salvage protection before valuable modified items are easy to liquidate accidentally.
+- **Done when.** Confirmation and protection make the target unambiguous; modified spending is not refunded through salvage; useful selling and salvage paths remain.
+
+### 2a. Add fishing environments, rods, and bait (Large)
+
+- **Status.** Planned.
+- **Dependencies.** Basic fishing (2), itemized preparation choices, and catch-table support.
+- **Scope.** Keep the Cast action while adding a small number of environments with distinct catch tables, rods with clear capabilities, and bait that influences targeted catches. Preserve net casting as a convenient broad-income option. Do not add grid movement or change the current allowance merely to deliver this milestone.
+- **Done when.** Preparation changes the available or likely catches in an understandable way, line and net casting retain distinct useful roles, and server-side rules derive every result from owned and selected equipment.
+
+### 2b. Add fish processing (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Basic fishing (2) and at least one real use for its outputs (15 or 17).
+- **Scope.** Add a Fishmonger or equivalent service that competes with guaranteed Emporium sale. Processing should give a useful common yield with a possibility of an exceptional yield. Names, costs, probabilities, and exact reagents remain unresolved until paired with recipes.
+- **Done when.** The player can compare sale with processing, input fish and successful outputs update atomically, repeated submissions cannot duplicate yields, and every output has a present use.
+
+### 18a. Pilot one intrinsic equipment effect (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** Shared equipment identification and combat hooks; per-copy tracking (16) only if the effect varies by copy.
+- **Scope.** Add one automatic, fixed identity effect to a named item. Define qualifying events, critical interaction, and whether bonus damage can trigger effects. Log every activation. Keep intrinsic effects separate from removable Forge enchantments.
+- **Done when.** Controlled rolls reproduce the result, one event cannot recurse into itself, battle reports explain the consequence, and fast and slow builds have been checked for accidental runaway value.
+
+### 18b. Pilot one temporary combat effect (Medium)
+
+- **Status.** Planned.
+- **Dependencies.** A stable ordinary boss baseline (4a) and explicit duration, stacking, and encounter-termination rules.
+- **Scope.** Introduce one effect such as Poison in a later encounter. Keep temporary state inside the simulation and clear it after combat. Log application, ticks, expiration, and lethal consequences.
+- **Done when.** Controlled tests cover timing, expiration, lethal effects, attack-cap behavior, and a clean subsequent encounter.
+
+## Phase 4 — Long-term progression and community
+
+These concepts are **Exploratory**, not implementation commitments. Promote one only after its prerequisites and player value are demonstrated.
+
+### 19. Advanced automatic combat effects (Large)
 
 - **Status.** Exploratory.
-- **Dependencies.** Basic enchantments (17) and stable training and PvP results.
-- **Scope.** Consider tiers, rare recipes, unique ingredients, and specialized effects. Candidates include Keen and Brutal for critical hits, Piercing for armor penetration, Resilient for damage reduction, Vampiric for life drain, and Resonant for conditional Attack Power. Explore Ember, Frostbound, Voltaic, Voidtouched, Ethereal, and Overcharged as elemental or old-world options.
-- **Done when.** A selected effect or tier adds a distinct build choice, its ingredients have a suitable source, and training and duels show counterplay.
+- **Dependencies.** A proven intrinsic effect (18a), temporary effect (18b), passives (8), and readable battle reports.
+- Consider Enrage, Regeneration, Armor Break, Retaliation, damage over time, temporary defense, conditional offense, life drain, and bounded stacking. Add one behavior at a time and disclose meaningful enemy behavior before a player commits.
 
-### 20. Advanced exploration and relic identification (P4 · Large)
-
-- **Status.** Exploratory.
-- **Dependencies.** Basic Ruins expeditions (6), the [discovery foundation](../gameplay/ruins.md#exploration-discoveries) (6a), and The Reliquary.
-- **Scope.** Consider deeper encounters, discoveries, and exploration-specific rewards. The Fractured Energy Core could begin as a collectible or valuable artifact, then gain identification and lore at The Reliquary.
-- **Done when.** A first expanded encounter or relic gives players a reason to return and a clear way to discover its outcome or lore.
-
-### 21. Equipment rarity and quality (P4 · Medium)
+### 20. Additional Ruins floors, rare encounters, and relics (Large)
 
 - **Status.** Exploratory.
-- **Dependencies.** Emporium buyback (3), differentiated drops (15), and expanded salvage (18).
-- **Scope.** Compare visible tiers with item-specific properties for communicating drop value, buyback prices, and salvage rewards. Color-based rarity needs a demonstrated gameplay benefit.
-- **Done when.** Playtesting shows what information helps players choose what to use, sell, or salvage and supports a decision about visible tiers.
+- **Dependencies.** Floor 2 and permanent access (20a), useful reward systems, and The Reliquary for identification or lore.
+- Consider deeper floors, direct-entry shortcuts earned through mastery, rare encounters, artifact identification, and permanent collection records. Avoid an elaborate generic dungeon framework until more than one delivered floor demonstrates the common shape.
 
-### 22. Combat records, titles, and achievements (P4 · Medium)
-
-- **Status.** Exploratory.
-- **Dependencies.** Training results and practice PvP (11) for evaluating PvP records.
-- **Scope.** Record training and qualifying PvP wins and losses separately. Record remaining HP and gold with training results. Draws count toward neither total. Consider opt-in duels with lasting HP loss or competitive PvP after practice duels. Explore earned titles, profile displays, and whether leaderboards add value.
-- **Done when.** Qualifying fights count once, title thresholds reflect real play, and players can see progress and select earned titles for their profiles.
-
-### 23. Additional character content (P4 · Large)
+### 21. Visible rarity and variable equipment quality (Medium to Large)
 
 - **Status.** Exploratory.
-- **Dependencies.** Class playtesting (8) for moves and build-specific encounters. A playable alien race needs lore and avatar models.
-- **Scope.** Consider an alien race with two models, appearance and lore first. Explore further customization, a weapon that trades Speed for Attack Power, and once-per-battle signatures such as a Melee brace, Caster armor pierce, or Ranged aimed shot.
-- **Done when.** A chosen addition fits Drevan's lore or creates a distinct, tested combat choice.
+- **Dependencies.** Differentiated acquisition sources and equipment comparison (9 and 22b). Per-copy variation requires 16.
+- Visible rarity and acquisition-source cues may be inexpensive ways to communicate significance. Variable quality, if justified, should use bounded variation while preserving a handcrafted item's identity. Procedural affixes remain outside the current direction.
 
-### 24. Optional economy and contract expansion (P4 · Medium)
-
-- **Status.** Exploratory.
-- **Dependencies.** The relevant activity and economy playtests, including The Bounty Board (10) for contracts and The Ruins (6) for expedition objectives.
-- **Scope.** Consider specialized material sources, rare traveling merchants, gold sinks, and dismantling variations such as bulk salvage. Later contracts could offer XP, items, or reagent bundles. Preserve **Trial by Combat** for qualifying Dominion wins, **Relics of the Old World** for finished expeditions, and **The Unbroken** for wins without visiting Sanctum.
-- **Done when.** A selected addition serves a clear purpose in the gold economy. Expanded contracts define qualifying events, streak resets where applicable, and rewards players can use.
-
-### 24a. Explore advanced bosses and temporary effects (P4 · Large)
+### 22. Achievements, earned titles, and collections (Large)
 
 - **Status.** Exploratory.
-- **Dependencies.** Named boss (4a), boss bounty pilot (13a) for contract expansion, and Poison (18b) for effects.
-- **Scope.** Consider the fast, fragile Phantom Duelist, the strong, slow Iron Tyrant, and the defensive Hollow Oracle. Explore boss-specific rewards and bounties. Try one new mechanic at a time, such as a once-per-battle Enrage below an HP threshold or Regeneration that tests sustained damage. Other candidates include Bleeding, Burning, Corrosion, and temporary Defense loss from Armor Break.
-- **Done when.** A selected boss or effect gives players a distinct reason to adjust their build, its reward fits the challenge, and the shared log explains the result.
+- **Dependencies.** Trusted foundational statistics (22a), profiles (22b), and stable qualifying events.
+- Consider achievements, selectable titles, personal bests, and collection logs for rare fish, named equipment, artifacts, and discovered enemies. A discovery record may persist after an item is sold or consumed.
 
-### 24b. Explore advanced equipment effects (P4 · Large)
-
-- **Status.** Exploratory.
-- **Dependencies.** First intrinsic proc (18a). Poison weapons depend on 18b, and combining an intrinsic effect with a Forge enchantment depends on 17.
-- **Scope.** Consider the Hel Staff of Corruption for thematic dark bonus damage and the Bulwark of the Ancients for temporary Defense stacks gained on qualifying incoming attacks. Other candidates include Reflect Damage, Life Drain, conditional offense, and Poison application. Evaluate multiple effects and combinations with enchantments as separate decisions, including which events may trigger each effect.
-- **Done when.** A chosen effect gives a named item a distinct role and has understandable trigger and stacking rules. Test long fights and fast and slow attackers for runaway damage or survivability.
-
-### 24c. Evaluate PvP-specific balance rules (P4 · Medium)
+### 23. Additional equipment slots and character options (Large)
 
 - **Status.** Exploratory.
-- **Dependencies.** Practice PvP (11) and evidence from shared matchups. Proc and status tuning depends on 18a and 18b.
-- **Scope.** Keep shared calculations and consider explicit encounter settings only for demonstrated problems. Candidates include proc effectiveness, stack limits, status duration, healing or damage adjustments, and how capped duels resolve. Consider drawing unresolved duels at the cap. Publish any mode differences where players choose gear or start a fight.
-- **Done when.** A selected rule addresses a measured problem, preserves the intended PvE matchups, and is explained clearly to players.
+- **Dependencies.** Evidence that existing itemization and classes need more build dimensions.
+- Consider additional slots, appearance options, or secondary universal attribute benefits only when they add meaningful choices without needless inventory management. Active combat inputs and rigid class-exclusive equipment remain outside the direction.
 
-See [open design questions](open-questions.md) for unresolved decisions and provisional values.
+### 24. Competitive PvP and rankings (Large)
+
+- **Status.** Exploratory.
+- **Dependencies.** Practice PvP (11), server-restricted Admin access, trusted records, and evidence from real shared matchups.
+- Address opponent selection, power disparity, repeated opponents, alternate accounts, farming, rating integrity, mode-specific rules, and public explanations before rewards or rankings matter.
+
+### 25. Player-driven marketplace (Large)
+
+- **Status.** Exploratory.
+- **Dependencies.** Valuable differentiated items, equipment instances where needed, inventory protection, server-restricted Admin access, economic integrity controls, and a population that justifies trading.
+- Do not prioritize an auction house or direct trade while the core economy still lacks mature item and resource uses.
+
+### 26. Guilds and cooperative objectives (Large)
+
+- **Status.** Exploratory.
+- **Dependencies.** A sustained player population, trusted identity and moderation boundaries, and compelling individual progression.
+- Cooperative systems should reinforce existing objectives instead of adding mandatory recurring chores.
+
+See [open design questions](open-questions.md) for unresolved mechanics and provisional examples. See [playtesting](playtesting.md) for functional verification, manual experience evaluation, and the later role of simulations.

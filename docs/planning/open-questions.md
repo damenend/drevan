@@ -1,6 +1,6 @@
 # Open design questions
 
-Use this reference for unresolved gameplay decisions and candidate values. The [roadmap](roadmap.md) tracks milestone scope and the [gameplay references](../gameplay/README.md) describe established rules.
+Use this reference for unresolved gameplay decisions and candidate values. The [gameplay philosophy](gameplay-philosophy.md) owns durable direction, the [roadmap](roadmap.md) tracks milestone scope, and the [gameplay references](../gameplay/README.md) describe implemented rules.
 
 ## Basic progression
 
@@ -14,6 +14,22 @@ Use this reference for unresolved gameplay decisions and candidate values. The [
 - Which fights should qualify for drops, contracts, competitive records, or titles? Would opt-in stakes improve duels?
 
 - What observed problem would justify a PvP-only rule? Which rules must stay shared, how should differences be shown, and when should a capped fight count as a draw?
+
+## Class passives
+
+The first class passives should be automatic and preserve the approved identities without rigid equipment restrictions. Candidate designs are not final abilities:
+
+| Class    | Candidate    | Provisional behavior                                                |
+| -------- | ------------ | ------------------------------------------------------------------- |
+| Vanguard | Resolve      | Reduce incoming damage below an HP threshold.                       |
+| Ranger   | First Strike | Add damage to the first successful attack.                          |
+| Arcanist | Resonance    | Gain temporary offensive power as combat progresses, up to a limit. |
+
+- What are the qualifying events, limits, and cleanup rules for each passive?
+- How should attack frequency affect First Strike and Resonance? Do temporary Attack Power changes alter an already scheduled action?
+- How do passives interact with critical hits, equipment procs, temporary effects, stacking limits, the attack cap, and encounter termination?
+- Which candidate creates a recognizable identity without becoming mandatory for one enemy type? Exact thresholds, durations, and multipliers require focused playtesting.
+- Should Strength, Agility, and Intellect later gain secondary universal benefits? Do not combine that exploration with the first passive implementation.
 
 ## Named NPCs
 
@@ -33,6 +49,7 @@ Use this reference for unresolved gameplay decisions and candidate values. The [
 ## Exploration
 
 - How should deeper floors change difficulty, and how far will players push before returning to the entrance or using the Recall Beacon?
+- What specific achievement permanently unlocks Floor 2, and when would an earned shortcut avoid unnecessary Floor 1 repetition? Which keys and sealed areas should remain expedition-specific bonuses?
 - What rewards make expeditions worth choosing over another training fight? The [current discovery rules](../gameplay/ruins.md#exploration-discoveries) implement the split limits tested in the [historical cache trial](../audits/balance-playtests.md#floor-1-live-cache-trial). Will players restart trips solely to stock potions, and would that change the value of Scavenger drops?
 
 - After enemy and stair markers are reduced, how will players orient themselves and recognize discoveries? Compare narrow-screen and keyboard flows.
@@ -43,7 +60,9 @@ Use this reference for unresolved gameplay decisions and candidate values. The [
 
 Base equipment has fixed, deliberately designed attributes. Progression tiers and rarity are separate concepts. Attribute preferences can vary by class or build, and universal equipment should remain viable. Future specialized gear may favor particular builds while remaining available across classes. Enchantments may eventually let players choose how to customize attributes. The current design leaves randomized modifiers and mandatory per-class gear variants out of scope.
 
-- Do visible quality tiers help? Should category, quality, source, or enhancement level affect salvage yields?
+- Which visible signal best communicates an item's significance: rarity, acquisition source, named identity, or a combination? Progression tier, rarity, identity, and individual quality must remain separate concepts.
+- Would bounded per-copy quality add enough value after equipment instances exist? How would it preserve handcrafted identities and avoid procedural affix sprawl?
+- Should category, quality, source, or enhancement level affect salvage yields?
 - Should every salvage grant materials? Should higher-quality pieces guarantee uncommon rewards? Should previews show exact yields and odds?
 - Should salvaging ever be available outside The Forge? How should inventory present stacked gear alongside several modified copies of the same item?
 
@@ -57,6 +76,19 @@ Base equipment has fixed, deliberately designed attributes. Progression tiers an
 
 - How quickly should materials accumulate, and what makes a recipe worth its gathering time and gold cost?
 - Would Curious Emporium benefit from a dedicated material-selling view? What keeps gold useful at higher levels?
+
+## Fishing and processing
+
+- Which first environments create meaningfully different catch tables without multiplying content too early?
+- How should rods change capability, and how should bait influence targeted catches without making ordinary line casting useless?
+- How should net casting preserve quick broad income while prepared line casting offers targeted opportunities?
+- Which fish-processing outputs have immediate uses? What common yield and exceptional yield make processing a real alternative to guaranteed sale?
+
+## Records, achievements, and collections
+
+- Which statistics are valuable enough to store first, and what exact event qualifies for each? How should existing characters be handled when no reliable history exists?
+- Which records belong on profiles, activity pages, or private character views?
+- When do stable records justify achievements, earned titles, public rankings, or collection logs? Which discoveries remain recorded after an item is sold or consumed?
 
 ## Provisional values and examples
 
