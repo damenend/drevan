@@ -8,6 +8,7 @@ Use this index to find the guide that owns the information you need. The [projec
 - [Application architecture](development/architecture.md) to find where requests, game rules, rendering, and tests live.
 - [Contributor workflow](development/workflow.md) for coding, formatting, validation, hooks, dependency updates, and documentation maintenance.
 - [Database development](development/database.md) for migrations, catalog changes, inspection, and recovery.
+- [Deploy Drevan to DigitalOcean](development/deployment.md) for a first private alpha deployment, manual updates, automation, and recovery.
 
 ## Work on the game
 
@@ -23,7 +24,7 @@ Use this index to find the guide that owns the information you need. The [projec
 - [Gameplay roadmap](planning/roadmap.md) owns priorities, milestone status, and dependencies.
 - [Open design questions](planning/open-questions.md) records unresolved choices and provisional ideas.
 - [Gameplay playtesting](planning/playtesting.md) explains how to run comparable simulations and full sessions.
-- [Launch architecture](planning/launch-architecture.md) outlines a possible small public deployment.
+- [Launch architecture](planning/launch-architecture.md) owns alpha access, service and data design, and the future public configuration.
 - [Accessibility audit, November 24, 2026](audits/2026-11-24-accessibility.md) records the audited revisions, findings, and verification limits.
 - [Balance playtest results](audits/balance-playtests.md) preserves previous measurements and their test conditions.
 

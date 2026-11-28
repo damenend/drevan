@@ -10,7 +10,18 @@ Statuses are **Complete**, **Active**, **Planned**, and **Exploratory**. A miles
 
 The November 2026 UI pass updated authentication, The Quarters, The Driftwater, The Ruins, and Curious Emporium. The Chromium suite covers hidden cache discovery, mixed victory loot, inventory categories, purchase filters, and shop feedback. The [accessibility audit](../audits/2026-11-24-accessibility.md#follow-up-verification) owns the remaining manual checks.
 
-Before an external alpha, provide persistent sessions, HTTPS, off-server backups with a tested restore, monitoring, deployment validation, and appropriate burst testing as described in the [launch architecture](launch-architecture.md). Also restrict the self-editing Admin portal on the server. Hiding its navigation link is not authorization. This restriction is required before persistent progression, competitive records, public rankings, or player trading can be treated as trustworthy.
+## Alpha deployment gates
+
+**Status.** Planned. Complete these gates in order and record the release SHA and verification results at each gate. Use the [deployment guide](../development/deployment.md) for the walkthrough and the [launch architecture](launch-architecture.md) for access and storage decisions.
+
+1. **Application deployment readiness.** Resolve the application-side launch blockers. Verify an explicit loopback bind, persistent sessions and secure cookies through the trusted proxy, persistent game data and checked-in migrations, and a server-side restriction on the self-editing Admin portal. Pass the project checks and verify the alpha release with disposable data.
+2. **Server readiness.** Provision the Droplet, verify key-based operator access and the public firewall, apply OS updates, and install the pinned runtime and maintenance tools.
+3. **First manual deployment.** Deploy from GitHub by hand. Verify private, trusted HTTPS on the Mac and phone, deny access from unenrolled devices, and confirm login and saved play survive a service restart and a reboot.
+4. **First manual update.** Deploy a second commit by hand, verify the off-server backup and persistent player data, and rehearse application rollback with a schema-compatible change.
+5. **Automated deployment.** Have GitHub Actions deploy the exact commit that passed CI through a restricted deployment identity. Verify live health, the active SHA, and a failed or blocked deployment case.
+6. **Operational confidence.** Verify off-server backup restoration, failure diagnosis, release recovery, monitoring, and routine maintenance. Record small burst-test results before opening the invited alpha.
+
+Use private Tailscale HTTPS for all alpha gate checks. Plan domain selection, branding, registration, and public DNS as a later public launch milestone.
 
 ## Completed foundations
 
