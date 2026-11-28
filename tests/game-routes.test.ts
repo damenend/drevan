@@ -514,25 +514,33 @@ test("The Conclave validates level and permits class changes", async () => {
   assert.equal(locked.status, 200);
   assert.doesNotMatch(locked.html, /name="characterClass"/);
 
-  const tooLow = await post("/game/conclave", { characterClass: "melee" });
+  const tooLow = await post("/game/conclave", { characterClass: "vanguard" });
   assert.equal(tooLow.headers.get("location"), "/game/conclave?err=true");
   assert.equal(playerClass(), "unaligned");
 
   sqlite.exec("UPDATE users SET exp = 6300");
   const available = await request("/game/conclave", { headers });
   assert.match(available.html, /name="characterClass"/);
-  assert.match(available.html, /value="melee" required/);
+  assert.match(available.html, /value="vanguard" required/);
+  assert.match(available.html, />Vanguard</);
+  assert.match(available.html, />Ranger</);
+  assert.match(available.html, />Arcanist</);
+  assert.doesNotMatch(available.html, />Melee<|>Ranged<|>Caster</);
 
-  for (const characterClass of [undefined, "unaligned", "invalid"]) {
+  for (const characterClass of [undefined, "unaligned", "melee", "invalid"]) {
     const rejected = await post("/game/conclave", { characterClass });
     assert.equal(rejected.headers.get("location"), "/game/conclave?err=true");
     assert.equal(playerClass(), "unaligned");
   }
 
-  const selected = await post("/game/conclave", { characterClass: "melee" });
+  const selected = await post("/game/conclave", {
+    characterClass: "vanguard",
+  });
   assert.equal(selected.headers.get("location"), "/game/conclave?update=true");
   assert.equal(playerClass(), "melee");
   const meleeQuarters = await request("/game", { headers });
+  assert.match(meleeQuarters.html, /Level 10 · Vanguard/);
+  assert.doesNotMatch(meleeQuarters.html, /Level 10 · Melee/);
   assert.match(
     meleeQuarters.html,
     />\+1 Strength \(\+3 Attack Power\)<\/button>/,
@@ -542,17 +550,22 @@ test("The Conclave validates level and permits class changes", async () => {
     />\+1 Agility \(\+1 Attack Power\)<\/button>/,
   );
 
-  const unchanged = await post("/game/conclave", { characterClass: "melee" });
+  const unchanged = await post("/game/conclave", {
+    characterClass: "vanguard",
+  });
   assert.equal(
     unchanged.headers.get("location"),
     "/game/conclave?unchanged=true",
   );
   assert.equal(playerClass(), "melee");
 
-  const changed = await post("/game/conclave", { characterClass: "caster" });
+  const changed = await post("/game/conclave", {
+    characterClass: "arcanist",
+  });
   assert.equal(changed.headers.get("location"), "/game/conclave?update=true");
   assert.equal(playerClass(), "caster");
   const casterQuarters = await request("/game", { headers });
+  assert.match(casterQuarters.html, /Level 10 · Arcanist/);
   assert.match(
     casterQuarters.html,
     />\+1 Intellect \(\+3 Attack Power\)<\/button>/,
@@ -1404,6 +1417,7 @@ test("training unlocks a point and concurrent spends can only use it once", asyn
   assert.ok(profilePath);
   const profile = await request(profilePath, { headers });
   assert.match(profile.html, /<dt>Level<\/dt>\s*<dd>2<\/dd>/);
+  assert.match(profile.html, /<dt>Class<\/dt>\s*<dd>Unaligned<\/dd>/);
 
   const invalid = await post("/game/progression", {
     stat: "defense",

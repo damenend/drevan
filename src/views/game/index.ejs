@@ -28,7 +28,7 @@
         <%- include("../partials/player-avatar", { player: user, inline: true }) %>
         <div>
           <p class="quarters-name"><%= formatPlayerName(user.name) %></p>
-          <p class="text-muted">Level <%= formatNumber(progression.level) %> · <%= formatPlayerName(user.characterClass) %></p>
+          <p class="text-muted">Level <%= formatNumber(progression.level) %> · <%= formatCharacterClass(user.characterClass) %></p>
         </div>
       </div>
 

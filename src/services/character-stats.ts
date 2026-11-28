@@ -46,7 +46,8 @@ export function getPrimaryAttributes(player: AttributeBases & AttributePoints) {
 /**
  * Converts offensive attribute totals to base Attack Power. An aligned
  * character gains two additional contributions from their class's primary
- * attribute: Strength for Melee, Agility for Ranged, or Intellect for Caster.
+ * attribute: Strength for Vanguard, Agility for Ranger, or Intellect for
+ * Arcanist. Stored class identifiers remain internal implementation details.
  */
 export function getBaseAttackPower(stats: AttackPowerStats) {
   const classBonus = {

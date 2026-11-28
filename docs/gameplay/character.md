@@ -20,9 +20,9 @@ Signup stores the selected `male` or `female` avatar model. The default is `male
 
 Total attributes and Speed include allocated points. Use the [shared maximum HP expression](../../src/services/character-stats.ts) when validating or healing. Effective combat stats use [equipment calculations](../../src/services/equipment.ts).
 
-The class is displayed as Unaligned by default. After reaching level 10, players can visit The Conclave to choose Melee, Ranged, or Caster and may change between those classes freely. The server derives eligibility from lifetime XP and accepts only those three choices. Melee gains three Attack Power per Strength, Ranged gains three per Agility, and Caster gains three per Intellect. Their other offensive attributes remain worth one Attack Power per point. Unaligned characters receive one Attack Power per offensive attribute point and no primary-stat bonus.
+The class is displayed as Unaligned by default. After reaching level 10, players can visit The Conclave to choose Vanguard, Ranger, or Arcanist and may change between those classes freely. The server derives eligibility from lifetime XP and accepts only those three choices. Vanguard gains three Attack Power per Strength, Ranger gains three per Agility, and Arcanist gains three per Intellect. Their other offensive attributes remain worth one Attack Power per point. Unaligned characters receive one Attack Power per offensive attribute point and no primary-stat bonus.
 
-Vanguard, Ranger, and Arcanist are the approved future player-facing names for those three classes. The application has not completed that [terminology migration](../planning/roadmap.md#8a-adopt-approved-class-names-small), so this implemented-behavior reference retains the names players currently see.
+The database retains the original `melee`, `ranged`, and `caster` identifiers so existing characters need no migration. Presentation code maps those implementation details to the canonical names before rendering them.
 
 ## XP and attribute points
 

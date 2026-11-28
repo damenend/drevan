@@ -8,10 +8,16 @@ import type { CharacterClass } from "../../db/schema";
 
 type SelectableClass = Exclude<CharacterClass, "unaligned">;
 
-const selectableClasses = new Set<string>(["melee", "ranged", "caster"]);
+const selectableClasses = {
+  vanguard: "melee",
+  ranger: "ranged",
+  arcanist: "caster",
+} as const satisfies Record<string, SelectableClass>;
 
-function isSelectableClass(value: unknown): value is SelectableClass {
-  return typeof value === "string" && selectableClasses.has(value);
+function getSelectableClass(value: unknown): SelectableClass | undefined {
+  return typeof value === "string" && Object.hasOwn(selectableClasses, value)
+    ? selectableClasses[value as keyof typeof selectableClasses]
+    : undefined;
 }
 
 const router = Router();
@@ -36,9 +42,9 @@ router.get("/", (req, res) => {
 
 router.post("/", (req, res) => {
   const { id } = getAuthenticatedPlayer(res);
-  const characterClass: unknown = req.body?.characterClass;
+  const characterClass = getSelectableClass(req.body?.characterClass);
 
-  if (!isSelectableClass(characterClass)) {
+  if (!characterClass) {
     return res.redirect(303, "/game/conclave?err=true");
   }
 

@@ -1,6 +1,6 @@
 # Drevan gameplay roadmap
 
-**Next milestone.** Finish Floor 1 exploration, usability, and accessibility verification (6b), then implement the named Dominion boss and its first persistent victory record (4a). In parallel, prepare the terminology migration in 8a before class passives use the approved Vanguard, Ranger, and Arcanist names. The first boss should establish an aspirational PvE reward path; multiple-modifier equipment and requirements (9) follow as the next character-building layer.
+**Next milestone.** Finish Floor 1 exploration, usability, and accessibility verification (6b), then implement the named Dominion boss and its first persistent victory record (4a). The approved Vanguard, Ranger, and Arcanist names are now in place. The first boss should establish an aspirational PvE reward path; multiple-modifier equipment and requirements (9) follow as the next character-building layer.
 
 The [gameplay philosophy](gameplay-philosophy.md) owns durable design direction. This roadmap owns commitments, priorities, dependencies, and completion criteria. Technical prerequisites enable work; they do not by themselves determine gameplay priority. Prefer small, complete loops that connect an objective, acquisition, use, and visible progress.
 
@@ -66,7 +66,7 @@ These milestones preserve delivered history and remain dependencies for later wo
 
 Give players desirable equipment, formidable opponents, and meaningful character-building decisions.
 
-**Recommended order:** finish 6b; deliver 4a and 22a together; complete the naming migration in 8a; then implement 9 and the free reset slice of 12. PvE-exclusive rewards can start with 4a and expand through 9 without waiting for advanced equipment infrastructure.
+**Recommended order:** finish 6b; deliver 4a and 22a together; then implement 9 and the free reset slice of 12. PvE-exclusive rewards can start with 4a and expand through 9 without waiting for advanced equipment infrastructure.
 
 ### 6b. Verify Floor 1 exploration and reduced markers (Medium)
 
@@ -86,10 +86,9 @@ Give players desirable equipment, formidable opponents, and meaningful character
 
 ### 8a. Adopt approved class names (Small)
 
-- **Status.** Planned.
+- **Status.** Complete.
 - **Dependencies.** Existing class selection and calculations (8).
-- **Scope.** Replace the current player-facing Melee, Ranged, and Caster names with Vanguard, Ranger, and Arcanist. Decide whether stored identifiers can remain implementation details or require a migration. Update player-facing copy, canonical terminology, tests, and documentation together without changing class math.
-- **Done when.** The Conclave, Quarters, profiles, reports, and contributor references use the approved names consistently, existing characters retain their class, and stored values cannot leak into player-facing output.
+- The Conclave, Quarters, Admin, and profiles use Vanguard, Ranger, and Arcanist consistently. The original stored identifiers remain internal so existing characters retain their classes without a data migration. Class calculations are unchanged.
 
 ### 9. Add fixed multi-modifier equipment and requirements (Medium)
 
@@ -123,7 +122,7 @@ Let players compare builds, recognize strengths, and establish personal goals.
 ### 8. Complete class specialization with one passive per class (Large)
 
 - **Status.** Active.
-- **Delivered.** Class storage, free level-10 selection, and preferred-attribute Attack Power scaling are implemented under the current Melee/Ranged/Caster names. All offensive attributes contribute to every class.
+- **Delivered.** Class storage, free level-10 selection, approved Vanguard/Ranger/Arcanist names, and preferred-attribute Attack Power scaling are implemented. All offensive attributes contribute to every class.
 - **Dependencies.** Stat allocation (5), class naming (8a), and temporary combat state sufficient for the selected passives.
 - **Remaining scope.** Add one intrinsic automatic passive per class. Preserve Vanguard endurance and sustained combat, Ranger precision and opening burst, and Arcanist escalating or sustained magical offense. Resolve and log effects automatically. Candidate designs—Resolve, First Strike, and Resonance—remain provisional in [open questions](open-questions.md#class-passives).
 - **Done when.** Each class has one understandable mechanical identity, shared encounter modes apply it consistently, unconventional builds remain possible, and controlled tests cover activation, limits, encounter cleanup, and relevant attack-frequency interactions.

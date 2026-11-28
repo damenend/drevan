@@ -9,7 +9,12 @@ import { getProgression } from "../../services/progression";
 
 const router = Router();
 
-const playerFields = { id: users.id, name: users.name, exp: users.exp };
+const playerFields = {
+  id: users.id,
+  name: users.name,
+  exp: users.exp,
+  characterClass: users.characterClass,
+};
 
 router.get("/", (req, res) => {
   const players = db.select(playerFields).from(users).all();

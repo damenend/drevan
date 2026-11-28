@@ -22,7 +22,7 @@
   <% if (user.characterClass === 'unaligned') { %>
   <p>You are currently Unaligned.</p>
   <% } else { %>
-  <p>Current class: <%= formatPlayerName(user.characterClass) %></p>
+  <p>Current class: <%= formatCharacterClass(user.characterClass) %></p>
   <% } %>
   <form class="conclave-class-form" action="/game/conclave" method="POST">
     <fieldset class="choice-group choice-group--prominent">
@@ -35,39 +35,39 @@
       </p>
 
       <div class="choice-grid choice-grid--three">
-        <label class="choice-card conclave-class-option" for="melee">
+        <label class="choice-card conclave-class-option" for="vanguard">
           <span class="conclave-class-option__heading">
-            <input type="radio" name="characterClass" id="melee" value="melee" required aria-describedby="melee-description class-selection-note" <% if (user.characterClass === 'melee') { %>checked disabled<% } %> />
-            <span>Melee</span>
+            <input type="radio" name="characterClass" id="vanguard" value="vanguard" required aria-describedby="vanguard-description class-selection-note" <% if (user.characterClass === 'melee') { %>checked disabled<% } %> />
+            <span>Vanguard</span>
             <% if (user.characterClass === 'melee') { %><span class="conclave-class-option__current">Current class</span><% } %>
           </span>
-          <span id="melee-description" class="conclave-class-option__description">
+          <span id="vanguard-description" class="conclave-class-option__description">
             Master the art of close-quarters combat, overcoming adversaries
             through raw power and martial prowess.
           </span>
           <span class="conclave-class-option__attribute">Preferred attribute: <strong>Strength</strong></span>
         </label>
 
-        <label class="choice-card conclave-class-option" for="caster">
+        <label class="choice-card conclave-class-option" for="arcanist">
           <span class="conclave-class-option__heading">
-            <input type="radio" name="characterClass" id="caster" value="caster" required aria-describedby="caster-description class-selection-note" <% if (user.characterClass === 'caster') { %>checked disabled<% } %> />
-            <span>Caster</span>
+            <input type="radio" name="characterClass" id="arcanist" value="arcanist" required aria-describedby="arcanist-description class-selection-note" <% if (user.characterClass === 'caster') { %>checked disabled<% } %> />
+            <span>Arcanist</span>
             <% if (user.characterClass === 'caster') { %><span class="conclave-class-option__current">Current class</span><% } %>
           </span>
-          <span id="caster-description" class="conclave-class-option__description">
+          <span id="arcanist-description" class="conclave-class-option__description">
             Harness the enigmatic energies of the old world, bending
             forgotten forces to your will.
           </span>
           <span class="conclave-class-option__attribute">Preferred attribute: <strong>Intellect</strong></span>
         </label>
 
-        <label class="choice-card conclave-class-option" for="ranged">
+        <label class="choice-card conclave-class-option" for="ranger">
           <span class="conclave-class-option__heading">
-            <input type="radio" name="characterClass" id="ranged" value="ranged" required aria-describedby="ranged-description class-selection-note" <% if (user.characterClass === 'ranged') { %>checked disabled<% } %> />
-            <span>Ranged</span>
+            <input type="radio" name="characterClass" id="ranger" value="ranger" required aria-describedby="ranger-description class-selection-note" <% if (user.characterClass === 'ranged') { %>checked disabled<% } %> />
+            <span>Ranger</span>
             <% if (user.characterClass === 'ranged') { %><span class="conclave-class-option__current">Current class</span><% } %>
           </span>
-          <span id="ranged-description" class="conclave-class-option__description">
+          <span id="ranger-description" class="conclave-class-option__description">
             Strike from afar, relying on precision, dexterity,
             and calculated execution.
           </span>
